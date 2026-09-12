@@ -1,0 +1,55 @@
+name: Build Shiksha Rojgar APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          mkdir extracted
+          unzip -q ShikshaRojgarApp-GitHub-Ready.zip -d extracted
+
+      - name: Find Android project
+        run: |
+          PROJECT_DIR=$(find extracted -name gradlew -type f -print -quit | xargs dirname)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Android project found at: $PROJECT_DIR"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Make Gradle executable
+        run: chmod +x "$PROJECT_DIR/gradlew"
+
+      - name: Build Debug APK
+        run: |
+          cd "$PROJECT_DIR"
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Find APK
+        run: |
+          mkdir -p apk-output
+          find "$PROJECT_DIR" -name "*.apk" -type f -exec cp {} apk-output/ \;
+          ls -lh apk-output
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shiksha-Rojgar-APK
+          path: apk-output/*.apk
