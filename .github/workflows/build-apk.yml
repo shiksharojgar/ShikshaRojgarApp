@@ -20,7 +20,7 @@ jobs:
       - name: Extract Android project
         run: |
           mkdir extracted
-          unzip -q ShikshaRojgarApp-GitHub-Ready.zip -d extracted
+          unzip -q ShikshaRojgar-Updated-Project-v2.zip -d extracted
 
       - name: Find Android project
         run: |
