@@ -20,7 +20,7 @@ jobs:
 
       - name: Check fixed project ZIP
         run: |
-          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v2.zip" ]; then
+          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v3.zip" ]; then
             echo "ERROR: Fixed project ZIP not found!"
             find . -maxdepth 2 -type f -name "*.zip" -print
             exit 1
