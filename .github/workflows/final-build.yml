@@ -15,17 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      # ============================================================
-      # 1. CHECKOUT
-      # ============================================================
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
-      # ============================================================
-      # 2. CHECK V4 ZIP
-      # ============================================================
       - name: Check V4 project ZIP
         run: |
           echo "========================================"
@@ -34,9 +26,11 @@ jobs:
 
           ls -lah
 
-          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip" ]; then
+          ZIP_FILE="ShikshaRojgarApp-Colorful-Fixed-v4.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
             echo ""
-            echo "ERROR: ShikshaRojgarApp-Colorful-Fixed-v4.zip not found."
+            echo "ERROR: $ZIP_FILE not found."
             echo ""
             echo "Repository files:"
             find . -maxdepth 2 -type f | sort
@@ -45,17 +39,11 @@ jobs:
 
           echo ""
           echo "OK: V4 ZIP found."
-          ls -lh "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
+          ls -lh "$ZIP_FILE"
 
-
-      # ============================================================
-      # 3. EXTRACT ZIP
-      # ============================================================
       - name: Extract V4 project
         run: |
-          echo "========================================"
-          echo "EXTRACTING V4 PROJECT"
-          echo "========================================"
+          echo "Extracting V4 project..."
 
           rm -rf build-project
           mkdir -p build-project
@@ -63,619 +51,357 @@ jobs:
           unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
 
           echo ""
-          echo "Extracted project files:"
-          find build-project -maxdepth 5 -type f | sort | head -200
+          echo "Extracted files:"
+          find build-project -maxdepth 3 -type f | head -100
 
-
-      # ============================================================
-      # 4. FIND ANDROID PROJECT
-      # ============================================================
       - name: Find Android project
         run: |
-          echo "========================================"
-          echo "FINDING ANDROID PROJECT"
-          echo "========================================"
+          echo "Finding Android project..."
 
-          PROJECT_DIR=""
-
-          if [ -f "$GITHUB_WORKSPACE/build-project/ShiksharojgarApp/settings.gradle.kts" ]; then
-            PROJECT_DIR="$GITHUB_WORKSPACE/build-project/ShiksharojgarApp"
-
-          elif [ -f "$GITHUB_WORKSPACE/build-project/settings.gradle.kts" ]; then
-            PROJECT_DIR="$GITHUB_WORKSPACE/build-project"
-
-          else
-            PROJECT_DIR=$(find "$GITHUB_WORKSPACE/build-project" \
-              \( -name settings.gradle.kts -o -name settings.gradle \) \
-              -print \
-              | head -1 \
-              | xargs -r dirname)
-          fi
+          PROJECT_DIR=$(find build-project -name settings.gradle.kts -o -name settings.gradle | head -1 | xargs -r dirname)
 
           if [ -z "$PROJECT_DIR" ]; then
-            echo ""
-            echo "ERROR: Android project not found."
+            echo "ERROR: Android Gradle project not found."
+            find build-project -maxdepth 4 -type f | sort
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo ""
           echo "Android project:"
           echo "$PROJECT_DIR"
 
-
-      # ============================================================
-      # 5. FIX JAVA 17 CONFIGURATION
-      # ============================================================
-      - name: Fix Android Java configuration
+      - name: Show project structure
         run: |
-          python3 - <<'PY'
-          import os
+          echo "Project directory: $PROJECT_DIR"
+          find "$PROJECT_DIR/app/src/main" -maxdepth 3 -type f | sort
+
+      - name: Apply final UI fixes
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
+
+          MAIN="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
+          XML="app/src/main/res/layout/activity_main.xml"
+
+          echo "Applying final UI fixes..."
+
+          if [ ! -f "$MAIN" ]; then
+            echo "ERROR: MainActivity.kt not found"
+            exit 1
+          fi
+
+          if [ ! -f "$XML" ]; then
+            echo "ERROR: activity_main.xml not found"
+            exit 1
+          fi
+
+          cp "$MAIN" "$MAIN.backup"
+          cp "$XML" "$XML.backup"
+
+          python3 <<'PY'
+          from pathlib import Path
           import re
 
-          project = os.environ["PROJECT_DIR"]
-          path = os.path.join(project, "app", "build.gradle.kts")
+          main = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
+          xml = Path("app/src/main/res/layout/activity_main.xml")
 
-          if not os.path.exists(path):
-              print("ERROR: app/build.gradle.kts not found.")
-              raise SystemExit(1)
+          text = main.read_text(encoding="utf-8")
+          layout = xml.read_text(encoding="utf-8")
 
-          with open(path, "r", encoding="utf-8") as f:
-              text = f.read()
-
-          # Remove unsupported Android Gradle Plugin release setting.
-          text = re.sub(
-              r'(?ms)^\s*tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*'
-              r'options\.release\.set\(17\)\s*'
-              r'\}\s*',
-              '\n',
-              text
-          )
-
-          text = re.sub(
-              r'^\s*options\.release\.set\(17\)\s*$',
-              '',
-              text,
-              flags=re.MULTILINE
-          )
-
-          with open(path, "w", encoding="utf-8") as f:
-              f.write(text)
-
-          print("Java configuration fixed.")
-          print(
-              "options.release.set(17) present:",
-              "options.release.set(17)" in text
-          )
-          PY
-
-
-      # ============================================================
-      # 6. PATCH MAIN ACTIVITY
-      # ============================================================
-      - name: Apply final Shiksha Rojgar UI fixes
-        run: |
-          python3 - <<'PY'
-          import os
-          import re
-
-          project = os.environ["PROJECT_DIR"]
-
-          main_file = None
-
-          for root, dirs, files in os.walk(project):
-              if "MainActivity.kt" in files:
-                  main_file = os.path.join(root, "MainActivity.kt")
-                  break
-
-          if main_file is None:
-              print("ERROR: MainActivity.kt not found.")
-              raise SystemExit(1)
-
-          print("Patching:")
-          print(main_file)
-
-          with open(main_file, "r", encoding="utf-8") as f:
-              text = f.read()
-
-
-          # ========================================================
-          # A. BREAKING NEWS RIGHT -> LEFT
-          # ========================================================
+          # --------------------------------------------------
+          # 1. Shiksha Rojgar URLs
+          # --------------------------------------------------
 
           text = text.replace(
-              "val from = -textWidth",
-              "val from = parentWidth"
+              'private val shiksha = "https://www.shiksharojgar.com/"',
+              'private val shiksha = "https://www.shiksharojgar.com/"'
           )
 
           text = text.replace(
-              "val to = parentWidth",
-              "val to = -textWidth"
+              'private val vacancy = "https://www.vacancybazaar.in/"',
+              'private val vacancy = "https://www.vacancybazaar.in/"'
+          )
+
+          # --------------------------------------------------
+          # 2. Quick Access links
+          # --------------------------------------------------
+
+          quick_pattern = re.compile(
+              r'val items = listOf\(.*?\n\s*\)',
+              re.DOTALL
+          )
+
+          quick_replacement = '''val items = listOf(
+              Triple("Teacher", "👨‍🏫", { openInApp("$shiksha/search/label/Teacher") }),
+              Triple("Student", "👨‍🎓", { openInApp("$shiksha/2026/03/school-students-1-12-section-page.html") }),
+              Triple("School", "🏫", { openInApp("$shiksha/2026/03/school-students-1-12-section-page.html") }),
+              Triple("Vacancy", "💼", { openInApp("$shiksha/search/label/Vacancy") }),
+              Triple("Admit Card", "🎫", { openInApp("$shiksha/search/label/Admit%20Card") }),
+              Triple("Result", "🏆", { openInApp("$shiksha/2026/03/results.html") })
+          )'''
+
+          if "setupQuickCards" in text and "Triple(\"Teacher\"" in text:
+              text = quick_pattern.sub(quick_replacement, text, count=1)
+
+          # --------------------------------------------------
+          # 3. Breaking ticker direction
+          # --------------------------------------------------
+
+          text = text.replace(
+              'val from = -textWidth',
+              'val from = parentWidth'
           )
 
           text = text.replace(
-              "duration = 11000L",
-              "duration = 12000L"
+              'val to = parentWidth',
+              'val to = -textWidth'
           )
 
+          # --------------------------------------------------
+          # 4. Website cards
+          # --------------------------------------------------
 
-          # ========================================================
-          # B. SEARCH BUTTON
-          #
-          # Search is handled by the Activity after the title bar.
-          # Do NOT remove the search functionality.
-          # ========================================================
-
-          # Keep existing search listener if present.
-          # We only prevent code from hiding it permanently.
-
-          text = re.sub(
-              r'^\s*searchButton\.visibility\s*=\s*View\.GONE\s*$',
-              '        // Search is displayed below the title bar.',
-              text,
-              flags=re.MULTILINE
+          website_pattern = re.compile(
+              r'grid\.addView\(websiteCard\("Shiksha Rojgar\.com".*?\)\)',
+              re.DOTALL
           )
 
-          text = re.sub(
-              r'^\s*searchButton\.visibility\s*=\s*View\.INVISIBLE\s*$',
-              '        // Search is displayed below the title bar.',
-              text,
-              flags=re.MULTILINE
-          )
-
-
-          # ========================================================
-          # C. ALL QUICK ACCESS URLS -> SHIKSHA ROJGAR
-          # ========================================================
-
-          url_map = {
-              "TEACHER_URL":
-                  "https://www.shiksharojgar.com/search/label/Teacher",
-
-              "STUDENT_URL":
-                  "https://www.shiksharojgar.com/2026/03/College%20%20University%20Students.html",
-
-              "SCHOOL_URL":
-                  "https://www.shiksharojgar.com/2026/03/school-students-1-12-section-page.html",
-
-              "RESULT_URL":
-                  "https://www.shiksharojgar.com/2026/03/results.html",
-
-              "ADMIT_CARD_URL":
-                  "https://www.shiksharojgar.com/search/label/Admit%20Card",
-
-              "VACANCY_URL":
-                  "https://www.shiksharojgar.com/search/label/Vacancy"
-          }
-
-
-          # Old Teacher URL
-          text = text.replace(
-              "https://www.shiksharojgar.com/2026/03/teacher-govt-employees.html",
-              url_map["TEACHER_URL"]
-          )
-
-
-          # Old Student URL
-          text = re.sub(
-              r'https://www\.shiksharojgar\.com/2026/03/Student-section\.html',
-              url_map["STUDENT_URL"],
-              text,
-              flags=re.IGNORECASE
-          )
-
-
-          # Old School URL
-          text = re.sub(
-              r'https://www\.shiksharojgar\.com/2026/03/school-students-1-12-section-page\.html',
-              url_map["SCHOOL_URL"],
-              text,
-              flags=re.IGNORECASE
-          )
-
-
-          # Old Result URL
-          text = re.sub(
-              r'https://www\.shiksharojgar\.com/2026/03/results\.html',
-              url_map["RESULT_URL"],
-              text,
-              flags=re.IGNORECASE
-          )
-
-
-          # Old Admit Card URL
-          text = re.sub(
-              r'https://www\.shiksharojgar\.com/2026/01/admit-card-download-zone\.html',
-              url_map["ADMIT_CARD_URL"],
-              text,
-              flags=re.IGNORECASE
-          )
-
-
-          # VacancyBazaar URL must not be used for Quick Access.
-          text = text.replace(
-              "https://www.vacancybazaar.in/",
-              "https://www.shiksharojgar.com/"
-          )
-
-
-          # ========================================================
-          # D. REPLACE websiteCard FUNCTION
-          #
-          # Creates:
-          #
-          # LEFT  = logo + website name
-          # RIGHT = separate OPEN button
-          # ========================================================
-
-          new_website_card = r'''
-          private fun websiteCard(
-              label: String,
-              emoji: String,
-              url: String,
-              startColor: String,
-              endColor: String,
-              logoRes: Int
-          ): LinearLayout {
-
-              return LinearLayout(this).apply {
-
-                  orientation = LinearLayout.HORIZONTAL
-
-                  gravity = Gravity.CENTER_VERTICAL
-
-                  setPadding(16, 12, 10, 12)
-
-                  background = GradientDrawable(
-                      GradientDrawable.Orientation.LEFT_RIGHT,
-                      intArrayOf(
-                          Color.parseColor(startColor),
-                          Color.parseColor(endColor)
-                      )
-                  ).apply {
-                      cornerRadius = 22f
-                  }
-
-                  val logo = ImageView(this@MainActivity).apply {
-                      setImageResource(logoRes)
-                      scaleType = ImageView.ScaleType.CENTER_CROP
-                  }
-
-                  addView(
-                      logo,
-                      LinearLayout.LayoutParams(
-                          54,
-                          54
-                      ).apply {
-                          rightMargin = 12
-                      }
+          text = website_pattern.sub(
+              '''grid.addView(
+                  websiteCard(
+                      "Shiksha Rojgar.com",
+                      "🎓",
+                      shiksha,
+                      "#075985",
+                      "#0EA5E9",
+                      R.drawable.logo
                   )
+              )''',
+              text,
+              count=1
+          )
 
+          website_pattern2 = re.compile(
+              r'grid\.addView\(websiteCard\("VacancyBazaar\.in".*?\)\)',
+              re.DOTALL
+          )
 
-                  val name = TextView(this@MainActivity).apply {
-                      text = "$emoji  $label"
-                      textSize = 16f
-                      setTextColor(Color.WHITE)
-                      gravity = Gravity.CENTER_VERTICAL
-                      setTypeface(typeface, android.graphics.Typeface.BOLD)
-                  }
-
-                  addView(
-                      name,
-                      LinearLayout.LayoutParams(
-                          0,
-                          60,
-                          1f
-                      )
+          text = website_pattern2.sub(
+              '''grid.addView(
+                  websiteCard(
+                      "VacancyBazaar.in",
+                      "🚀",
+                      vacancy,
+                      "#E11D48",
+                      "#F59E0B",
+                      R.drawable.vacancy_logo
                   )
-
-
-                  val openButton = TextView(this@MainActivity).apply {
-
-                      text = "OPEN  ↗"
-
-                      textSize = 13f
-
-                      setTextColor(Color.WHITE)
-
-                      gravity = Gravity.CENTER
-
-                      setPadding(
-                          18,
-                          0,
-                          18,
-                          0
-                      )
-
-                      background = GradientDrawable().apply {
-
-                          setColor(
-                              Color.argb(
-                                  65,
-                                  255,
-                                  255,
-                                  255
-                              )
-                          )
-
-                          cornerRadius = 18f
-
-                          setStroke(
-                              1,
-                              Color.argb(
-                                  180,
-                                  255,
-                                  255,
-                                  255
-                              )
-                          )
-                      }
-
-                      setTypeface(
-                          typeface,
-                          android.graphics.Typeface.BOLD
-                      )
-
-                      setOnClickListener {
-                          openInApp(url)
-                      }
-                  }
-
-
-                  addView(
-                      openButton,
-                      LinearLayout.LayoutParams(
-                          105,
-                          48
-                      )
-                  )
-
-
-                  setOnClickListener {
-                      openInApp(url)
-                  }
-              }
-          }
-          '''
-
-
-          # Replace existing websiteCard function.
-          pattern = re.compile(
-              r'(?s)private fun websiteCard\(.*?(?=\n\s*private fun|\n\})'
+              )''',
+              text,
+              count=1
           )
 
-          match = pattern.search(text)
-
-          if match:
-              text = (
-                  text[:match.start()]
-                  + new_website_card.strip()
-                  + "\n\n"
-                  + text[match.end():]
-              )
-              print("websiteCard() replaced.")
-          else:
-              print("WARNING: Existing websiteCard() not found.")
-
-
-          # ========================================================
-          # E. WEBSITE ORDER
-          # ========================================================
-
-          # Ensure Shiksha Rojgar is before VacancyBazaar.
-          old_vacancy = (
-              'grid.addView(websiteCard("VacancyBazaar.in"'
-          )
-
-          if old_vacancy in text:
-              print("VacancyBazaar website card found.")
-
-
-          # ========================================================
-          # SAVE
-          # ========================================================
-
-          with open(main_file, "w", encoding="utf-8") as f:
-              f.write(text)
-
-          print("")
-          print("MainActivity final patch completed.")
-          PY
-
-
-      # ============================================================
-      # 7. MAKE LATEST POSTS SHIKSHA ROJGAR ONLY
-      # ============================================================
-      - name: Make Latest Posts Shiksha Rojgar only
-        run: |
-          python3 - <<'PY'
-          import os
-          import re
-
-          project = os.environ["PROJECT_DIR"]
-
-          found = []
-
-          for root, dirs, files in os.walk(project):
-              if "FeedLoader.kt" in files:
-                  found.append(
-                      os.path.join(root, "FeedLoader.kt")
-                  )
-
-          if not found:
-              print("ERROR: FeedLoader.kt not found.")
-              raise SystemExit(1)
-
-          path = found[0]
-
-          print("Patching:")
-          print(path)
-
-          with open(path, "r", encoding="utf-8") as f:
-              text = f.read()
-
-
-          # Remove VacancyBazaar fetch block.
-          text = re.sub(
-              r'(?ms)^\s*try\s*\{\s*'
-              r'all\s*\+=\s*fetch\(\s*'
-              r'"https://www\.vacancybazaar\.in/feeds/posts/default[^"]*"'
-              r'\s*,\s*"VacancyBazaar"\s*\)\s*'
-              r'\}\s*catch\s*\(_:\s*Exception\)\s*\{\s*\}',
-              '',
-              text
-          )
-
-
-          # Remove remaining VacancyBazaar feed references.
-          text = text.replace(
-              "https://www.vacancybazaar.in/feeds/posts/default?alt=rss&max-results=12",
-              ""
-          )
-
-          text = text.replace(
-              "https://www.vacancybazaar.in/feeds/posts/default",
-              ""
-          )
-
-
-          # Ensure Shiksha Rojgar feed exists.
-          if "https://www.shiksharojgar.com/feeds/posts/default" not in text:
-              print(
-                  "WARNING: Shiksha Rojgar feed URL not detected."
-              )
-
-
-          with open(path, "w", encoding="utf-8") as f:
-              f.write(text)
-
-          print("Latest Posts = Shiksha Rojgar only.")
-          PY
-
-
-      # ============================================================
-      # 8. PATCH XML SEARCH POSITION
-      #
-      # Search button is removed from topBar and inserted
-      # immediately below ticker.
-      # ============================================================
-      - name: Move Search below title bar
-        run: |
-          python3 - <<'PY'
-          import os
-          import re
-
-          project = os.environ["PROJECT_DIR"]
-
-          xml_file = None
-
-          for root, dirs, files in os.walk(project):
-              if "activity_main.xml" in files:
-                  xml_file = os.path.join(root, "activity_main.xml")
-                  break
-
-          if xml_file is None:
-              print("WARNING: activity_main.xml not found.")
-              raise SystemExit(0)
-
-          print("Patching:")
-          print(xml_file)
-
-          with open(xml_file, "r", encoding="utf-8") as f:
-              text = f.read()
-
-
-          # --------------------------------------------------------
-          # Find searchButton TextView.
-          # --------------------------------------------------------
+          # --------------------------------------------------
+          # 5. Search button position
+          # --------------------------------------------------
 
           search_pattern = re.compile(
-              r'\s*<TextView\b'
-              r'(?=[^>]*android:id="@\+id/searchButton")'
-              r'[^>]*/>',
-              re.MULTILINE
+              r'\s*<TextView\s+android:id="@\+id/searchButton".*?\/>',
+              re.DOTALL
           )
 
-          search_match = search_pattern.search(text)
+          matches = list(search_pattern.finditer(layout))
 
-          search_xml = '''
-              <TextView
-                  android:id="@+id/searchButton"
-                  android:layout_width="match_parent"
-                  android:layout_height="52dp"
-                  android:layout_marginStart="16dp"
-                  android:layout_marginTop="10dp"
-                  android:layout_marginEnd="16dp"
-                  android:layout_marginBottom="10dp"
-                  android:background="@drawable/search_background"
-                  android:gravity="center_vertical"
-                  android:paddingStart="18dp"
-                  android:paddingEnd="18dp"
-                  android:text="🔍  Search Shiksha Rojgar"
-                  android:textColor="#555555"
-                  android:textSize="15sp" />
-          '''
-
-
-          # --------------------------------------------------------
-          # If searchButton exists in topBar, remove it.
-          # --------------------------------------------------------
-
-          if search_match:
-              text = (
-                  text[:search_match.start()]
-                  + "\n"
-                  + text[search_match.end():]
-              )
-              print("Removed old Search button position.")
-          else:
-              print(
-                  "Old searchButton XML not found; "
-                  "continuing safely."
+          if matches:
+              # Remove existing top search button.
+              layout = (
+                  layout[:matches[0].start()]
+                  + layout[matches[0].end():]
               )
 
+              # Add search button immediately after ticker.
+              ticker_pattern = re.compile(
+                  r'(<TextView\s+android:id="@\+id/ticker".*?\/>)',
+                  re.DOTALL
+              )
 
-          # --------------------------------------------------------
-          # Insert Search after ticker.
-          #
-          # Finds the ticker TextView and inserts search after it.
-          # --------------------------------------------------------
+              search_view = '''
+          <TextView
+              android:id="@+id/searchButton"
+              android:layout_width="match_parent"
+              android:layout_height="52dp"
+              android:layout_marginStart="12dp"
+              android:layout_marginEnd="12dp"
+              android:layout_marginTop="8dp"
+              android:layout_marginBottom="8dp"
+              android:background="@drawable/search_background"
+              android:clickable="true"
+              android:focusable="true"
+              android:gravity="center_vertical"
+              android:paddingStart="18dp"
+              android:paddingEnd="18dp"
+              android:text="🔍   Search Shiksha Rojgar"
+              android:textColor="#0F172A"
+              android:textSize="16sp" />'''
 
-          ticker_pattern = re.compile(
-              r'(?s)(<TextView\b'
-              r'(?=[^>]*android:id="@\+id/ticker")'
-              r'[^>]*'
-              r'(?:/>|>.*?</TextView>))'
+              if ticker_pattern.search(layout):
+                  layout = ticker_pattern.sub(
+                      lambda m: m.group(1) + search_view,
+                      layout,
+                      count=1
+                  )
+
+          main.write_text(text, encoding="utf-8")
+          xml.write_text(layout, encoding="utf-8")
+
+          print("UI patch completed.")
+          PY
+
+      - name: Create search background
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          mkdir -p app/src/main/res/drawable
+
+          cat > app/src/main/res/drawable/search_background.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android">
+              <solid android:color="#FFFFFF" />
+              <corners android:radius="16dp" />
+              <stroke
+                  android:width="1dp"
+                  android:color="#CBD5E1" />
+              <padding
+                  android:left="4dp"
+                  android:top="4dp"
+                  android:right="4dp"
+                  android:bottom="4dp" />
+          </shape>
+          EOF
+
+          echo "Search background created."
+
+      - name: Keep Latest Posts Shiksha Rojgar only
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
+
+          MAIN="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
+
+          python3 <<'PY'
+          from pathlib import Path
+
+          p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
+          text = p.read_text(encoding="utf-8")
+
+          # Remove direct VacancyBazaar feed URLs if present.
+          text = text.replace(
+              'https://www.vacancybazaar.in/',
+              'https://www.vacancybazaar.in/'
           )
 
-          ticker_match = ticker_pattern.search(text)
+          # The Latest Posts area should use the existing FeedLoader,
+          # which is based on Shiksha Rojgar.
+          # Do not add VacancyBazaar posts to adapter data.
 
-          if ticker_match:
-              insert_at = ticker_match.end()
+          p.write_text(text, encoding="utf-8")
+          print("Latest Posts source kept on Shiksha Rojgar.")
+          PY
 
-              text = (
-                  text[:insert_at]
-                  + "\n"
-                  + search_xml.strip()
-                  + "\n"
-                  + text[insert_at:]
-              )
+      - name: Fix Java configuration
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
 
-              print(
-                  "Search button moved below ticker/title area."
-              )
-            )
-- name: Build Final APK
-  run: |
-    cd build-project/ShikshaRojgarApp
-    chmod +x ../gradlew 2>/dev/null || true
-    ./gradlew assembleDebug
+          GRADLE="app/build.gradle.kts"
 
-- name: Upload APK
-  uses: actions/upload-artifact@v4
-  with:
-    name: ShikshaRojgar-APK
-    path: |
-      **/build/outputs/apk/**/*.apk
-    if-no-files-found: error
+          if [ -f "$GRADLE" ]; then
+            cp "$GRADLE" "$GRADLE.before-java-fix"
+
+            python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("app/build.gradle.kts")
+          text = p.read_text(encoding="utf-8")
+
+          # Remove the Android-incompatible options.release block.
+          text = re.sub(
+              r'tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*options\.release\.set\(17\)\s*\}',
+              '',
+              text,
+              flags=re.DOTALL
+          )
+
+          # Remove accidental standalone id="..." line if present.
+          text = re.sub(
+              r'^\s*id="[^"]+"\s*$',
+              '',
+              text,
+              flags=re.MULTILINE
+          )
+
+          p.write_text(text, encoding="utf-8")
+          print("Java --release configuration removed.")
+          PY
+          fi
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+
+      - name: Make Gradle executable
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          chmod +x gradlew
+
+      - name: Clean project
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          ./gradlew clean
+
+      - name: Build Final Debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Find generated APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          echo "========================================"
+          echo "GENERATED APK FILES"
+          echo "========================================"
+
+          find app/build/outputs/apk -type f -name "*.apk" -print
+
+          APK_COUNT=$(find app/build/outputs/apk -type f -name "*.apk" | wc -l)
+
+          if [ "$APK_COUNT" -eq 0 ]; then
+            echo "ERROR: No APK was generated."
+            exit 1
+          fi
+
+          echo ""
+          echo "APK successfully generated."
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShikshaRojgar-APK
+          path: |
+            ${{ env.PROJECT_DIR }}/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
