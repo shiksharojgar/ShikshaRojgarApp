@@ -15,45 +15,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Check ZIP
       - name: Check source ZIP
         run: |
           set -e
-          echo "========================================"
-          echo "CHECKING SOURCE ZIP"
-          echo "========================================"
-
-          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip" ]; then
-            echo "ERROR: ShikshaRojgarApp-Colorful-Fixed-v4.zip not found."
-            ls -lah
-            exit 1
-          fi
-
+          test -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
           echo "ZIP found:"
           ls -lh "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
 
-      # 3. Extract ZIP
       - name: Extract project
         run: |
           set -e
-
           rm -rf build-project
           mkdir -p build-project
-
           unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
 
-          echo "========================================"
-          echo "EXTRACTED PROJECT"
-          echo "========================================"
-
+          echo "Project files:"
           find build-project -maxdepth 3 -type f | sort | head -100
 
-      # 4. Find Android project
       - name: Find Android project
         run: |
           set -e
@@ -62,143 +43,57 @@ jobs:
             \( -name "settings.gradle.kts" -o -name "settings.gradle" \) \
             -print -quit | xargs dirname)
 
-          if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR" ]; then
-            echo "ERROR: Android Gradle project not found."
-            find build-project -maxdepth 5 -type f | sort
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: Android project not found."
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo "========================================"
-          echo "ANDROID PROJECT FOUND"
-          echo "========================================"
+          echo "Android project:"
           echo "$PROJECT_DIR"
 
-      # 5. Setup Java 17
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # 6. Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 7. Accept Android licenses
       - name: Accept Android licenses
         run: |
           yes | sdkmanager --licenses > /dev/null || true
 
-      # 8. Setup Gradle 8.9
       - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      # 9. Show Gradle / Java versions
-      - name: Check build tools
+      - name: Show versions
         run: |
           java -version
           gradle --version
 
-      # 10. Fix Java compatibility
-      - name: Fix Java compatibility
+      - name: Build APK
         working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
         run: |
           set -e
 
           echo "========================================"
-          echo "FIXING JAVA COMPATIBILITY"
-          echo "========================================"
-
-          if [ -f "app/build.gradle.kts" ]; then
-
-            python3 - <<'PY'
-from pathlib import Path
-import re
-
-p = Path("app/build.gradle.kts")
-s = p.read_text()
-
-# Remove problematic options.release.set(17)
-s = re.sub(
-    r'\n\s*tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*'
-    r'options\.release\.set\(17\)\s*'
-    r'\}\s*',
-    '\n',
-    s,
-    flags=re.S
-)
-
-p.write_text(s)
-print("Java release block checked/removed.")
-PY
-
-          fi
-
-          echo "Relevant Java settings:"
-          grep -n -E \
-            "sourceCompatibility|targetCompatibility|jvmTarget|options.release" \
-            app/build.gradle.kts || true
-
-      # 11. UI patch - ticker right to left
-      - name: Fix ticker direction
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-        run: |
-          set -e
-
-          FILE="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
-
-          if [ -f "$FILE" ]; then
-            python3 - <<'PY'
-from pathlib import Path
-
-p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
-s = p.read_text()
-
-# Make ticker start from right and move toward left.
-s = s.replace(
-    'val from = -textWidth',
-    'val from = parentWidth'
-)
-
-s = s.replace(
-    'val to = parentWidth',
-    'val to = -textWidth'
-)
-
-p.write_text(s)
-print("Ticker direction patched: RIGHT -> LEFT")
-PY
-          else
-            echo "MainActivity.kt not found; skipping ticker patch."
-          fi
-
-      # 12. Build APK
-      - name: Build Debug APK
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-        run: |
-          set -e
-
-          echo "========================================"
-          echo "BUILDING APK"
+          echo "BUILDING SHIKSHA ROJGAR APK"
           echo "========================================"
 
           gradle clean assembleDebug --stacktrace
 
-      # 13. Find APK
-      - name: Find generated APK
+      - name: Check APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
           set -e
 
           echo "========================================"
-          echo "GENERATED APK FILES"
+          echo "APK FILES"
           echo "========================================"
 
           find app/build/outputs/apk -type f -name "*.apk" -print
@@ -210,7 +105,6 @@ PY
             exit 1
           fi
 
-      # 14. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
