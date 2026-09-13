@@ -666,7 +666,12 @@ jobs:
                   "Search button moved below ticker/title area."
               )
             )
-   
+- name: Build Final APK
+  run: |
+    cd build-project/ShikshaRojgarApp
+    chmod +x ../gradlew 2>/dev/null || true
+    ./gradlew assembleDebug
+
 - name: Upload APK
   uses: actions/upload-artifact@v4
   with:
