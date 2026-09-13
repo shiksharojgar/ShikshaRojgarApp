@@ -34,9 +34,9 @@ jobs:
 
           ls -lah
 
-          if [ ! -f "ShiksharojgarApp-Colorful-Fixed-v4.zip" ]; then
+          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip" ]; then
             echo ""
-            echo "ERROR: ShiksharojgarApp-Colorful-Fixed-v4.zip not found."
+            echo "ERROR: ShikshaRojgarApp-Colorful-Fixed-v4.zip not found."
             echo ""
             echo "Repository files:"
             find . -maxdepth 2 -type f | sort
@@ -45,7 +45,7 @@ jobs:
 
           echo ""
           echo "OK: V4 ZIP found."
-          ls -lh "ShiksharojgarApp-Colorful-Fixed-v4.zip"
+          ls -lh "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
 
 
       # ============================================================
@@ -60,7 +60,7 @@ jobs:
           rm -rf build-project
           mkdir -p build-project
 
-          unzip -q "ShiksharojgarApp-Colorful-Fixed-v4.zip" -d build-project
+          unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
 
           echo ""
           echo "Extracted project files:"
