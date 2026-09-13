@@ -1,4 +1,4 @@
-name: Final Shiksha Rojgar APK
+name: Shiksha Rojgar APK Build
 
 on:
   push:
@@ -9,75 +9,176 @@ on:
 permissions:
   contents: read
 
+env:
+  PROJECT_DIR: build-project/ShikshaRojgarApp
+
 jobs:
   build:
-    name: Build Final APK
     runs-on: ubuntu-latest
 
     steps:
+
+      # -----------------------------------------
+      # 1. Checkout repository
+      # -----------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check source ZIP
-        run: |
-          set -e
-          test -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
-          echo "ZIP found:"
-          ls -lh "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
-
-      - name: Extract project
-        run: |
-          set -e
-          rm -rf build-project
-          mkdir -p build-project
-          unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
-
-          echo "Project files:"
-          find build-project -maxdepth 3 -type f | sort | head -100
-
-      - name: Find Android project
+      # -----------------------------------------
+      # 2. Find the ZIP
+      # -----------------------------------------
+      - name: Check ZIP
+        shell: bash
         run: |
           set -e
 
-          PROJECT_DIR=$(find build-project -type f \
-            \( -name "settings.gradle.kts" -o -name "settings.gradle" \) \
-            -print -quit | xargs dirname)
+          echo "Checking repository files..."
+          find . -maxdepth 3 -type f | sort
 
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: Android project not found."
+          ZIP="ShikshaRojgarApp-Colorful-Fixed-v4.zip"
+
+          if [ ! -f "$ZIP" ]; then
+            echo "ERROR: $ZIP not found"
+            echo "Available ZIP files:"
+            find . -type f -name "*.zip" -print
             exit 1
           fi
 
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "ZIP found:"
+          ls -lh "$ZIP"
 
-          echo "Android project:"
-          echo "$PROJECT_DIR"
+      # -----------------------------------------
+      # 3. Extract the existing project
+      # -----------------------------------------
+      - name: Extract existing project
+        shell: bash
+        run: |
+          set -e
 
+          rm -rf build-project
+          mkdir -p build-project
+
+          unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
+
+          echo "Extracted project:"
+          find build-project -maxdepth 3 -type f | sort
+
+      # -----------------------------------------
+      # 4. Verify project
+      # -----------------------------------------
+      - name: Verify Android project
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
+
+          echo "Project directory:"
+          pwd
+
+          echo "Project files:"
+          ls -la
+
+          if [ ! -f "settings.gradle.kts" ]; then
+            echo "ERROR: settings.gradle.kts not found"
+            exit 1
+          fi
+
+          if [ ! -f "build.gradle.kts" ]; then
+            echo "ERROR: build.gradle.kts not found"
+            exit 1
+          fi
+
+          if [ ! -f "app/build.gradle.kts" ]; then
+            echo "ERROR: app/build.gradle.kts not found"
+            exit 1
+          fi
+
+          echo "Android project verified successfully."
+
+      # -----------------------------------------
+      # 5. Setup Java 17
+      # -----------------------------------------
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android licenses
-        run: |
-          yes | sdkmanager --licenses > /dev/null || true
-
+      # -----------------------------------------
+      # 6. Setup Gradle 8.9
+      # -----------------------------------------
       - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: "8.9"
 
-      - name: Show versions
+      # -----------------------------------------
+      # 7. Fix Android Java release option
+      # -----------------------------------------
+      - name: Remove Android Java release option
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
-          java -version
+          set -e
+
+          echo "Checking app/build.gradle.kts..."
+
+          if grep -n "options.release.set(17)" app/build.gradle.kts; then
+
+            echo "----------------------------------------"
+            echo "Found problematic Java release option"
+            echo "Removing it..."
+            echo "----------------------------------------"
+
+            sed -i '/options\.release\.set(17)/d' app/build.gradle.kts
+
+            echo "Removed successfully."
+
+          else
+
+            echo "options.release.set(17) not found."
+            echo "Nothing to remove."
+
+          fi
+
+          echo ""
+          echo "Final Java/Kotlin configuration:"
+          grep -n -E \
+            "sourceCompatibility|targetCompatibility|jvmTarget|options.release" \
+            app/build.gradle.kts || true
+
+      # -----------------------------------------
+      # 8. Show Gradle configuration
+      # -----------------------------------------
+      - name: Show build configuration
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "Gradle version"
+          echo "========================================"
           gradle --version
 
+          echo ""
+          echo "========================================"
+          echo "Root build.gradle.kts"
+          echo "========================================"
+          cat build.gradle.kts
+
+          echo ""
+          echo "========================================"
+          echo "App build.gradle.kts"
+          echo "========================================"
+          cat app/build.gradle.kts
+
+      # -----------------------------------------
+      # 9. Build APK
+      # -----------------------------------------
       - name: Build APK
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
           set -e
 
@@ -87,28 +188,41 @@ jobs:
 
           gradle clean assembleDebug --stacktrace
 
-      - name: Check APK
+          echo ""
+          echo "========================================"
+          echo "BUILD COMPLETED"
+          echo "========================================"
+
+      # -----------------------------------------
+      # 10. Find generated APK
+      # -----------------------------------------
+      - name: Find APK
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
           set -e
 
-          echo "========================================"
-          echo "APK FILES"
-          echo "========================================"
+          echo "Searching for APK..."
 
-          find app/build/outputs/apk -type f -name "*.apk" -print
+          find . -type f -name "*.apk" -print
 
-          APK_COUNT=$(find app/build/outputs/apk -type f -name "*.apk" | wc -l)
+          APK_COUNT=$(find . -type f -name "*.apk" | wc -l)
 
           if [ "$APK_COUNT" -eq 0 ]; then
-            echo "ERROR: APK was not generated."
+            echo "ERROR: No APK was generated."
             exit 1
           fi
 
+          echo ""
+          echo "APK generated successfully."
+
+      # -----------------------------------------
+      # 11. Upload APK
+      # -----------------------------------------
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ShikshaRojgar-APK
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/**/*.apk
+          path: |
+            build-project/ShikshaRojgarApp/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
-          retention-days: 7
