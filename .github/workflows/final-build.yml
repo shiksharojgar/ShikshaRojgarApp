@@ -364,9 +364,29 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
 
       - name: Make Gradle executable
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: |
-          chmod +x gradlew
+  working-directory: ${{ env.PROJECT_DIR }}
+  shell: bash
+  run: |
+    set -e
+
+    echo "Current project directory:"
+    pwd
+
+    echo ""
+    echo "Files in project:"
+    ls -lah
+
+    if [ ! -f "./gradlew" ]; then
+      echo ""
+      echo "ERROR: gradlew not found in PROJECT_DIR"
+      echo "Searching for gradlew..."
+      find .. -name gradlew -type f -print
+      exit 1
+    fi
+
+    chmod +x ./gradlew
+
+    echo "gradlew found and executable."
 
       - name: Clean project
         working-directory: ${{ env.PROJECT_DIR }}
