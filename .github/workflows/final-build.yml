@@ -666,3 +666,10 @@ jobs:
                   "Search button moved below ticker/title area."
               )
    
+- name: Upload APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: ShikshaRojgar-APK
+    path: |
+      **/build/outputs/apk/**/*.apk
+    if-no-files-found: error
