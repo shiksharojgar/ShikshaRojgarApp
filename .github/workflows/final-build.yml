@@ -16,33 +16,28 @@ jobs:
 
     steps:
 
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check V4 ZIP
+      # 2. Check ZIP
+      - name: Check source ZIP
         run: |
           set -e
-
           echo "========================================"
-          echo "CHECKING PROJECT ZIP"
+          echo "CHECKING SOURCE ZIP"
           echo "========================================"
 
-          ls -lah
-
-          ZIP_FILE="ShikshaRojgarApp-Colorful-Fixed-v4.zip"
-
-          if [ ! -f "$ZIP_FILE" ]; then
-            echo "ERROR: ZIP file not found:"
-            echo "$ZIP_FILE"
-            echo ""
-            echo "Available ZIP files:"
-            find . -maxdepth 2 -type f -name "*.zip" -print
+          if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip" ]; then
+            echo "ERROR: ShikshaRojgarApp-Colorful-Fixed-v4.zip not found."
+            ls -lah
             exit 1
           fi
 
-          echo "ZIP FOUND:"
-          ls -lh "$ZIP_FILE"
+          echo "ZIP found:"
+          ls -lh "ShikshaRojgarApp-Colorful-Fixed-v4.zip"
 
+      # 3. Extract ZIP
       - name: Extract project
         run: |
           set -e
@@ -56,230 +51,135 @@ jobs:
           echo "EXTRACTED PROJECT"
           echo "========================================"
 
-          find build-project -maxdepth 3 -type f | sort | head -150
+          find build-project -maxdepth 3 -type f | sort | head -100
 
-      - name: Find Gradle project
-        shell: bash
+      # 4. Find Android project
+      - name: Find Android project
         run: |
           set -e
 
-          echo "========================================"
-          echo "SEARCHING FOR GRADLE PROJECT"
-          echo "========================================"
+          PROJECT_DIR=$(find build-project -type f \
+            \( -name "settings.gradle.kts" -o -name "settings.gradle" \) \
+            -print -quit | xargs dirname)
 
-          GRADLEW=$(find build-project -type f -name "gradlew" | head -1)
-
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: gradlew was not found inside ZIP."
-            echo ""
-            echo "Searching all files:"
+          if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR" ]; then
+            echo "ERROR: Android Gradle project not found."
             find build-project -maxdepth 5 -type f | sort
             exit 1
           fi
 
-          PROJECT_DIR=$(dirname "$GRADLEW")
-
-          echo "GRADLEW FOUND:"
-          echo "$GRADLEW"
-
-          echo ""
-          echo "PROJECT DIRECTORY:"
-          echo "$PROJECT_DIR"
-
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Show project structure
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: |
           echo "========================================"
-          echo "PROJECT STRUCTURE"
+          echo "ANDROID PROJECT FOUND"
           echo "========================================"
+          echo "$PROJECT_DIR"
 
-          pwd
-          ls -lah
-
-          echo ""
-          echo "Gradle files:"
-          find . -maxdepth 3 -type f \( \
-            -name "gradlew" -o \
-            -name "settings.gradle" -o \
-            -name "settings.gradle.kts" -o \
-            -name "build.gradle" -o \
-            -name "build.gradle.kts" \
-          \) -print
-
-      - name: Apply UI fixes
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-        run: |
-          set -e
-
-          MAIN="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
-          XML="app/src/main/res/layout/activity_main.xml"
-
-          echo "========================================"
-          echo "APPLYING UI FIXES"
-          echo "========================================"
-
-          if [ ! -f "$MAIN" ]; then
-            echo "WARNING: MainActivity.kt not found."
-          else
-            cp "$MAIN" "$MAIN.backup"
-
-            python3 <<'PY'
-          from pathlib import Path
-
-          p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
-
-          text = p.read_text(encoding="utf-8")
-
-          # Breaking ticker: Right -> Left
-          text = text.replace(
-              "val from = -textWidth",
-              "val from = parentWidth"
-          )
-
-          text = text.replace(
-              "val to = parentWidth",
-              "val to = -textWidth"
-          )
-
-          p.write_text(text, encoding="utf-8")
-
-          print("Ticker direction fixed: Right -> Left")
-          PY
-          fi
-
-          if [ ! -f "$XML" ]; then
-            echo "WARNING: activity_main.xml not found."
-          else
-            cp "$XML" "$XML.backup"
-          fi
-
-      - name: Create search background
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-        run: |
-          set -e
-
-          mkdir -p app/src/main/res/drawable
-
-          cat > app/src/main/res/drawable/search_background.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <shape xmlns:android="http://schemas.android.com/apk/res/android">
-
-              <solid android:color="#FFFFFF" />
-
-              <corners android:radius="16dp" />
-
-              <stroke
-                  android:width="1dp"
-                  android:color="#CBD5E1" />
-
-              <padding
-                  android:left="4dp"
-                  android:top="4dp"
-                  android:right="4dp"
-                  android:bottom="4dp" />
-
-          </shape>
-          EOF
-
-          echo "Search background created."
-
-      - name: Fix Java configuration
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-        run: |
-          set -e
-
-          GRADLE_FILE="app/build.gradle.kts"
-
-          if [ -f "$GRADLE_FILE" ]; then
-
-            cp "$GRADLE_FILE" "$GRADLE_FILE.backup"
-
-            python3 <<'PY'
-          from pathlib import Path
-          import re
-
-          p = Path("app/build.gradle.kts")
-
-          text = p.read_text(encoding="utf-8")
-
-          # Remove Android-incompatible JavaCompile --release configuration.
-          text = re.sub(
-              r'tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{.*?options\.release\.set\(17\).*?\}',
-              '',
-              text,
-              flags=re.DOTALL
-          )
-
-          # Remove accidental standalone id="..." lines.
-          text = re.sub(
-              r'^\s*id="[^"]+"\s*$',
-              '',
-              text,
-              flags=re.MULTILINE
-          )
-
-          p.write_text(text, encoding="utf-8")
-
-          print("Java configuration fixed.")
-          PY
-
-          else
-            echo "WARNING: app/build.gradle.kts not found."
-          fi
-
-      - name: Set up Java 17
+      # 5. Setup Java 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
-      - name: Set up Android SDK
+      # 6. Setup Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Accept Android SDK licenses
+      # 7. Accept Android licenses
+      - name: Accept Android licenses
         run: |
           yes | sdkmanager --licenses > /dev/null || true
 
-      - name: Make Gradle executable
+      # 8. Setup Gradle 8.9
+      - name: Setup Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      # 9. Show Gradle / Java versions
+      - name: Check build tools
+        run: |
+          java -version
+          gradle --version
+
+      # 10. Fix Java compatibility
+      - name: Fix Java compatibility
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
           echo "========================================"
-          echo "CHECKING GRADLE"
+          echo "FIXING JAVA COMPATIBILITY"
           echo "========================================"
 
-          pwd
-          ls -lah
+          if [ -f "app/build.gradle.kts" ]; then
 
-          if [ ! -f "./gradlew" ]; then
-            echo "ERROR: gradlew is not in project directory."
-            echo ""
-            echo "Searching:"
-            find .. -name "gradlew" -type f -print
-            exit 1
+            python3 - <<'PY'
+from pathlib import Path
+import re
+
+p = Path("app/build.gradle.kts")
+s = p.read_text()
+
+# Remove problematic options.release.set(17)
+s = re.sub(
+    r'\n\s*tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*'
+    r'options\.release\.set\(17\)\s*'
+    r'\}\s*',
+    '\n',
+    s,
+    flags=re.S
+)
+
+p.write_text(s)
+print("Java release block checked/removed.")
+PY
+
           fi
 
-          chmod +x ./gradlew
+          echo "Relevant Java settings:"
+          grep -n -E \
+            "sourceCompatibility|targetCompatibility|jvmTarget|options.release" \
+            app/build.gradle.kts || true
 
-          echo "gradlew is ready."
-
-      - name: Clean project
+      # 11. UI patch - ticker right to left
+      - name: Fix ticker direction
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
-          ./gradlew clean
+          FILE="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
 
-      - name: Build Final Debug APK
+          if [ -f "$FILE" ]; then
+            python3 - <<'PY'
+from pathlib import Path
+
+p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
+s = p.read_text()
+
+# Make ticker start from right and move toward left.
+s = s.replace(
+    'val from = -textWidth',
+    'val from = parentWidth'
+)
+
+s = s.replace(
+    'val to = parentWidth',
+    'val to = -textWidth'
+)
+
+p.write_text(s)
+print("Ticker direction patched: RIGHT -> LEFT")
+PY
+          else
+            echo "MainActivity.kt not found; skipping ticker patch."
+          fi
+
+      # 12. Build APK
+      - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
@@ -289,16 +189,16 @@ jobs:
           echo "BUILDING APK"
           echo "========================================"
 
-          ./gradlew assembleDebug --stacktrace
+          gradle clean assembleDebug --stacktrace
 
+      # 13. Find APK
       - name: Find generated APK
         working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
         run: |
           set -e
 
           echo "========================================"
-          echo "GENERATED APK"
+          echo "GENERATED APK FILES"
           echo "========================================"
 
           find app/build/outputs/apk -type f -name "*.apk" -print
@@ -306,14 +206,11 @@ jobs:
           APK_COUNT=$(find app/build/outputs/apk -type f -name "*.apk" | wc -l)
 
           if [ "$APK_COUNT" -eq 0 ]; then
-            echo ""
             echo "ERROR: APK was not generated."
             exit 1
           fi
 
-          echo ""
-          echo "APK GENERATED SUCCESSFULLY."
-
+      # 14. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
