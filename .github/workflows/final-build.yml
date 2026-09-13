@@ -3,106 +3,207 @@ name: Final Shiksha Rojgar APK
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build:
-    name: Build Final Fixed APK
+    name: Build Final APK
     runs-on: ubuntu-latest
 
     steps:
 
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check v4 project
+      # 2. Check ZIP
+      - name: Check v4 project ZIP
         run: |
-          echo "Checking v4 project..."
+          echo "Repository files:"
+          ls -lah
 
           if [ ! -f "ShikshaRojgarApp-Colorful-Fixed-v4.zip" ]; then
-            echo "ERROR: v4 ZIP not found!"
-            find . -maxdepth 2 -type f -name "*.zip" -print
+            echo "ERROR: ShikshaRojgarApp-Colorful-Fixed-v4.zip not found."
             exit 1
           fi
 
-          echo "v4 project found."
+          echo "Found v4 ZIP successfully."
 
+      # 3. Extract ZIP
       - name: Extract v4 project
         run: |
-          rm -rf extracted
-          mkdir -p extracted
-          unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d extracted
+          rm -rf build-project
+          mkdir -p build-project
 
+          unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
+
+          echo "Extracted project:"
+          find build-project -maxdepth 3 -type f | sort | head -100
+
+      # 4. Find Android project
       - name: Find Android project
         run: |
-          PROJECT_DIR=$(find extracted -type f \
-            \( -name "settings.gradle.kts" -o -name "settings.gradle" \) \
-            -print -quit | xargs -r dirname)
+          PROJECT_DIR=""
 
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: Android project not found!"
-            find extracted -maxdepth 6 -type f | sort
+          if [ -f "build-project/ShikshaRojgarApp/settings.gradle.kts" ]; then
+            PROJECT_DIR="$GITHUB_WORKSPACE/build-project/ShikshaRojgarApp"
+          elif [ -f "build-project/settings.gradle.kts" ]; then
+            PROJECT_DIR="$GITHUB_WORKSPACE/build-project"
+          else
+            PROJECT_DIR=$(find "$GITHUB_WORKSPACE/build-project" \
+              -name settings.gradle.kts \
+              -o -name settings.gradle \
+              | head -1 \
+              | xargs -r dirname)
+          fi
+
+          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/settings.gradle.kts" ]; then
+            echo "ERROR: Android project not found."
+            find "$GITHUB_WORKSPACE/build-project" -maxdepth 4 -type f | sort
             exit 1
           fi
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
           echo "Android project:"
           echo "$PROJECT_DIR"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+      # 5. IMPORTANT:
+      # Remove unsupported options.release.set(17)
+      - name: Fix Android Java configuration
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          project = os.environ["PROJECT_DIR"]
+          path = os.path.join(project, "app", "build.gradle.kts")
+
+          if not os.path.exists(path):
+              print("ERROR: app/build.gradle.kts not found.")
+              raise SystemExit(1)
+
+          with open(path, "r", encoding="utf-8") as f:
+              text = f.read()
+
+          print("Checking Java configuration...")
+
+          # Remove the complete unsupported JavaCompile release block.
+          text = re.sub(
+              r'(?ms)^\s*tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*'
+              r'options\.release\.set\(17\)\s*'
+              r'\}\s*',
+              '',
+              text
+          )
+
+          # Safety fallback: remove the release line even if formatting differs.
+          text = re.sub(
+              r'^\s*options\.release\.set\(17\)\s*$',
+              '',
+              text,
+              flags=re.MULTILINE
+          )
+
+          with open(path, "w", encoding="utf-8") as f:
+              f.write(text)
+
+          print("Java configuration fixed.")
+          print("Verified options.release.set(17) is removed:",
+                "options.release.set(17)" not in text)
+
+          print("")
+          print("Relevant build.gradle.kts:")
+          print("-" * 60)
+
+          with open(path, "r", encoding="utf-8") as f:
+              for i, line in enumerate(f, 1):
+                  if (
+                      "compileOptions" in line
+                      or "sourceCompatibility" in line
+                      or "targetCompatibility" in line
+                      or "kotlinOptions" in line
+                      or "jvmTarget" in line
+                      or "jvmToolchain" in line
+                      or "options.release" in line
+                  ):
+                      print(f"{i}: {line.rstrip()}")
+
+          print("-" * 60)
+          PY
+
+      # 6. Setup Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle 8.9
+      # 7. Setup Gradle 8.9
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
-      - name: Verify Java and Gradle
+      # 8. Show configuration
+      - name: Show Gradle configuration
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          echo "JAVA_HOME=$JAVA_HOME"
+          echo "Java version:"
           java -version
+
+          echo ""
+          echo "Gradle version:"
           gradle --version
 
-      - name: Show Gradle configuration
-        run: |
-          echo "===== app/build.gradle.kts ====="
-          cat "$PROJECT_DIR/app/build.gradle.kts"
+          echo ""
+          echo "Project files:"
+          find . -maxdepth 3 -type f | sort | head -150
 
-      - name: Clean previous build
+          echo ""
+          echo "Checking for unsupported release option:"
+          if grep -R "options.release.set(17)" app/build.gradle.kts; then
+            echo "ERROR: options.release.set(17) is still present."
+            exit 1
+          else
+            echo "OK: options.release.set(17) is NOT present."
+          fi
+
+      # 9. Clean
+      - name: Clean project
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          cd "$PROJECT_DIR"
           gradle clean --no-daemon
 
-      - name: Build APK
+      # 10. Build APK
+      - name: Build Debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          cd "$PROJECT_DIR"
-          gradle assembleDebug \
-            --stacktrace \
-            --no-daemon
+          gradle assembleDebug --no-daemon --stacktrace
 
-      - name: Check APK
+      # 11. Check APK
+      - name: Check generated APK
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          echo "Searching for generated APK..."
+          echo "Generated APK files:"
+          find app/build/outputs/apk -type f -name "*.apk" -print
 
-          find "$PROJECT_DIR" \
-            -type f \
-            -name "*.apk" \
-            -print
+          APK=$(find app/build/outputs/apk -type f -name "*.apk" | head -1)
 
-          if [ ! -f "$PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk" ]; then
-            echo "ERROR: app-debug.apk was not generated!"
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK was not generated."
             exit 1
           fi
 
-          ls -lh "$PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk"
+          echo ""
+          echo "APK successfully generated:"
+          echo "$APK"
 
-      - name: Upload final APK
+          ls -lh "$APK"
+
+      # 12. Upload APK
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Shiksha-Rojgar-FINAL-APK
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 30
