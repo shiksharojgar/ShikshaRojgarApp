@@ -10,12 +10,17 @@ jobs:
 
     steps:
 
-      # 1. Checkout repository
+      # ---------------------------------------------------------
+      # 1. Checkout
+      # ---------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Check ZIP
-      - name: Check v4 project ZIP
+
+      # ---------------------------------------------------------
+      # 2. Check existing V4 ZIP
+      # ---------------------------------------------------------
+      - name: Check V4 project ZIP
         run: |
           echo "Repository files:"
           ls -lah
@@ -25,28 +30,36 @@ jobs:
             exit 1
           fi
 
-          echo "Found v4 ZIP successfully."
+          echo "V4 ZIP found successfully."
 
-      # 3. Extract ZIP
-      - name: Extract v4 project
+
+      # ---------------------------------------------------------
+      # 3. Extract V4 ZIP
+      # ---------------------------------------------------------
+      - name: Extract V4 project
         run: |
           rm -rf build-project
           mkdir -p build-project
 
           unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
 
-          echo "Extracted project:"
-          find build-project -maxdepth 3 -type f | sort | head -100
+          echo "Extracted files:"
+          find build-project -maxdepth 4 -type f | sort | head -150
 
+
+      # ---------------------------------------------------------
       # 4. Find Android project
+      # ---------------------------------------------------------
       - name: Find Android project
         run: |
           PROJECT_DIR=""
 
-          if [ -f "build-project/ShikshaRojgarApp/settings.gradle.kts" ]; then
+          if [ -f "$GITHUB_WORKSPACE/build-project/ShikshaRojgarApp/settings.gradle.kts" ]; then
             PROJECT_DIR="$GITHUB_WORKSPACE/build-project/ShikshaRojgarApp"
-          elif [ -f "build-project/settings.gradle.kts" ]; then
+
+          elif [ -f "$GITHUB_WORKSPACE/build-project/settings.gradle.kts" ]; then
             PROJECT_DIR="$GITHUB_WORKSPACE/build-project"
+
           else
             PROJECT_DIR=$(find "$GITHUB_WORKSPACE/build-project" \
               -name settings.gradle.kts \
@@ -55,9 +68,8 @@ jobs:
               | xargs -r dirname)
           fi
 
-          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/settings.gradle.kts" ]; then
+          if [ -z "$PROJECT_DIR" ]; then
             echo "ERROR: Android project not found."
-            find "$GITHUB_WORKSPACE/build-project" -maxdepth 4 -type f | sort
             exit 1
           fi
 
@@ -66,8 +78,10 @@ jobs:
           echo "Android project:"
           echo "$PROJECT_DIR"
 
-      # 5. IMPORTANT:
-      # Remove unsupported options.release.set(17)
+
+      # ---------------------------------------------------------
+      # 5. Patch Java configuration
+      # ---------------------------------------------------------
       - name: Fix Android Java configuration
         run: |
           python3 - <<'PY'
@@ -84,9 +98,7 @@ jobs:
           with open(path, "r", encoding="utf-8") as f:
               text = f.read()
 
-          print("Checking Java configuration...")
-
-          # Remove the complete unsupported JavaCompile release block.
+          # Remove unsupported Android Gradle Plugin Java --release block.
           text = re.sub(
               r'(?ms)^\s*tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*'
               r'options\.release\.set\(17\)\s*'
@@ -95,7 +107,7 @@ jobs:
               text
           )
 
-          # Safety fallback: remove the release line even if formatting differs.
+          # Safety fallback.
           text = re.sub(
               r'^\s*options\.release\.set\(17\)\s*$',
               '',
@@ -107,86 +119,395 @@ jobs:
               f.write(text)
 
           print("Java configuration fixed.")
-          print("Verified options.release.set(17) is removed:",
-                "options.release.set(17)" not in text)
+          print(
+              "options.release.set(17) present:",
+              "options.release.set(17)" in text
+          )
 
-          print("")
-          print("Relevant build.gradle.kts:")
-          print("-" * 60)
 
-          with open(path, "r", encoding="utf-8") as f:
-              for i, line in enumerate(f, 1):
-                  if (
-                      "compileOptions" in line
-                      or "sourceCompatibility" in line
-                      or "targetCompatibility" in line
-                      or "kotlinOptions" in line
-                      or "jvmTarget" in line
-                      or "jvmToolchain" in line
-                      or "options.release" in line
-                  ):
-                      print(f"{i}: {line.rstrip()}")
+      # ---------------------------------------------------------
+      # 6. Patch MainActivity
+      # ---------------------------------------------------------
+      - name: Apply Shiksha Rojgar UI fixes
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
 
-          print("-" * 60)
+          project = os.environ["PROJECT_DIR"]
+
+          candidates = [
+              os.path.join(
+                  project,
+                  "app",
+                  "src",
+                  "main",
+                  "java",
+                  "com",
+                  "shiksharojgar",
+                  "app",
+                  "MainActivity.kt"
+              )
+          ]
+
+          main_file = None
+
+          for p in candidates:
+              if os.path.exists(p):
+                  main_file = p
+                  break
+
+          if main_file is None:
+              found = []
+              for root, dirs, files in os.walk(project):
+                  if "MainActivity.kt" in files:
+                      found.append(os.path.join(root, "MainActivity.kt"))
+
+              if found:
+                  main_file = found[0]
+
+          if main_file is None:
+              print("WARNING: MainActivity.kt not found.")
+              print("Skipping UI patch.")
+              raise SystemExit(0)
+
+          print("Patching:", main_file)
+
+          with open(main_file, "r", encoding="utf-8") as f:
+              text = f.read()
+
+
+          # -------------------------------------------------------
+          # A. Breaking ticker direction
+          #
+          # Change LEFT -> RIGHT animation into RIGHT -> LEFT.
+          # -------------------------------------------------------
+
+          replacements = [
+              (
+                  "from = -textWidth",
+                  "from = parentWidth"
+              ),
+              (
+                  "to = parentWidth",
+                  "to = -textWidth"
+              ),
+              (
+                  "from = 0f",
+                  "from = parentWidth.toFloat()"
+              )
+          ]
+
+          for old, new in replacements:
+              text = text.replace(old, new)
+
+
+          # -------------------------------------------------------
+          # B. Search placement
+          #
+          # Hide/remove the top search button/icon where the source
+          # contains common search identifiers.
+          # -------------------------------------------------------
+
+          search_patterns = [
+              r'^\s*searchButton\.visibility\s*=.*$',
+              r'^\s*searchView\.visibility\s*=.*$',
+              r'^\s*searchIcon\.visibility\s*=.*$'
+          ]
+
+          for pattern in search_patterns:
+              text = re.sub(
+                  pattern,
+                  '        // Search moved away from the top header.',
+                  text,
+                  flags=re.MULTILINE
+              )
+
+
+          # -------------------------------------------------------
+          # C. Shiksha Rojgar menu URLs
+          #
+          # Current official site navigation contains:
+          # Latest Jobs / Result / Admit Card / School / Teacher.
+          # -------------------------------------------------------
+
+          url_map = {
+              "TEACHER_URL":
+                  "https://www.shiksharojgar.com/search/label/Teacher",
+
+              "STUDENT_URL":
+                  "https://www.shiksharojgar.com/2026/03/College%20%20University%20Students.html",
+
+              "SCHOOL_URL":
+                  "https://www.shiksharojgar.com/2026/03/school-students-1-12-section-page.html",
+
+              "RESULT_URL":
+                  "https://www.shiksharojgar.com/2026/03/results.html",
+
+              "ADMIT_CARD_URL":
+                  "https://www.shiksharojgar.com/search/label/Admit%20Card",
+
+              "VACANCY_URL":
+                  "https://www.shiksharojgar.com/"
+          }
+
+
+          # -------------------------------------------------------
+          # D. Replace old hard-coded label URLs when they occur.
+          # -------------------------------------------------------
+
+          text = text.replace(
+              'https://www.shiksharojgar.com/search/label/Teacher',
+              url_map["TEACHER_URL"]
+          )
+
+          text = re.sub(
+              r'https://www\.shiksharojgar\.com/search/label/Student',
+              url_map["STUDENT_URL"],
+              text,
+              flags=re.IGNORECASE
+          )
+
+          text = re.sub(
+              r'https://www\.shiksharojgar\.com/search/label/School',
+              url_map["SCHOOL_URL"],
+              text,
+              flags=re.IGNORECASE
+          )
+
+          text = re.sub(
+              r'https://www\.shiksharojgar\.com/search/label/Result',
+              url_map["RESULT_URL"],
+              text,
+              flags=re.IGNORECASE
+          )
+
+          text = re.sub(
+              r'https://www\.shiksharojgar\.com/search/label/Admit%20Card',
+              url_map["ADMIT_CARD_URL"],
+              text,
+              flags=re.IGNORECASE
+          )
+
+
+          # -------------------------------------------------------
+          # E. Prevent Vacancy quick button from opening
+          #    VacancyBazaar.
+          # -------------------------------------------------------
+
+          text = text.replace(
+              'https://www.vacancybazaar.in/',
+              'https://www.shiksharojgar.com/'
+          )
+
+
+          with open(main_file, "w", encoding="utf-8") as f:
+              f.write(text)
+
+          print("MainActivity patch completed.")
           PY
 
-      # 6. Setup Java 17
+
+      # ---------------------------------------------------------
+      # 7. Make Latest Posts Shiksha Rojgar only
+      # ---------------------------------------------------------
+      - name: Make feed Shiksha Rojgar only
+        run: |
+          python3 - <<'PY'
+          import os
+
+          project = os.environ["PROJECT_DIR"]
+
+          found = []
+
+          for root, dirs, files in os.walk(project):
+              for name in files:
+                  if name == "FeedLoader.kt":
+                      found.append(os.path.join(root, name))
+
+          if not found:
+              print("WARNING: FeedLoader.kt not found.")
+              raise SystemExit(0)
+
+          path = found[0]
+
+          print("Patching feed loader:", path)
+
+          with open(path, "r", encoding="utf-8") as f:
+              text = f.read()
+
+          # Keep Shiksha Rojgar feed.
+          # Remove/disable VacancyBazaar feed URL.
+          text = text.replace(
+              'https://www.vacancybazaar.in/feeds/posts/default?alt=rss&max-results=12',
+              ''
+          )
+
+          text = text.replace(
+              'https://www.vacancybazaar.in/feeds/posts/default',
+              ''
+          )
+
+          with open(path, "w", encoding="utf-8") as f:
+              f.write(text)
+
+          print("Latest Posts feed patched.")
+          PY
+
+
+      # ---------------------------------------------------------
+      # 8. Patch website OPEN buttons
+      # ---------------------------------------------------------
+      - name: Fix website OPEN buttons
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          project = os.environ["PROJECT_DIR"]
+
+          layouts = []
+
+          for root, dirs, files in os.walk(project):
+              for name in files:
+                  if name.endswith(".xml"):
+                      layouts.append(os.path.join(root, name))
+
+          for path in layouts:
+              try:
+                  with open(path, "r", encoding="utf-8") as f:
+                      text = f.read()
+              except:
+                  continue
+
+              original = text
+
+              # Make website card containers horizontal where possible.
+              if "Shiksha Rojgar.com" in text or "VacancyBazaar.in" in text:
+                  text = text.replace(
+                      'android:orientation="vertical"',
+                      'android:orientation="horizontal"',
+                      1
+                  )
+
+              if text != original:
+                  with open(path, "w", encoding="utf-8") as f:
+                      f.write(text)
+
+                  print("Updated website layout:", path)
+          PY
+
+
+      # ---------------------------------------------------------
+      # 9. Verify important URLs / configuration
+      # ---------------------------------------------------------
+      - name: Verify final source configuration
+        run: |
+          echo "========================================"
+          echo "FINAL SOURCE CHECK"
+          echo "========================================"
+
+          echo ""
+          echo "Searching source files..."
+
+          grep -Rni \
+            -E \
+            "shiksharojgar.com|vacancybazaar.in|options.release|from =|to =" \
+            "$PROJECT_DIR/app/src/main" \
+            || true
+
+          echo ""
+          echo "Checking unsupported Java release..."
+
+          if grep -R "options.release.set(17)" \
+             "$PROJECT_DIR/app/src/main" \
+             "$PROJECT_DIR/app/build.gradle.kts"; then
+
+            echo "ERROR: options.release.set(17) still exists."
+            exit 1
+          else
+            echo "OK: options.release.set(17) not found."
+          fi
+
+
+      # ---------------------------------------------------------
+      # 10. Setup JDK 17
+      # ---------------------------------------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # 7. Setup Gradle 8.9
+
+      # ---------------------------------------------------------
+      # 11. Setup Gradle 8.9
+      # ---------------------------------------------------------
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
-      # 8. Show configuration
-      - name: Show Gradle configuration
+
+      # ---------------------------------------------------------
+      # 12. Show versions
+      # ---------------------------------------------------------
+      - name: Show build environment
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          echo "Java version:"
+          echo "Java:"
           java -version
 
           echo ""
-          echo "Gradle version:"
+          echo "Gradle:"
           gradle --version
 
           echo ""
-          echo "Project files:"
-          find . -maxdepth 3 -type f | sort | head -150
+          echo "Project:"
+          pwd
 
           echo ""
-          echo "Checking for unsupported release option:"
-          if grep -R "options.release.set(17)" app/build.gradle.kts; then
-            echo "ERROR: options.release.set(17) is still present."
-            exit 1
-          else
-            echo "OK: options.release.set(17) is NOT present."
-          fi
+          echo "Build configuration:"
+          sed -n '1,240p' app/build.gradle.kts
 
-      # 9. Clean
+
+      # ---------------------------------------------------------
+      # 13. Clean
+      # ---------------------------------------------------------
       - name: Clean project
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
           gradle clean --no-daemon
 
-      # 10. Build APK
+
+      # ---------------------------------------------------------
+      # 14. Build APK
+      # ---------------------------------------------------------
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          gradle assembleDebug --no-daemon --stacktrace
+          gradle assembleDebug \
+            --no-daemon \
+            --stacktrace
 
-      # 11. Check APK
+
+      # ---------------------------------------------------------
+      # 15. Verify APK
+      # ---------------------------------------------------------
       - name: Check generated APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
           echo "Generated APK files:"
-          find app/build/outputs/apk -type f -name "*.apk" -print
 
-          APK=$(find app/build/outputs/apk -type f -name "*.apk" | head -1)
+          find app/build/outputs/apk \
+            -type f \
+            -name "*.apk" \
+            -print
+
+          APK=$(find app/build/outputs/apk \
+            -type f \
+            -name "*.apk" \
+            | head -1)
 
           if [ -z "$APK" ]; then
             echo "ERROR: APK was not generated."
@@ -194,12 +515,16 @@ jobs:
           fi
 
           echo ""
-          echo "APK successfully generated:"
+          echo "========================================"
+          echo "APK BUILD SUCCESSFUL"
+          echo "========================================"
           echo "$APK"
-
           ls -lh "$APK"
 
-      # 12. Upload APK
+
+      # ---------------------------------------------------------
+      # 16. Upload APK
+      # ---------------------------------------------------------
       - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
