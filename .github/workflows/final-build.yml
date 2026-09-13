@@ -15,13 +15,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check V4 project ZIP
+      - name: Check V4 ZIP
         run: |
+          set -e
+
           echo "========================================"
-          echo "CHECKING V4 PROJECT ZIP"
+          echo "CHECKING PROJECT ZIP"
           echo "========================================"
 
           ls -lah
@@ -29,54 +32,83 @@ jobs:
           ZIP_FILE="ShikshaRojgarApp-Colorful-Fixed-v4.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
+            echo "ERROR: ZIP file not found:"
+            echo "$ZIP_FILE"
             echo ""
-            echo "ERROR: $ZIP_FILE not found."
-            echo ""
-            echo "Repository files:"
-            find . -maxdepth 2 -type f | sort
+            echo "Available ZIP files:"
+            find . -maxdepth 2 -type f -name "*.zip" -print
             exit 1
           fi
 
-          echo ""
-          echo "OK: V4 ZIP found."
+          echo "ZIP FOUND:"
           ls -lh "$ZIP_FILE"
 
-      - name: Extract V4 project
+      - name: Extract project
         run: |
-          echo "Extracting V4 project..."
+          set -e
 
           rm -rf build-project
           mkdir -p build-project
 
           unzip -q "ShikshaRojgarApp-Colorful-Fixed-v4.zip" -d build-project
 
-          echo ""
-          echo "Extracted files:"
-          find build-project -maxdepth 3 -type f | head -100
+          echo "========================================"
+          echo "EXTRACTED PROJECT"
+          echo "========================================"
 
-      - name: Find Android project
+          find build-project -maxdepth 3 -type f | sort | head -150
+
+      - name: Find Gradle project
+        shell: bash
         run: |
-          echo "Finding Android project..."
+          set -e
 
-          PROJECT_DIR=$(find build-project -name settings.gradle.kts -o -name settings.gradle | head -1 | xargs -r dirname)
+          echo "========================================"
+          echo "SEARCHING FOR GRADLE PROJECT"
+          echo "========================================"
 
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: Android Gradle project not found."
-            find build-project -maxdepth 4 -type f | sort
+          GRADLEW=$(find build-project -type f -name "gradlew" | head -1)
+
+          if [ -z "$GRADLEW" ]; then
+            echo "ERROR: gradlew was not found inside ZIP."
+            echo ""
+            echo "Searching all files:"
+            find build-project -maxdepth 5 -type f | sort
             exit 1
           fi
 
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          PROJECT_DIR=$(dirname "$GRADLEW")
 
-          echo "Android project:"
+          echo "GRADLEW FOUND:"
+          echo "$GRADLEW"
+
+          echo ""
+          echo "PROJECT DIRECTORY:"
           echo "$PROJECT_DIR"
 
-      - name: Show project structure
-        run: |
-          echo "Project directory: $PROJECT_DIR"
-          find "$PROJECT_DIR/app/src/main" -maxdepth 3 -type f | sort
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Apply final UI fixes
+      - name: Show project structure
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          echo "========================================"
+          echo "PROJECT STRUCTURE"
+          echo "========================================"
+
+          pwd
+          ls -lah
+
+          echo ""
+          echo "Gradle files:"
+          find . -maxdepth 3 -type f \( \
+            -name "gradlew" -o \
+            -name "settings.gradle" -o \
+            -name "settings.gradle.kts" -o \
+            -name "build.gradle" -o \
+            -name "build.gradle.kts" \
+          \) -print
+
+      - name: Apply UI fixes
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
@@ -85,230 +117,75 @@ jobs:
           MAIN="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
           XML="app/src/main/res/layout/activity_main.xml"
 
-          echo "Applying final UI fixes..."
+          echo "========================================"
+          echo "APPLYING UI FIXES"
+          echo "========================================"
 
           if [ ! -f "$MAIN" ]; then
-            echo "ERROR: MainActivity.kt not found"
-            exit 1
+            echo "WARNING: MainActivity.kt not found."
+          else
+            cp "$MAIN" "$MAIN.backup"
+
+            python3 <<'PY'
+          from pathlib import Path
+
+          p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
+
+          text = p.read_text(encoding="utf-8")
+
+          # Breaking ticker: Right -> Left
+          text = text.replace(
+              "val from = -textWidth",
+              "val from = parentWidth"
+          )
+
+          text = text.replace(
+              "val to = parentWidth",
+              "val to = -textWidth"
+          )
+
+          p.write_text(text, encoding="utf-8")
+
+          print("Ticker direction fixed: Right -> Left")
+          PY
           fi
 
           if [ ! -f "$XML" ]; then
-            echo "ERROR: activity_main.xml not found"
-            exit 1
+            echo "WARNING: activity_main.xml not found."
+          else
+            cp "$XML" "$XML.backup"
           fi
 
-          cp "$MAIN" "$MAIN.backup"
-          cp "$XML" "$XML.backup"
-
-          python3 <<'PY'
-          from pathlib import Path
-          import re
-
-          main = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
-          xml = Path("app/src/main/res/layout/activity_main.xml")
-
-          text = main.read_text(encoding="utf-8")
-          layout = xml.read_text(encoding="utf-8")
-
-          # --------------------------------------------------
-          # 1. Shiksha Rojgar URLs
-          # --------------------------------------------------
-
-          text = text.replace(
-              'private val shiksha = "https://www.shiksharojgar.com/"',
-              'private val shiksha = "https://www.shiksharojgar.com/"'
-          )
-
-          text = text.replace(
-              'private val vacancy = "https://www.vacancybazaar.in/"',
-              'private val vacancy = "https://www.vacancybazaar.in/"'
-          )
-
-          # --------------------------------------------------
-          # 2. Quick Access links
-          # --------------------------------------------------
-
-          quick_pattern = re.compile(
-              r'val items = listOf\(.*?\n\s*\)',
-              re.DOTALL
-          )
-
-          quick_replacement = '''val items = listOf(
-              Triple("Teacher", "👨‍🏫", { openInApp("$shiksha/search/label/Teacher") }),
-              Triple("Student", "👨‍🎓", { openInApp("$shiksha/2026/03/school-students-1-12-section-page.html") }),
-              Triple("School", "🏫", { openInApp("$shiksha/2026/03/school-students-1-12-section-page.html") }),
-              Triple("Vacancy", "💼", { openInApp("$shiksha/search/label/Vacancy") }),
-              Triple("Admit Card", "🎫", { openInApp("$shiksha/search/label/Admit%20Card") }),
-              Triple("Result", "🏆", { openInApp("$shiksha/2026/03/results.html") })
-          )'''
-
-          if "setupQuickCards" in text and "Triple(\"Teacher\"" in text:
-              text = quick_pattern.sub(quick_replacement, text, count=1)
-
-          # --------------------------------------------------
-          # 3. Breaking ticker direction
-          # --------------------------------------------------
-
-          text = text.replace(
-              'val from = -textWidth',
-              'val from = parentWidth'
-          )
-
-          text = text.replace(
-              'val to = parentWidth',
-              'val to = -textWidth'
-          )
-
-          # --------------------------------------------------
-          # 4. Website cards
-          # --------------------------------------------------
-
-          website_pattern = re.compile(
-              r'grid\.addView\(websiteCard\("Shiksha Rojgar\.com".*?\)\)',
-              re.DOTALL
-          )
-
-          text = website_pattern.sub(
-              '''grid.addView(
-                  websiteCard(
-                      "Shiksha Rojgar.com",
-                      "🎓",
-                      shiksha,
-                      "#075985",
-                      "#0EA5E9",
-                      R.drawable.logo
-                  )
-              )''',
-              text,
-              count=1
-          )
-
-          website_pattern2 = re.compile(
-              r'grid\.addView\(websiteCard\("VacancyBazaar\.in".*?\)\)',
-              re.DOTALL
-          )
-
-          text = website_pattern2.sub(
-              '''grid.addView(
-                  websiteCard(
-                      "VacancyBazaar.in",
-                      "🚀",
-                      vacancy,
-                      "#E11D48",
-                      "#F59E0B",
-                      R.drawable.vacancy_logo
-                  )
-              )''',
-              text,
-              count=1
-          )
-
-          # --------------------------------------------------
-          # 5. Search button position
-          # --------------------------------------------------
-
-          search_pattern = re.compile(
-              r'\s*<TextView\s+android:id="@\+id/searchButton".*?\/>',
-              re.DOTALL
-          )
-
-          matches = list(search_pattern.finditer(layout))
-
-          if matches:
-              # Remove existing top search button.
-              layout = (
-                  layout[:matches[0].start()]
-                  + layout[matches[0].end():]
-              )
-
-              # Add search button immediately after ticker.
-              ticker_pattern = re.compile(
-                  r'(<TextView\s+android:id="@\+id/ticker".*?\/>)',
-                  re.DOTALL
-              )
-
-              search_view = '''
-          <TextView
-              android:id="@+id/searchButton"
-              android:layout_width="match_parent"
-              android:layout_height="52dp"
-              android:layout_marginStart="12dp"
-              android:layout_marginEnd="12dp"
-              android:layout_marginTop="8dp"
-              android:layout_marginBottom="8dp"
-              android:background="@drawable/search_background"
-              android:clickable="true"
-              android:focusable="true"
-              android:gravity="center_vertical"
-              android:paddingStart="18dp"
-              android:paddingEnd="18dp"
-              android:text="🔍   Search Shiksha Rojgar"
-              android:textColor="#0F172A"
-              android:textSize="16sp" />'''
-
-              if ticker_pattern.search(layout):
-                  layout = ticker_pattern.sub(
-                      lambda m: m.group(1) + search_view,
-                      layout,
-                      count=1
-                  )
-
-          main.write_text(text, encoding="utf-8")
-          xml.write_text(layout, encoding="utf-8")
-
-          print("UI patch completed.")
-          PY
-
       - name: Create search background
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: |
-          mkdir -p app/src/main/res/drawable
-
-          cat > app/src/main/res/drawable/search_background.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <shape xmlns:android="http://schemas.android.com/apk/res/android">
-              <solid android:color="#FFFFFF" />
-              <corners android:radius="16dp" />
-              <stroke
-                  android:width="1dp"
-                  android:color="#CBD5E1" />
-              <padding
-                  android:left="4dp"
-                  android:top="4dp"
-                  android:right="4dp"
-                  android:bottom="4dp" />
-          </shape>
-          EOF
-
-          echo "Search background created."
-
-      - name: Keep Latest Posts Shiksha Rojgar only
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
-          MAIN="app/src/main/java/com/shiksharojgar/app/MainActivity.kt"
+          mkdir -p app/src/main/res/drawable
 
-          python3 <<'PY'
-          from pathlib import Path
+          cat > app/src/main/res/drawable/search_background.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
-          p = Path("app/src/main/java/com/shiksharojgar/app/MainActivity.kt")
-          text = p.read_text(encoding="utf-8")
+              <solid android:color="#FFFFFF" />
 
-          # Remove direct VacancyBazaar feed URLs if present.
-          text = text.replace(
-              'https://www.vacancybazaar.in/',
-              'https://www.vacancybazaar.in/'
-          )
+              <corners android:radius="16dp" />
 
-          # The Latest Posts area should use the existing FeedLoader,
-          # which is based on Shiksha Rojgar.
-          # Do not add VacancyBazaar posts to adapter data.
+              <stroke
+                  android:width="1dp"
+                  android:color="#CBD5E1" />
 
-          p.write_text(text, encoding="utf-8")
-          print("Latest Posts source kept on Shiksha Rojgar.")
-          PY
+              <padding
+                  android:left="4dp"
+                  android:top="4dp"
+                  android:right="4dp"
+                  android:bottom="4dp" />
+
+          </shape>
+          EOF
+
+          echo "Search background created."
 
       - name: Fix Java configuration
         working-directory: ${{ env.PROJECT_DIR }}
@@ -316,27 +193,29 @@ jobs:
         run: |
           set -e
 
-          GRADLE="app/build.gradle.kts"
+          GRADLE_FILE="app/build.gradle.kts"
 
-          if [ -f "$GRADLE" ]; then
-            cp "$GRADLE" "$GRADLE.before-java-fix"
+          if [ -f "$GRADLE_FILE" ]; then
+
+            cp "$GRADLE_FILE" "$GRADLE_FILE.backup"
 
             python3 <<'PY'
           from pathlib import Path
           import re
 
           p = Path("app/build.gradle.kts")
+
           text = p.read_text(encoding="utf-8")
 
-          # Remove the Android-incompatible options.release block.
+          # Remove Android-incompatible JavaCompile --release configuration.
           text = re.sub(
-              r'tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{\s*options\.release\.set\(17\)\s*\}',
+              r'tasks\.withType<JavaCompile>\(\)\.configureEach\s*\{.*?options\.release\.set\(17\).*?\}',
               '',
               text,
               flags=re.DOTALL
           )
 
-          # Remove accidental standalone id="..." line if present.
+          # Remove accidental standalone id="..." lines.
           text = re.sub(
               r'^\s*id="[^"]+"\s*$',
               '',
@@ -345,8 +224,12 @@ jobs:
           )
 
           p.write_text(text, encoding="utf-8")
-          print("Java --release configuration removed.")
+
+          print("Java configuration fixed.")
           PY
+
+          else
+            echo "WARNING: app/build.gradle.kts not found."
           fi
 
       - name: Set up Java 17
@@ -364,45 +247,58 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
 
       - name: Make Gradle executable
-  working-directory: ${{ env.PROJECT_DIR }}
-  shell: bash
-  run: |
-    set -e
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
 
-    echo "Current project directory:"
-    pwd
+          echo "========================================"
+          echo "CHECKING GRADLE"
+          echo "========================================"
 
-    echo ""
-    echo "Files in project:"
-    ls -lah
+          pwd
+          ls -lah
 
-    if [ ! -f "./gradlew" ]; then
-      echo ""
-      echo "ERROR: gradlew not found in PROJECT_DIR"
-      echo "Searching for gradlew..."
-      find .. -name gradlew -type f -print
-      exit 1
-    fi
+          if [ ! -f "./gradlew" ]; then
+            echo "ERROR: gradlew is not in project directory."
+            echo ""
+            echo "Searching:"
+            find .. -name "gradlew" -type f -print
+            exit 1
+          fi
 
-    chmod +x ./gradlew
+          chmod +x ./gradlew
 
-    echo "gradlew found and executable."
+          echo "gradlew is ready."
 
       - name: Clean project
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
+          set -e
+
           ./gradlew clean
 
       - name: Build Final Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
+          set -e
+
+          echo "========================================"
+          echo "BUILDING APK"
+          echo "========================================"
+
           ./gradlew assembleDebug --stacktrace
 
       - name: Find generated APK
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
+          set -e
+
           echo "========================================"
-          echo "GENERATED APK FILES"
+          echo "GENERATED APK"
           echo "========================================"
 
           find app/build/outputs/apk -type f -name "*.apk" -print
@@ -410,18 +306,18 @@ jobs:
           APK_COUNT=$(find app/build/outputs/apk -type f -name "*.apk" | wc -l)
 
           if [ "$APK_COUNT" -eq 0 ]; then
-            echo "ERROR: No APK was generated."
+            echo ""
+            echo "ERROR: APK was not generated."
             exit 1
           fi
 
           echo ""
-          echo "APK successfully generated."
+          echo "APK GENERATED SUCCESSFULLY."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ShikshaRojgar-APK
-          path: |
-            ${{ env.PROJECT_DIR }}/app/build/outputs/apk/**/*.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
           retention-days: 7
