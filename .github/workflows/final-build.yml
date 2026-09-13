@@ -257,33 +257,33 @@ jobs:
           # -------------------------------------------------------
 
           text = text.replace(
-              'https://www.shiksharojgar.com/search/label/Teacher',
+              'https://www.shiksharojgar.com/2026/03/teacher-govt-employees.html',
               url_map["TEACHER_URL"]
           )
 
           text = re.sub(
-              r'https://www\.shiksharojgar\.com/search/label/Student',
+              r'https://www.shiksharojgar.com/2026/03/Student-section.html',
               url_map["STUDENT_URL"],
               text,
               flags=re.IGNORECASE
           )
 
           text = re.sub(
-              r'https://www\.shiksharojgar\.com/search/label/School',
+              r'https://www.shiksharojgar.com/2026/03/school-students-1-12-section-page.html',
               url_map["SCHOOL_URL"],
               text,
               flags=re.IGNORECASE
           )
 
           text = re.sub(
-              r'https://www\.shiksharojgar\.com/search/label/Result',
+              r'https://www.shiksharojgar.com/2026/03/results.html',
               url_map["RESULT_URL"],
               text,
               flags=re.IGNORECASE
           )
 
           text = re.sub(
-              r'https://www\.shiksharojgar\.com/search/label/Admit%20Card',
+              r'https://www.shiksharojgar.com/2026/01/admit-card-download-zone.html',
               url_map["ADMIT_CARD_URL"],
               text,
               flags=re.IGNORECASE
