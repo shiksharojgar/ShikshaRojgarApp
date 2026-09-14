@@ -14,82 +14,75 @@ jobs:
     name: Build Shiksha Rojgar APK
     runs-on: ubuntu-latest
 
-    env:
-      GRADLE_VERSION: "8.9"
-
     steps:
 
-      # --------------------------------------------------
-      # 1. Repository Checkout
-      # --------------------------------------------------
+      # ==========================================
+      # 1. Checkout
+      # ==========================================
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # --------------------------------------------------
+      # ==========================================
       # 2. Java 17
-      # --------------------------------------------------
+      # ==========================================
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
-      # --------------------------------------------------
+      # ==========================================
       # 3. Gradle 8.9
-      # --------------------------------------------------
-      - name: Setup Gradle
+      # ==========================================
+      - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: ${{ env.GRADLE_VERSION }}
+          gradle-version: "8.9"
 
-      # --------------------------------------------------
-      # 4. Find Project ZIP
-      # --------------------------------------------------
+      # ==========================================
+      # 4. Find Shiksha Rojgar ZIP
+      # ==========================================
       - name: Find Project ZIP
         shell: bash
         run: |
           set -e
 
-          echo "======================================"
-          echo "Checking repository ZIP files..."
-          echo "======================================"
+          echo "=========================================="
+          echo "Searching for Android Project ZIP"
+          echo "=========================================="
 
-          find . -maxdepth 2 -type f -iname "*.zip" -print
+          find . -maxdepth 3 -type f -iname "*.zip" -print
 
           ZIP_FILE=""
 
-          # सबसे पहले v1.4 final ZIP खोजें
           if [ -f "./ShikshaRojgarApp-v1.4.0-final.zip" ]; then
             ZIP_FILE="./ShikshaRojgarApp-v1.4.0-final.zip"
           fi
 
-          # अगर नाम बदल गया हो तो कोई भी ShikshaRojgarApp ZIP लें
           if [ -z "$ZIP_FILE" ]; then
-            ZIP_FILE=$(find . -maxdepth 2 -type f \
+            ZIP_FILE=$(find . -maxdepth 3 -type f \
               -iname "ShikshaRojgarApp*.zip" \
-              ! -iname "*.apk.zip" \
+              | grep -v "apk-install" \
               | head -n 1 || true)
           fi
 
           if [ -z "$ZIP_FILE" ]; then
             echo ""
-            echo "ERROR: Shiksha Rojgar project ZIP नहीं मिली।"
+            echo "ERROR: Shiksha Rojgar ZIP नहीं मिली।"
             echo ""
-            echo "Repository में उपलब्ध ZIP files:"
-            find . -maxdepth 2 -type f -iname "*.zip" -print || true
+            find . -maxdepth 3 -type f -iname "*.zip" -print || true
             exit 1
           fi
 
           echo ""
-          echo "Selected ZIP:"
+          echo "ZIP FOUND:"
           echo "$ZIP_FILE"
 
           echo "ZIP_FILE=$ZIP_FILE" >> "$GITHUB_ENV"
 
-      # --------------------------------------------------
-      # 5. Extract Project
-      # --------------------------------------------------
+      # ==========================================
+      # 5. Extract ZIP
+      # ==========================================
       - name: Extract Android Project
         shell: bash
         run: |
@@ -98,53 +91,69 @@ jobs:
           rm -rf android-project
           mkdir -p android-project
 
-          echo "Extracting:"
-          echo "$ZIP_FILE"
+          echo "Extracting project..."
 
           unzip -q "$ZIP_FILE" -d android-project
 
           echo ""
-          echo "Extracted files:"
+          echo "Extraction completed."
+
           find android-project -maxdepth 3 -type f | head -100
 
-      # --------------------------------------------------
-      # 6. Locate Actual Android Project
-      # --------------------------------------------------
+      # ==========================================
+      # 6. Find Gradle Project
+      # ==========================================
       - name: Locate Android Project
         shell: bash
         run: |
           set -e
 
+          PROJECT_DIR=""
+
+          # settings.gradle.kts खोजें
           PROJECT_DIR=$(find android-project \
             -type f \
-            \( -name "settings.gradle" -o -name "settings.gradle.kts" \) \
+            -name "settings.gradle.kts" \
             -print \
             | head -n 1 \
             | xargs -r dirname)
 
+          # अगर नहीं मिला तो settings.gradle खोजें
+          if [ -z "$PROJECT_DIR" ]; then
+            PROJECT_DIR=$(find android-project \
+              -type f \
+              -name "settings.gradle" \
+              -print \
+              | head -n 1 \
+              | xargs -r dirname)
+          fi
+
           if [ -z "$PROJECT_DIR" ]; then
             echo ""
-            echo "ERROR: Android project नहीं मिला।"
+            echo "ERROR: Gradle Android project नहीं मिला।"
             echo ""
-            echo "settings.gradle files:"
+            echo "Available Gradle files:"
             find android-project -type f \
-              \( -name "settings.gradle" -o -name "settings.gradle.kts" \
-            \) -print || true
+              \( -name "build.gradle" \
+              -o -name "build.gradle.kts" \
+              -o -name "settings.gradle" \
+              -o -name "settings.gradle.kts" \) \
+              -print || true
             exit 1
           fi
 
           PROJECT_DIR=$(cd "$PROJECT_DIR" && pwd)
 
           echo ""
-          echo "Android Project:"
+          echo "ANDROID PROJECT:"
           echo "$PROJECT_DIR"
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      # --------------------------------------------------
-      # 7. Fix Java release option
-      # --------------------------------------------------
-      - name: Fix Android Java Configuration
+      # ==========================================
+      # 7. Remove Java --release 17 problem
+      # ==========================================
+      - name: Fix Java Configuration
         shell: bash
         run: |
           set -e
@@ -153,36 +162,39 @@ jobs:
 
           if [ -f "$BUILD_FILE" ]; then
 
-            echo "Checking:"
-            echo "$BUILD_FILE"
+            echo "Checking Android build.gradle.kts..."
 
-            # Problematic release option हटाएं
+            # पुराने problematic release option को हटाएं
             sed -i '/options\.release\.set(17)/d' "$BUILD_FILE"
 
-            # किसी पुराने JavaCompile release configuration को भी हटाएं
-            sed -i '/options\.release\.set(.*)/d' "$BUILD_FILE"
+            # कोई भी JavaCompile release setting हटाएं
+            sed -i '/options\.release\.set(/d' "$BUILD_FILE"
 
             echo ""
-            echo "Java release configuration cleaned."
+            echo "Java configuration fixed."
 
           else
+            echo ""
             echo "WARNING: app/build.gradle.kts नहीं मिला।"
           fi
 
-      # --------------------------------------------------
-      # 8. Show Gradle Project
-      # --------------------------------------------------
-      - name: Verify Android Project
+      # ==========================================
+      # 8. Verify Project
+      # ==========================================
+      - name: Verify Project
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
-          echo "Project directory:"
+          echo "=========================================="
+          echo "ANDROID PROJECT CHECK"
+          echo "=========================================="
+
           pwd
 
           echo ""
-          echo "Project files:"
+          echo "Files:"
           ls -la
 
           echo ""
@@ -194,36 +206,44 @@ jobs:
             -o -name "settings.gradle.kts" \) \
             -print
 
-      # --------------------------------------------------
-      # 9. Build Debug APK
-      # --------------------------------------------------
+      # ==========================================
+      # 9. Build APK
+      # ==========================================
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
-          echo "======================================"
-          echo "Starting Gradle Build"
-          echo "======================================"
+          echo "=========================================="
+          echo "STARTING ANDROID BUILD"
+          echo "=========================================="
 
+          java -version
+
+          echo ""
+          echo "Gradle version:"
           gradle --version
+
+          echo ""
+          echo "Building APK..."
 
           gradle clean assembleDebug \
             --stacktrace \
-            --no-daemon
+            --no-daemon \
+            --console=plain
 
-      # --------------------------------------------------
+      # ==========================================
       # 10. Find APK
-      # --------------------------------------------------
-      - name: Find Generated APK
+      # ==========================================
+      - name: Find APK
         shell: bash
         run: |
           set -e
 
-          echo "======================================"
-          echo "Searching for APK..."
-          echo "======================================"
+          echo "=========================================="
+          echo "SEARCHING GENERATED APK"
+          echo "=========================================="
 
           find "$PROJECT_DIR" \
             -type f \
@@ -242,15 +262,15 @@ jobs:
           fi
 
           echo ""
-          echo "APK Found:"
+          echo "APK FOUND:"
           echo "$APK_FILE"
 
           echo "APK_FILE=$APK_FILE" >> "$GITHUB_ENV"
 
-      # --------------------------------------------------
+      # ==========================================
       # 11. Rename APK
-      # --------------------------------------------------
-      - name: Prepare APK
+      # ==========================================
+      - name: Prepare Release APK
         shell: bash
         run: |
           set -e
@@ -260,12 +280,13 @@ jobs:
           cp "$APK_FILE" \
             "release-apk/ShikshaRojgar-App.apk"
 
-          echo "Final APK:"
+          echo ""
+          echo "FINAL APK:"
           ls -lh release-apk/ShikshaRojgar-App.apk
 
-      # --------------------------------------------------
-      # 12. Upload APK Artifact
-      # --------------------------------------------------
+      # ==========================================
+      # 12. Upload APK
+      # ==========================================
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -274,20 +295,18 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # --------------------------------------------------
-      # 13. Build Summary
-      # --------------------------------------------------
-      - name: Build Summary
+      # ==========================================
+      # 13. Success
+      # ==========================================
+      - name: Build Success
         shell: bash
         run: |
-          echo "======================================"
-          echo "Shiksha Rojgar APK BUILD SUCCESS"
-          echo "======================================"
           echo ""
-          echo "APK:"
-          echo "ShikshaRojgar-App.apk"
+          echo "=========================================="
+          echo "     SHIKSHA ROJGAR APK BUILD SUCCESS"
+          echo "=========================================="
           echo ""
-          echo "Artifact:"
-          echo "ShikshaRojgar-APK"
+          echo "APK: ShikshaRojgar-App.apk"
+          echo "Artifact: ShikshaRojgar-APK"
           echo ""
-          echo "Build completed successfully."
+          echo "BUILD COMPLETED SUCCESSFULLY!"
