@@ -151,7 +151,8 @@ jobs:
           KEYSTORE_FILE="$PROJECT_DIR/shiksharojgar-release.jks"
 
           printf '%s' "$SIGNING_KEYSTORE_BASE64" \
-            | base64 --decode > "$KEYSTORE_FILE"
+  | tr -d '[:space:]' \
+  | base64 --decode > "$KEYSTORE_FILE"
 
           chmod 600 "$KEYSTORE_FILE"
 
