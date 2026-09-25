@@ -17,7 +17,7 @@ jobs:
     steps:
 
       # ==========================================
-      # 1. Checkout
+      # 1. Checkout Repository
       # ==========================================
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -40,7 +40,7 @@ jobs:
           gradle-version: "8.9"
 
       # ==========================================
-      # 4. Find latest Shiksha Rojgar ZIP
+      # 4. Find Latest Shiksha Rojgar ZIP
       # ==========================================
       - name: Find Project ZIP
         shell: bash
@@ -73,7 +73,7 @@ jobs:
           echo "ZIP_FILE=$ZIP_FILE" >> "$GITHUB_ENV"
 
       # ==========================================
-      # 5. Extract Project
+      # 5. Extract Android Project
       # ==========================================
       - name: Extract Android Project
         shell: bash
@@ -83,10 +83,12 @@ jobs:
           rm -rf android-project
           mkdir -p android-project
 
+          echo "Extracting project..."
+
           unzip -q "$ZIP_FILE" -d android-project
 
           echo ""
-          echo "PROJECT EXTRACTED"
+          echo "Extraction completed."
 
           find android-project -maxdepth 3 -type f | head -100
 
@@ -117,7 +119,8 @@ jobs:
           fi
 
           if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: Gradle project नहीं मिला।"
+            echo ""
+            echo "ERROR: Gradle Android project नहीं मिला।"
             exit 1
           fi
 
@@ -130,7 +133,7 @@ jobs:
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       # ==========================================
-      # 7. Decode Permanent Keystore
+      # 7. Setup Permanent Keystore
       # ==========================================
       - name: Setup Permanent Signing Keystore
         shell: bash
@@ -150,24 +153,64 @@ jobs:
 
           KEYSTORE_FILE="$PROJECT_DIR/shiksharojgar-release.jks"
 
+          echo "Decoding permanent keystore..."
+
           printf '%s' "$SIGNING_KEYSTORE_BASE64" \
-  | tr -d '[:space:]' \
-  | base64 --decode > "$KEYSTORE_FILE"
+            | tr -d '[:space:]' \
+            | base64 --decode > "$KEYSTORE_FILE"
 
           chmod 600 "$KEYSTORE_FILE"
 
-          echo "Permanent keystore तैयार है।"
+          if [ ! -s "$KEYSTORE_FILE" ]; then
+            echo "ERROR: Keystore file खाली है।"
+            exit 1
+          fi
+
+          echo ""
+          echo "Permanent keystore successfully decoded."
 
           ls -lh "$KEYSTORE_FILE"
 
       # ==========================================
-      # 8. Create Gradle Signing Configuration
+      # 8. Verify Keystore
       # ==========================================
-      - name: Configure Release Signing
+      - name: Verify Signing Keystore
         shell: bash
         env:
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        run: |
+          set -e
+
+          echo "=========================================="
+          echo "VERIFYING SIGNING KEYSTORE"
+          echo "=========================================="
+
+          if [ -z "$SIGNING_STORE_PASSWORD" ]; then
+            echo "ERROR: SIGNING_STORE_PASSWORD secret नहीं मिला।"
+            exit 1
+          fi
+
+          if [ -z "$SIGNING_KEY_ALIAS" ]; then
+            echo "ERROR: SIGNING_KEY_ALIAS secret नहीं मिला।"
+            exit 1
+          fi
+
+          keytool -list \
+            -keystore "$PROJECT_DIR/shiksharojgar-release.jks" \
+            -storepass "$SIGNING_STORE_PASSWORD" \
+            -alias "$SIGNING_KEY_ALIAS" \
+            > /tmp/keystore-check.txt
+
+          echo ""
+          echo "Keystore verification successful."
+          echo "Alias verified: $SIGNING_KEY_ALIAS"
+
+      # ==========================================
+      # 9. Create Gradle Permanent Signing Config
+      # ==========================================
+      - name: Configure Release Signing
+        shell: bash
         run: |
           set -e
 
@@ -179,9 +222,11 @@ jobs:
 
                   if (project.plugins.hasPlugin("com.android.application")) {
 
-                      def android = project.extensions.getByName("android")
+                      def android =
+                          project.extensions.getByName("android")
 
-                      def signingConfigs = android.signingConfigs
+                      def signingConfigs =
+                          android.signingConfigs
 
                       def releaseSigning =
                           signingConfigs.findByName("release")
@@ -193,34 +238,47 @@ jobs:
 
                       releaseSigning.storeFile =
                           project.file(
-                              System.getenv("SHIKSHA_KEYSTORE_FILE")
+                              System.getenv(
+                                  "SHIKSHA_KEYSTORE_FILE"
+                              )
                           )
 
                       releaseSigning.storePassword =
-                          System.getenv("SIGNING_STORE_PASSWORD")
+                          System.getenv(
+                              "SIGNING_STORE_PASSWORD"
+                          )
 
                       releaseSigning.keyAlias =
-                          System.getenv("SIGNING_KEY_ALIAS")
+                          System.getenv(
+                              "SIGNING_KEY_ALIAS"
+                          )
 
                       /*
-                       * PKCS12 keystore में key password
-                       * store password के समान है।
+                       * PKCS12 keystore:
+                       * key password = store password
                        */
                       releaseSigning.keyPassword =
-                          System.getenv("SIGNING_STORE_PASSWORD")
+                          System.getenv(
+                              "SIGNING_STORE_PASSWORD"
+                          )
 
                       android.buildTypes
                           .getByName("release")
-                          .signingConfig = releaseSigning
+                          .signingConfig =
+                              releaseSigning
 
                       /*
-                       * Automatic versionCode.
+                       * Automatic versionCode
                        *
-                       * हर GitHub Actions run को नया versionCode मिलेगा।
+                       * हर GitHub Actions run पर नया
+                       * versionCode मिलेगा।
                        */
                       def runNumber =
-                          (System.getenv("GITHUB_RUN_NUMBER") ?: "1")
-                              .toInteger()
+                          (
+                              System.getenv(
+                                  "GITHUB_RUN_NUMBER"
+                              ) ?: "1"
+                          ).toInteger()
 
                       def automaticVersionCode =
                           1000 + runNumber
@@ -229,18 +287,31 @@ jobs:
                           automaticVersionCode
 
                       println(
-                          "Shiksha Rojgar automatic versionCode = "
+                          "=========================================="
+                      )
+
+                      println(
+                          "Shiksha Rojgar versionCode = "
                           + automaticVersionCode
+                      )
+
+                      println(
+                          "Permanent release signing = ENABLED"
+                      )
+
+                      println(
+                          "=========================================="
                       )
                   }
               }
           }
           EOF
 
-          echo "Gradle permanent signing configuration तैयार है।"
+          echo ""
+          echo "Permanent signing configuration created."
 
       # ==========================================
-      # 9. Verify Project
+      # 10. Verify Android Project
       # ==========================================
       - name: Verify Android Project
         working-directory: ${{ env.PROJECT_DIR }}
@@ -260,6 +331,7 @@ jobs:
 
           echo ""
           echo "Gradle files:"
+
           find . -maxdepth 3 -type f \
             \( -name "build.gradle" \
             -o -name "build.gradle.kts" \
@@ -268,7 +340,7 @@ jobs:
             -print
 
       # ==========================================
-      # 10. Build SIGNED RELEASE APK
+      # 11. Build Signed Release APK
       # ==========================================
       - name: Build Signed Release APK
         working-directory: ${{ env.PROJECT_DIR }}
@@ -291,7 +363,7 @@ jobs:
           gradle --version
 
           echo ""
-          echo "Building release APK..."
+          echo "Starting release build..."
 
           gradle clean assembleRelease \
             -I "$PROJECT_DIR/permanent-signing.init.gradle" \
@@ -299,8 +371,11 @@ jobs:
             --no-daemon \
             --console=plain
 
+          echo ""
+          echo "Release build completed."
+
       # ==========================================
-      # 11. Find RELEASE APK
+      # 12. Find Release APK
       # ==========================================
       - name: Find Release APK
         shell: bash
@@ -323,7 +398,7 @@ jobs:
 
           if [ -z "$APK_FILE" ]; then
             echo ""
-            echo "ERROR: Signed release APK generate नहीं हुई।"
+            echo "ERROR: Release APK generate नहीं हुई।"
             exit 1
           fi
 
@@ -334,7 +409,7 @@ jobs:
           echo "APK_FILE=$APK_FILE" >> "$GITHUB_ENV"
 
       # ==========================================
-      # 12. Verify APK Signature
+      # 13. Verify APK Signature
       # ==========================================
       - name: Verify APK Signature
         shell: bash
@@ -356,21 +431,29 @@ jobs:
             exit 1
           fi
 
+          echo ""
+          echo "Running APK signature verification..."
+
           "$APKSIGNER" verify \
             --verbose \
             "$APK_FILE"
 
           echo ""
-          echo "CERTIFICATE INFORMATION:"
+          echo "=========================================="
+          echo "APK CERTIFICATE"
+          echo "=========================================="
+
           "$APKSIGNER" verify \
             --print-certs \
             "$APK_FILE"
 
           echo ""
-          echo "APK SIGNATURE VERIFIED SUCCESSFULLY."
+          echo "=========================================="
+          echo "APK SIGNATURE VERIFIED SUCCESSFULLY"
+          echo "=========================================="
 
       # ==========================================
-      # 13. Prepare Final APK
+      # 14. Prepare Final APK
       # ==========================================
       - name: Prepare Release APK
         shell: bash
@@ -383,11 +466,15 @@ jobs:
             "release-apk/ShikshaRojgar-App.apk"
 
           echo ""
-          echo "FINAL SIGNED APK:"
-          ls -lh release-apk/ShikshaRojgar-App.apk
+          echo "=========================================="
+          echo "FINAL APK"
+          echo "=========================================="
+
+          ls -lh \
+            release-apk/ShikshaRojgar-App.apk
 
       # ==========================================
-      # 14. Upload APK
+      # 15. Upload APK Artifact
       # ==========================================
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
@@ -398,27 +485,28 @@ jobs:
           retention-days: 30
 
       # ==========================================
-      # 15. Success
+      # 16. Build Success
       # ==========================================
       - name: Build Success
         shell: bash
         run: |
           echo ""
           echo "=========================================="
-          echo " SHIKSHA ROJGAR SIGNED APK BUILD SUCCESS "
+          echo " SHIKSHA ROJGAR APK BUILD SUCCESS"
           echo "=========================================="
           echo ""
-          echo "APK: ShikshaRojgar-App.apk"
-          echo "Artifact: ShikshaRojgar-APK"
+          echo "Release APK       : YES"
+          echo "Permanent Signing : YES"
+          echo "VersionCode       : AUTOMATIC"
+          echo "Signature Verify  : PASSED"
           echo ""
-          echo "Permanent signing: ENABLED"
-          echo "Release build: ENABLED"
-          echo "Automatic versionCode: ENABLED"
+          echo "APK: ShikshaRojgar-App.apk"
           echo ""
           echo "BUILD COMPLETED SUCCESSFULLY!"
+          echo "=========================================="
 
       # ==========================================
-      # 16. Cleanup
+      # 17. Cleanup Sensitive Files
       # ==========================================
       - name: Cleanup Signing Files
         if: always()
