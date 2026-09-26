@@ -1,0 +1,132 @@
+name: Shiksha Rojgar APK Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  FIREBASE_PROJECT_ID: shiksha-rojgar
+
+jobs:
+  build:
+    name: Build signed APK + Firebase Rules + Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Find and extract latest project ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_FILE=$(find "$GITHUB_WORKSPACE" -type f -iname 'ShikshaRojgarApp-v*.zip' | sort -V | tail -n 1 || true)
+          test -n "$ZIP_FILE"
+          echo "Using: $ZIP_FILE"
+          rm -rf "$GITHUB_WORKSPACE/extracted-project"
+          mkdir -p "$GITHUB_WORKSPACE/extracted-project"
+          unzip -q "$ZIP_FILE" -d "$GITHUB_WORKSPACE/extracted-project"
+
+      - name: Locate Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+          SETTINGS=$(find "$GITHUB_WORKSPACE/extracted-project" -type f \( -name settings.gradle.kts -o -name settings.gradle \) | head -n 1)
+          test -n "$SETTINGS"
+          PROJECT_DIR=$(dirname "$SETTINGS")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          grep -q 'applicationId = "com.shiksharojgar.app"' "$PROJECT_DIR/app/build.gradle.kts"
+
+      - name: Check permanent signing secrets
+        env:
+          KEYSTORE_B64_A: ${{ secrets.SHIKSHA_KEYSTORE_B64 }}
+          STORE_PASSWORD_A: ${{ secrets.SHIKSHA_KEYSTORE_PASSWORD }}
+          KEY_ALIAS_A: ${{ secrets.SHIKSHA_KEY_ALIAS }}
+          KEY_PASSWORD_A: ${{ secrets.SHIKSHA_KEY_PASSWORD }}
+          KEYSTORE_B64_B: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          STORE_PASSWORD_B: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS_B: ${{ secrets.SIGNING_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          KEYSTORE_B64="${KEYSTORE_B64_A:-${KEYSTORE_B64_B:-}}"
+          STORE_PASSWORD="${STORE_PASSWORD_A:-${STORE_PASSWORD_B:-}}"
+          KEY_ALIAS="${KEY_ALIAS_A:-${KEY_ALIAS_B:-}}"
+          KEY_PASSWORD="${KEY_PASSWORD_A:-${STORE_PASSWORD_B:-${KEY_PASSWORD_A:-}}}"
+          test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          printf '%s' "$KEYSTORE_B64" | tr -d '\r\n\t ' | base64 --decode > "$RUNNER_TEMP/shiksha-release.jks"
+          test -s "$RUNNER_TEMP/shiksha-release.jks"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/shiksha-release.jks" >> "$GITHUB_ENV"
+          echo "STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+
+      - name: Build signed Release APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        env:
+          SHIKSHA_KEYSTORE_FILE: ${{ env.KEYSTORE_FILE }}
+          SHIKSHA_KEYSTORE_PASSWORD: ${{ env.STORE_PASSWORD }}
+          SHIKSHA_KEY_ALIAS: ${{ env.KEY_ALIAS }}
+          SHIKSHA_KEY_PASSWORD: ${{ env.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          gradle clean :app:assembleRelease --stacktrace --no-daemon --console=plain
+
+      - name: Verify APK signature
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          apksigner verify --verbose "$APK"
+
+      - name: Upload permanent signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shiksha-Rojgar-signed-release
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Deploy Firestore Rules + Hosting
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -euo pipefail
+          test -n "$FIREBASE_SERVICE_ACCOUNT" || { echo "ERROR: FIREBASE_SERVICE_ACCOUNT GitHub Secret missing. APK was built, but Rules/Hosting were not deployed."; exit 1; }
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
+          npm install --global firebase-tools
+          cd "$PROJECT_DIR/firebase"
+          firebase deploy --project "$FIREBASE_PROJECT_ID" --only firestore:rules,hosting --non-interactive
+          echo "FIREBASE_RULES_AND_HOSTING_DEPLOY_OK=1"
+
+      - name: Deploy FCM Cloud Functions if supported
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -n "$FIREBASE_SERVICE_ACCOUNT" || exit 0
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
+          cd "$PROJECT_DIR/firebase"
+          firebase deploy --project "$FIREBASE_PROJECT_ID" --only functions --non-interactive || echo "FCM Functions deployment unavailable on the current Firebase plan; app-side unread tracking remains active."
+
+      - name: Cleanup signing and Firebase credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/shiksha-release.jks" "$RUNNER_TEMP/firebase-service-account.json"

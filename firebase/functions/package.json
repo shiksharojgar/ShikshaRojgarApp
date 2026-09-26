@@ -1,0 +1,9 @@
+{
+  "name": "functions",
+  "description": "Shiksha Rojgar Firebase functions",
+  "scripts": { "lint": "echo no-lint", "serve": "firebase emulators:start --only functions", "deploy": "firebase deploy --only functions" },
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "dependencies": { "firebase-admin": "^13.5.0", "firebase-functions": "^6.4.0", "fast-xml-parser": "^5.2.5" },
+  "private": true
+}

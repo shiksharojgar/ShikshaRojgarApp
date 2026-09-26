@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1002568660238",
+    "project_id": "shiksha-rojgar",
+    "storage_bucket": "shiksha-rojgar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002568660238:android:81838e754680f1cb7f935f",
+        "android_client_info": {
+          "package_name": "com.shiksharojgar.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATAjM9WA1exliRAN61ISP0dOZN1WRDs4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

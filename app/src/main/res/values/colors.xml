@@ -1,0 +1,11 @@
+<resources>
+    <color name="navy">#063B7A</color>
+    <color name="blue">#0D5BD7</color>
+    <color name="yellow">#FFC400</color>
+    <color name="orange">#FF6A00</color>
+    <color name="red">#E53935</color>
+    <color name="green">#16A34A</color>
+    <color name="bg">#F5F8FC</color>
+    <color name="text">#172033</color>
+    <color name="muted">#667085</color>
+</resources>

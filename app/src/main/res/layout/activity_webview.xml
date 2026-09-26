@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#F5F8FC">
+
+    <LinearLayout android:id="@+id/webTopBar" android:layout_width="match_parent" android:layout_height="64dp"
+        android:background="@color/navy" android:gravity="center_vertical" android:paddingStart="6dp" android:paddingEnd="8dp">
+        <TextView android:id="@+id/backButton" android:layout_width="82dp" android:layout_height="48dp"
+            android:gravity="center" android:text="← BACK" android:textColor="@android:color/white" android:textSize="15sp"
+            android:textStyle="bold" android:background="@drawable/nav_item_bg" android:clickable="true" android:focusable="true"/>
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:src="@drawable/logo"
+            android:contentDescription="Shiksha Rojgar" android:scaleType="centerCrop" android:layout_marginStart="8dp"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="SHIKSHA ROJGAR" android:textColor="@android:color/white" android:textStyle="bold" android:textSize="17sp" android:paddingStart="9dp"/>
+        <TextView android:id="@+id/shareButton" android:layout_width="78dp" android:layout_height="48dp"
+            android:gravity="center" android:text="↗ Share" android:textColor="@android:color/white" android:textSize="15sp" android:textStyle="bold"
+            android:clickable="true" android:focusable="true" android:contentDescription="Share"/>
+        <TextView android:id="@+id/homeButton" android:layout_width="48dp" android:layout_height="48dp"
+            android:gravity="center" android:text="⌂" android:textColor="@android:color/white" android:textSize="27sp"
+            android:clickable="true" android:focusable="true" android:contentDescription="Home"/>
+    </LinearLayout>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <WebView android:id="@+id/web" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <LinearLayout android:id="@+id/pageLoadingOverlay" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="vertical" android:gravity="center" android:background="@android:color/white" android:visibility="visible">
+            <ProgressBar android:layout_width="52dp" android:layout_height="52dp" android:indeterminate="true"/>
+            <TextView android:id="@+id/loadingText" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" android:text="कृपया प्रतीक्षा करें…
+पेज लोड हो रहा है" android:textSize="16sp" android:textStyle="bold"
+                android:gravity="center" android:textColor="@color/blue"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout android:id="@+id/webBottomBar" android:layout_width="match_parent" android:layout_height="70dp"
+        android:orientation="horizontal" android:gravity="center" android:background="@android:color/white"
+        android:elevation="16dp" android:paddingStart="8dp" android:paddingEnd="8dp">
+        <TextView android:id="@+id/bottomBackButton" android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
+            android:gravity="center" android:text="←  BACK" android:textSize="15sp" android:textStyle="bold"
+            android:textColor="@color/blue" android:background="@drawable/nav_item_bg" android:clickable="true" android:focusable="true"/>
+        <TextView android:id="@+id/bottomHomeButton" android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
+            android:gravity="center" android:text="⌂  HOME" android:textSize="15sp" android:textStyle="bold"
+            android:textColor="@color/blue" android:background="@drawable/nav_item_bg" android:clickable="true" android:focusable="true"/>
+        <TextView android:id="@+id/bottomShareButton" android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
+            android:gravity="center" android:text="↗  SHARE" android:textSize="15sp" android:textStyle="bold"
+            android:textColor="@color/blue" android:background="@drawable/nav_item_bg" android:clickable="true" android:focusable="true"/>
+    </LinearLayout>
+</LinearLayout>
