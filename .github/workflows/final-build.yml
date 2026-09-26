@@ -15,27 +15,43 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------
+      # 1. CHECKOUT
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v5
 
+
+      # --------------------------------------------------
+      # 2. JAVA 17
+      # --------------------------------------------------
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Gradle
+
+      # --------------------------------------------------
+      # 3. GRADLE 8.9
+      # gradlew की जरूरत नहीं
+      # --------------------------------------------------
+      - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
-      - name: Find and extract Shiksha Rojgar project
+
+      # --------------------------------------------------
+      # 4. FIND AND EXTRACT APP ZIP
+      # --------------------------------------------------
+      - name: Extract Shiksha Rojgar project
         shell: bash
         run: |
           set -e
 
           echo "======================================"
-          echo "FINDING PROJECT ZIP"
+          echo "FINDING SHIKSHA ROJGAR ZIP"
           echo "======================================"
 
           ZIP_FILE=$(find . -type f \
@@ -53,12 +69,18 @@ jobs:
           echo "$ZIP_FILE"
 
           rm -rf extracted-project
+
           mkdir -p extracted-project
 
           unzip -q "$ZIP_FILE" -d extracted-project
 
           echo "ZIP extraction completed."
 
+
+      # --------------------------------------------------
+      # 5. FIND ANDROID PROJECT
+      # gradlew की जरूरत नहीं
+      # --------------------------------------------------
       - name: Locate Android Gradle project
         shell: bash
         run: |
@@ -73,57 +95,44 @@ jobs:
             | head -n 1)
 
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "ERROR: settings.gradle नहीं मिला।"
-            echo "Project files:"
-            find extracted-project -maxdepth 5 -type f | head -n 200
+            echo "ERROR: settings.gradle या settings.gradle.kts नहीं मिला।"
+
+            echo "Extracted project files:"
+            find extracted-project -maxdepth 6 -type f | head -n 300
+
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS_FILE")
 
-          echo "settings.gradle found:"
+          echo "Settings file:"
           echo "$SETTINGS_FILE"
 
           echo "PROJECT_DIR:"
           echo "$PROJECT_DIR"
 
-          GRADLEW_FILE=$(find "$PROJECT_DIR" -maxdepth 2 -type f \
-            -name "gradlew" \
+          BUILD_FILE=$(find "$PROJECT_DIR" -maxdepth 2 -type f \
+            \( -name "build.gradle" -o -name "build.gradle.kts" \) \
             | head -n 1)
 
-          if [ -z "$GRADLEW_FILE" ]; then
-            echo "gradlew root में नहीं मिला।"
+          if [ -z "$BUILD_FILE" ]; then
+            echo "ERROR: build.gradle या build.gradle.kts नहीं मिला।"
 
-            GRADLEW_FILE=$(find extracted-project -type f \
-              -name "gradlew" \
-              | head -n 1)
-          fi
-
-          if [ -z "$GRADLEW_FILE" ]; then
-            echo "ERROR: gradlew नहीं मिला।"
-
-            echo "ZIP में Gradle files:"
-            find extracted-project -type f \
-              \( -name "gradlew" \
-              -o -name "gradlew.bat" \
-              -o -name "settings.gradle" \
-              -o -name "settings.gradle.kts" \)
+            find "$PROJECT_DIR" -maxdepth 4 -type f
 
             exit 1
           fi
 
-          GRADLEW_DIR=$(dirname "$GRADLEW_FILE")
-
-          echo "gradlew found:"
-          echo "$GRADLEW_FILE"
-
-          echo "Using Gradle directory:"
-          echo "$GRADLEW_DIR"
+          echo "Build file:"
+          echo "$BUILD_FILE"
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "GRADLEW_DIR=$GRADLEW_DIR" >> "$GITHUB_ENV"
 
-      - name: Check signing secrets
+
+      # --------------------------------------------------
+      # 6. CHECK SIGNING SECRETS
+      # --------------------------------------------------
+      - name: Check permanent signing secrets
         shell: bash
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
@@ -155,7 +164,11 @@ jobs:
           echo "SIGNING_STORE_PASSWORD  : PRESENT"
           echo "SIGNING_KEY_ALIAS       : PRESENT"
 
-      - name: Decode permanent keystore
+
+      # --------------------------------------------------
+      # 7. DECODE PERMANENT KEYSTORE
+      # --------------------------------------------------
+      - name: Decode permanent signing keystore
         shell: bash
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
@@ -186,7 +199,8 @@ jobs:
           REMAINDER=$((BASE64_LENGTH % 4))
 
           if [ "$REMAINDER" -eq 1 ]; then
-            echo "ERROR: Base64 secret truncated/corrupt है।"
+            echo "ERROR: Base64 secret truncated या corrupt है।"
+            echo "SIGNING_KEYSTORE_BASE64 को पूरा replace करें।"
             exit 1
           fi
 
@@ -207,6 +221,8 @@ jobs:
 
           echo "Keystore decoded successfully."
 
+          echo "Verifying permanent signing key..."
+
           keytool -list \
             -keystore "$KEYSTORE_FILE" \
             -storepass "$SIGNING_STORE_PASSWORD" \
@@ -217,31 +233,44 @@ jobs:
 
           echo "KEYSTORE_FILE=$KEYSTORE_FILE" >> "$GITHUB_ENV"
 
+
+      # --------------------------------------------------
+      # 8. CREATE SIGNING CONFIGURATION
+      # --------------------------------------------------
       - name: Create permanent signing configuration
         shell: bash
-        env:
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         run: |
           set -e
 
           cat > "$PROJECT_DIR/permanent-signing.init.gradle" <<'EOF'
           allprojects {
               afterEvaluate { project ->
+
                   if (project.hasProperty("android")) {
+
                       project.android {
+
                           signingConfigs {
                               permanentRelease {
-                                  storeFile = new File(System.getenv("KEYSTORE_FILE"))
-                                  storePassword = System.getenv("SIGNING_STORE_PASSWORD")
-                                  keyAlias = System.getenv("SIGNING_KEY_ALIAS")
-                                  keyPassword = System.getenv("SIGNING_STORE_PASSWORD")
+                                  storeFile = new File(
+                                      System.getenv("KEYSTORE_FILE")
+                                  )
+
+                                  storePassword =
+                                      System.getenv("SIGNING_STORE_PASSWORD")
+
+                                  keyAlias =
+                                      System.getenv("SIGNING_KEY_ALIAS")
+
+                                  keyPassword =
+                                      System.getenv("SIGNING_STORE_PASSWORD")
                               }
                           }
 
                           buildTypes {
                               release {
-                                  signingConfig = signingConfigs.permanentRelease
+                                  signingConfig =
+                                      signingConfigs.permanentRelease
                               }
                           }
                       }
@@ -252,6 +281,12 @@ jobs:
 
           echo "Permanent signing configuration created."
 
+
+      # --------------------------------------------------
+      # 9. BUILD RELEASE APK
+      # सीधे Gradle 8.9 से
+      # gradlew की जरूरत नहीं
+      # --------------------------------------------------
       - name: Build signed Release APK
         shell: bash
         env:
@@ -262,31 +297,42 @@ jobs:
           set -e
 
           echo "======================================"
-          echo "BUILDING SIGNED RELEASE APK"
+          echo "BUILDING SHIKSHA ROJGAR RELEASE APK"
           echo "======================================"
 
-          cd "$GRADLEW_DIR"
+          cd "$PROJECT_DIR"
 
-          chmod +x gradlew
+          echo "Current project directory:"
+          pwd
 
-          ./gradlew \
-            -I "$GITHUB_WORKSPACE/$PROJECT_DIR/permanent-signing.init.gradle" \
+          echo "Project files:"
+          ls -la
+
+          echo "Running Gradle 8.9..."
+
+          gradle \
+            -I "$PROJECT_DIR/permanent-signing.init.gradle" \
             clean \
             assembleRelease \
             --stacktrace \
             --no-daemon
 
+
+      # --------------------------------------------------
+      # 10. FIND APK
+      # --------------------------------------------------
       - name: Find Release APK
         shell: bash
         run: |
           set -e
 
           echo "======================================"
-          echo "SEARCHING RELEASE APK"
+          echo "SEARCHING FOR RELEASE APK"
           echo "======================================"
 
           APK=$(find "$PROJECT_DIR" -type f \
-            \( -name "*-release.apk" -o -name "app-release.apk" \) \
+            -name "*.apk" \
+            | grep -i "release" \
             | head -n 1)
 
           if [ -z "$APK" ]; then
@@ -301,8 +347,13 @@ jobs:
           echo "Release APK found:"
           echo "$APK"
 
-          cp "$APK" "$RUNNER_TEMP/ShikshaRojgar-release.apk"
+          cp "$APK" \
+            "$RUNNER_TEMP/ShikshaRojgar-Permanent-Signed.apk"
 
+
+      # --------------------------------------------------
+      # 11. VERIFY SIGNATURE
+      # --------------------------------------------------
       - name: Verify APK signature
         shell: bash
         run: |
@@ -325,30 +376,44 @@ jobs:
 
           "$APKSIGNER" verify \
             --verbose \
-            "$RUNNER_TEMP/ShikshaRojgar-release.apk"
+            "$RUNNER_TEMP/ShikshaRojgar-Permanent-Signed.apk"
 
-          echo "APK signature verification successful."
+          echo "APK signature verification SUCCESSFUL."
 
+
+      # --------------------------------------------------
+      # 12. APK INFORMATION
+      # --------------------------------------------------
       - name: Show final APK information
         shell: bash
         run: |
           echo "======================================"
-          echo "FINAL APK"
+          echo "FINAL SHIKSHA ROJGAR APK"
           echo "======================================"
 
-          ls -lh "$RUNNER_TEMP/ShikshaRojgar-release.apk"
+          ls -lh \
+            "$RUNNER_TEMP/ShikshaRojgar-Permanent-Signed.apk"
 
-          echo "SHA-256:"
-          sha256sum "$RUNNER_TEMP/ShikshaRojgar-release.apk"
+          echo "APK SHA-256:"
+          sha256sum \
+            "$RUNNER_TEMP/ShikshaRojgar-Permanent-Signed.apk"
 
-      - name: Upload signed APK
+
+      # --------------------------------------------------
+      # 13. UPLOAD APK
+      # --------------------------------------------------
+      - name: Upload permanent signed APK
         uses: actions/upload-artifact@v4
         with:
           name: ShikshaRojgar-Permanent-Signed-Release
-          path: ${{ runner.temp }}/ShikshaRojgar-release.apk
+          path: ${{ runner.temp }}/ShikshaRojgar-Permanent-Signed.apk
           if-no-files-found: error
           retention-days: 30
 
+
+      # --------------------------------------------------
+      # 14. CLEANUP
+      # --------------------------------------------------
       - name: Cleanup
         if: always()
         shell: bash
