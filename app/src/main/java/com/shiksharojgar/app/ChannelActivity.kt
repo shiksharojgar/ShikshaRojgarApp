@@ -1585,48 +1585,63 @@ class ChannelActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+private fun sendCommentOtp(
+    p: ChannelPost,
+    text: String,
+    input: EditText,
+    dialog: AlertDialog,
+    phone: String
+) {
+    PhoneAuthProvider.verifyPhoneNumber(
+        auth,
+        phone,
+        60L,
+        java.util.concurrent.TimeUnit.SECONDS,
+        this,
+        object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
-    private fun sendCommentOtp(
-        p: ChannelPost,
-        text: String,
-        input: EditText,
-        dialog: AlertDialog,
-        phone: String
-    ) {
+            override fun onVerificationCompleted(
+                credential: PhoneAuthCredential
+            ) {
+                auth.signInWithCredential(credential)
+                    .addOnSuccessListener {
+                        postVerifiedComment(
+                            p,
+                            text,
+                            input,
+                            dialog
+                        )
+                    }
+            }
 
-        val options =
-            PhoneAuthProvider
-                .Options
-                .newBuilder(auth)
-                .setPhoneNumber(phone)
-                .setTimeout(
-                    60L,
-                    java.util.concurrent.TimeUnit.SECONDS
+            override fun onVerificationFailed(
+                e: com.google.firebase.FirebaseException
+            ) {
+                Toast.makeText(
+                    this@ChannelActivity,
+                    "OTP नहीं भेजा जा सका: ${e.message ?: "Unknown error"}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                phoneVerificationId = verificationId
+
+                showOtpDialog(
+                    p,
+                    text,
+                    input,
+                    dialog,
+                    phone
                 )
-                .setActivity(this)
-                .setCallbacks(
-                    object :
-                        PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-                        override fun onVerificationCompleted(
-                            credential: PhoneAuthCredential
-                        ) {
-
-                            auth.signInWithCredential(
-                                credential
-                            )
-                                .addOnCompleteListener { task ->
-
-                                    if (task.isSuccessful) {
-
-                                        postVerifiedComment(
-                                            p,
-                                            text,
-                                            input,
-                                            dialog
-                                        )
-
-                                    } else {
+            }
+        }
+    )
+}
+     else {
 
                                         Toast.makeText(
                                             this@ChannelActivity,
@@ -1686,7 +1701,9 @@ class ChannelActivity : AppCompatActivity() {
                 hint = "6 अंकों का OTP"
                 inputType =
                     android.text.InputType.TYPE_CLASS_NUMBER
-                maxLength = 6
+                filters = arrayOf(
+    android.text.InputFilter.LengthFilter(6)
+)
             }
 
         AlertDialog.Builder(this)
