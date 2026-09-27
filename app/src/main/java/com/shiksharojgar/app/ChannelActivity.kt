@@ -1218,7 +1218,7 @@ class ChannelActivity : AppCompatActivity() {
 
                             renderPosts()
 
-                            ChannelRepository.setLike(
+                            ChannelRepository.like(
                                 p.id,
                                 target
                             ) { ok ->
