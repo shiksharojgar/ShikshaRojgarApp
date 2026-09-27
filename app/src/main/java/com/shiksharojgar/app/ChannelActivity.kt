@@ -1592,7 +1592,7 @@ private fun sendCommentOtp(
     dialog: AlertDialog,
     phone: String
 ) {
-    private fun sendCommentOtp(
+  private fun sendCommentOtp(
     p: ChannelPost,
     text: String,
     input: EditText,
@@ -1653,98 +1653,7 @@ private fun sendCommentOtp(
             )
 
     PhoneAuthProvider.verifyPhoneNumber(options)
-}
-        object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-            override fun onVerificationCompleted(
-                credential: PhoneAuthCredential
-            ) {
-                auth.signInWithCredential(credential)
-                    .addOnSuccessListener {
-                        postVerifiedComment(
-                            p,
-                            text,
-                            input,
-                            dialog
-                        )
-                    }
-            }
-
-            override fun onVerificationFailed(
-                e: com.google.firebase.FirebaseException
-            ) {
-                Toast.makeText(
-                    this@ChannelActivity,
-                    "OTP नहीं भेजा जा सका: ${e.message ?: "Unknown error"}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            override fun onCodeSent(
-                verificationId: String,
-                token: PhoneAuthProvider.ForceResendingToken
-            ) {
-                phoneVerificationId = verificationId
-
-                showOtpDialog(
-                    p,
-                    text,
-                    input,
-                    dialog,
-                    phone
-                )
-            }
-        }
-    )
-}
-     else {
-
-                                        Toast.makeText(
-                                            this@ChannelActivity,
-                                            task.exception?.message
-                                                ?: "Mobile verification failed",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
-                        }
-
-                        override fun onVerificationFailed(
-                            e: FirebaseException
-                        ) {
-
-                            Toast.makeText(
-                                this@ChannelActivity,
-                                e.message
-                                    ?: "OTP भेजने में समस्या हुई",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-
-                        override fun onCodeSent(
-                            verificationId: String,
-                            token: PhoneAuthProvider.ForceResendingToken
-                        ) {
-
-                            phoneVerificationId =
-                                verificationId
-
-                            showOtpDialog(
-                                p,
-                                text,
-                                input,
-                                dialog
-                            )
-                        }
-                    }
-                )
-                .build()
-
-        PhoneAuthProvider.verifyPhoneNumber(
-            options
-        )
-    }
-
+  }  
     private fun showOtpDialog(
         p: ChannelPost,
         text: String,
