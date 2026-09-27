@@ -308,6 +308,30 @@ class ChannelActivity : AppCompatActivity() {
 
     private fun makeUi(): View {
 
+    private fun toolButton(
+        label: String,
+        action: () -> Unit
+    ): TextView = TextView(this).apply {
+
+        text = label
+        gravity = Gravity.CENTER
+        textSize = 11f
+        typeface = Typeface.DEFAULT_BOLD
+
+        setTextColor(Color.WHITE)
+
+        background =
+            GradientFactory.rounded("#174E86")
+
+        isClickable = true
+        isFocusable = true
+
+        setOnClickListener {
+            action()
+        }
+    }
+    private fun makeUi(): View {
+
         val root =
             LinearLayout(this).apply {
 
@@ -351,6 +375,7 @@ class ChannelActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(
             toolbar
         ) { view, insets ->
+
             val top =
                 insets.getInsets(
                     WindowInsetsCompat.Type.systemBars()
@@ -363,7 +388,7 @@ class ChannelActivity : AppCompatActivity() {
                 view.paddingBottom
             )
 
-                        insets
+            insets
         }
 
         val back =
@@ -385,14 +410,17 @@ class ChannelActivity : AppCompatActivity() {
         val title =
             TextView(this).apply {
 
-                text = "📢 Shiksha Rojgar Channel"
+                text =
+                    "📢 Shiksha Rojgar Channel"
 
                 textSize = 17f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
 
-                setTextColor(Color.WHITE)
+                setTextColor(
+                    Color.WHITE
+                )
 
                 gravity =
                     Gravity.CENTER_VERTICAL
@@ -437,29 +465,407 @@ class ChannelActivity : AppCompatActivity() {
                 56
             )
         )
-    private fun toolButton(
-        label: String,
-        action: () -> Unit
-    ): TextView = TextView(this).apply {
 
-        text = label
-        gravity = Gravity.CENTER
-        textSize = 11f
-        typeface = Typeface.DEFAULT_BOLD
+        val header =
+            LinearLayout(this).apply {
 
-        setTextColor(Color.WHITE)
+                orientation =
+                    LinearLayout.VERTICAL
 
-        background =
-            GradientFactory.rounded("#174E86")
+                setPadding(
+                    14,
+                    12,
+                    14,
+                    8
+                )
 
-        isClickable = true
-        isFocusable = true
+                background =
+                    GradientFactory.roundedWhite()
+            }
 
-        setOnClickListener {
-            action()
-        }
+        header.addView(
+            TextView(this).apply {
+
+                text =
+                    "📢 शिक्षा एवं रोजगार अपडेट"
+
+                textSize = 20f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        6,
+                        59,
+                        122
+                    )
+                )
+            }
+        )
+
+        header.addView(
+            TextView(this).apply {
+
+                text =
+                    "सरकारी आदेश, शिक्षा, रोजगार, टाइम टेबल और महत्वपूर्ण अपडेट"
+
+                textSize = 13f
+
+                setTextColor(
+                    Color.DKGRAY
+                )
+
+                setPadding(
+                    0,
+                    4,
+                    0,
+                    4
+                )
+            }
+        )
+
+        val stats =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    0,
+                    5,
+                    0,
+                    2
+                )
+            }
+
+        followerCountView =
+            TextView(this).apply {
+
+                text =
+                    "👥 $followerCount Followers"
+
+                textSize = 13f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        14,
+                        91,
+                        215
+                    )
+                )
+
+                layoutParams =
+                    LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1f
+                    )
+            }
+
+        commentStatusView =
+            TextView(this).apply {
+
+                text =
+                    if (globalComments) {
+                        "💬 Comments ON"
+                    } else {
+                        "🔒 Comments OFF"
+                    }
+
+                textSize = 12f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        71,
+                        85,
+                        105
+                    )
+                )
+            }
+
+        stats.addView(
+            followerCountView
+        )
+
+        stats.addView(
+            commentStatusView
+        )
+
+        header.addView(stats)
+
+        root.addView(
+            header,
+            LinearLayout.LayoutParams(
+                -1,
+                -2
+            )
+        )
+
+        val followArea =
+            LinearLayout(this).apply {
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    12,
+                    8,
+                    12,
+                    8
+                )
+
+                background =
+                    Color.WHITE.toDrawable()
+            }
+
+        followBtn =
+            TextView(this).apply {
+
+                text =
+                    "➕  Follow करें"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 14f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                background =
+                    GradientFactory.gradient(
+                        "#16A34A",
+                        "#06B6D4"
+                    )
+
+                isClickable = true
+                isFocusable = true
+
+                setPadding(
+                    18,
+                    10,
+                    18,
+                    10
+                )
+
+                setOnClickListener {
+                    toggleFollow()
+                }
+            }
+
+        followArea.addView(
+            followBtn,
+            LinearLayout.LayoutParams(
+                0,
+                48,
+                1f
+            )
+        )
+
+        val offlineButton =
+            TextView(this).apply {
+
+                text =
+                    "📥 Offline"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 13f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        14,
+                        91,
+                        215
+                    )
+                )
+
+                background =
+                    Color.rgb(
+                        239,
+                        246,
+                        255
+                    ).toDrawable()
+
+                setPadding(
+                    12,
+                    8,
+                    12,
+                    8
+                )
+
+                setOnClickListener {
+                    showOfflineList()
+                }
+            }
+
+        followArea.addView(
+            offlineButton,
+            LinearLayout.LayoutParams(
+                105,
+                48
+            ).apply {
+
+                setMargins(
+                    8,
+                    0,
+                    0,
+                    0
+                )
+            }
+        )
+
+        root.addView(
+            followArea,
+            LinearLayout.LayoutParams(
+                -1,
+                -2
+            )
+        )
+
+        feedScroll =
+            ScrollView(this).apply {
+
+                isFillViewport = true
+            }
+
+        list =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    10,
+                    10,
+                    10,
+                    10
+                )
+            }
+
+        feedScroll.addView(
+            list,
+            ScrollView.LayoutParams(
+                -1,
+                -2
+            )
+        )
+
+        root.addView(
+            feedScroll,
+            LinearLayout.LayoutParams(
+                -1,
+                0,
+                1f
+            )
+        )
+
+        val bottom =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER
+
+                setPadding(
+                    6,
+                    6,
+                    6,
+                    6
+                )
+
+                background =
+                    Color.WHITE.toDrawable()
+            }
+
+        bottom.addView(
+            bottomButton(
+                "⌂  Home",
+                {
+                    goHome()
+                }
+            ),
+            LinearLayout.LayoutParams(
+                0,
+                48,
+                1f
+            )
+        )
+
+        bottom.addView(
+            bottomButton(
+                "↗  Share",
+                {
+                    shareChannel()
+                }
+            ),
+            LinearLayout.LayoutParams(
+                0,
+                48,
+                1f
+            ).apply {
+
+                setMargins(
+                    6,
+                    0,
+                    0,
+                    0
+                )
+            }
+        )
+
+        bottom.addView(
+            bottomButton(
+                "‹  Back",
+                {
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            ),
+            LinearLayout.LayoutParams(
+                0,
+                48,
+                1f
+            ).apply {
+
+                setMargins(
+                    6,
+                    0,
+                    0,
+                    0
+                )
+            }
+        )
+
+        root.addView(
+            bottom,
+            LinearLayout.LayoutParams(
+                -1,
+                -2
+            )
+        )
+
+        return root
     }
-
     private fun bottomButton(
         label: String,
         action: () -> Unit
