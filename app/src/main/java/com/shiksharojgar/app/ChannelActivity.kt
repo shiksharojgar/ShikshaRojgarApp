@@ -8,10 +8,10 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.*
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -23,6 +23,7 @@ import java.util.*
 class ChannelActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
+
     private var phoneVerificationId: String? = null
 
     private lateinit var list: LinearLayout
@@ -32,83 +33,144 @@ class ChannelActivity : AppCompatActivity() {
     private lateinit var feedScroll: ScrollView
 
     private var globalComments = true
+
     private val posts = mutableListOf<ChannelPost>()
-    private val likedState = mutableMapOf<String, Boolean>()
-    private val likeOverrides = mutableMapOf<String, Long>()
-    private val viewOverrides = mutableMapOf<String, Long>()
-    private val shareOverrides = mutableMapOf<String, Long>()
-    private val viewedSession = mutableSetOf<String>()
+
+    private val likedState =
+        mutableMapOf<String, Boolean>()
+
+    private val likeOverrides =
+        mutableMapOf<String, Long>()
+
+    private val viewOverrides =
+        mutableMapOf<String, Long>()
+
+    private val shareOverrides =
+        mutableMapOf<String, Long>()
+
+    private val viewedSession =
+        mutableSetOf<String>()
 
     private var followerCount = 0L
+
     private var followBusy = false
+
     private var firstFeedRender = true
+
     private var followingState = false
+
     private var pendingPostId: String? = null
 
     private val fmt =
-        SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale("hi", "IN"))
+        SimpleDateFormat(
+            "dd MMM yyyy, hh:mm a",
+            Locale("hi", "IN")
+        )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
         setContentView(makeUi())
 
-        pendingPostId = intent.data?.let { uri ->
-            uri.getQueryParameter("post")
-                ?: uri.lastPathSegment?.takeIf {
-                    uri.path?.contains("/post") == true
-                }
-        }
+        pendingPostId =
+            intent.data?.let { uri ->
 
-        getSharedPreferences("sr_notifications", MODE_PRIVATE)
+                uri.getQueryParameter("post")
+                    ?: uri.lastPathSegment?.takeIf {
+                        uri.path?.contains("/post") == true
+                    }
+            }
+
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
             .edit()
-            .putInt("channel_unread", 0)
-            .putBoolean("channel_open", true)
-            .putLong("channel_last_seen_at", System.currentTimeMillis())
-            .putBoolean("channel_unread_initialized", true)
+            .putInt(
+                "channel_unread",
+                0
+            )
+            .putBoolean(
+                "channel_open",
+                true
+            )
+            .putLong(
+                "channel_last_seen_at",
+                System.currentTimeMillis()
+            )
+            .putBoolean(
+                "channel_unread_initialized",
+                true
+            )
             .apply()
 
         ChannelRepository.config { count, comments ->
+
             globalComments = comments
-            followerCount = count.coerceAtLeast(0L)
 
-            followerCountView.text =
-                "👥 $followerCount Followers"
+            followerCount =
+                count.coerceAtLeast(0L)
 
-            commentStatusView.text =
-                if (comments) "💬 Comments ON"
-                else "🔒 Comments OFF"
+            runOnUiThread {
 
-            renderPosts()
+                followerCountView.text =
+                    "👥 $followerCount Followers"
+
+                commentStatusView.text =
+                    if (comments) {
+                        "💬 Comments ON"
+                    } else {
+                        "🔒 Comments OFF"
+                    }
+
+                renderPosts()
+            }
         }
 
-        ChannelRepository.posts({ p ->
-            val oldNewest = posts.lastOrNull()?.id
+        ChannelRepository.posts(
+            { p ->
 
-            posts.clear()
-            posts.addAll(p)
+                val oldNewest =
+                    posts.lastOrNull()?.id
 
-            renderPosts()
+                posts.clear()
+                posts.addAll(p)
 
-            val newNewest = posts.lastOrNull()?.id
+                runOnUiThread {
 
-            if (firstFeedRender || oldNewest != newNewest) {
-                scrollToNewest()
-            }
+                    renderPosts()
 
-            pendingPostId?.let { id ->
-                val index = posts.indexOfFirst { it.id == id }
+                    val newNewest =
+                        posts.lastOrNull()?.id
 
-                if (index >= 0) {
-                    scrollToPost(index)
+                    if (
+                        firstFeedRender ||
+                        oldNewest != newNewest
+                    ) {
+                        scrollToNewest()
+                    }
+
+                    pendingPostId?.let { id ->
+
+                        val index =
+                            posts.indexOfFirst {
+                                it.id == id
+                            }
+
+                        if (index >= 0) {
+                            scrollToPost(index)
+                        }
+
+                        pendingPostId = null
+                    }
+
+                    firstFeedRender = false
                 }
-
-                pendingPostId = null
-            }
-
-            firstFeedRender = false
-
-        }, {})
+            },
+            {}
+        )
 
         ChannelRepository.ensureSignedIn { connected ->
 
@@ -116,71 +178,112 @@ class ChannelActivity : AppCompatActivity() {
 
                 ChannelRepository.isFollowing { following ->
 
-                    updateFollow(following)
+                    runOnUiThread {
+                        updateFollow(following)
+                    }
 
                     if (following) {
+
                         FirebaseMessaging
                             .getInstance()
-                            .subscribeToTopic("all_channel_followers")
+                            .subscribeToTopic(
+                                "all_channel_followers"
+                            )
+
                     } else {
+
                         FirebaseMessaging
                             .getInstance()
-                            .unsubscribeFromTopic("all_channel_followers")
+                            .unsubscribeFromTopic(
+                                "all_channel_followers"
+                            )
                     }
                 }
 
             } else {
-                updateFollow(false)
+
+                runOnUiThread {
+                    updateFollow(false)
+                }
             }
         }
     }
 
     override fun onDestroy() {
-        getSharedPreferences("sr_notifications", MODE_PRIVATE)
+
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
             .edit()
-            .putBoolean("channel_open", false)
+            .putBoolean(
+                "channel_open",
+                false
+            )
             .apply()
 
         super.onDestroy()
     }
 
-    override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(
+        intent: Intent
+    ) {
         super.onNewIntent(intent)
 
         setIntent(intent)
 
-        pendingPostId = intent.data?.let { uri ->
-            uri.getQueryParameter("post")
-                ?: uri.lastPathSegment?.takeIf {
-                    uri.path?.contains("/post") == true
-                }
-        }
+        pendingPostId =
+            intent.data?.let { uri ->
 
-        if (pendingPostId != null && posts.isNotEmpty()) {
-            val index = posts.indexOfFirst {
-                it.id == pendingPostId
+                uri.getQueryParameter("post")
+                    ?: uri.lastPathSegment?.takeIf {
+                        uri.path?.contains("/post") == true
+                    }
             }
 
-            if (index >= 0) {
-                scrollToPost(index)
+        pendingPostId?.let { id ->
+
+            if (posts.isNotEmpty()) {
+
+                val index =
+                    posts.indexOfFirst {
+                        it.id == id
+                    }
+
+                if (index >= 0) {
+                    scrollToPost(index)
+                }
             }
         }
     }
 
-    private fun scrollToPost(index: Int) {
-        if (!::feedScroll.isInitialized ||
-            !::list.isInitialized
-        ) return
+    private fun scrollToPost(
+        index: Int
+    ) {
 
-        val child = list.getChildAt(
-            index.coerceIn(
-                0,
-                (list.childCount - 1).coerceAtLeast(0)
+        if (
+            !::feedScroll.isInitialized ||
+            !::list.isInitialized
+        ) {
+            return
+        }
+
+        if (list.childCount <= 0) {
+            return
+        }
+
+        val child =
+            list.getChildAt(
+                index.coerceIn(
+                    0,
+                    list.childCount - 1
+                )
             )
-        )
 
         if (child != null) {
+
             feedScroll.post {
+
                 feedScroll.smoothScrollTo(
                     0,
                     child.top
@@ -189,344 +292,69 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    private fun scrollToNewest() {
+
+        if (!::feedScroll.isInitialized) {
+            return
+        }
+
+        feedScroll.post {
+
+            feedScroll.fullScroll(
+                View.FOCUS_DOWN
+            )
+        }
+    }
+
     private fun makeUi(): View {
 
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(
-                Color.rgb(245, 248, 252)
-            )
-        }
+        val root =
+            LinearLayout(this).apply {
 
-        val toolbar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(6, 6, 6, 6)
-            setBackgroundColor(
-                Color.rgb(6, 59, 122)
-            )
-        }
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setBackgroundColor(
+                    Color.rgb(
+                        245,
+                        248,
+                        252
+                    )
+                )
+            }
+
+        val toolbar =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    6,
+                    6,
+                    6,
+                    6
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        6,
+                        59,
+                        122
+                    )
+                )
+            }
 
         ViewCompat.setOnApplyWindowInsetsListener(
             toolbar
         ) { view, insets ->
 
             val top =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.statusBars()
-                ).top
-
-            view.setPadding(
-                6,
-                top + 6,
-                6,
-                6
-            )
-
-            insets
-        }
-
-        toolbar.addView(
-            toolButton("←  Back") {
-                finish()
-            },
-            LinearLayout.LayoutParams(72, 58)
-        )
-
-        toolbar.addView(
-            TextView(this).apply {
-                text = "📢  SHIKSHA ROJGAR CHANNEL"
-                textSize = 16f
-                typeface = Typeface.DEFAULT_BOLD
-                setTextColor(Color.WHITE)
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(8, 0, 4, 0)
-            },
-            LinearLayout.LayoutParams(
-                0,
-                58,
-                1f
-            )
-        )
-
-        toolbar.addView(
-            toolButton("⌂  Home") {
-                goHome()
-            },
-            LinearLayout.LayoutParams(74, 58)
-        )
-
-        toolbar.addView(
-            toolButton("↗  Share") {
-                shareChannel()
-            },
-            LinearLayout.LayoutParams(82, 58)
-        )
-
-        root.addView(
-            toolbar,
-            LinearLayout.LayoutParams(-1, -2)
-        )
-
-        val head = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(18, 18, 18, 18)
-            background =
-                GradientFactory.gradient(
-                    "#075985",
-                    "#0EA5E9"
-                )
-        }
-
-        head.addView(
-            TextView(this).apply {
-                text = "📢  शिक्षा रोजगार चैनल"
-                textSize = 23f
-                setTextColor(Color.WHITE)
-                typeface = Typeface.DEFAULT_BOLD
-            }
-        )
-
-        head.addView(
-            TextView(this).apply {
-                text =
-                    "सरकारी आदेश • निर्देश • टाइम टेबल • शिक्षा एवं रोजगार अपडेट"
-                textSize = 13f
-                setTextColor(Color.WHITE)
-                setPadding(0, 4, 0, 0)
-            }
-        )
-
-        followerCountView =
-            TextView(this).apply {
-                text = "👥 Followers"
-                textSize = 14f
-                setTextColor(Color.WHITE)
-                setPadding(0, 9, 0, 0)
-            }
-
-        head.addView(followerCountView)
-
-        root.addView(head)
-
-        val followArea =
-            LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                setPadding(14, 12, 14, 12)
-                background = Color.WHITE.toDrawable()
-                elevation = 5f
-            }
-
-        followBtn =
-            TextView(this).apply {
-
-                text = "➕  FOLLOW CHANNEL"
-                gravity = Gravity.CENTER
-                textSize = 15f
-                includeFontPadding = false
-                maxLines = 1
-                ellipsize = null
-                typeface = Typeface.DEFAULT_BOLD
-
-                setTextColor(Color.WHITE)
-
-                background =
-                    GradientFactory.gradient(
-                        "#16A34A",
-                        "#22C55E"
-                    )
-
-                setPadding(
-                    28,
-                    16,
-                    28,
-                    16
-                )
-
-                isClickable = true
-                isFocusable = true
-
-                setOnClickListener {
-                    toggleFollow()
-                }
-            }
-
-        followArea.addView(
-            followBtn,
-            LinearLayout.LayoutParams(
-                -1,
-                64
-            ).apply {
-                setMargins(4, 0, 4, 0)
-            }
-        )
-
-        val infoRow =
-            LinearLayout(this).apply {
-                gravity = Gravity.CENTER
-                setPadding(0, 8, 0, 0)
-            }
-
-        commentStatusView =
-            TextView(this).apply {
-                text = "💬 Comments"
-                textSize = 12f
-                setTextColor(
-                    Color.rgb(75, 85, 99)
-                )
-                gravity = Gravity.CENTER
-            }
-
-        infoRow.addView(commentStatusView)
-        followArea.addView(infoRow)
-
-        val offlineRow =
-            LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(10, 8, 10, 8)
-            }
-
-        offlineRow.addView(
-            TextView(this).apply {
-                text = "📥 Offline सामग्री"
-                textSize = 15f
-                typeface = Typeface.DEFAULT_BOLD
-                setTextColor(
-                    Color.rgb(25, 35, 50)
-                )
-            },
-            LinearLayout.LayoutParams(
-                0,
-                48,
-                1f
-            )
-        )
-
-        offlineRow.addView(
-            actionButton(
-                "📂  OPEN OFFLINE",
-                "#7C3AED",
-                "#A855F7"
-            ) {
-                showOfflineList()
-            },
-            LinearLayout.LayoutParams(
-                160,
-                48
-            )
-        )
-
-        root.addView(offlineRow)
-
-        feedScroll = ScrollView(this)
-
-        list =
-            LinearLayout(this).apply {
-                orientation =
-                    LinearLayout.VERTICAL
-
-                setPadding(
-                    10,
-                    4,
-                    10,
-                    20
-                )
-            }
-
-        feedScroll.addView(list)
-
-        root.addView(
-            feedScroll,
-            LinearLayout.LayoutParams(
-                -1,
-                0,
-                1f
-            )
-        )
-
-        val bottom =
-            LinearLayout(this).apply {
-                orientation =
-                    LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER
-                setPadding(7, 5, 7, 7)
-                setBackgroundColor(Color.WHITE)
-                elevation = 16f
-            }
-
-        bottom.addView(
-            bottomButton("←  Back") {
-                finish()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                56,
-                1f
-            )
-        )
-
-        bottom.addView(
-            bottomButton("⌂  Home") {
-                goHome()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                56,
-                1f
-            )
-        )
-
-        bottom.addView(
-            bottomButton("↗  Share") {
-                shareChannel()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                56,
-                1f
-            )
-        )
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            bottom
-        ) { view, insets ->
-
-            val nav =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.navigationBars()
-                ).bottom
-
-            view.setPadding(
-                7,
-                5,
-                7,
-                nav + 7
-            )
-
-            insets
-        }
-
-        root.addView(
-            followArea,
-            LinearLayout.LayoutParams(
-                -1,
-                -2
-            )
-        )
-
-        root.addView(
-            bottom,
-            LinearLayout.LayoutParams(
-                -1,
-                -2
-            )
-        )
-
-        return root
-    }
-        private fun toolButton(
+                insets.get
+                private fun toolButton(
         label: String,
         action: () -> Unit
     ): TextView = TextView(this).apply {
@@ -563,7 +391,8 @@ class ChannelActivity : AppCompatActivity() {
             Color.rgb(14, 91, 215)
         )
 
-        background = Color.WHITE.toDrawable()
+        background =
+            Color.WHITE.toDrawable()
 
         isClickable = true
         isFocusable = true
@@ -604,9 +433,10 @@ class ChannelActivity : AppCompatActivity() {
 
         if (followBusy) return
 
-        val target = !followingState
+        val target =
+            !followingState
 
-        // Immediate UI response
+        // तुरंत UI बदलना
         followingState = target
         updateFollow(target)
 
@@ -619,10 +449,16 @@ class ChannelActivity : AppCompatActivity() {
 
                 runOnUiThread {
 
-                    followingState = !target
-                    updateFollow(followingState)
+                    followingState =
+                        !target
 
-                    followBtn.isEnabled = true
+                    updateFollow(
+                        followingState
+                    )
+
+                    followBtn.isEnabled =
+                        true
+
                     followBusy = false
 
                     Toast.makeText(
@@ -635,19 +471,27 @@ class ChannelActivity : AppCompatActivity() {
                 return@ensureSignedIn
             }
 
-            ChannelRepository.follow(target) { ok ->
+            ChannelRepository.follow(
+                target
+            ) { ok ->
 
                 runOnUiThread {
 
                     followBusy = false
-                    followBtn.isEnabled = true
+
+                    followBtn.isEnabled =
+                        true
 
                     if (ok) {
 
                         followerCount =
                             (
                                 followerCount +
-                                    if (target) 1L else -1L
+                                    if (target) {
+                                        1L
+                                    } else {
+                                        -1L
+                                    }
                             ).coerceAtLeast(0L)
 
                         followerCountView.text =
@@ -677,17 +521,22 @@ class ChannelActivity : AppCompatActivity() {
 
                         Toast.makeText(
                             this,
-                            if (target)
+                            if (target) {
                                 "Channel Follow हो गया"
-                            else
-                                "Follow हटाया गया",
+                            } else {
+                                "Follow हटाया गया"
+                            },
                             Toast.LENGTH_SHORT
                         ).show()
 
                     } else {
 
-                        followingState = !target
-                        updateFollow(followingState)
+                        followingState =
+                            !target
+
+                        updateFollow(
+                            followingState
+                        )
 
                         Toast.makeText(
                             this,
@@ -700,50 +549,62 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateFollow(v: Boolean) {
+    private fun updateFollow(
+        value: Boolean
+    ) {
 
-        followingState = v
+        followingState = value
 
         followBtn.text =
-            if (v)
+            if (value) {
                 "✓  Followed"
-            else
+            } else {
                 "➕  Follow करें"
+            }
 
-        if (v) {
+        if (value) {
 
             followBtn.setTextColor(
-                Color.rgb(107, 114, 128)
+                Color.rgb(
+                    107,
+                    114,
+                    128
+                )
             )
 
             followBtn.background =
-                android.graphics.drawable.GradientDrawable().apply {
+                android.graphics.drawable
+                    .GradientDrawable()
+                    .apply {
 
-                    setColor(
-                        Color.argb(
-                            35,
-                            107,
-                            114,
-                            128
+                        setColor(
+                            Color.argb(
+                                35,
+                                107,
+                                114,
+                                128
+                            )
                         )
-                    )
 
-                    cornerRadius = 26f
+                        cornerRadius =
+                            26f
 
-                    setStroke(
-                        1,
-                        Color.argb(
-                            70,
-                            107,
-                            114,
-                            128
+                        setStroke(
+                            1,
+                            Color.argb(
+                                70,
+                                107,
+                                114,
+                                128
+                            )
                         )
-                    )
-                }
+                    }
 
         } else {
 
-            followBtn.setTextColor(Color.WHITE)
+            followBtn.setTextColor(
+                Color.WHITE
+            )
 
             followBtn.background =
                 GradientFactory.gradient(
@@ -755,7 +616,9 @@ class ChannelActivity : AppCompatActivity() {
 
     private fun renderPosts() {
 
-        if (!::list.isInitialized) return
+        if (!::list.isInitialized) {
+            return
+        }
 
         list.removeAllViews()
 
@@ -781,13 +644,14 @@ class ChannelActivity : AppCompatActivity() {
             return
         }
 
-        posts.forEach { p ->
+        posts.forEach { post ->
 
             list.addView(
-                postView(p)
+                postView(post)
             )
 
-            if (p != posts.last()) {
+            // हर पोस्ट के बीच नीला gap
+            if (post != posts.last()) {
 
                 list.addView(
                     View(this).apply {
@@ -799,12 +663,12 @@ class ChannelActivity : AppCompatActivity() {
                                 229
                             )
                         )
-
                     },
                     LinearLayout.LayoutParams(
                         -1,
                         7
                     ).apply {
+
                         setMargins(
                             0,
                             0,
@@ -815,31 +679,21 @@ class ChannelActivity : AppCompatActivity() {
                 )
             }
 
-            if (viewedSession.add(p.id)) {
+            // एक session में एक post का view
+            // केवल एक बार count होगा
+            if (viewedSession.add(post.id)) {
 
-                viewOverrides[p.id] =
+                viewOverrides[post.id] =
                     (
-                        viewOverrides[p.id]
-                            ?: p.viewCount
+                        viewOverrides[post.id]
+                            ?: post.viewCount
                     ) + 1L
 
                 AnalyticsTracker.uniquePostView(
                     this,
-                    p.id
+                    post.id
                 )
             }
-        }
-    }
-
-    private fun scrollToNewest() {
-
-        if (!::feedScroll.isInitialized) return
-
-        feedScroll.post {
-
-            feedScroll.fullScroll(
-                View.FOCUS_DOWN
-            )
         }
     }
 
@@ -866,17 +720,21 @@ class ChannelActivity : AppCompatActivity() {
                 elevation = 3f
             }
 
+        // Category + Date
         box.addView(
             TextView(this).apply {
 
                 text =
                     "${p.category}  •  ${
-                        if (p.createdAt > 0)
+                        if (p.createdAt > 0) {
                             fmt.format(
-                                Date(p.createdAt)
+                                Date(
+                                    p.createdAt
+                                )
                             )
-                        else
+                        } else {
                             ""
+                        }
                     }"
 
                 textSize = 11f
@@ -891,6 +749,7 @@ class ChannelActivity : AppCompatActivity() {
             }
         )
 
+        // Title
         box.addView(
             TextView(this).apply {
 
@@ -918,6 +777,7 @@ class ChannelActivity : AppCompatActivity() {
             }
         )
 
+        // Text-only post भी पूरी तरह allowed
         if (p.body.isNotBlank()) {
 
             box.addView(
@@ -941,6 +801,7 @@ class ChannelActivity : AppCompatActivity() {
             )
         }
 
+        // Image
         if (p.imageUrl.isNotBlank()) {
 
             val imageBox =
@@ -988,7 +849,8 @@ class ChannelActivity : AppCompatActivity() {
 
                                 Toast.makeText(
                                     this@ChannelActivity,
-                                    err ?: "Image नहीं खुली",
+                                    err
+                                        ?: "Image नहीं खुली",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -1008,7 +870,7 @@ class ChannelActivity : AppCompatActivity() {
                 TextView(this).apply {
 
                     text =
-                        "🖼️ बड़ा करने / पूरा खोलने के लिए फोटो पर क्लिक करें (फोटो गैलरी में खुलेगा)"
+                        "🖼️ फोटो पर क्लिक करके पूरा खोलें"
 
                     textSize = 13f
 
@@ -1063,6 +925,7 @@ class ChannelActivity : AppCompatActivity() {
             }
         }
 
+        // PDF / Document
         if (p.fileUrl.isNotBlank()) {
 
             box.addView(
@@ -1077,6 +940,9 @@ class ChannelActivity : AppCompatActivity() {
 
                     textSize = 13f
 
+                    typeface =
+                        Typeface.DEFAULT_BOLD
+
                     setTextColor(
                         Color.rgb(
                             14,
@@ -1087,9 +953,9 @@ class ChannelActivity : AppCompatActivity() {
 
                     setPadding(
                         0,
-                        5,
+                        7,
                         0,
-                        5
+                        7
                     )
 
                     setOnClickListener {
@@ -1107,7 +973,8 @@ class ChannelActivity : AppCompatActivity() {
 
                                 Toast.makeText(
                                     this@ChannelActivity,
-                                    err ?: "PDF नहीं खुली",
+                                    err
+                                        ?: "PDF नहीं खुली",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -1138,14 +1005,16 @@ class ChannelActivity : AppCompatActivity() {
             likeOverrides[p.id]
                 ?: p.likeCount
 
+        // Like button
         val like =
             TextView(this).apply {
 
                 text =
-                    if (currentLiked)
+                    if (currentLiked) {
                         "👍 Liked $initialLikeCount"
-                    else
+                    } else {
                         "👍 Like $initialLikeCount"
+                    }
 
                 textSize = 13f
 
@@ -1153,24 +1022,29 @@ class ChannelActivity : AppCompatActivity() {
                     Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    if (currentLiked)
+                    if (currentLiked) {
                         Color.WHITE
-                    else
+                    } else {
                         Color.rgb(
                             14,
                             91,
                             215
                         )
+                    }
                 )
 
                 background =
-                    if (currentLiked)
+                    if (currentLiked) {
+
                         GradientFactory.gradient(
                             "#2563EB",
                             "#38BDF8"
                         )
-                    else
+
+                    } else {
+
                         Color.WHITE.toDrawable()
+                    }
 
                 setPadding(
                     10,
@@ -1181,73 +1055,14 @@ class ChannelActivity : AppCompatActivity() {
 
                 setOnClickListener {
 
-                    ChannelRepository.ensureSignedIn { connected ->
-
-                        if (!connected) {
-
-                            Toast.makeText(
-                                this@ChannelActivity,
-                                "Like के लिए sign-in नहीं हो पाया",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            return@ensureSignedIn
-                        }
-
-                        ChannelRepository.isLiked(
-                            p.id
-                        ) { liked ->
-
-                            val target = !liked
-
-                            likedState[p.id] =
-                                target
-
-                            val base =
-                                likeOverrides[p.id]
-                                    ?: p.likeCount
-
-                            likeOverrides[p.id] =
-                                (
-                                    base +
-                                        if (target)
-                                            1L
-                                        else
-                                            -1L
-                                ).coerceAtLeast(0L)
-
-                            renderPosts()
-
-                            ChannelRepository.like(
-                                p.id,
-                                target
-                            ) { ok ->
-
-                                if (!ok) {
-
-                                    runOnUiThread {
-
-                                        likedState[p.id] =
-                                            liked
-
-                                        likeOverrides[p.id] =
-                                            p.likeCount
-
-                                        renderPosts()
-
-                                        Toast.makeText(
-                                            this@ChannelActivity,
-                                            "Like अपडेट नहीं हुआ",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    toggleLike(
+                        p,
+                        currentLiked
+                    )
                 }
             }
 
+        // केवल एक बार Like add होगा
         actions.addView(
             like,
             LinearLayout.LayoutParams(
@@ -1256,101 +1071,181 @@ class ChannelActivity : AppCompatActivity() {
                 1f
             )
         )
-                val comments = TextView(this).apply {
-            text = "💬 ${p.commentCount}"
-            textSize = 13f
-            setPadding(6, 7, 12, 7)
-            setOnClickListener {
-                showComments(p)
-            }
-        }
 
-        val offline = TextView(this).apply {
-            text = if (OfflineStore.isSaved(this@ChannelActivity, p.id)) {
-                "✓ Offline"
-            } else {
-                "📥 Offline"
-            }
+        val comments =
+            TextView(this).apply {
 
-            textSize = 13f
-            setTextColor(Color.rgb(14, 91, 215))
-            setPadding(6, 7, 12, 7)
+                text =
+                    "💬 ${p.commentCount}"
 
-            setOnClickListener {
-                if (!OfflineStore.isSaved(this@ChannelActivity, p.id)) {
-                    text = "⏳ Saving…"
+                textSize = 13f
 
-                    ChannelRepository.saveOffline(
-                        this@ChannelActivity,
-                        p
-                    ) { ok, err ->
+                setPadding(
+                    6,
+                    7,
+                    12,
+                    7
+                )
 
-                        runOnUiThread {
-                            text = if (ok) {
-                                AnalyticsTracker.offlineDownload(
-                                    this@ChannelActivity,
-                                    p.id
-                                )
-                                "✓ Offline Saved"
-                            } else {
-                                "📥 Offline"
-                            }
-
-                            Toast.makeText(
-                                this@ChannelActivity,
-                                if (ok) {
-                                    "आदेश Offline सेव हो गया"
-                                } else {
-                                    "सेव नहीं हुआ: $err"
-                                },
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                } else {
-                    openOffline(p)
+                setOnClickListener {
+                    showComments(p)
                 }
             }
-        }
 
-        actions.addView(like)
-        actions.addView(comments)
-        actions.addView(offline)
+        actions.addView(
+            comments
+        )
 
-        val share = TextView(this).apply {
-            text = "↗  SHARE"
-            textSize = 14f
-            gravity = Gravity.CENTER
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.WHITE)
-            background = GradientFactory.gradient(
-                "#075985",
-                "#2563EB"
-            )
-            setPadding(16, 7, 16, 7)
-            minWidth = 104
-            minHeight = 46
+        val offline =
+            TextView(this).apply {
 
-            setOnClickListener {
-                sharePost(p)
+                text =
+                    if (
+                        OfflineStore.isSaved(
+                            this@ChannelActivity,
+                            p.id
+                        )
+                    ) {
+                        "✓ Offline"
+                    } else {
+                        "📥 Offline"
+                    }
+
+                textSize = 13f
+
+                setTextColor(
+                    Color.rgb(
+                        14,
+                        91,
+                        215
+                    )
+                )
+
+                setPadding(
+                    6,
+                    7,
+                    12,
+                    7
+                )
+
+                setOnClickListener {
+
+                    if (
+                        !OfflineStore.isSaved(
+                            this@ChannelActivity,
+                            p.id
+                        )
+                    ) {
+
+                        text = "⏳ Saving…"
+
+                        ChannelRepository.saveOffline(
+                            this@ChannelActivity,
+                            p
+                        ) { ok, err ->
+
+                            runOnUiThread {
+
+                                text =
+                                    if (ok) {
+
+                                        AnalyticsTracker
+                                            .offlineDownload(
+                                                this@ChannelActivity,
+                                                p.id
+                                            )
+
+                                        "✓ Offline Saved"
+
+                                    } else {
+
+                                        "📥 Offline"
+                                    }
+
+                                Toast.makeText(
+                                    this@ChannelActivity,
+                                    if (ok) {
+                                        "आदेश Offline सेव हो गया"
+                                    } else {
+                                        "सेव नहीं हुआ: $err"
+                                    },
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                    } else {
+
+                        openOffline(p)
+                    }
+                }
             }
-        }
 
-        actions.addView(share)
+        actions.addView(
+            offline
+        )
 
-        box.addView(actions)
+        val share =
+            TextView(this).apply {
+
+                text = "↗  SHARE"
+
+                textSize = 14f
+
+                gravity =
+                    Gravity.CENTER
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                background =
+                    GradientFactory.gradient(
+                        "#075985",
+                        "#2563EB"
+                    )
+
+                setPadding(
+                    16,
+                    7,
+                    16,
+                    7
+                )
+
+                minWidth = 104
+                minHeight = 46
+
+                setOnClickListener {
+                    sharePost(p)
+                }
+            }
+
+        actions.addView(
+            share
+        )
+
+        box.addView(
+            actions
+        )
 
         val shownLikes =
-            likeOverrides[p.id] ?: p.likeCount
+            likeOverrides[p.id]
+                ?: p.likeCount
 
         val shownViews =
-            viewOverrides[p.id] ?: p.viewCount
+            viewOverrides[p.id]
+                ?: p.viewCount
 
         val shownShares =
-            shareOverrides[p.id] ?: p.shareCount
+            shareOverrides[p.id]
+                ?: p.shareCount
 
         box.addView(
             TextView(this).apply {
+
                 text =
                     "👁 Views: $shownViews    " +
                     "↗ Shares: $shownShares    " +
@@ -1358,31 +1253,128 @@ class ChannelActivity : AppCompatActivity() {
                     "💬 Comments: ${p.commentCount}"
 
                 textSize = 12f
-                typeface = Typeface.DEFAULT_BOLD
-                setTextColor(Color.rgb(71, 85, 105))
-                setPadding(8, 10, 8, 4)
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        71,
+                        85,
+                        105
+                    )
+                )
+
+                setPadding(
+                    8,
+                    10,
+                    8,
+                    4
+                )
             }
         )
 
-        box.setOnClickListener {
-            // Card itself does not navigate.
-        }
-
         return box.apply {
+
             layoutParams =
                 LinearLayout.LayoutParams(
                     -1,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(0, 0, 0, 18)
+
+                    setMargins(
+                        0,
+                        0,
+                        0,
+                        18
+                    )
                 }
         }
     }
+        private fun toggleLike(
+        p: ChannelPost,
+        currentLiked: Boolean
+    ) {
 
-    private fun sharePost(p: ChannelPost) {
+        ChannelRepository.ensureSignedIn { connected ->
 
+            if (!connected) {
+
+                runOnUiThread {
+
+                    Toast.makeText(
+                        this@ChannelActivity,
+                        "Like के लिए sign-in नहीं हो पाया",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                return@ensureSignedIn
+            }
+
+            val target =
+                !currentLiked
+
+            // तुरंत UI update
+            likedState[p.id] =
+                target
+
+            val base =
+                likeOverrides[p.id]
+                    ?: p.likeCount
+
+            likeOverrides[p.id] =
+                (
+                    base +
+                        if (target) {
+                            1L
+                        } else {
+                            -1L
+                        }
+                ).coerceAtLeast(0L)
+
+            runOnUiThread {
+                renderPosts()
+            }
+
+            ChannelRepository.like(
+                p.id,
+                target
+            ) { ok ->
+
+                if (!ok) {
+
+                    runOnUiThread {
+
+                        likedState[p.id] =
+                            currentLiked
+
+                        likeOverrides[p.id] =
+                            p.likeCount
+
+                        renderPosts()
+
+                        Toast.makeText(
+                            this@ChannelActivity,
+                            "Like अपडेट नहीं हुआ",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun sharePost(
+        p: ChannelPost
+    ) {
+
+        // Share count तुरंत बढ़ाएँ
         shareOverrides[p.id] =
-            (shareOverrides[p.id] ?: p.shareCount) + 1L
+            (
+                shareOverrides[p.id]
+                    ?: p.shareCount
+            ) + 1L
 
         renderPosts()
 
@@ -1392,80 +1384,158 @@ class ChannelActivity : AppCompatActivity() {
         )
 
         val web =
-            "https://shiksha-rojgar.web.app/channel?post=${Uri.encode(p.id)}"
+            "https://shiksha-rojgar.web.app/channel" +
+                "?post=${Uri.encode(p.id)}"
 
         val app =
-            "shiksharojgar://channel/post/${Uri.encode(p.id)}"
+            "shiksharojgar://channel/post/" +
+                Uri.encode(p.id)
 
-        val text = buildString {
+        val text =
+            buildString {
 
-            append("📢 शिक्षा रोजगार चैनल\n")
-
-            if (p.title.isNotBlank()) {
-                append(p.title)
-            }
-
-            if (p.body.isNotBlank()) {
-                append("\n\n${p.body}")
-            }
-
-            if (p.fileUrl.isNotBlank()) {
                 append(
-                    "\n\n📄 PDF/Document: ${p.fileUrl}"
+                    "📢 शिक्षा रोजगार चैनल\n"
+                )
+
+                if (p.title.isNotBlank()) {
+                    append(p.title)
+                }
+
+                if (p.body.isNotBlank()) {
+
+                    append(
+                        "\n\n${p.body}"
+                    )
+                }
+
+                if (p.fileUrl.isNotBlank()) {
+
+                    append(
+                        "\n\n📄 PDF/Document: " +
+                            p.fileUrl
+                    )
+                }
+
+                append(
+                    "\n\n🌐 Channel Link:\n$web"
+                )
+
+                append(
+                    "\n📲 Direct App Link:\n$app"
                 )
             }
 
-            append("\n\n🌐 Channel Link: $web")
-            append("\n📲 App Link: $app")
-        }
+        try {
 
-        startActivity(
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        text
-                    )
-                },
-                "Share Channel Post"
+            startActivity(
+                Intent.createChooser(
+                    Intent(
+                        Intent.ACTION_SEND
+                    ).apply {
+
+                        type =
+                            "text/plain"
+
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            text
+                        )
+                    },
+                    "Share Channel Post"
+                )
             )
-        )
+
+        } catch (_: Exception) {
+
+            Toast.makeText(
+                this,
+                "Share करने के लिए कोई app उपलब्ध नहीं है",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
-    private fun showComments(p: ChannelPost) {
+    private fun showComments(
+        p: ChannelPost
+    ) {
 
-        if (!globalComments || !p.commentsEnabled) {
+        if (
+            !globalComments ||
+            !p.commentsEnabled
+        ) {
+
             Toast.makeText(
                 this,
                 "इस पोस्ट पर Comments बंद हैं",
                 Toast.LENGTH_SHORT
             ).show()
+
             return
         }
 
         val layout =
             LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(8, 4, 8, 4)
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    8,
+                    4,
+                    8,
+                    4
+                )
             }
 
         val input =
             EditText(this).apply {
-                hint = "अपनी टिप्पणी लिखें…"
+
+                hint =
+                    "अपनी टिप्पणी लिखें…"
+
+                minLines = 2
+
+                gravity =
+                    Gravity.TOP
+
+                setPadding(
+                    10,
+                    10,
+                    10,
+                    10
+                )
             }
 
         val listBox =
             LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
+
+                orientation =
+                    LinearLayout.VERTICAL
             }
 
-        layout.addView(listBox)
-        layout.addView(input)
+        layout.addView(
+            listBox,
+            LinearLayout.LayoutParams(
+                -1,
+                0,
+                1f
+            )
+        )
+
+        layout.addView(
+            input,
+            LinearLayout.LayoutParams(
+                -1,
+                -2
+            )
+        )
 
         val dialog =
             AlertDialog.Builder(this)
-                .setTitle("💬 Comments")
+                .setTitle(
+                    "💬 Comments"
+                )
                 .setView(layout)
                 .setPositiveButton(
                     "Comment",
@@ -1477,30 +1547,74 @@ class ChannelActivity : AppCompatActivity() {
                 )
                 .create()
 
-        ChannelRepository.comments(p.id) { cs ->
+        ChannelRepository.comments(
+            p.id
+        ) { comments ->
 
             runOnUiThread {
 
                 listBox.removeAllViews()
 
-                cs.forEach { c ->
+                if (comments.isEmpty()) {
 
                     listBox.addView(
                         TextView(this).apply {
 
                             text =
-                                "${c["name"] ?: "उपयोगकर्ता"}: " +
-                                "${c["text"] ?: ""}"
+                                "अभी कोई Comment नहीं है।"
 
                             textSize = 13f
+
+                            setTextColor(
+                                Color.GRAY
+                            )
+
                             setPadding(
                                 4,
-                                5,
+                                10,
                                 4,
-                                5
+                                10
                             )
                         }
                     )
+
+                } else {
+
+                    comments.forEach { comment ->
+
+                        listBox.addView(
+                            TextView(this).apply {
+
+                                text =
+                                    "${comment["name"] ?: "उपयोगकर्ता"}: " +
+                                        "${comment["text"] ?: ""}"
+
+                                textSize = 13f
+
+                                setTextColor(
+                                    Color.rgb(
+                                        40,
+                                        50,
+                                        60
+                                    )
+                                )
+
+                                setPadding(
+                                    8,
+                                    8,
+                                    8,
+                                    8
+                                )
+
+                                background =
+                                    Color.rgb(
+                                        245,
+                                        247,
+                                        250
+                                    ).toDrawable()
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -1513,18 +1627,27 @@ class ChannelActivity : AppCompatActivity() {
                 )
                 .setOnClickListener {
 
-                    val t =
+                    val commentText =
                         input.text
                             .toString()
                             .trim()
 
-                    if (t.isEmpty()) {
+                    if (
+                        commentText.isEmpty()
+                    ) {
+
+                        Toast.makeText(
+                            this,
+                            "पहले Comment लिखें",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
                         return@setOnClickListener
                     }
 
                     startPhoneVerificationForComment(
                         p,
-                        t,
+                        commentText,
                         input,
                         dialog
                     )
@@ -1533,45 +1656,77 @@ class ChannelActivity : AppCompatActivity() {
 
         dialog.show()
     }
-        private fun startPhoneVerificationForComment(
+
+    private fun startPhoneVerificationForComment(
         p: ChannelPost,
         text: String,
         input: EditText,
         dialog: AlertDialog
     ) {
-        val phoneInput = EditText(this).apply {
-            hint = "+91XXXXXXXXXX"
-            inputType =
-                android.text.InputType.TYPE_CLASS_PHONE
-        }
+
+        val phoneInput =
+            EditText(this).apply {
+
+                hint =
+                    "+91XXXXXXXXXX"
+
+                inputType =
+                    android.text.InputType
+                        .TYPE_CLASS_PHONE
+
+                setPadding(
+                    12,
+                    10,
+                    12,
+                    10
+                )
+            }
 
         AlertDialog.Builder(this)
-            .setTitle("📱 Mobile Verification")
+            .setTitle(
+                "📱 Mobile Verification"
+            )
             .setMessage(
                 "Comment करने के लिए अपना मोबाइल नंबर दर्ज करें।"
             )
             .setView(phoneInput)
-            .setPositiveButton("OTP भेजें") { _, _ ->
+            .setPositiveButton(
+                "OTP भेजें"
+            ) { _, _ ->
 
                 val phone =
                     phoneInput.text
                         .toString()
                         .trim()
 
-                if (phone.isEmpty()) {
+                if (
+                    phone.isEmpty()
+                ) {
+
                     Toast.makeText(
                         this,
                         "मोबाइल नंबर दर्ज करें",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     return@setPositiveButton
                 }
 
                 val normalizedPhone =
-                    if (phone.startsWith("+91")) {
-                        phone
-                    } else {
-                        "+91$phone"
+                    when {
+
+                        phone.startsWith(
+                            "+91"
+                        ) -> phone
+
+                        phone.startsWith(
+                            "91"
+                        ) &&
+                            phone.length >= 12 ->
+                            "+$phone"
+
+                        else ->
+                            "+91$phone"
                     }
 
                 sendCommentOtp(
@@ -1582,78 +1737,99 @@ class ChannelActivity : AppCompatActivity() {
                     normalizedPhone
                 )
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
             .show()
     }
-private fun sendCommentOtp(
-    p: ChannelPost,
-    text: String,
-    input: EditText,
-    dialog: AlertDialog,
-    phone: String
-) {
-  private fun sendCommentOtp(
-    p: ChannelPost,
-    text: String,
-    input: EditText,
-    dialog: AlertDialog,
-    phone: String
-) {
-    val options =
-        PhoneAuthProvider
-            .newBuilder(auth)
-            .setPhoneNumber(phone)
-            .setTimeout(
-                60L,
-                java.util.concurrent.TimeUnit.SECONDS
-            )
-            .setActivity(this)
-            .setCallbacks(
-                object :
-                    PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
-                    override fun onVerificationCompleted(
-                        credential: PhoneAuthCredential
-                    ) {
-                        auth.signInWithCredential(credential)
-                            .addOnSuccessListener {
-                                postVerifiedComment(
-                                    p,
-                                    text,
-                                    input,
-                                    dialog
+    private fun sendCommentOtp(
+        p: ChannelPost,
+        text: String,
+        input: EditText,
+        dialog: AlertDialog,
+        phone: String
+    ) {
+
+        val options =
+            PhoneAuthProvider
+                .newBuilder(auth)
+                .setPhoneNumber(
+                    phone
+                )
+                .setTimeout(
+                    60L,
+                    java.util.concurrent
+                        .TimeUnit.SECONDS
+                )
+                .setActivity(this)
+                .setCallbacks(
+                    object :
+                        PhoneAuthProvider
+                            .OnVerificationStateChangedCallbacks() {
+
+                        override fun onVerificationCompleted(
+                            credential:
+                                PhoneAuthCredential
+                        ) {
+
+                            auth
+                                .signInWithCredential(
+                                    credential
                                 )
-                            }
-                    }
+                                .addOnSuccessListener {
 
-                    override fun onVerificationFailed(
-                        e: FirebaseException
-                    ) {
-                        Toast.makeText(
-                            this@ChannelActivity,
-                            "OTP नहीं भेजा जा सका: ${e.message ?: "Unknown error"}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                                    postVerifiedComment(
+                                        p,
+                                        text,
+                                        input,
+                                        dialog
+                                    )
+                                }
+                        }
 
-                    override fun onCodeSent(
-                        verificationId: String,
-                        token: PhoneAuthProvider.ForceResendingToken
-                    ) {
-                        phoneVerificationId = verificationId
+                        override fun onVerificationFailed(
+                            e: FirebaseException
+                        ) {
 
-                        showOtpDialog(
-                            p,
-                            text,
-                            input,
-                            dialog
-                        )
+                            Toast.makeText(
+                                this@ChannelActivity,
+                                "OTP नहीं भेजा जा सका: " +
+                                    (
+                                        e.message
+                                            ?: "Unknown error"
+                                    ),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        override fun onCodeSent(
+                            verificationId: String,
+                            token:
+                                PhoneAuthProvider
+                                    .ForceResendingToken
+                        ) {
+
+                            phoneVerificationId =
+                                verificationId
+
+                            showOtpDialog(
+                                p,
+                                text,
+                                input,
+                                dialog
+                            )
+                        }
                     }
-                }
+                )
+
+        PhoneAuthProvider
+            .verifyPhoneNumber(
+                options
             )
+    }
 
-    PhoneAuthProvider.verifyPhoneNumber(options)
-  }  
     private fun showOtpDialog(
         p: ChannelPost,
         text: String,
@@ -1663,60 +1839,91 @@ private fun sendCommentOtp(
 
         val otpInput =
             EditText(this).apply {
-                hint = "6 अंकों का OTP"
+
+                hint =
+                    "6 अंकों का OTP"
+
                 inputType =
-                    android.text.InputType.TYPE_CLASS_NUMBER
-                filters = arrayOf(
-    android.text.InputFilter.LengthFilter(6)
-)
+                    android.text.InputType
+                        .TYPE_CLASS_NUMBER
+
+                filters =
+                    arrayOf(
+                        android.text.InputFilter
+                            .LengthFilter(6)
+                    )
+
+                setPadding(
+                    12,
+                    10,
+                    12,
+                    10
+                )
             }
 
         AlertDialog.Builder(this)
-            .setTitle("🔐 OTP दर्ज करें")
+            .setTitle(
+                "🔐 OTP दर्ज करें"
+            )
             .setMessage(
                 "आपके मोबाइल नंबर पर भेजा गया OTP दर्ज करें।"
             )
             .setView(otpInput)
-            .setPositiveButton("Verify") { _, _ ->
+            .setPositiveButton(
+                "Verify"
+            ) { _, _ ->
 
                 val otp =
                     otpInput.text
                         .toString()
                         .trim()
 
-                if (otp.length != 6) {
+                if (
+                    otp.length != 6
+                ) {
+
                     Toast.makeText(
                         this,
                         "6 अंकों का OTP दर्ज करें",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     return@setPositiveButton
                 }
 
                 val verificationId =
                     phoneVerificationId
 
-                if (verificationId.isNullOrBlank()) {
+                if (
+                    verificationId
+                        .isNullOrBlank()
+                ) {
+
                     Toast.makeText(
                         this,
                         "OTP session समाप्त हो गया। दोबारा OTP भेजें।",
                         Toast.LENGTH_LONG
                     ).show()
+
                     return@setPositiveButton
                 }
 
                 val credential =
-                    PhoneAuthProvider.getCredential(
-                        verificationId,
-                        otp
-                    )
+                    PhoneAuthProvider
+                        .getCredential(
+                            verificationId,
+                            otp
+                        )
 
-                auth.signInWithCredential(
-                    credential
-                )
+                auth
+                    .signInWithCredential(
+                        credential
+                    )
                     .addOnCompleteListener { task ->
 
-                        if (task.isSuccessful) {
+                        if (
+                            task.isSuccessful
+                        ) {
 
                             postVerifiedComment(
                                 p,
@@ -1729,7 +1936,8 @@ private fun sendCommentOtp(
 
                             Toast.makeText(
                                 this,
-                                task.exception?.message
+                                task.exception
+                                    ?.message
                                     ?: "OTP गलत है",
                                 Toast.LENGTH_LONG
                             ).show()
@@ -1782,33 +1990,48 @@ private fun sendCommentOtp(
     }
         private fun showOfflineList() {
 
-        val saved = OfflineStore.all(this)
+        val saved =
+            OfflineStore.all(this)
 
         if (saved.isEmpty()) {
 
             AlertDialog.Builder(this)
-                .setTitle("📥 Offline सामग्री")
+                .setTitle(
+                    "📥 Offline सामग्री"
+                )
                 .setMessage(
                     "अभी कोई सामग्री Offline सेव नहीं है।\n" +
-                    "किसी पोस्ट पर 📥 Offline दबाकर सेव करें।"
+                        "किसी पोस्ट पर 📥 Offline दबाकर सेव करें।"
                 )
-                .setPositiveButton("OK", null)
+                .setPositiveButton(
+                    "OK",
+                    null
+                )
                 .show()
 
             return
         }
 
         val labels =
-            saved.map {
-                "📄 ${it.second}"
+            saved.map { item ->
+
+                "📄 ${item.second}"
+
             }.toTypedArray()
 
         AlertDialog.Builder(this)
-            .setTitle("📥 Offline Downloads")
-            .setItems(labels) { _, which ->
+            .setTitle(
+                "📥 Offline Downloads"
+            )
+            .setItems(
+                labels
+            ) { _, which ->
 
                 val id =
                     saved[which].first
+
+                val savedTitle =
+                    saved[which].second
 
                 val p =
                     posts.firstOrNull {
@@ -1816,7 +2039,7 @@ private fun sendCommentOtp(
                     }
                         ?: ChannelPost(
                             id = id,
-                            title = saved[which].second
+                            title = savedTitle
                         )
 
                 openOffline(p)
@@ -1830,39 +2053,55 @@ private fun sendCommentOtp(
 
     private fun shareChannel() {
 
-        AnalyticsTracker.channelShare(this)
+        AnalyticsTracker.channelShare(
+            this
+        )
 
         val text =
-            "📢 शिक्षा रोजगार चैनल\n" +
-            "सरकारी आदेश, निर्देश, टाइम टेबल, " +
-            "शिक्षा एवं रोजगार अपडेट\n\n" +
-            "Shiksha Rojgar App\n\n" +
-            "🌐 Channel Link (App/Browser):\n" +
-            "https://shiksha-rojgar.web.app/channel\n\n" +
-            "📲 Direct App Link:\n" +
-            "shiksharojgar://channel\n\n" +
-            "🌐 Website: " +
-            "https://www.shiksharojgar.com/"
+            "📢 शिक्षा रोजगार चैनल\n\n" +
+                "सरकारी आदेश, निर्देश, टाइम टेबल, " +
+                "शिक्षा एवं रोजगार अपडेट\n\n" +
+                "Shiksha Rojgar App\n\n" +
+                "🌐 Channel Link (App/Browser):\n" +
+                "https://shiksha-rojgar.web.app/channel\n\n" +
+                "📲 Direct App Link:\n" +
+                "shiksharojgar://channel\n\n" +
+                "🌐 Website:\n" +
+                "https://www.shiksharojgar.com/"
 
-        startActivity(
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
+        try {
 
-                    type = "text/plain"
+            startActivity(
+                Intent.createChooser(
+                    Intent(
+                        Intent.ACTION_SEND
+                    ).apply {
 
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        text
-                    )
-                },
-                "Share Channel"
+                        type =
+                            "text/plain"
+
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            text
+                        )
+                    },
+                    "Share Channel"
+                )
             )
-        )
+
+        } catch (_: Exception) {
+
+            Toast.makeText(
+                this,
+                "Share करने के लिए कोई app उपलब्ध नहीं है",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun goHome() {
 
-        val i =
+        val intent =
             Intent(
                 this,
                 MainActivity::class.java
@@ -1870,34 +2109,48 @@ private fun sendCommentOtp(
 
                 flags =
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
 
-        startActivity(i)
+        startActivity(intent)
+
         finish()
     }
 
-    private fun open(url: String) {
+    private fun open(
+        url: String
+    ) {
 
-        startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(url)
+        try {
+
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(url)
+                )
             )
-        )
+
+        } catch (_: Exception) {
+
+            Toast.makeText(
+                this,
+                "Link खोलने के लिए browser उपलब्ध नहीं है",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun openOffline(
         p: ChannelPost
     ) {
 
-        val f =
+        val folder =
             ChannelRepository.openOffline(
                 this,
                 p
             )
 
-        if (f == null) {
+        if (folder == null) {
 
             Toast.makeText(
                 this,
@@ -1910,6 +2163,7 @@ private fun sendCommentOtp(
 
         val box =
             LinearLayout(this).apply {
+
                 orientation =
                     LinearLayout.VERTICAL
 
@@ -1921,74 +2175,129 @@ private fun sendCommentOtp(
                 )
             }
 
-        val txt =
-            TextView(this).apply {
+        val scroll =
+            ScrollView(this)
 
-                text =
-                    java.io.File(
-                        f,
-                        "post.txt"
-                    )
-                        .takeIf {
-                            it.exists()
-                        }
-                        ?.readText()
-                        ?: (
-                            p.title +
-                            "\n\n" +
-                            p.body
-                        )
+        val content =
+            LinearLayout(this).apply {
 
-                textSize = 15f
+                orientation =
+                    LinearLayout.VERTICAL
             }
 
-        box.addView(txt)
+        scroll.addView(
+            content
+        )
 
-        val image =
+        val textFile =
             java.io.File(
-                f,
+                folder,
+                "post.txt"
+            )
+
+        val text =
+            if (textFile.exists()) {
+
+                try {
+                    textFile.readText()
+                } catch (_: Exception) {
+                    p.title + "\n\n" + p.body
+                }
+
+            } else {
+
+                p.title + "\n\n" + p.body
+            }
+
+        content.addView(
+            TextView(this).apply {
+
+                this.text =
+                    text
+
+                textSize = 15f
+
+                setTextColor(
+                    Color.rgb(
+                        30,
+                        40,
+                        50
+                    )
+                )
+
+                setPadding(
+                    4,
+                    4,
+                    4,
+                    12
+                )
+            }
+        )
+
+        val imageFile =
+            java.io.File(
+                folder,
                 "image.jpg"
             )
 
-        if (image.exists()) {
+        if (imageFile.exists()) {
 
-            val iv =
-                ImageView(this).apply {
-
-                    setImageBitmap(
-                        android.graphics.BitmapFactory
-                            .decodeFile(
-                                image.absolutePath
-                            )
+            val bitmap =
+                android.graphics.BitmapFactory
+                    .decodeFile(
+                        imageFile.absolutePath
                     )
 
-                    adjustViewBounds = true
+            if (bitmap != null) {
 
-                    setPadding(
-                        0,
-                        10,
-                        0,
-                        10
+                content.addView(
+                    ImageView(this).apply {
+
+                        setImageBitmap(
+                            bitmap
+                        )
+
+                        adjustViewBounds =
+                            true
+
+                        scaleType =
+                            ImageView.ScaleType
+                                .FIT_CENTER
+
+                        setPadding(
+                            0,
+                            10,
+                            0,
+                            10
+                        )
+                    },
+                    LinearLayout.LayoutParams(
+                        -1,
+                        -2
                     )
-                }
-
-            box.addView(iv)
+                )
+            }
         }
 
         val pdf =
-            f.listFiles()
-                ?.firstOrNull {
-                    it.name
-                        .lowercase()
+            folder
+                .listFiles()
+                ?.firstOrNull { file ->
+
+                    file.name
+                        .lowercase(
+                            Locale.US
+                        )
                         .endsWith(".pdf")
                 }
 
         if (pdf != null) {
 
-            box.addView(
+            content.addView(
                 Button(this).apply {
 
-                    text = "📄 PDF खोलें"
+                    text =
+                        "📄 PDF खोलें"
 
                     setOnClickListener {
 
@@ -2016,6 +2325,10 @@ private fun sendCommentOtp(
                                     addFlags(
                                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                                     )
+
+                                    addFlags(
+                                        Intent.FLAG_ACTIVITY_NEW_TASK
+                                    )
                                 }
                             )
 
@@ -2032,8 +2345,19 @@ private fun sendCommentOtp(
             )
         }
 
+        box.addView(
+            scroll,
+            LinearLayout.LayoutParams(
+                -1,
+                0,
+                1f
+            )
+        )
+
         AlertDialog.Builder(this)
-            .setTitle("📥 Offline आदेश")
+            .setTitle(
+                "📥 Offline आदेश"
+            )
             .setView(box)
             .setPositiveButton(
                 "OK",
@@ -2041,9 +2365,151 @@ private fun sendCommentOtp(
             )
             .show()
     }
+        private fun showPostShareResult(
+        post: ChannelPost,
+        success: Boolean
+    ) {
+
+        if (!success) {
+
+            Toast.makeText(
+                this,
+                "Share count update नहीं हुआ",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        Toast.makeText(
+            this,
+            "Post share हो गई",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
-private fun Int.toDrawable():
+    private fun refreshFollowState() {
+
+        ChannelRepository.ensureSignedIn { connected ->
+
+            if (!connected) {
+
+                runOnUiThread {
+                    updateFollow(false)
+                }
+
+                return@ensureSignedIn
+            }
+
+            ChannelRepository.isFollowing { following ->
+
+                runOnUiThread {
+                    updateFollow(following)
+                }
+
+                if (following) {
+
+                    FirebaseMessaging
+                        .getInstance()
+                        .subscribeToTopic(
+                            "all_channel_followers"
+                        )
+
+                } else {
+
+                    FirebaseMessaging
+                        .getInstance()
+                        .unsubscribeFromTopic(
+                            "all_channel_followers"
+                        )
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (::followBtn.isInitialized) {
+            refreshFollowState()
+        }
+
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
+            .edit()
+            .putBoolean(
+                "channel_open",
+                true
+            )
+            .putInt(
+                "channel_unread",
+                0
+            )
+            .putLong(
+                "channel_last_seen_at",
+                System.currentTimeMillis()
+            )
+            .apply()
+    }
+
+    override fun onPause() {
+
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
+            .edit()
+            .putBoolean(
+                "channel_open",
+                false
+            )
+            .apply()
+
+        super.onPause()
+    }
+
+    private fun showSimpleMessage(
+        title: String,
+        message: String
+    ) {
+
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                "OK",
+                null
+            )
+            .show()
+    }
+
+    private fun safeOpenUrl(
+        url: String
+    ) {
+
+        try {
+
+            val intent =
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(url)
+                )
+
+            startActivity(intent)
+
+        } catch (_: Exception) {
+
+            Toast.makeText(
+                this,
+                "Link खोलने में समस्या हुई",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
+        private fun Int.toDrawable():
         android.graphics.drawable.ColorDrawable =
     android.graphics.drawable.ColorDrawable(this)
 
@@ -2052,28 +2518,44 @@ object GradientFactory {
     fun gradient(
         a: String,
         b: String
-    ) =
-        android.graphics.drawable.GradientDrawable(
+    ): android.graphics.drawable.GradientDrawable {
+
+        return android.graphics.drawable.GradientDrawable(
             android.graphics.drawable.GradientDrawable.Orientation.TL_BR,
             intArrayOf(
                 Color.parseColor(a),
                 Color.parseColor(b)
             )
         ).apply {
+
             cornerRadius = 26f
         }
+    }
 
     fun rounded(
         a: String
-    ) =
-        android.graphics.drawable.GradientDrawable().apply {
-            setColor(Color.parseColor(a))
-            cornerRadius = 26f
-        }
+    ): android.graphics.drawable.GradientDrawable {
 
-    fun roundedWhite() =
-        android.graphics.drawable.GradientDrawable().apply {
-            setColor(Color.WHITE)
-            cornerRadius = 20f
-        }
+        return android.graphics.drawable.GradientDrawable()
+            .apply {
+
+                setColor(
+                    Color.parseColor(a)
+                )
+
+                cornerRadius = 26f
+            }
+    }
+
+    fun roundedWhite():
+            android.graphics.drawable.GradientDrawable {
+
+        return android.graphics.drawable.GradientDrawable()
+            .apply {
+
+                setColor(Color.WHITE)
+
+                cornerRadius = 20f
+            }
+    }
 }
