@@ -351,9 +351,20 @@ class ChannelActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(
             toolbar
         ) { view, insets ->
-
             val top =
-                insets.get
+                insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                ).top
+
+            view.setPadding(
+                view.paddingLeft,
+                top,
+                view.paddingRight,
+                view.paddingBottom
+            )
+
+            insets
+        }
                 private fun toolButton(
         label: String,
         action: () -> Unit
