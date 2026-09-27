@@ -363,9 +363,80 @@ class ChannelActivity : AppCompatActivity() {
                 view.paddingBottom
             )
 
-            insets
+                        insets
         }
-                private fun toolButton(
+
+        val back =
+            toolButton(
+                "‹",
+                {
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            )
+
+        toolbar.addView(
+            back,
+            LinearLayout.LayoutParams(
+                48,
+                48
+            )
+        )
+
+        val title =
+            TextView(this).apply {
+
+                text = "📢 Shiksha Rojgar Channel"
+
+                textSize = 17f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(Color.WHITE)
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    8,
+                    0,
+                    4,
+                    0
+                )
+
+                layoutParams =
+                    LinearLayout.LayoutParams(
+                        0,
+                        48,
+                        1f
+                    )
+            }
+
+        toolbar.addView(title)
+
+        val channelShare =
+            toolButton(
+                "↗\nShare",
+                {
+                    shareChannel()
+                }
+            )
+
+        toolbar.addView(
+            channelShare,
+            LinearLayout.LayoutParams(
+                58,
+                48
+            )
+        )
+
+        root.addView(
+            toolbar,
+            LinearLayout.LayoutParams(
+                -1,
+                56
+            )
+        )
         label: String,
         action: () -> Unit
     ): TextView = TextView(this).apply {
