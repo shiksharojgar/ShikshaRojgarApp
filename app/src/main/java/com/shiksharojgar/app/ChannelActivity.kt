@@ -437,6 +437,7 @@ class ChannelActivity : AppCompatActivity() {
                 56
             )
         )
+    private fun toolButton(
         label: String,
         action: () -> Unit
     ): TextView = TextView(this).apply {
