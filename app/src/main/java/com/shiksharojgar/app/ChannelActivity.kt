@@ -1592,12 +1592,68 @@ private fun sendCommentOtp(
     dialog: AlertDialog,
     phone: String
 ) {
-    PhoneAuthProvider.verifyPhoneNumber(
-        auth,
-        phone,
-        60L,
-        java.util.concurrent.TimeUnit.SECONDS,
-        this,
+    private fun sendCommentOtp(
+    p: ChannelPost,
+    text: String,
+    input: EditText,
+    dialog: AlertDialog,
+    phone: String
+) {
+    val options =
+        PhoneAuthProvider
+            .newBuilder(auth)
+            .setPhoneNumber(phone)
+            .setTimeout(
+                60L,
+                java.util.concurrent.TimeUnit.SECONDS
+            )
+            .setActivity(this)
+            .setCallbacks(
+                object :
+                    PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                    override fun onVerificationCompleted(
+                        credential: PhoneAuthCredential
+                    ) {
+                        auth.signInWithCredential(credential)
+                            .addOnSuccessListener {
+                                postVerifiedComment(
+                                    p,
+                                    text,
+                                    input,
+                                    dialog
+                                )
+                            }
+                    }
+
+                    override fun onVerificationFailed(
+                        e: FirebaseException
+                    ) {
+                        Toast.makeText(
+                            this@ChannelActivity,
+                            "OTP नहीं भेजा जा सका: ${e.message ?: "Unknown error"}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                    override fun onCodeSent(
+                        verificationId: String,
+                        token: PhoneAuthProvider.ForceResendingToken
+                    ) {
+                        phoneVerificationId = verificationId
+
+                        showOtpDialog(
+                            p,
+                            text,
+                            input,
+                            dialog
+                        )
+                    }
+                }
+            )
+
+    PhoneAuthProvider.verifyPhoneNumber(options)
+}
         object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
             override fun onVerificationCompleted(
