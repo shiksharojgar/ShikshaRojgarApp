@@ -762,7 +762,7 @@ private fun toolButton(
 
         feedScroll.addView(
             list,
-            ScrollView.LayoutParams(
+            android.widget.FrameLayout.LayoutParams(
                 -1,
                 -2
             )
@@ -2241,8 +2241,8 @@ private fun toolButton(
     ) {
 
         val options =
-            PhoneAuthProvider
-                .newBuilder(auth)
+            com.google.firebase.auth.PhoneAuthOptions
+    .newBuilder(auth)
                 .setPhoneNumber(
                     phone
                 )
@@ -2310,7 +2310,8 @@ private fun toolButton(
                             )
                         }
                     }
-                )
+                )    
+.build()
 
         PhoneAuthProvider
             .verifyPhoneNumber(
@@ -2784,9 +2785,8 @@ private fun toolButton(
             content.addView(
                 Button(this).apply {
 
-                    text =
-                        "📄 PDF खोलें"
-
+                    this.text =
+    "📄 PDF खोलें"
                     setOnClickListener {
 
                         try {
