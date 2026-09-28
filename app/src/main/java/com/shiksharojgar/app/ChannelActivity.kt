@@ -306,30 +306,7 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
-    private fun makeUi(): View {
-
-    private fun toolButton(
-        label: String,
-        action: () -> Unit
-    ): TextView = TextView(this).apply {
-
-        text = label
-        gravity = Gravity.CENTER
-        textSize = 11f
-        typeface = Typeface.DEFAULT_BOLD
-
-        setTextColor(Color.WHITE)
-
-        background =
-            GradientFactory.rounded("#174E86")
-
-        isClickable = true
-        isFocusable = true
-
-        setOnClickListener {
-            action()
-        }
-    }
+    
     private fun makeUi(): View {
 
         val root =
