@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.util.Linkify
 import android.text.Linkify
 import android.text.method.LinkMovementMethod
 import android.util.Patterns
