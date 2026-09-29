@@ -5,6 +5,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.Linkify
+import android.text.method.LinkMovementMethod
+import android.util.Patterns
 import android.view.Gravity
 import android.view.View
 import android.widget.*
@@ -19,6 +22,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.messaging.FirebaseMessaging
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ChannelActivity : AppCompatActivity() {
 
@@ -66,6 +70,10 @@ class ChannelActivity : AppCompatActivity() {
             "dd MMM yyyy, hh:mm a",
             Locale("hi", "IN")
         )
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
 
     override fun onCreate(
         savedInstanceState: Bundle?
@@ -115,15 +123,19 @@ class ChannelActivity : AppCompatActivity() {
 
             runOnUiThread {
 
-                followerCountView.text =
-                    "👥 $followerCount"
+                if (::followerCountView.isInitialized) {
+                    followerCountView.text =
+                        "👥 $followerCount"
+                }
 
-                commentStatusView.text =
-                    if (comments) {
-                        "💬 Comments ON"
-                    } else {
-                        "🔒 Comments OFF"
-                    }
+                if (::commentStatusView.isInitialized) {
+                    commentStatusView.text =
+                        if (comments) {
+                            "💬"
+                        } else {
+                            "🔒"
+                        }
+                }
 
                 renderPosts()
             }
@@ -182,22 +194,7 @@ class ChannelActivity : AppCompatActivity() {
                         updateFollow(following)
                     }
 
-                    if (following) {
-
-                        FirebaseMessaging
-                            .getInstance()
-                            .subscribeToTopic(
-                                "all_channel_followers"
-                            )
-
-                    } else {
-
-                        FirebaseMessaging
-                            .getInstance()
-                            .unsubscribeFromTopic(
-                                "all_channel_followers"
-                            )
-                    }
+                    updateTopicSubscription(following)
                 }
 
             } else {
@@ -257,6 +254,28 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateTopicSubscription(
+        following: Boolean
+    ) {
+
+        if (following) {
+
+            FirebaseMessaging
+                .getInstance()
+                .subscribeToTopic(
+                    "all_channel_followers"
+                )
+
+        } else {
+
+            FirebaseMessaging
+                .getInstance()
+                .unsubscribeFromTopic(
+                    "all_channel_followers"
+                )
+        }
+    }
+
     private fun scrollToPost(
         index: Int
     ) {
@@ -268,19 +287,36 @@ class ChannelActivity : AppCompatActivity() {
             return
         }
 
-        if (list.childCount <= 0) {
+        if (
+            index < 0 ||
+            index >= posts.size
+        ) {
             return
         }
 
-        val child =
-            list.getChildAt(
-                index.coerceIn(
-                    0,
-                    list.childCount - 1
-                )
-            )
+        val postId =
+            posts[index].id
 
-        if (child != null) {
+        /*
+         * Every post has a blue divider after it.
+         * Therefore child index != post index.
+         *
+         * We use the post ID tag instead.
+         */
+        var target: View? = null
+
+        for (i in 0 until list.childCount) {
+
+            val child =
+                list.getChildAt(i)
+
+            if (child.tag == postId) {
+                target = child
+                break
+            }
+        }
+
+        target?.let { child ->
 
             feedScroll.post {
 
@@ -312,14 +348,23 @@ class ChannelActivity : AppCompatActivity() {
     ): TextView = TextView(this).apply {
 
         text = label
-        gravity = Gravity.CENTER
-        textSize = 11f
-        typeface = Typeface.DEFAULT_BOLD
 
-        setTextColor(Color.WHITE)
+        gravity =
+            Gravity.CENTER
+
+        textSize = 11f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.WHITE
+        )
 
         background =
-            GradientFactory.rounded("#174E86")
+            GradientFactory.rounded(
+                "#174E86"
+            )
 
         isClickable = true
         isFocusable = true
@@ -330,19 +375,18 @@ class ChannelActivity : AppCompatActivity() {
     }
 
     /*
-     * OLD CHANNEL UI
+     * CHANNEL UI
      *
-     * Top:
-     * Blue Channel toolbar
+     * TOP:
+     * Old blue Channel name bar
+     * Channel name + follower count + Share
      *
-     * Middle:
-     * Feed
+     * MIDDLE:
+     * Scrollable feed
      *
-     * Bottom:
-     * Follow + Comments
+     * BOTTOM:
+     * Follow + tiny Comments icon
      * Home + Share + Back
-     *
-     * Android navigation bar remains below this area.
      */
     private fun makeUi(): View {
 
@@ -362,7 +406,7 @@ class ChannelActivity : AppCompatActivity() {
             }
 
         /*
-         * OLD BLUE CHANNEL NAME BAR
+         * OLD BLUE CHANNEL HEADER
          */
         val toolbar =
             LinearLayout(this).apply {
@@ -374,10 +418,10 @@ class ChannelActivity : AppCompatActivity() {
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
-                    6,
-                    6,
-                    6,
-                    6
+                    dp(6),
+                    dp(6),
+                    dp(6),
+                    dp(6)
                 )
 
                 setBackgroundColor(
@@ -400,9 +444,9 @@ class ChannelActivity : AppCompatActivity() {
 
             view.setPadding(
                 view.paddingLeft,
-                top + 6,
+                top + dp(6),
                 view.paddingRight,
-                6
+                dp(6)
             )
 
             insets
@@ -410,19 +454,39 @@ class ChannelActivity : AppCompatActivity() {
 
         val back =
             toolButton(
-                "‹",
-                {
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            )
+                "‹"
+            ) {
+                onBackPressedDispatcher
+                    .onBackPressed()
+            }
 
         toolbar.addView(
             back,
             LinearLayout.LayoutParams(
-                48,
-                48
+                dp(48),
+                dp(48)
             )
         )
+
+        /*
+         * TITLE + FOLLOWER COUNT
+         */
+        val titleBox =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    dp(8),
+                    0,
+                    dp(2),
+                    0
+                )
+            }
 
         val title =
             TextView(this).apply {
@@ -430,7 +494,7 @@ class ChannelActivity : AppCompatActivity() {
                 text =
                     "📢 Shiksha Rojgar Channel"
 
-                textSize = 17f
+                textSize = 16f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -442,36 +506,68 @@ class ChannelActivity : AppCompatActivity() {
                 gravity =
                     Gravity.CENTER_VERTICAL
 
-                setPadding(
-                    8,
-                    0,
-                    4,
-                    0
-                )
+                maxLines = 1
 
-                layoutParams =
-                    LinearLayout.LayoutParams(
-                        0,
-                        48,
-                        1f
-                    )
+                ellipsize =
+                    android.text.TextUtils.TruncateAt.END
             }
 
-        toolbar.addView(title)
+        titleBox.addView(
+            title,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(30)
+            )
+        )
+
+        followerCountView =
+            TextView(this).apply {
+
+                text =
+                    "👥 $followerCount"
+
+                textSize = 11f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        titleBox.addView(
+            followerCountView,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(20)
+            )
+        )
+
+        toolbar.addView(
+            titleBox,
+            LinearLayout.LayoutParams(
+                0,
+                dp(50),
+                1f
+            )
+        )
 
         val channelShare =
             toolButton(
-                "↗\nShare",
-                {
-                    shareChannel()
-                }
-            )
+                "↗\nShare"
+            ) {
+                shareChannel()
+            }
 
         toolbar.addView(
             channelShare,
             LinearLayout.LayoutParams(
-                58,
-                48
+                dp(58),
+                dp(48)
             )
         )
 
@@ -479,19 +575,21 @@ class ChannelActivity : AppCompatActivity() {
             toolbar,
             LinearLayout.LayoutParams(
                 -1,
-                62
+                dp(62)
             )
         )
 
         /*
-         * CHANNEL FEED
+         * FEED
          */
         feedScroll =
             ScrollView(this).apply {
 
-                isFillViewport = true
+                isFillViewport =
+                    true
 
-                clipToPadding = false
+                clipToPadding =
+                    false
 
                 setPadding(
                     0,
@@ -508,16 +606,16 @@ class ChannelActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    10,
-                    10,
-                    10,
-                    10
+                    dp(10),
+                    dp(10),
+                    dp(10),
+                    dp(10)
                 )
             }
 
         feedScroll.addView(
             list,
-            android.widget.FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams(
                 -1,
                 -2
             )
@@ -533,9 +631,10 @@ class ChannelActivity : AppCompatActivity() {
         )
 
         /*
-         * OLD BOTTOM FOLLOW + COMMENT LINE
+         * FOLLOW + COMMENTS
          *
-         * This is immediately below the feed.
+         * Follow occupies most of the row.
+         * Comment icon is deliberately tiny.
          */
         val followCommentBar =
             LinearLayout(this).apply {
@@ -547,10 +646,10 @@ class ChannelActivity : AppCompatActivity() {
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
-                    8,
-                    4,
-                    8,
-                    4
+                    dp(8),
+                    dp(4),
+                    dp(8),
+                    dp(4)
                 )
 
                 background =
@@ -587,10 +686,10 @@ class ChannelActivity : AppCompatActivity() {
                 isFocusable = true
 
                 setPadding(
-                    10,
-                    5,
-                    10,
-                    5
+                    dp(10),
+                    dp(5),
+                    dp(10),
+                    dp(5)
                 )
 
                 setOnClickListener {
@@ -602,25 +701,30 @@ class ChannelActivity : AppCompatActivity() {
             followBtn,
             LinearLayout.LayoutParams(
                 0,
-                38,
+                dp(38),
                 1f
             )
         )
 
+        /*
+         * ONLY ICON.
+         * ON = 💬
+         * OFF = 🔒
+         */
         commentStatusView =
             TextView(this).apply {
 
                 text =
                     if (globalComments) {
-                        "💬 Comments ON"
+                        "💬"
                     } else {
-                        "🔒 Comments OFF"
+                        "🔒"
                     }
 
                 gravity =
                     Gravity.CENTER
 
-                textSize = 11f
+                textSize = 16f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -634,62 +738,25 @@ class ChannelActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    8,
-                    4,
-                    8,
-                    4
+                    dp(4),
+                    dp(2),
+                    dp(4),
+                    dp(2)
                 )
+
+                contentDescription =
+                    if (globalComments) {
+                        "Comments ON"
+                    } else {
+                        "Comments OFF"
+                    }
             }
 
         followCommentBar.addView(
             commentStatusView,
             LinearLayout.LayoutParams(
-                0,
-                38,
-                0.72f
-            )
-        )
-
-        /*
-         * Small follower count.
-         * Kept in the same bottom line without creating
-         * a large header.
-         */
-        followerCountView =
-            TextView(this).apply {
-
-                text =
-                    "👥 $followerCount"
-
-                gravity =
-                    Gravity.CENTER
-
-                textSize = 10f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        14,
-                        91,
-                        215
-                    )
-                )
-
-                setPadding(
-                    4,
-                    4,
-                    4,
-                    4
-                )
-            }
-
-        followCommentBar.addView(
-            followerCountView,
-            LinearLayout.LayoutParams(
-                70,
-                38
+                dp(42),
+                dp(38)
             )
         )
 
@@ -697,15 +764,12 @@ class ChannelActivity : AppCompatActivity() {
             followCommentBar,
             LinearLayout.LayoutParams(
                 -1,
-                46
+                dp(46)
             )
         )
 
         /*
          * HOME / SHARE / BACK
-         *
-         * Immediately below Follow + Comment.
-         * This is above Android navigation buttons.
          */
         val bottom =
             LinearLayout(this).apply {
@@ -717,10 +781,10 @@ class ChannelActivity : AppCompatActivity() {
                     Gravity.CENTER
 
                 setPadding(
-                    6,
-                    4,
-                    6,
-                    4
+                    dp(6),
+                    dp(4),
+                    dp(6),
+                    dp(4)
                 )
 
                 background =
@@ -731,33 +795,31 @@ class ChannelActivity : AppCompatActivity() {
 
         bottom.addView(
             bottomButton(
-                "⌂  Home",
-                {
-                    goHome()
-                }
-            ),
+                "⌂  Home"
+            ) {
+                goHome()
+            },
             LinearLayout.LayoutParams(
                 0,
-                44,
+                dp(44),
                 1f
             )
         )
 
         bottom.addView(
             bottomButton(
-                "↗  Share",
-                {
-                    shareChannel()
-                }
-            ),
+                "↗  Share"
+            ) {
+                shareChannel()
+            },
             LinearLayout.LayoutParams(
                 0,
-                44,
+                dp(44),
                 1f
             ).apply {
 
                 setMargins(
-                    6,
+                    dp(6),
                     0,
                     0,
                     0
@@ -767,19 +829,19 @@ class ChannelActivity : AppCompatActivity() {
 
         bottom.addView(
             bottomButton(
-                "‹  Back",
-                {
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            ),
+                "‹  Back"
+            ) {
+                onBackPressedDispatcher
+                    .onBackPressed()
+            },
             LinearLayout.LayoutParams(
                 0,
-                44,
+                dp(44),
                 1f
             ).apply {
 
                 setMargins(
-                    6,
+                    dp(6),
                     0,
                     0,
                     0
@@ -787,12 +849,6 @@ class ChannelActivity : AppCompatActivity() {
             }
         )
 
-        /*
-         * Bottom system-bar inset.
-         *
-         * This keeps Home / Share / Back above the
-         * Android navigation area.
-         */
         ViewCompat.setOnApplyWindowInsetsListener(
             bottom
         ) { view, insets ->
@@ -804,9 +860,9 @@ class ChannelActivity : AppCompatActivity() {
 
             view.setPadding(
                 view.paddingLeft,
-                4,
+                dp(4),
                 view.paddingRight,
-                4 + bottomInset
+                dp(4) + bottomInset
             )
 
             insets
@@ -871,7 +927,8 @@ class ChannelActivity : AppCompatActivity() {
 
         textSize = 11f
 
-        includeFontPadding = false
+        includeFontPadding =
+            false
 
         maxLines = 1
 
@@ -896,19 +953,31 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * FOLLOW
+     */
     private fun toggleFollow() {
 
-        if (followBusy) return
+        if (followBusy) {
+            return
+        }
 
         val target =
             !followingState
 
-        // तुरंत UI बदलना
-        followingState = target
+        /*
+         * Instant UI.
+         */
+        followingState =
+            target
+
         updateFollow(target)
 
-        followBtn.isEnabled = false
-        followBusy = true
+        followBtn.isEnabled =
+            false
+
+        followBusy =
+            true
 
         ChannelRepository.ensureSignedIn { connected ->
 
@@ -926,7 +995,8 @@ class ChannelActivity : AppCompatActivity() {
                     followBtn.isEnabled =
                         true
 
-                    followBusy = false
+                    followBusy =
+                        false
 
                     Toast.makeText(
                         this,
@@ -944,13 +1014,17 @@ class ChannelActivity : AppCompatActivity() {
 
                 runOnUiThread {
 
-                    followBusy = false
+                    followBusy =
+                        false
 
                     followBtn.isEnabled =
                         true
 
                     if (ok) {
 
+                        /*
+                         * Count is changed exactly once.
+                         */
                         followerCount =
                             (
                                 followerCount +
@@ -969,22 +1043,9 @@ class ChannelActivity : AppCompatActivity() {
                             target
                         )
 
-                        if (target) {
-
-                            FirebaseMessaging
-                                .getInstance()
-                                .subscribeToTopic(
-                                    "all_channel_followers"
-                                )
-
-                        } else {
-
-                            FirebaseMessaging
-                                .getInstance()
-                                .unsubscribeFromTopic(
-                                    "all_channel_followers"
-                                )
-                        }
+                        updateTopicSubscription(
+                            target
+                        )
 
                         Toast.makeText(
                             this,
@@ -998,6 +1059,9 @@ class ChannelActivity : AppCompatActivity() {
 
                     } else {
 
+                        /*
+                         * Roll back only if Firestore failed.
+                         */
                         followingState =
                             !target
 
@@ -1016,11 +1080,20 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * FOLLOWED = WHITE/LIGHT BUTTON
+     * NOT gray translucent.
+     */
     private fun updateFollow(
         value: Boolean
     ) {
 
-        followingState = value
+        followingState =
+            value
+
+        if (!::followBtn.isInitialized) {
+            return
+        }
 
         followBtn.text =
             if (value) {
@@ -1033,9 +1106,9 @@ class ChannelActivity : AppCompatActivity() {
 
             followBtn.setTextColor(
                 Color.rgb(
-                    107,
-                    114,
-                    128
+                    14,
+                    91,
+                    215
                 )
             )
 
@@ -1045,24 +1118,18 @@ class ChannelActivity : AppCompatActivity() {
                     .apply {
 
                         setColor(
-                            Color.argb(
-                                35,
-                                107,
-                                114,
-                                128
-                            )
+                            Color.WHITE
                         )
 
                         cornerRadius =
-                            26f
+                            dp(26).toFloat()
 
                         setStroke(
-                            1,
-                            Color.argb(
-                                70,
-                                107,
-                                114,
-                                128
+                            dp(1),
+                            Color.rgb(
+                                14,
+                                91,
+                                215
                             )
                         )
                     }
@@ -1081,6 +1148,9 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * RENDER FEED
+     */
     private fun renderPosts() {
 
         if (!::list.isInitialized) {
@@ -1099,11 +1169,14 @@ class ChannelActivity : AppCompatActivity() {
 
                     textSize = 16f
 
+                    gravity =
+                        Gravity.CENTER
+
                     setPadding(
-                        16,
-                        24,
-                        16,
-                        24
+                        dp(16),
+                        dp(24),
+                        dp(16),
+                        dp(24)
                     )
                 }
             )
@@ -1111,13 +1184,27 @@ class ChannelActivity : AppCompatActivity() {
             return
         }
 
+        /*
+         * ChannelRepository already sorts:
+         * OLD -> NEW
+         *
+         * Therefore newest post remains at bottom.
+         */
         posts.forEachIndexed { index, post ->
 
-            list.addView(
+            val postView =
                 postView(post)
+
+            /*
+             * Used by deep-link scrolling.
+             */
+            postView.tag =
+                post.id
+
+            list.addView(
+                postView
             )
 
-            // हर पोस्ट के बीच नीला gap
             if (index < posts.lastIndex) {
 
                 list.addView(
@@ -1133,12 +1220,14 @@ class ChannelActivity : AppCompatActivity() {
                     },
                     LinearLayout.LayoutParams(
                         -1,
-                        7
+                        dp(7)
                     )
                 )
             }
 
-            // एक session में एक post का view
+            /*
+             * One view per session.
+             */
             if (viewedSession.add(post.id)) {
 
                 viewOverrides[post.id] =
@@ -1155,6 +1244,9 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * SINGLE POST CARD
+     */
     private fun postView(
         p: ChannelPost
     ): View {
@@ -1169,16 +1261,18 @@ class ChannelActivity : AppCompatActivity() {
                     GradientFactory.roundedWhite()
 
                 setPadding(
-                    14,
-                    14,
-                    14,
-                    12
+                    dp(14),
+                    dp(14),
+                    dp(14),
+                    dp(12)
                 )
 
                 elevation = 3f
             }
 
-        // Category + Date
+        /*
+         * CATEGORY + DATE
+         */
         box.addView(
             TextView(this).apply {
 
@@ -1207,11 +1301,14 @@ class ChannelActivity : AppCompatActivity() {
             }
         )
 
-        // Title
+        /*
+         * TITLE
+         */
         box.addView(
             TextView(this).apply {
 
-                text = p.title
+                text =
+                    p.title
 
                 textSize = 18f
 
@@ -1228,20 +1325,25 @@ class ChannelActivity : AppCompatActivity() {
 
                 setPadding(
                     0,
-                    5,
+                    dp(5),
                     0,
-                    3
+                    dp(3)
                 )
             }
         )
 
-        // Text-only post भी allowed
+        /*
+         * TEXT POST
+         *
+         * Links inside text become clickable.
+         */
         if (p.body.isNotBlank()) {
 
-            box.addView(
+            val bodyView =
                 TextView(this).apply {
 
-                    text = p.body
+                    text =
+                        p.body
 
                     textSize = 14f
 
@@ -1253,13 +1355,108 @@ class ChannelActivity : AppCompatActivity() {
                         0,
                         0,
                         0,
-                        8
+                        dp(8)
                     )
+
+                    autoLinkMask =
+                        Linkify.WEB_URLS
+
+                    movementMethod =
+                        LinkMovementMethod
+                            .getInstance()
+
+                    linksClickable =
+                        true
+
+                    setOnClickListener {
+                        openFirstUrlFromText(
+                            p.body
+                        )
+                    }
                 }
+
+            Linkify.addLinks(
+                bodyView,
+                Linkify.WEB_URLS
             )
+
+            box.addView(
+                bodyView
+            )
+
+            /*
+             * If the body contains a video URL,
+             * show a small direct-open button.
+             */
+            val firstUrl =
+                findFirstUrl(
+                    p.body
+                )
+
+            if (
+                firstUrl != null &&
+                isVideoUrl(firstUrl)
+            ) {
+
+                box.addView(
+                    TextView(this).apply {
+
+                        text =
+                            "▶  Video खोलें"
+
+                        gravity =
+                            Gravity.CENTER
+
+                        textSize = 13f
+
+                        typeface =
+                            Typeface.DEFAULT_BOLD
+
+                        setTextColor(
+                            Color.WHITE
+                        )
+
+                        background =
+                            GradientFactory.gradient(
+                                "#DC2626",
+                                "#F97316"
+                            )
+
+                        setPadding(
+                            dp(12),
+                            dp(8),
+                            dp(12),
+                            dp(8)
+                        )
+
+                        setOnClickListener {
+                            safeOpenUrl(
+                                firstUrl
+                            )
+                        }
+                    },
+                    LinearLayout.LayoutParams(
+                        -1,
+                        dp(42)
+                    ).apply {
+                        setMargins(
+                            0,
+                            0,
+                            0,
+                            dp(8)
+                        )
+                    }
+                )
+            }
         }
 
-        // Image
+        /*
+         * IMAGE
+         *
+         * Important:
+         * Clicking image does NOT open Android Gallery.
+         * It opens our own in-app viewer.
+         */
         if (p.imageUrl.isNotBlank()) {
 
             val imageBox =
@@ -1270,19 +1467,26 @@ class ChannelActivity : AppCompatActivity() {
 
                     setPadding(
                         0,
-                        6,
+                        dp(6),
                         0,
-                        8
+                        dp(8)
                     )
                 }
 
             val image =
                 ImageView(this).apply {
 
-                    adjustViewBounds = true
+                    adjustViewBounds =
+                        true
 
                     scaleType =
-                        ImageView.ScaleType.CENTER_INSIDE
+                        ImageView.ScaleType.FIT_CENTER
+
+                    maxHeight =
+                        dp(600)
+
+                    minimumHeight =
+                        dp(180)
 
                     setBackgroundColor(
                         Color.rgb(
@@ -1292,27 +1496,13 @@ class ChannelActivity : AppCompatActivity() {
                         )
                     )
 
-                    minimumHeight = 180
-
                     setOnClickListener {
 
-                        ChannelRepository.openMedia(
-                            this@ChannelActivity,
+                        openImageViewer(
                             p.imageUrl,
                             p.imageMime,
-                            "image_${p.id}.jpg"
-                        ) { ok, err ->
-
-                            if (!ok) {
-
-                                Toast.makeText(
-                                    this@ChannelActivity,
-                                    err
-                                        ?: "Image नहीं खुली",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
+                            p.id
+                        )
                     }
                 }
 
@@ -1320,7 +1510,7 @@ class ChannelActivity : AppCompatActivity() {
                 image,
                 LinearLayout.LayoutParams(
                     -1,
-                    340
+                    -2
                 )
             )
 
@@ -1330,7 +1520,7 @@ class ChannelActivity : AppCompatActivity() {
                     text =
                         "🖼️ फोटो पर क्लिक करके पूरा खोलें"
 
-                    textSize = 13f
+                    textSize = 12f
 
                     typeface =
                         Typeface.DEFAULT_BOLD
@@ -1345,9 +1535,9 @@ class ChannelActivity : AppCompatActivity() {
 
                     setPadding(
                         0,
-                        4,
+                        dp(4),
                         0,
-                        6
+                        dp(6)
                     )
 
                     setOnClickListener {
@@ -1355,9 +1545,13 @@ class ChannelActivity : AppCompatActivity() {
                     }
                 }
 
-            imageBox.addView(hint)
+            imageBox.addView(
+                hint
+            )
 
-            box.addView(imageBox)
+            box.addView(
+                imageBox
+            )
 
             ChannelRepository.loadImage(
                 p.imageUrl
@@ -1372,7 +1566,8 @@ class ChannelActivity : AppCompatActivity() {
                         )
 
                         image.scaleType =
-                            ImageView.ScaleType.CENTER_CROP
+                            ImageView.ScaleType
+                                .FIT_CENTER
 
                     } else {
 
@@ -1383,7 +1578,9 @@ class ChannelActivity : AppCompatActivity() {
             }
         }
 
-        // PDF / Document
+        /*
+         * PDF / DOCUMENT
+         */
         if (p.fileUrl.isNotBlank()) {
 
             box.addView(
@@ -1411,9 +1608,9 @@ class ChannelActivity : AppCompatActivity() {
 
                     setPadding(
                         0,
-                        7,
+                        dp(7),
                         0,
-                        7
+                        dp(7)
                     )
 
                     setOnClickListener {
@@ -1442,6 +1639,9 @@ class ChannelActivity : AppCompatActivity() {
             )
         }
 
+        /*
+         * ACTION ROW
+         */
         val actions =
             LinearLayout(this).apply {
 
@@ -1450,7 +1650,7 @@ class ChannelActivity : AppCompatActivity() {
 
                 setPadding(
                     0,
-                    7,
+                    dp(7),
                     0,
                     0
                 )
@@ -1463,7 +1663,9 @@ class ChannelActivity : AppCompatActivity() {
             likeOverrides[p.id]
                 ?: p.likeCount
 
-        // Like
+        /*
+         * LIKE
+         */
         val like =
             TextView(this).apply {
 
@@ -1505,10 +1707,10 @@ class ChannelActivity : AppCompatActivity() {
                     }
 
                 setPadding(
-                    10,
-                    7,
-                    12,
-                    7
+                    dp(10),
+                    dp(7),
+                    dp(12),
+                    dp(7)
                 )
 
                 setOnClickListener {
@@ -1524,12 +1726,14 @@ class ChannelActivity : AppCompatActivity() {
             like,
             LinearLayout.LayoutParams(
                 0,
-                42,
+                dp(42),
                 1f
             )
         )
 
-        // Comments
+        /*
+         * COMMENTS
+         */
         val comments =
             TextView(this).apply {
 
@@ -1539,10 +1743,10 @@ class ChannelActivity : AppCompatActivity() {
                 textSize = 13f
 
                 setPadding(
-                    6,
-                    7,
-                    12,
-                    7
+                    dp(6),
+                    dp(7),
+                    dp(12),
+                    dp(7)
                 )
 
                 setOnClickListener {
@@ -1554,7 +1758,9 @@ class ChannelActivity : AppCompatActivity() {
             comments
         )
 
-        // Offline
+        /*
+         * OFFLINE
+         */
         val offline =
             TextView(this).apply {
 
@@ -1581,10 +1787,10 @@ class ChannelActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    6,
-                    7,
-                    12,
-                    7
+                    dp(6),
+                    dp(7),
+                    dp(12),
+                    dp(7)
                 )
 
                 setOnClickListener {
@@ -1596,7 +1802,8 @@ class ChannelActivity : AppCompatActivity() {
                         )
                     ) {
 
-                        text = "⏳ Saving…"
+                        text =
+                            "⏳ Saving…"
 
                         ChannelRepository.saveOffline(
                             this@ChannelActivity,
@@ -1644,11 +1851,14 @@ class ChannelActivity : AppCompatActivity() {
             offline
         )
 
-        // Share
+        /*
+         * SHARE
+         */
         val share =
             TextView(this).apply {
 
-                text = "↗  SHARE"
+                text =
+                    "↗  SHARE"
 
                 textSize = 14f
 
@@ -1669,14 +1879,17 @@ class ChannelActivity : AppCompatActivity() {
                     )
 
                 setPadding(
-                    16,
-                    7,
-                    16,
-                    7
+                    dp(16),
+                    dp(7),
+                    dp(16),
+                    dp(7)
                 )
 
-                minWidth = 104
-                minHeight = 46
+                minWidth =
+                    dp(104)
+
+                minHeight =
+                    dp(46)
 
                 setOnClickListener {
                     sharePost(p)
@@ -1703,6 +1916,9 @@ class ChannelActivity : AppCompatActivity() {
             shareOverrides[p.id]
                 ?: p.shareCount
 
+        /*
+         * STATS
+         */
         box.addView(
             TextView(this).apply {
 
@@ -1726,10 +1942,10 @@ class ChannelActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    8,
-                    10,
-                    8,
-                    4
+                    dp(8),
+                    dp(10),
+                    dp(8),
+                    dp(4)
                 )
             }
         )
@@ -1746,9 +1962,128 @@ class ChannelActivity : AppCompatActivity() {
                         0,
                         0,
                         0,
-                        18
+                        dp(18)
                     )
                 }
+        }
+    }
+
+    /*
+     * IN-APP IMAGE VIEWER
+     *
+     * No Gallery / external image app.
+     * Maximum viewer size about 600dp.
+     */
+    private fun openImageViewer(
+        mediaRef: String,
+        mime: String,
+        postId: String
+    ) {
+
+        val image =
+            ImageView(this).apply {
+
+                adjustViewBounds =
+                    true
+
+                scaleType =
+                    ImageView.ScaleType.FIT_CENTER
+
+                setBackgroundColor(
+                    Color.BLACK
+                )
+
+                setPadding(
+                    dp(4),
+                    dp(4),
+                    dp(4),
+                    dp(4)
+                )
+
+                maxWidth =
+                    dp(600)
+
+                maxHeight =
+                    dp(600)
+            }
+
+        val container =
+            FrameLayout(this).apply {
+
+                setBackgroundColor(
+                    Color.BLACK
+                )
+
+                setPadding(
+                    dp(6),
+                    dp(6),
+                    dp(6),
+                    dp(6)
+                )
+
+                addView(
+                    image,
+                    FrameLayout.LayoutParams(
+                        -1,
+                        -2
+                    ).apply {
+
+                        gravity =
+                            Gravity.CENTER
+
+                        width =
+                            dp(600)
+
+                        height =
+                            dp(600)
+                    }
+                )
+            }
+
+        val dialog =
+            AlertDialog.Builder(this)
+                .setView(container)
+                .setNegativeButton(
+                    "Close",
+                    null
+                )
+                .create()
+
+        dialog.window?.setBackgroundDrawable(
+            Color.BLACK.toDrawable()
+        )
+
+        ChannelRepository.loadImage(
+            mediaRef
+        ) { bitmap, error ->
+
+            runOnUiThread {
+
+                if (bitmap != null) {
+
+                    image.setImageBitmap(
+                        bitmap
+                    )
+
+                    dialog.show()
+
+                } else {
+
+                    Toast.makeText(
+                        this,
+                        error
+                            ?: "Image नहीं खुली",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        /*
+         * Allow tap on image to close.
+         */
+        image.setOnClickListener {
+            dialog.dismiss()
         }
     }
 
@@ -1776,6 +2111,9 @@ class ChannelActivity : AppCompatActivity() {
             val target =
                 !currentLiked
 
+            /*
+             * Instant local state.
+             */
             likedState[p.id] =
                 target
 
@@ -1825,6 +2163,9 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * POST SHARE
+     */
     private fun sharePost(
         p: ChannelPost
     ) {
@@ -1915,6 +2256,9 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * COMMENTS
+     */
     private fun showComments(
         p: ChannelPost
     ) {
@@ -1940,10 +2284,10 @@ class ChannelActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    8,
-                    4,
-                    8,
-                    4
+                    dp(8),
+                    dp(4),
+                    dp(8),
+                    dp(4)
                 )
             }
 
@@ -1959,10 +2303,10 @@ class ChannelActivity : AppCompatActivity() {
                     Gravity.TOP
 
                 setPadding(
-                    10,
-                    10,
-                    10,
-                    10
+                    dp(10),
+                    dp(10),
+                    dp(10),
+                    dp(10)
                 )
             }
 
@@ -1973,8 +2317,15 @@ class ChannelActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
             }
 
+        val commentScroll =
+            ScrollView(this)
+
+        commentScroll.addView(
+            listBox
+        )
+
         layout.addView(
-            listBox,
+            commentScroll,
             LinearLayout.LayoutParams(
                 -1,
                 0,
@@ -2029,10 +2380,10 @@ class ChannelActivity : AppCompatActivity() {
                             )
 
                             setPadding(
-                                4,
-                                10,
-                                4,
-                                10
+                                dp(4),
+                                dp(10),
+                                dp(4),
+                                dp(10)
                             )
                         }
                     )
@@ -2046,7 +2397,7 @@ class ChannelActivity : AppCompatActivity() {
 
                                 text =
                                     "${comment["name"] ?: "उपयोगकर्ता"}: " +
-                                        "${comment["text"] ?: ""}"
+                                    "${comment["text"] ?: ""}"
 
                                 textSize = 13f
 
@@ -2059,10 +2410,10 @@ class ChannelActivity : AppCompatActivity() {
                                 )
 
                                 setPadding(
-                                    8,
-                                    8,
-                                    8,
-                                    8
+                                    dp(8),
+                                    dp(8),
+                                    dp(8),
+                                    dp(8)
                                 )
 
                                 background =
@@ -2134,10 +2485,10 @@ class ChannelActivity : AppCompatActivity() {
                         .TYPE_CLASS_PHONE
 
                 setPadding(
-                    12,
-                    10,
-                    12,
-                    10
+                    dp(12),
+                    dp(10),
+                    dp(12),
+                    dp(10)
                 )
             }
 
@@ -2219,8 +2570,7 @@ class ChannelActivity : AppCompatActivity() {
                 )
                 .setTimeout(
                     60L,
-                    java.util.concurrent
-                        .TimeUnit.SECONDS
+                    TimeUnit.SECONDS
                 )
                 .setActivity(this)
                 .setCallbacks(
@@ -2314,10 +2664,10 @@ class ChannelActivity : AppCompatActivity() {
                     )
 
                 setPadding(
-                    12,
-                    10,
-                    12,
-                    10
+                    dp(12),
+                    dp(10),
+                    dp(12),
+                    dp(10)
                 )
             }
 
@@ -2449,6 +2799,9 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
+    /*
+     * OFFLINE
+     */
     private fun showOfflineList() {
 
         val saved =
@@ -2582,23 +2935,7 @@ class ChannelActivity : AppCompatActivity() {
         url: String
     ) {
 
-        try {
-
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(url)
-                )
-            )
-
-        } catch (_: Exception) {
-
-            Toast.makeText(
-                this,
-                "Link खोलने के लिए browser उपलब्ध नहीं है",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        safeOpenUrl(url)
     }
 
     private fun openOffline(
@@ -2629,10 +2966,10 @@ class ChannelActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    10,
-                    10,
-                    10,
-                    10
+                    dp(10),
+                    dp(10),
+                    dp(10),
+                    dp(10)
                 )
             }
 
@@ -2687,10 +3024,22 @@ class ChannelActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    4,
-                    4,
-                    4,
-                    12
+                    dp(4),
+                    dp(4),
+                    dp(4),
+                    dp(12)
+                )
+
+                autoLinkMask =
+                    Linkify.WEB_URLS
+
+                movementMethod =
+                    LinkMovementMethod
+                        .getInstance()
+
+                Linkify.addLinks(
+                    this,
+                    Linkify.WEB_URLS
                 )
             }
         )
@@ -2725,11 +3074,14 @@ class ChannelActivity : AppCompatActivity() {
                             ImageView.ScaleType
                                 .FIT_CENTER
 
+                        maxHeight =
+                            dp(600)
+
                         setPadding(
                             0,
-                            10,
+                            dp(10),
                             0,
-                            10
+                            dp(10)
                         )
                     },
                     LinearLayout.LayoutParams(
@@ -2827,29 +3179,6 @@ class ChannelActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun showPostShareResult(
-        post: ChannelPost,
-        success: Boolean
-    ) {
-
-        if (!success) {
-
-            Toast.makeText(
-                this,
-                "Share count update नहीं हुआ",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
-        }
-
-        Toast.makeText(
-            this,
-            "Post share हो गई",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
     private fun refreshFollowState() {
 
         ChannelRepository.ensureSignedIn { connected ->
@@ -2869,27 +3198,15 @@ class ChannelActivity : AppCompatActivity() {
                     updateFollow(following)
                 }
 
-                if (following) {
-
-                    FirebaseMessaging
-                        .getInstance()
-                        .subscribeToTopic(
-                            "all_channel_followers"
-                        )
-
-                } else {
-
-                    FirebaseMessaging
-                        .getInstance()
-                        .unsubscribeFromTopic(
-                            "all_channel_followers"
-                        )
-                }
+                updateTopicSubscription(
+                    following
+                )
             }
         }
     }
 
     override fun onResume() {
+
         super.onResume()
 
         if (::followBtn.isInitialized) {
@@ -2947,19 +3264,106 @@ class ChannelActivity : AppCompatActivity() {
             .show()
     }
 
+    /*
+     * Find URL from normal text.
+     */
+    private fun findFirstUrl(
+        text: String
+    ): String? {
+
+        val matcher =
+            Patterns.WEB_URL
+                .matcher(text)
+
+        return if (matcher.find()) {
+
+            var url =
+                matcher.group()
+
+            if (
+                !url.startsWith(
+                    "http://"
+                ) &&
+                !url.startsWith(
+                    "https://"
+                )
+            ) {
+                url =
+                    "https://$url"
+            }
+
+            url
+
+        } else {
+            null
+        }
+    }
+
+    private fun openFirstUrlFromText(
+        text: String
+    ) {
+
+        val url =
+            findFirstUrl(text)
+
+        if (url != null) {
+            safeOpenUrl(url)
+        }
+    }
+
+    private fun isVideoUrl(
+        url: String
+    ): Boolean {
+
+        val lower =
+            url.lowercase(Locale.US)
+
+        return lower.contains(
+            "youtube.com"
+        ) ||
+            lower.contains(
+                "youtu.be"
+            ) ||
+            lower.contains(
+                "facebook.com"
+            ) ||
+            lower.contains(
+                "instagram.com"
+            ) ||
+            lower.endsWith(".mp4") ||
+            lower.endsWith(".webm") ||
+            lower.endsWith(".m3u8")
+    }
+
     private fun safeOpenUrl(
         url: String
     ) {
 
         try {
 
-            val intent =
+            val finalUrl =
+                if (
+                    url.startsWith(
+                        "http://"
+                    ) ||
+                    url.startsWith(
+                        "https://"
+                    ) ||
+                    url.startsWith(
+                        "shiksharojgar://"
+                    )
+                ) {
+                    url
+                } else {
+                    "https://$url"
+                }
+
+            startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(url)
+                    Uri.parse(finalUrl)
                 )
-
-            startActivity(intent)
+            )
 
         } catch (_: Exception) {
 
@@ -2981,46 +3385,57 @@ object GradientFactory {
     fun gradient(
         a: String,
         b: String
-    ): android.graphics.drawable.GradientDrawable {
+    ):
+        android.graphics.drawable.GradientDrawable {
 
-        return android.graphics.drawable.GradientDrawable(
-            android.graphics.drawable.GradientDrawable.Orientation.TL_BR,
-            intArrayOf(
-                Color.parseColor(a),
-                Color.parseColor(b)
+        return android.graphics.drawable
+            .GradientDrawable(
+                android.graphics.drawable
+                    .GradientDrawable
+                    .Orientation.TL_BR,
+                intArrayOf(
+                    Color.parseColor(a),
+                    Color.parseColor(b)
+                )
             )
-        ).apply {
+            .apply {
 
-            cornerRadius = 26f
-        }
+                cornerRadius =
+                    26f
+            }
     }
 
     fun rounded(
         a: String
-    ): android.graphics.drawable.GradientDrawable {
+    ):
+        android.graphics.drawable.GradientDrawable {
 
-        return android.graphics.drawable.GradientDrawable()
+        return android.graphics.drawable
+            .GradientDrawable()
             .apply {
 
                 setColor(
                     Color.parseColor(a)
                 )
 
-                cornerRadius = 26f
+                cornerRadius =
+                    26f
             }
     }
 
     fun roundedWhite():
-            android.graphics.drawable.GradientDrawable {
+        android.graphics.drawable.GradientDrawable {
 
-        return android.graphics.drawable.GradientDrawable()
+        return android.graphics.drawable
+            .GradientDrawable()
             .apply {
 
                 setColor(
                     Color.WHITE
                 )
 
-                cornerRadius = 20f
+                cornerRadius =
+                    20f
             }
     }
 }
