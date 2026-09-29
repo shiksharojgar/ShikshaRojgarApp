@@ -116,7 +116,7 @@ class ChannelActivity : AppCompatActivity() {
             runOnUiThread {
 
                 followerCountView.text =
-                    "👥 $followerCount Followers"
+                    "👥 $followerCount"
 
                 commentStatusView.text =
                     if (comments) {
@@ -306,29 +306,44 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
-private fun toolButton(
-    label: String,
-    action: () -> Unit
-): TextView = TextView(this).apply {
+    private fun toolButton(
+        label: String,
+        action: () -> Unit
+    ): TextView = TextView(this).apply {
 
-    text = label
-    gravity = Gravity.CENTER
-    textSize = 11f
-    typeface = Typeface.DEFAULT_BOLD
+        text = label
+        gravity = Gravity.CENTER
+        textSize = 11f
+        typeface = Typeface.DEFAULT_BOLD
 
-    setTextColor(Color.WHITE)
+        setTextColor(Color.WHITE)
 
-    background =
-        GradientFactory.rounded("#174E86")
+        background =
+            GradientFactory.rounded("#174E86")
 
-    isClickable = true
-    isFocusable = true
+        isClickable = true
+        isFocusable = true
 
-    setOnClickListener {
-        action()
+        setOnClickListener {
+            action()
+        }
     }
-}
-    
+
+    /*
+     * OLD CHANNEL UI
+     *
+     * Top:
+     * Blue Channel toolbar
+     *
+     * Middle:
+     * Feed
+     *
+     * Bottom:
+     * Follow + Comments
+     * Home + Share + Back
+     *
+     * Android navigation bar remains below this area.
+     */
     private fun makeUi(): View {
 
         val root =
@@ -346,6 +361,9 @@ private fun toolButton(
                 )
             }
 
+        /*
+         * OLD BLUE CHANNEL NAME BAR
+         */
         val toolbar =
             LinearLayout(this).apply {
 
@@ -382,9 +400,9 @@ private fun toolButton(
 
             view.setPadding(
                 view.paddingLeft,
-                top,
+                top + 6,
                 view.paddingRight,
-                view.paddingBottom
+                6
             )
 
             insets
@@ -461,289 +479,26 @@ private fun toolButton(
             toolbar,
             LinearLayout.LayoutParams(
                 -1,
-                56
+                62
             )
         )
 
-        val header =
-            LinearLayout(this).apply {
-
-                orientation =
-                    LinearLayout.VERTICAL
-
-                setPadding(
-                    14,
-                    12,
-                    14,
-                    8
-                )
-
-                background =
-                    GradientFactory.roundedWhite()
-            }
-
-        header.addView(
-            TextView(this).apply {
-
-                text =
-                    "📢 शिक्षा एवं रोजगार अपडेट"
-
-                textSize = 20f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        6,
-                        59,
-                        122
-                    )
-                )
-            }
-        )
-
-        header.addView(
-            TextView(this).apply {
-
-                text =
-                    "सरकारी आदेश, शिक्षा, रोजगार, टाइम टेबल और महत्वपूर्ण अपडेट"
-
-                textSize = 13f
-
-                setTextColor(
-                    Color.DKGRAY
-                )
-
-                setPadding(
-                    0,
-                    4,
-                    0,
-                    4
-                )
-            }
-        )
-
-        val stats =
-            LinearLayout(this).apply {
-
-                orientation =
-                    LinearLayout.HORIZONTAL
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-
-                setPadding(
-                    0,
-                    5,
-                    0,
-                    2
-                )
-            }
-
-        followerCountView =
-            TextView(this).apply {
-
-                text =
-                    "👥 $followerCount Followers"
-
-                textSize = 13f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        14,
-                        91,
-                        215
-                    )
-                )
-
-                layoutParams =
-                    LinearLayout.LayoutParams(
-                        0,
-                        -2,
-                        1f
-                    )
-            }
-
-        commentStatusView =
-            TextView(this).apply {
-
-                text =
-                    if (globalComments) {
-                        "💬 Comments ON"
-                    } else {
-                        "🔒 Comments OFF"
-                    }
-
-                textSize = 12f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        71,
-                        85,
-                        105
-                    )
-                )
-            }
-
-        stats.addView(
-            followerCountView
-        )
-
-        stats.addView(
-            commentStatusView
-        )
-
-        header.addView(stats)
-
-        root.addView(
-            header,
-            LinearLayout.LayoutParams(
-                -1,
-                -2
-            )
-        )
-
-        val followArea =
-            LinearLayout(this).apply {
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-
-                setPadding(
-                    12,
-                    8,
-                    12,
-                    8
-                )
-
-                background =
-                    Color.WHITE.toDrawable()
-            }
-
-        followBtn =
-            TextView(this).apply {
-
-                text =
-                    "➕  Follow करें"
-
-                gravity =
-                    Gravity.CENTER
-
-                textSize = 14f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.WHITE
-                )
-
-                background =
-                    GradientFactory.gradient(
-                        "#16A34A",
-                        "#06B6D4"
-                    )
-
-                isClickable = true
-                isFocusable = true
-
-                setPadding(
-                    18,
-                    10,
-                    18,
-                    10
-                )
-
-                setOnClickListener {
-                    toggleFollow()
-                }
-            }
-
-        followArea.addView(
-            followBtn,
-            LinearLayout.LayoutParams(
-                0,
-                48,
-                1f
-            )
-        )
-
-        val offlineButton =
-            TextView(this).apply {
-
-                text =
-                    "📥 Offline"
-
-                gravity =
-                    Gravity.CENTER
-
-                textSize = 13f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        14,
-                        91,
-                        215
-                    )
-                )
-
-                background =
-                    Color.rgb(
-                        239,
-                        246,
-                        255
-                    ).toDrawable()
-
-                setPadding(
-                    12,
-                    8,
-                    12,
-                    8
-                )
-
-                setOnClickListener {
-                    showOfflineList()
-                }
-            }
-
-        followArea.addView(
-            offlineButton,
-            LinearLayout.LayoutParams(
-                105,
-                48
-            ).apply {
-
-                setMargins(
-                    8,
-                    0,
-                    0,
-                    0
-                )
-            }
-        )
-
-        root.addView(
-            followArea,
-            LinearLayout.LayoutParams(
-                -1,
-                -2
-            )
-        )
-
+        /*
+         * CHANNEL FEED
+         */
         feedScroll =
             ScrollView(this).apply {
 
                 isFillViewport = true
+
+                clipToPadding = false
+
+                setPadding(
+                    0,
+                    0,
+                    0,
+                    0
+                )
             }
 
         list =
@@ -777,6 +532,181 @@ private fun toolButton(
             )
         )
 
+        /*
+         * OLD BOTTOM FOLLOW + COMMENT LINE
+         *
+         * This is immediately below the feed.
+         */
+        val followCommentBar =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    8,
+                    4,
+                    8,
+                    4
+                )
+
+                background =
+                    Color.WHITE.toDrawable()
+
+                elevation = 2f
+            }
+
+        followBtn =
+            TextView(this).apply {
+
+                text =
+                    "➕ Follow करें"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 13f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                background =
+                    GradientFactory.gradient(
+                        "#16A34A",
+                        "#06B6D4"
+                    )
+
+                isClickable = true
+                isFocusable = true
+
+                setPadding(
+                    10,
+                    5,
+                    10,
+                    5
+                )
+
+                setOnClickListener {
+                    toggleFollow()
+                }
+            }
+
+        followCommentBar.addView(
+            followBtn,
+            LinearLayout.LayoutParams(
+                0,
+                38,
+                1f
+            )
+        )
+
+        commentStatusView =
+            TextView(this).apply {
+
+                text =
+                    if (globalComments) {
+                        "💬 Comments ON"
+                    } else {
+                        "🔒 Comments OFF"
+                    }
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 11f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        71,
+                        85,
+                        105
+                    )
+                )
+
+                setPadding(
+                    8,
+                    4,
+                    8,
+                    4
+                )
+            }
+
+        followCommentBar.addView(
+            commentStatusView,
+            LinearLayout.LayoutParams(
+                0,
+                38,
+                0.72f
+            )
+        )
+
+        /*
+         * Small follower count.
+         * Kept in the same bottom line without creating
+         * a large header.
+         */
+        followerCountView =
+            TextView(this).apply {
+
+                text =
+                    "👥 $followerCount"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 10f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        14,
+                        91,
+                        215
+                    )
+                )
+
+                setPadding(
+                    4,
+                    4,
+                    4,
+                    4
+                )
+            }
+
+        followCommentBar.addView(
+            followerCountView,
+            LinearLayout.LayoutParams(
+                70,
+                38
+            )
+        )
+
+        root.addView(
+            followCommentBar,
+            LinearLayout.LayoutParams(
+                -1,
+                46
+            )
+        )
+
+        /*
+         * HOME / SHARE / BACK
+         *
+         * Immediately below Follow + Comment.
+         * This is above Android navigation buttons.
+         */
         val bottom =
             LinearLayout(this).apply {
 
@@ -788,13 +718,15 @@ private fun toolButton(
 
                 setPadding(
                     6,
+                    4,
                     6,
-                    6,
-                    6
+                    4
                 )
 
                 background =
                     Color.WHITE.toDrawable()
+
+                elevation = 3f
             }
 
         bottom.addView(
@@ -806,7 +738,7 @@ private fun toolButton(
             ),
             LinearLayout.LayoutParams(
                 0,
-                48,
+                44,
                 1f
             )
         )
@@ -820,7 +752,7 @@ private fun toolButton(
             ),
             LinearLayout.LayoutParams(
                 0,
-                48,
+                44,
                 1f
             ).apply {
 
@@ -842,7 +774,7 @@ private fun toolButton(
             ),
             LinearLayout.LayoutParams(
                 0,
-                48,
+                44,
                 1f
             ).apply {
 
@@ -855,28 +787,63 @@ private fun toolButton(
             }
         )
 
+        /*
+         * Bottom system-bar inset.
+         *
+         * This keeps Home / Share / Back above the
+         * Android navigation area.
+         */
+        ViewCompat.setOnApplyWindowInsetsListener(
+            bottom
+        ) { view, insets ->
+
+            val bottomInset =
+                insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                ).bottom
+
+            view.setPadding(
+                view.paddingLeft,
+                4,
+                view.paddingRight,
+                4 + bottomInset
+            )
+
+            insets
+        }
+
         root.addView(
             bottom,
             LinearLayout.LayoutParams(
                 -1,
-                -2
+                LinearLayout.LayoutParams.WRAP_CONTENT
             )
         )
 
         return root
     }
+
     private fun bottomButton(
         label: String,
         action: () -> Unit
     ): TextView = TextView(this).apply {
 
         text = label
-        gravity = Gravity.CENTER
+
+        gravity =
+            Gravity.CENTER
+
         textSize = 14f
-        typeface = Typeface.DEFAULT_BOLD
+
+        typeface =
+            Typeface.DEFAULT_BOLD
 
         setTextColor(
-            Color.rgb(14, 91, 215)
+            Color.rgb(
+                14,
+                91,
+                215
+            )
         )
 
         background =
@@ -898,16 +865,28 @@ private fun toolButton(
     ): TextView = TextView(this).apply {
 
         text = label
-        gravity = Gravity.CENTER
-        textSize = 11f
-        includeFontPadding = false
-        maxLines = 1
-        typeface = Typeface.DEFAULT_BOLD
 
-        setTextColor(Color.WHITE)
+        gravity =
+            Gravity.CENTER
+
+        textSize = 11f
+
+        includeFontPadding = false
+
+        maxLines = 1
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.WHITE
+        )
 
         background =
-            GradientFactory.gradient(a, b)
+            GradientFactory.gradient(
+                a,
+                b
+            )
 
         isClickable = true
         isFocusable = true
@@ -983,7 +962,7 @@ private fun toolButton(
                             ).coerceAtLeast(0L)
 
                         followerCountView.text =
-                            "👥 $followerCount Followers"
+                            "👥 $followerCount"
 
                         AnalyticsTracker.channelFollow(
                             this,
@@ -1047,7 +1026,7 @@ private fun toolButton(
             if (value) {
                 "✓  Followed"
             } else {
-                "➕  Follow करें"
+                "➕ Follow करें"
             }
 
         if (value) {
@@ -1132,14 +1111,14 @@ private fun toolButton(
             return
         }
 
-        posts.forEach { post ->
+        posts.forEachIndexed { index, post ->
 
             list.addView(
                 postView(post)
             )
 
             // हर पोस्ट के बीच नीला gap
-            if (post != posts.last()) {
+            if (index < posts.lastIndex) {
 
                 list.addView(
                     View(this).apply {
@@ -1155,20 +1134,11 @@ private fun toolButton(
                     LinearLayout.LayoutParams(
                         -1,
                         7
-                    ).apply {
-
-                        setMargins(
-                            0,
-                            0,
-                            0,
-                            0
-                        )
-                    }
+                    )
                 )
             }
 
             // एक session में एक post का view
-            // केवल एक बार count होगा
             if (viewedSession.add(post.id)) {
 
                 viewOverrides[post.id] =
@@ -1265,7 +1235,7 @@ private fun toolButton(
             }
         )
 
-        // Text-only post भी पूरी तरह allowed
+        // Text-only post भी allowed
         if (p.body.isNotBlank()) {
 
             box.addView(
@@ -1493,7 +1463,7 @@ private fun toolButton(
             likeOverrides[p.id]
                 ?: p.likeCount
 
-        // Like button
+        // Like
         val like =
             TextView(this).apply {
 
@@ -1550,7 +1520,6 @@ private fun toolButton(
                 }
             }
 
-        // केवल एक बार Like add होगा
         actions.addView(
             like,
             LinearLayout.LayoutParams(
@@ -1560,6 +1529,7 @@ private fun toolButton(
             )
         )
 
+        // Comments
         val comments =
             TextView(this).apply {
 
@@ -1584,6 +1554,7 @@ private fun toolButton(
             comments
         )
 
+        // Offline
         val offline =
             TextView(this).apply {
 
@@ -1673,6 +1644,7 @@ private fun toolButton(
             offline
         )
 
+        // Share
         val share =
             TextView(this).apply {
 
@@ -1779,7 +1751,8 @@ private fun toolButton(
                 }
         }
     }
-        private fun toggleLike(
+
+    private fun toggleLike(
         p: ChannelPost,
         currentLiked: Boolean
     ) {
@@ -1803,7 +1776,6 @@ private fun toolButton(
             val target =
                 !currentLiked
 
-            // तुरंत UI update
             likedState[p.id] =
                 target
 
@@ -1857,7 +1829,6 @@ private fun toolButton(
         p: ChannelPost
     ) {
 
-        // Share count तुरंत बढ़ाएँ
         shareOverrides[p.id] =
             (
                 shareOverrides[p.id]
@@ -2242,7 +2213,7 @@ private fun toolButton(
 
         val options =
             com.google.firebase.auth.PhoneAuthOptions
-    .newBuilder(auth)
+                .newBuilder(auth)
                 .setPhoneNumber(
                     phone
                 )
@@ -2310,8 +2281,8 @@ private fun toolButton(
                             )
                         }
                     }
-                )    
-.build()
+                )
+                .build()
 
         PhoneAuthProvider
             .verifyPhoneNumber(
@@ -2477,7 +2448,8 @@ private fun toolButton(
             }
         }
     }
-        private fun showOfflineList() {
+
+    private fun showOfflineList() {
 
         val saved =
             OfflineStore.all(this)
@@ -2786,7 +2758,8 @@ private fun toolButton(
                 Button(this).apply {
 
                     this.text =
-    "📄 PDF खोलें"
+                        "📄 PDF खोलें"
+
                     setOnClickListener {
 
                         try {
@@ -2853,7 +2826,8 @@ private fun toolButton(
             )
             .show()
     }
-        private fun showPostShareResult(
+
+    private fun showPostShareResult(
         post: ChannelPost,
         success: Boolean
     ) {
@@ -2997,7 +2971,8 @@ private fun toolButton(
         }
     }
 }
-        private fun Int.toDrawable():
+
+private fun Int.toDrawable():
         android.graphics.drawable.ColorDrawable =
     android.graphics.drawable.ColorDrawable(this)
 
@@ -3041,7 +3016,9 @@ object GradientFactory {
         return android.graphics.drawable.GradientDrawable()
             .apply {
 
-                setColor(Color.WHITE)
+                setColor(
+                    Color.WHITE
+                )
 
                 cornerRadius = 20f
             }
