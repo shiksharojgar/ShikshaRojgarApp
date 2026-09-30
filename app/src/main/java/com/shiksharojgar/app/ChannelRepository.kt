@@ -271,7 +271,239 @@ object ChannelRepository {
         db.collection("channel_posts").document(id).update(data).addOnCompleteListener { done(it.isSuccessful, it.exception?.message) }
     }
 
-    fun deletePost(id: String, done: (Boolean) -> Unit) { db.collection("channel_posts").document(id).delete().addOnCompleteListener { done(it.isSuccessful) } }
+    /**
+ * Deletes a Channel post and, when the post owns its Firestore media,
+ * also deletes:
+ *
+ * channel_media/{mediaId}
+ * channel_media/{mediaId}/chunks/*
+ *
+ * Safety:
+ * - Media is deleted only when no other Channel post references it.
+ * - Same media referenced twice by the same post is deleted only once.
+ * - Works for both imageUrl and fileUrl.
+ */
+fun deletePost(id: String, done: (Boolean) -> Unit) {
+
+    if (id.isBlank()) {
+        done(false)
+        return
+    }
+
+    val postRef =
+        db.collection("channel_posts").document(id)
+
+    postRef.get()
+        .addOnSuccessListener { post ->
+
+            if (!post.exists()) {
+                done(false)
+                return@addOnSuccessListener
+            }
+
+            val mediaRefs = listOf(
+                post.getString("imageUrl").orEmpty(),
+                post.getString("fileUrl").orEmpty()
+            )
+                .filter { it.startsWith("firestore-media://") }
+                .distinct()
+
+            /*
+             * First delete the post itself.
+             * Media cleanup is done only after we know which media
+             * belonged to this post.
+             */
+            postRef.delete()
+                .addOnSuccessListener {
+
+                    if (mediaRefs.isEmpty()) {
+                        done(true)
+                        return@addOnSuccessListener
+                    }
+
+                    deleteMediaRefsSequentially(
+                        mediaRefs,
+                        0
+                    ) {
+                        /*
+                         * Even if an orphan-media cleanup fails,
+                         * the Channel post itself has already been
+                         * successfully deleted.
+                         *
+                         * We return true only when all media cleanup
+                         * operations succeeded.
+                         */
+                        done(it)
+                    }
+                }
+                .addOnFailureListener {
+                    done(false)
+                }
+        }
+        .addOnFailureListener {
+            done(false)
+        }
+}
+
+/**
+ * Sequentially cleans every unique media reference.
+ */
+private fun deleteMediaRefsSequentially(
+    refs: List<String>,
+    index: Int,
+    done: (Boolean) -> Unit
+) {
+
+    if (index >= refs.size) {
+        done(true)
+        return
+    }
+
+    deleteMediaIfUnused(
+        refs[index]
+    ) { ok ->
+
+        if (!ok) {
+            done(false)
+            return@deleteMediaIfUnused
+        }
+
+        deleteMediaRefsSequentially(
+            refs,
+            index + 1,
+            done
+        )
+    }
+}
+
+/**
+ * Deletes Firestore media only when no remaining Channel post
+ * references the same firestore-media:// URL.
+ */
+private fun deleteMediaIfUnused(
+    mediaUrl: String,
+    done: (Boolean) -> Unit
+) {
+
+    if (!mediaUrl.startsWith("firestore-media://")) {
+        done(true)
+        return
+    }
+
+    val mediaId =
+        mediaUrl.removePrefix("firestore-media://")
+
+    if (mediaId.isBlank()) {
+        done(true)
+        return
+    }
+
+    val imageQuery =
+        db.collection("channel_posts")
+            .whereEqualTo("imageUrl", mediaUrl)
+            .get()
+
+    val fileQuery =
+        db.collection("channel_posts")
+            .whereEqualTo("fileUrl", mediaUrl)
+            .get()
+
+    /*
+     * Both queries are needed because a media object may be referenced
+     * either as an image or as a document.
+     */
+    imageQuery
+        .addOnSuccessListener { imageSnap ->
+
+            fileQuery
+                .addOnSuccessListener { fileSnap ->
+
+                    val stillReferenced =
+                        imageSnap.documents.any {
+                            it.exists()
+                        } ||
+                        fileSnap.documents.any {
+                            it.exists()
+                        }
+
+                    if (stillReferenced) {
+
+                        /*
+                         * Another post is still using this media.
+                         * Do NOT delete it.
+                         */
+                        done(true)
+                        return@addOnSuccessListener
+                    }
+
+                    deleteMediaDocumentAndChunks(
+                        mediaId,
+                        done
+                    )
+                }
+                .addOnFailureListener {
+                    done(false)
+                }
+        }
+        .addOnFailureListener {
+            done(false)
+        }
+}
+
+/**
+ * Deletes:
+ *
+ * channel_media/{mediaId}/chunks/*
+ * channel_media/{mediaId}
+ *
+ * The current uploader uses 700 KB chunks and max 20 MB files,
+ * so a single media item remains comfortably below Firestore's
+ * batch-operation limit.
+ */
+private fun deleteMediaDocumentAndChunks(
+    mediaId: String,
+    done: (Boolean) -> Unit
+) {
+
+    val mediaRef =
+        db.collection("channel_media")
+            .document(mediaId)
+
+    mediaRef
+        .collection("chunks")
+        .get()
+        .addOnSuccessListener { chunks ->
+
+            /*
+             * One batch contains:
+             *
+             * all chunk deletes
+             * + media metadata delete
+             *
+             * Current 20 MB / 700 KB design is around 30 chunks max,
+             * so this remains safely below the normal batch size.
+             */
+            db.runBatch { batch ->
+
+                chunks.documents.forEach { chunk ->
+                    batch.delete(chunk.reference)
+                }
+
+                batch.delete(mediaRef)
+
+            }.addOnSuccessListener {
+
+                done(true)
+
+            }.addOnFailureListener {
+
+                done(false)
+            }
+        }
+        .addOnFailureListener {
+            done(false)
+        }
+}
 
     fun saveOffline(context: Context, post: ChannelPost, done: (Boolean, String?) -> Unit) {
         Thread {
