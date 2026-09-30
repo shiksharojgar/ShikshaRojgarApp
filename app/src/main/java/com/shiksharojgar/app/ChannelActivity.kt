@@ -1244,8 +1244,18 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
-    /*
+        /*
      * SINGLE POST CARD
+     *
+     * FINAL ACTION ROW:
+     *
+     * 👍 Like 12
+     * ↗ Share 5
+     * 💬 Comment 3
+     * 👁️ 20
+     *
+     * No duplicate stats row.
+     * No second action row.
      */
     private fun postView(
         p: ChannelPost
@@ -1335,7 +1345,7 @@ class ChannelActivity : AppCompatActivity() {
         /*
          * TEXT POST
          *
-         * Links inside text become clickable.
+         * Links inside text remain clickable.
          */
         if (p.body.isNotBlank()) {
 
@@ -1385,8 +1395,7 @@ class ChannelActivity : AppCompatActivity() {
             )
 
             /*
-             * If the body contains a video URL,
-             * show a small direct-open button.
+             * VIDEO URL
              */
             val firstUrl =
                 findFirstUrl(
@@ -1453,9 +1462,8 @@ class ChannelActivity : AppCompatActivity() {
         /*
          * IMAGE
          *
-         * Important:
-         * Clicking image does NOT open Android Gallery.
-         * It opens our own in-app viewer.
+         * Tap opens the existing in-app
+         * full image viewer.
          */
         if (p.imageUrl.isNotBlank()) {
 
@@ -1480,7 +1488,8 @@ class ChannelActivity : AppCompatActivity() {
                         true
 
                     scaleType =
-                        ImageView.ScaleType.FIT_CENTER
+                        ImageView.ScaleType
+                            .FIT_CENTER
 
                     maxHeight =
                         dp(600)
@@ -1640,43 +1649,73 @@ class ChannelActivity : AppCompatActivity() {
         }
 
         /*
-         * ACTION ROW
+         * ----------------------------------------------------
+         * FINAL SINGLE ACTION ROW
+         * ----------------------------------------------------
          */
+
         val actions =
             LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
 
                 gravity =
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
                     0,
-                    dp(7),
+                    dp(8),
                     0,
                     0
                 )
             }
 
+        /*
+         * CURRENT COUNTS
+         */
         val currentLiked =
             likedState[p.id] ?: false
 
-        val initialLikeCount =
+        val shownLikes =
             likeOverrides[p.id]
                 ?: p.likeCount
 
+        val shownShares =
+            shareOverrides[p.id]
+                ?: p.shareCount
+
+        val shownViews =
+            viewOverrides[p.id]
+                ?: p.viewCount
+
+        val shownComments =
+            p.commentCount
+
         /*
+         * ----------------------------------------------------
          * LIKE
+         * ----------------------------------------------------
          */
         val like =
             TextView(this).apply {
 
                 text =
                     if (currentLiked) {
-                        "👍 Liked $initialLikeCount"
+                        "👍 Like $shownLikes"
                     } else {
-                        "👍 Like $initialLikeCount"
+                        "👍 Like $shownLikes"
                     }
 
-                textSize = 13f
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 12f
+
+                includeFontPadding =
+                    false
+
+                maxLines = 1
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1703,13 +1742,32 @@ class ChannelActivity : AppCompatActivity() {
 
                     } else {
 
-                        Color.WHITE.toDrawable()
+                        android.graphics.drawable
+                            .GradientDrawable()
+                            .apply {
+
+                                setColor(
+                                    Color.WHITE
+                                )
+
+                                cornerRadius =
+                                    dp(20).toFloat()
+
+                                setStroke(
+                                    dp(1),
+                                    Color.rgb(
+                                        14,
+                                        91,
+                                        215
+                                    )
+                                )
+                            }
                     }
 
                 setPadding(
-                    dp(10),
+                    dp(8),
                     dp(7),
-                    dp(12),
+                    dp(8),
                     dp(7)
                 )
 
@@ -1726,144 +1784,39 @@ class ChannelActivity : AppCompatActivity() {
             like,
             LinearLayout.LayoutParams(
                 0,
-                dp(42),
+                dp(38),
                 1f
-            )
-        )
+            ).apply {
 
-        /*
-         * COMMENTS
-         */
-        val comments =
-            TextView(this).apply {
-
-                text =
-                    "💬 ${p.commentCount}"
-
-                textSize = 13f
-
-                setPadding(
-                    dp(6),
-                    dp(7),
-                    dp(12),
-                    dp(7)
+                setMargins(
+                    0,
+                    0,
+                    dp(4),
+                    0
                 )
-
-                setOnClickListener {
-                    showComments(p)
-                }
             }
-
-        actions.addView(
-            comments
         )
 
         /*
-         * OFFLINE
-         */
-        val offline =
-            TextView(this).apply {
-
-                text =
-                    if (
-                        OfflineStore.isSaved(
-                            this@ChannelActivity,
-                            p.id
-                        )
-                    ) {
-                        "✓ Offline"
-                    } else {
-                        "📥 Offline"
-                    }
-
-                textSize = 13f
-
-                setTextColor(
-                    Color.rgb(
-                        14,
-                        91,
-                        215
-                    )
-                )
-
-                setPadding(
-                    dp(6),
-                    dp(7),
-                    dp(12),
-                    dp(7)
-                )
-
-                setOnClickListener {
-
-                    if (
-                        !OfflineStore.isSaved(
-                            this@ChannelActivity,
-                            p.id
-                        )
-                    ) {
-
-                        text =
-                            "⏳ Saving…"
-
-                        ChannelRepository.saveOffline(
-                            this@ChannelActivity,
-                            p
-                        ) { ok, err ->
-
-                            runOnUiThread {
-
-                                text =
-                                    if (ok) {
-
-                                        AnalyticsTracker
-                                            .offlineDownload(
-                                                this@ChannelActivity,
-                                                p.id
-                                            )
-
-                                        "✓ Offline Saved"
-
-                                    } else {
-
-                                        "📥 Offline"
-                                    }
-
-                                Toast.makeText(
-                                    this@ChannelActivity,
-                                    if (ok) {
-                                        "आदेश Offline सेव हो गया"
-                                    } else {
-                                        "सेव नहीं हुआ: $err"
-                                    },
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
-                    } else {
-
-                        openOffline(p)
-                    }
-                }
-            }
-
-        actions.addView(
-            offline
-        )
-
-        /*
+         * ----------------------------------------------------
          * SHARE
+         * ----------------------------------------------------
          */
         val share =
             TextView(this).apply {
 
                 text =
-                    "↗  SHARE"
-
-                textSize = 14f
+                    "↗ Share $shownShares"
 
                 gravity =
                     Gravity.CENTER
+
+                textSize = 12f
+
+                includeFontPadding =
+                    false
+
+                maxLines = 1
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1879,56 +1832,135 @@ class ChannelActivity : AppCompatActivity() {
                     )
 
                 setPadding(
-                    dp(16),
+                    dp(8),
                     dp(7),
-                    dp(16),
+                    dp(8),
                     dp(7)
                 )
 
-                minWidth =
-                    dp(104)
-
-                minHeight =
-                    dp(46)
-
                 setOnClickListener {
+
                     sharePost(p)
                 }
             }
 
         actions.addView(
-            share
+            share,
+            LinearLayout.LayoutParams(
+                0,
+                dp(38),
+                1f
+            ).apply {
+
+                setMargins(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
+            }
         )
-
-        box.addView(
-            actions
-        )
-
-        val shownLikes =
-            likeOverrides[p.id]
-                ?: p.likeCount
-
-        val shownViews =
-            viewOverrides[p.id]
-                ?: p.viewCount
-
-        val shownShares =
-            shareOverrides[p.id]
-                ?: p.shareCount
 
         /*
-         * STATS
+         * ----------------------------------------------------
+         * COMMENT
+         * ----------------------------------------------------
          */
-        box.addView(
+        val comments =
             TextView(this).apply {
 
                 text =
-                    "👁 Views: $shownViews    " +
-                    "↗ Shares: $shownShares    " +
-                    "👍 Likes: $shownLikes    " +
-                    "💬 Comments: ${p.commentCount}"
+                    "💬 Comment $shownComments"
+
+                gravity =
+                    Gravity.CENTER
 
                 textSize = 12f
+
+                includeFontPadding =
+                    false
+
+                maxLines = 1
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    if (
+                        globalComments &&
+                        p.commentsEnabled
+                    ) {
+                        Color.rgb(
+                            15,
+                            118,
+                            110
+                        )
+                    } else {
+                        Color.rgb(
+                            100,
+                            116,
+                            139
+                        )
+                    }
+                )
+
+                background =
+                    Color.WHITE.toDrawable()
+
+                setPadding(
+                    dp(7),
+                    dp(7),
+                    dp(7),
+                    dp(7)
+                )
+
+                setOnClickListener {
+
+                    showComments(p)
+                }
+            }
+
+        actions.addView(
+            comments,
+            LinearLayout.LayoutParams(
+                0,
+                dp(38),
+                1f
+            ).apply {
+
+                setMargins(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
+            }
+        )
+
+        /*
+         * ----------------------------------------------------
+         * VIEWS
+         *
+         * IMPORTANT:
+         * Only eye icon + number.
+         * No "Views" text.
+         * ----------------------------------------------------
+         */
+        val views =
+            TextView(this).apply {
+
+                text =
+                    "👁️ $shownViews"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 12f
+
+                includeFontPadding =
+                    false
+
+                maxLines = 1
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1941,14 +1973,58 @@ class ChannelActivity : AppCompatActivity() {
                     )
                 )
 
+                background =
+                    Color.rgb(
+                        241,
+                        245,
+                        249
+                    ).toDrawable()
+
                 setPadding(
                     dp(8),
-                    dp(10),
+                    dp(7),
                     dp(8),
-                    dp(4)
+                    dp(7)
+                )
+
+                isClickable =
+                    false
+            }
+
+        actions.addView(
+            views,
+            LinearLayout.LayoutParams(
+                0,
+                dp(38),
+                0.72f
+            ).apply {
+
+                setMargins(
+                    dp(4),
+                    0,
+                    0,
+                    0
                 )
             }
         )
+
+        /*
+         * ADD ONLY ONE ACTION ROW.
+         */
+        box.addView(
+            actions,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(46)
+            )
+        )
+
+        /*
+         * IMPORTANT:
+         * There is intentionally NO separate
+         * Views / Shares / Likes / Comments
+         * stats row here.
+         */
 
         return box.apply {
 
@@ -1967,13 +2043,13 @@ class ChannelActivity : AppCompatActivity() {
                 }
         }
     }
+        
 
-    /*
-     * IN-APP IMAGE VIEWER
-     *
-     * No Gallery / external image app.
-     * Maximum viewer size about 600dp.
-     */
+                    
+                        
+             
+                    
+                
     private fun openImageViewer(
         mediaRef: String,
         mime: String,
