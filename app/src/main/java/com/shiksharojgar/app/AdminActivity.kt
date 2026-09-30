@@ -230,6 +230,7 @@ class AdminActivity : AppCompatActivity() {
         root.addView(postScroll,LinearLayout.LayoutParams(-1,0,1f))
         loadAdminPosts()
     }
+    import java.util.Locale
     private fun showAnalytics(){
         private fun showChannelMediaStorage() {
 
