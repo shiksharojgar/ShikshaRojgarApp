@@ -47,17 +47,22 @@ class AdminActivity : AppCompatActivity() {
 
     private var phoneVerificationId: String? = null
 
-    // ---------------------------------------------------------
+    // =========================================================
     // IMAGE PICKER
-    // ---------------------------------------------------------
+    // =========================================================
 
     private val pickImage =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        registerForActivityResult(
+            ActivityResultContracts.GetMultipleContents()
+        ) { uris ->
 
             selectedImageUris.clear()
-            selectedImageUris.addAll(uris.take(5))
+            selectedImageUris.addAll(
+                uris.take(5)
+            )
 
-            imageUri = selectedImageUris.firstOrNull()
+            imageUri =
+                selectedImageUris.firstOrNull()
 
             updateImagePreview()
 
@@ -70,12 +75,14 @@ class AdminActivity : AppCompatActivity() {
             )
         }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // FILE PICKER
-    // ---------------------------------------------------------
+    // =========================================================
 
     private val pickFile =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        registerForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) {
 
             fileUri = it
 
@@ -88,12 +95,14 @@ class AdminActivity : AppCompatActivity() {
             )
         }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // HOME PAGE IMAGE PICKER
-    // ---------------------------------------------------------
+    // =========================================================
 
     private val pickPageImage =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
 
             pageImageUri = uri
 
@@ -114,11 +123,13 @@ class AdminActivity : AppCompatActivity() {
             )
         }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // ON CREATE
-    // ---------------------------------------------------------
+    // =========================================================
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
 
         super.onCreate(savedInstanceState)
 
@@ -130,53 +141,68 @@ class AdminActivity : AppCompatActivity() {
 
         if (auth.currentUser != null) {
 
-            checkAdmin(autoContinue = true)
+            checkAdmin(
+                autoContinue = true
+            )
 
         } else {
 
-            setContentView(loginUi())
+            setContentView(
+                loginUi()
+            )
         }
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // DP
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun dp(v: Int): Int {
 
-        return (v * resources.displayMetrics.density).toInt()
+        return (
+            v *
+                resources.displayMetrics.density
+            ).toInt()
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // LOGIN UI
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun loginUi(): View {
 
-        val content = LinearLayout(this).apply {
+        val content =
+            LinearLayout(this).apply {
 
-            orientation = LinearLayout.VERTICAL
+                orientation =
+                    LinearLayout.VERTICAL
 
-            gravity = Gravity.CENTER_HORIZONTAL
+                gravity =
+                    Gravity.CENTER_HORIZONTAL
 
-            setPadding(
-                dp(20),
-                dp(20),
-                dp(20),
-                dp(28)
-            )
-        }
+                setPadding(
+                    dp(20),
+                    dp(20),
+                    dp(20),
+                    dp(28)
+                )
+            }
 
-        val scroll = ScrollView(this).apply {
+        val scroll =
+            ScrollView(this).apply {
 
-            isFillViewport = true
+                isFillViewport = true
 
-            clipToPadding = false
-        }
+                clipToPadding = false
+            }
 
         scroll.addView(content)
 
         val root = content
+
+        // -----------------------------------------------------
+        // HEADER
+        // -----------------------------------------------------
 
         root.addView(
             TextView(this).apply {
@@ -185,13 +211,19 @@ class AdminActivity : AppCompatActivity() {
 
                 textSize = 25f
 
-                typeface = Typeface.DEFAULT_BOLD
+                typeface =
+                    Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    Color.rgb(7, 89, 133)
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
                 )
 
-                gravity = Gravity.CENTER
+                gravity =
+                    Gravity.CENTER
 
                 setPadding(
                     0,
@@ -205,11 +237,13 @@ class AdminActivity : AppCompatActivity() {
         root.addView(
             TextView(this).apply {
 
-                text = "केवल Admin account से Login करें"
+                text =
+                    "केवल Admin account से Login करें"
 
                 textSize = 13f
 
-                gravity = Gravity.CENTER
+                gravity =
+                    Gravity.CENTER
 
                 setPadding(
                     0,
@@ -220,21 +254,27 @@ class AdminActivity : AppCompatActivity() {
             }
         )
 
-        // -----------------------------------------------------
+        // =====================================================
         // EMAIL LOGIN
-        // -----------------------------------------------------
+        // =====================================================
 
         root.addView(
             TextView(this).apply {
 
-                text = "1️⃣ Email + Password"
+                text =
+                    "1️⃣ Email + Password"
 
                 textSize = 16f
 
-                typeface = Typeface.DEFAULT_BOLD
+                typeface =
+                    Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    Color.rgb(7, 89, 133)
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
                 )
 
                 setPadding(
@@ -246,37 +286,43 @@ class AdminActivity : AppCompatActivity() {
             }
         )
 
-        val email = EditText(this).apply {
+        val email =
+            EditText(this).apply {
 
-            hint = "Admin Email ID"
+                hint =
+                    "Admin Email ID"
 
-            inputType = 33
+                inputType =
+                    33
 
-            setSingleLine(true)
+                setSingleLine(true)
 
-            setPadding(
-                dp(14),
-                0,
-                dp(14),
-                0
-            )
-        }
+                setPadding(
+                    dp(14),
+                    0,
+                    dp(14),
+                    0
+                )
+            }
 
-        val pass = EditText(this).apply {
+        val pass =
+            EditText(this).apply {
 
-            hint = "Password"
+                hint =
+                    "Password"
 
-            inputType = 129
+                inputType =
+                    129
 
-            setSingleLine(true)
+                setSingleLine(true)
 
-            setPadding(
-                dp(14),
-                0,
-                dp(14),
-                0
-            )
-        }
+                setPadding(
+                    dp(14),
+                    0,
+                    dp(14),
+                    0
+                )
+            }
 
         pass.setCompoundDrawablesWithIntrinsicBounds(
             0,
@@ -288,8 +334,10 @@ class AdminActivity : AppCompatActivity() {
         pass.setOnTouchListener { _, event ->
 
             if (
-                event.action == android.view.MotionEvent.ACTION_UP &&
-                event.rawX >= pass.right - 80
+                event.action ==
+                    android.view.MotionEvent.ACTION_UP &&
+                event.rawX >=
+                    pass.right - 80
             ) {
 
                 pass.inputType =
@@ -317,7 +365,9 @@ class AdminActivity : AppCompatActivity() {
                 -1,
                 dp(58)
             ).apply {
-                bottomMargin = dp(8)
+
+                bottomMargin =
+                    dp(8)
             }
         )
 
@@ -327,24 +377,31 @@ class AdminActivity : AppCompatActivity() {
                 -1,
                 dp(58)
             ).apply {
-                bottomMargin = dp(10)
+
+                bottomMargin =
+                    dp(10)
             }
         )
 
         root.addView(
             Button(this).apply {
 
-                text = "LOGIN WITH EMAIL"
+                text =
+                    "LOGIN WITH EMAIL"
 
-                minHeight = dp(52)
+                minHeight =
+                    dp(52)
 
                 setOnClickListener {
 
                     val e =
-                        email.text.toString().trim()
+                        email.text
+                            .toString()
+                            .trim()
 
                     val p =
-                        pass.text.toString()
+                        pass.text
+                            .toString()
 
                     if (
                         e.isBlank() ||
@@ -358,23 +415,27 @@ class AdminActivity : AppCompatActivity() {
                         return@setOnClickListener
                     }
 
-                    isEnabled = false
+                    isEnabled =
+                        false
 
                     auth.signOut()
 
-                    auth.signInWithEmailAndPassword(
-                        e,
-                        p
-                    )
+                    auth
+                        .signInWithEmailAndPassword(
+                            e,
+                            p
+                        )
                         .addOnSuccessListener {
 
-                            isEnabled = true
+                            isEnabled =
+                                true
 
                             checkAdmin()
                         }
                         .addOnFailureListener {
 
-                            isEnabled = true
+                            isEnabled =
+                                true
 
                             toast(
                                 "Login असफल: ${it.message}"
@@ -388,18 +449,21 @@ class AdminActivity : AppCompatActivity() {
             )
         )
 
-        // -----------------------------------------------------
+        // =====================================================
         // OTP
-        // -----------------------------------------------------
+        // =====================================================
 
         root.addView(
             TextView(this).apply {
 
-                text = "या"
+                text =
+                    "या"
 
-                textSize = 13f
+                textSize =
+                    13f
 
-                gravity = Gravity.CENTER
+                gravity =
+                    Gravity.CENTER
 
                 setPadding(
                     0,
@@ -413,14 +477,21 @@ class AdminActivity : AppCompatActivity() {
         root.addView(
             TextView(this).apply {
 
-                text = "2️⃣ Mobile OTP Login"
+                text =
+                    "2️⃣ Mobile OTP Login"
 
-                textSize = 16f
+                textSize =
+                    16f
 
-                typeface = Typeface.DEFAULT_BOLD
+                typeface =
+                    Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    Color.rgb(7, 89, 133)
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
                 )
 
                 setPadding(
@@ -432,55 +503,69 @@ class AdminActivity : AppCompatActivity() {
             }
         )
 
-        val phone = EditText(this).apply {
+        val phone =
+            EditText(this).apply {
 
-            hint = "मोबाइल नंबर (10 अंक या +91XXXXXXXXXX)"
+                hint =
+                    "मोबाइल नंबर (10 अंक या +91XXXXXXXXXX)"
 
-            inputType = 3
+                inputType =
+                    3
 
-            setSingleLine(true)
+                setSingleLine(true)
 
-            setPadding(
-                dp(14),
-                0,
-                dp(14),
-                0
-            )
-        }
+                setPadding(
+                    dp(14),
+                    0,
+                    dp(14),
+                    0
+                )
+            }
 
-        val otp = EditText(this).apply {
+        val otp =
+            EditText(this).apply {
 
-            hint = "OTP (6 अंक)"
+                hint =
+                    "OTP (6 अंक)"
 
-            inputType = 2
+                inputType =
+                    2
 
-            setSingleLine(true)
+                setSingleLine(true)
 
-            visibility = View.GONE
+                visibility =
+                    View.GONE
 
-            setPadding(
-                dp(14),
-                0,
-                dp(14),
-                0
-            )
-        }
+                setPadding(
+                    dp(14),
+                    0,
+                    dp(14),
+                    0
+                )
+            }
 
-        val send = Button(this).apply {
+        val send =
+            Button(this).apply {
 
-            text = "📱 SEND OTP"
+                text =
+                    "📱 SEND OTP"
 
-            minHeight = dp(52)
-        }
+                minHeight =
+                    dp(52)
+            }
 
-        val verify = Button(this).apply {
+        val verify =
+            Button(this).apply {
 
-            text = "✓ VERIFY & LOGIN"
+                text =
+                    "✓ VERIFY & LOGIN"
 
-            visibility = View.GONE
+                visibility =
+                    View.GONE
 
-            minHeight = dp(52)
-        }
+                minHeight =
+                    dp(52)
+            }
 
         root.addView(
             phone,
@@ -488,7 +573,9 @@ class AdminActivity : AppCompatActivity() {
                 -1,
                 dp(58)
             ).apply {
-                bottomMargin = dp(8)
+
+                bottomMargin =
+                    dp(8)
             }
         )
 
@@ -507,9 +594,11 @@ class AdminActivity : AppCompatActivity() {
                 dp(58)
             ).apply {
 
-                topMargin = dp(8)
+                topMargin =
+                    dp(8)
 
-                bottomMargin = dp(8)
+                bottomMargin =
+                    dp(8)
             }
         )
 
@@ -524,20 +613,32 @@ class AdminActivity : AppCompatActivity() {
         send.setOnClickListener {
 
             val raw =
-                phone.text.toString()
+                phone.text
+                    .toString()
                     .trim()
-                    .replace(" ", "")
-                    .replace("-", "")
+                    .replace(
+                        " ",
+                        ""
+                    )
+                    .replace(
+                        "-",
+                        ""
+                    )
 
             val number =
                 when {
 
-                    raw.startsWith("+91") ->
+                    raw.startsWith(
+                        "+91"
+                    ) ->
                         raw
 
-                    raw.startsWith("0") &&
-                            raw.length == 11 ->
-                        "+91" + raw.substring(1)
+                    raw.startsWith(
+                        "0"
+                    ) &&
+                        raw.length == 11 ->
+                        "+91" +
+                            raw.substring(1)
 
                     raw.length == 10 ->
                         "+91$raw"
@@ -546,7 +647,9 @@ class AdminActivity : AppCompatActivity() {
                         ""
                 }
 
-            if (number.isBlank()) {
+            if (
+                number.isBlank()
+            ) {
 
                 toast(
                     "10 अंकों का भारतीय मोबाइल नंबर डालें"
@@ -555,17 +658,22 @@ class AdminActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            send.isEnabled = false
+            send.isEnabled =
+                false
 
             val options =
                 PhoneAuthOptions
                     .newBuilder(auth)
-                    .setPhoneNumber(number)
+                    .setPhoneNumber(
+                        number
+                    )
                     .setTimeout(
                         60L,
                         TimeUnit.SECONDS
                     )
-                    .setActivity(this)
+                    .setActivity(
+                        this
+                    )
                     .setCallbacks(
                         object :
                             PhoneAuthProvider
@@ -601,7 +709,9 @@ class AdminActivity : AppCompatActivity() {
                                 send.isEnabled =
                                     true
 
-                                showPhoneError(e)
+                                showPhoneError(
+                                    e
+                                )
                             }
 
                             override fun onCodeSent(
@@ -632,7 +742,9 @@ class AdminActivity : AppCompatActivity() {
                     .build()
 
             PhoneAuthProvider
-                .verifyPhoneNumber(options)
+                .verifyPhoneNumber(
+                    options
+                )
         }
 
         verify.setOnClickListener {
@@ -641,7 +753,9 @@ class AdminActivity : AppCompatActivity() {
                 phoneVerificationId
 
             val code =
-                otp.text.toString().trim()
+                otp.text
+                    .toString()
+                    .trim()
 
             if (
                 id.isNullOrBlank() ||
@@ -655,15 +769,16 @@ class AdminActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            verify.isEnabled = false
+            verify.isEnabled =
+                false
 
-            auth.signInWithCredential(
-                PhoneAuthProvider
-                    .getCredential(
+            auth
+                .signInWithCredential(
+                    PhoneAuthProvider.getCredential(
                         id,
                         code
                     )
-            )
+                )
                 .addOnSuccessListener {
 
                     verify.isEnabled =
@@ -688,9 +803,11 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "ℹ️ Firebase Phone Login Setup"
 
-                minHeight = dp(50)
+                minHeight =
+                    dp(50)
 
                 setOnClickListener {
+
                     showPhoneSetup()
                 }
             },
@@ -698,7 +815,9 @@ class AdminActivity : AppCompatActivity() {
                 -1,
                 dp(50)
             ).apply {
-                topMargin = dp(12)
+
+                topMargin =
+                    dp(12)
             }
         )
 
@@ -708,7 +827,8 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "Email/Password या Mobile OTP से Firebase Authentication Login करें। Admin अधिकार Firebase users document से सत्यापित होता है।"
 
-                textSize = 12f
+                textSize =
+                    12f
 
                 setPadding(
                     0,
@@ -722,23 +842,29 @@ class AdminActivity : AppCompatActivity() {
         return scroll
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // PHONE ERROR
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun showPhoneError(
         e: FirebaseException
     ) {
 
         val code =
-            if (e is FirebaseAuthException) {
+            if (
+                e is FirebaseAuthException
+            ) {
+
                 e.errorCode
+
             } else {
+
                 e.javaClass.simpleName
             }
 
         val raw =
-            e.message ?: "Unknown Firebase error"
+            e.message
+                ?: "Unknown Firebase error"
 
         val hint =
             when {
@@ -747,21 +873,21 @@ class AdminActivity : AppCompatActivity() {
                     "CONFIGURATION_NOT_FOUND",
                     true
                 ) ||
-                        raw.contains(
-                            "OPERATION_NOT_ALLOWED",
-                            true
-                        ) ->
+                    raw.contains(
+                        "OPERATION_NOT_ALLOWED",
+                        true
+                    ) ->
                     "Firebase Console में Phone provider ON करें और India को SMS region policy में allow करें।"
 
                 raw.contains(
                     "INVALID_APP_CREDENTIAL",
                     true
                 ) ||
-                        raw.contains(
-                            "app credential",
-                            true
-                        ) ->
-                    "इस APK के certificate SHA-1/SHA-256 को Firebase Project Settings में जोड़ें। Debug APK और Release APK के fingerprints अलग हो सकती हैं।"
+                    raw.contains(
+                        "app credential",
+                        true
+                    ) ->
+                    "इस APK के certificate SHA-1/SHA-256 को Firebase Project Settings में जोड़ें। Debug APK और Release APK के fingerprints अलग हो सकते हैं।"
 
                 raw.contains(
                     "TOO_MANY_REQUESTS",
@@ -774,11 +900,13 @@ class AdminActivity : AppCompatActivity() {
             }
 
         AlertDialog.Builder(this)
-            .setTitle("OTP नहीं भेजा गया")
+            .setTitle(
+                "OTP नहीं भेजा गया"
+            )
             .setMessage(
                 "Error: $code\n\n" +
-                        "$raw\n\n" +
-                        "क्या करें:\n$hint"
+                    "$raw\n\n" +
+                    "क्या करें:\n$hint"
             )
             .setPositiveButton(
                 "OK",
@@ -787,9 +915,9 @@ class AdminActivity : AppCompatActivity() {
             .show()
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // PHONE SETUP
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun showPhoneSetup() {
 
@@ -799,9 +927,9 @@ class AdminActivity : AppCompatActivity() {
             )
             .setMessage(
                 "1. Firebase Console → Authentication → Sign-in method → Phone ON करें।\n\n" +
-                        "2. Authentication → Settings → SMS region policy में India allow करें।\n\n" +
-                        "3. Project Settings → Android app में इस APK का SHA-256 और SHA-1 जोड़ें। Debug APK और Release APK के fingerprints अलग हो सकते हैं।\n\n" +
-                        "4. Phone से बना user Admin तभी बनेगा जब उसी UID के users document में admin=true (या isAdmin=true / role=admin) सेट हो।"
+                    "2. Authentication → Settings → SMS region policy में India allow करें।\n\n" +
+                    "3. Project Settings → Android app में इस APK का SHA-256 और SHA-1 जोड़ें। Debug APK और Release APK के fingerprints अलग हो सकते हैं।\n\n" +
+                    "4. Phone से बना user Admin तभी बनेगा जब उसी UID के users document में admin=true (या isAdmin=true / role=admin) सेट हो।"
             )
             .setPositiveButton(
                 "OK",
@@ -810,9 +938,9 @@ class AdminActivity : AppCompatActivity() {
             .show()
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // ADMIN CHECK
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun checkAdmin(
         autoContinue: Boolean = false
@@ -827,7 +955,9 @@ class AdminActivity : AppCompatActivity() {
         val uid =
             user?.uid
 
-        if (uid.isNullOrBlank()) {
+        if (
+            uid.isNullOrBlank()
+        ) {
 
             toast(
                 "Admin account नहीं मिला"
@@ -857,66 +987,76 @@ class AdminActivity : AppCompatActivity() {
 
         fun evaluate(
             doc:
-            com.google.firebase.firestore
-                .DocumentSnapshot,
+                com.google.firebase.firestore.DocumentSnapshot,
             source: String
         ) {
 
             val adminValue =
-                doc.getBoolean("admin")
+                doc.getBoolean(
+                    "admin"
+                )
 
             val isAdminValue =
-                doc.getBoolean("isAdmin")
+                doc.getBoolean(
+                    "isAdmin"
+                )
 
             val roleValue =
-                doc.getString("role")
+                doc.getString(
+                    "role"
+                )
 
             val firestoreAdmin =
                 doc.exists() &&
-                        (
-                                adminValue == true ||
-                                        isAdminValue == true ||
-                                        roleValue?.equals(
-                                            "admin",
-                                            true
-                                        ) == true
-                                )
+                    (
+                        adminValue == true ||
+                            isAdminValue == true ||
+                            roleValue?.equals(
+                                "admin",
+                                true
+                            ) == true
+                    )
 
             val uidAdminFallback =
-                uid == configuredAdminUid &&
-                        !doc.exists()
+                uid ==
+                    configuredAdminUid &&
+                    !doc.exists()
 
             val isAdmin =
                 firestoreAdmin ||
-                        uidAdminFallback
+                    uidAdminFallback
 
             val message =
                 "Signed-in Email: $email\n" +
-                        "Provider: ${
-                            if (providers.isBlank()) {
-                                "unknown"
-                            } else {
-                                providers
-                            }
-                        }\n\n" +
-                        "Firebase Project: $projectId\n" +
-                        "Current Auth UID: $uid\n\n" +
-                        "users/$uid document: ${
-                            if (doc.exists()) {
-                                "OK ($source)"
-                            } else {
-                                "NOT FOUND"
-                            }
-                        }\n" +
-                        "admin = ${
-                            adminValue ?: "null"
-                        }\n" +
-                        "isAdmin = ${
-                            isAdminValue ?: "null"
-                        }\n" +
-                        "role = ${
-                            roleValue ?: "null"
-                        }"
+                    "Provider: ${
+                        if (
+                            providers.isBlank()
+                        ) {
+                            "unknown"
+                        } else {
+                            providers
+                        }
+                    }\n\n" +
+                    "Firebase Project: $projectId\n" +
+                    "Current Auth UID: $uid\n\n" +
+                    "users/$uid document: ${
+                        if (
+                            doc.exists()
+                        ) {
+                            "OK ($source)"
+                        } else {
+                            "NOT FOUND"
+                        }
+                    }\n" +
+                    "admin = ${
+                        adminValue ?: "null"
+                    }\n" +
+                    "isAdmin = ${
+                        isAdminValue ?: "null"
+                    }\n" +
+                    "role = ${
+                        roleValue ?: "null"
+                    }"
 
             if (isAdmin) {
 
@@ -940,15 +1080,17 @@ class AdminActivity : AppCompatActivity() {
                     )
                     .setMessage(
                         message +
-                                "\n\nAdmin verification सफल है।" +
-                                "\nVerification source: $verificationSource"
+                            "\n\nAdmin verification सफल है।" +
+                            "\nVerification source: $verificationSource"
                     )
                     .setPositiveButton(
                         "CONTINUE"
                     ) { _, _ ->
+
                         showPanel()
                     }
                     .setOnCancelListener {
+
                         showPanel()
                     }
                     .show()
@@ -961,21 +1103,25 @@ class AdminActivity : AppCompatActivity() {
                     )
                     .setMessage(
                         message +
-                                "\n\nAdmin verification असफल है।"
+                            "\n\nAdmin verification असफल है।"
                     )
                     .setPositiveButton(
                         "OK"
                     ) { _, _ ->
+
                         auth.signOut()
                     }
                     .setOnCancelListener {
+
                         auth.signOut()
                     }
                     .show()
             }
         }
 
-        db.collection("users")
+        db.collection(
+            "users"
+        )
             .document(uid)
             .get()
             .addOnSuccessListener { doc ->
@@ -989,7 +1135,9 @@ class AdminActivity : AppCompatActivity() {
 
                 } else {
 
-                    db.collection("users")
+                    db.collection(
+                        "users"
+                    )
                         .whereEqualTo(
                             "uid",
                             uid
@@ -1030,23 +1178,27 @@ class AdminActivity : AppCompatActivity() {
                     )
                     .setMessage(
                         "Signed-in Email: $email\n" +
-                                "Firebase Project: $projectId\n" +
-                                "Current Auth UID: $uid\n\n" +
-                                "Firestore पढ़ने में समस्या:\n" +
-                                "${e.message ?: "Unknown error"}"
+                            "Firebase Project: $projectId\n" +
+                            "Current Auth UID: $uid\n\n" +
+                            "Firestore पढ़ने में समस्या:\n" +
+                            (
+                                e.message
+                                    ?: "Unknown error"
+                            )
                     )
                     .setPositiveButton(
                         "OK"
                     ) { _, _ ->
+
                         auth.signOut()
                     }
                     .show()
             }
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // ADMIN PANEL
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun showPanel() {
 
@@ -1068,7 +1220,9 @@ class AdminActivity : AppCompatActivity() {
                 )
             }
 
-        setContentView(root)
+        setContentView(
+            root
+        )
 
         val fixed =
             LinearLayout(this).apply {
@@ -1077,17 +1231,18 @@ class AdminActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
+                    dp(12),
                     dp(10),
-                    dp(8),
-                    dp(10),
-                    dp(6)
+                    dp(12),
+                    dp(8)
                 )
 
                 setBackgroundColor(
                     Color.WHITE
                 )
 
-                elevation = 8f
+                elevation =
+                    8f
             }
 
         // -----------------------------------------------------
@@ -1100,7 +1255,8 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "⚙ शिक्षा रोजगार Channel Admin"
 
-                textSize = 20f
+                textSize =
+                    22f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1117,7 +1273,7 @@ class AdminActivity : AppCompatActivity() {
                     0,
                     0,
                     0,
-                    dp(5)
+                    8
                 )
             }
         )
@@ -1131,9 +1287,6 @@ class AdminActivity : AppCompatActivity() {
 
                 text =
                     "🚪 Logout"
-
-                minHeight =
-                    dp(40)
 
                 setOnClickListener {
 
@@ -1152,9 +1305,11 @@ class AdminActivity : AppCompatActivity() {
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(40)
+                dp(46)
             ).apply {
-                bottomMargin = dp(4)
+
+                bottomMargin =
+                    dp(6)
             }
         )
 
@@ -1168,17 +1323,12 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "सभी Posts के Comments"
 
-                textSize = 14f
-
-                minHeight = dp(40)
+                textSize =
+                    15f
             }
 
         fixed.addView(
-            globalSwitch,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(42)
-            )
+            globalSwitch
         )
 
         db.document(
@@ -1215,7 +1365,7 @@ class AdminActivity : AppCompatActivity() {
         }
 
         // -----------------------------------------------------
-        // NEW POST
+        // CREATE POST
         // -----------------------------------------------------
 
         fixed.addView(
@@ -1224,18 +1374,18 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "📢 CREATE NEW CHANNEL POST"
 
-                minHeight =
-                    dp(44)
-
                 setOnClickListener {
+
                     newPostDialog()
                 }
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(44)
+                dp(50)
             ).apply {
-                topMargin = dp(3)
+
+                topMargin =
+                    dp(4)
             }
         )
 
@@ -1259,19 +1409,19 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "☑ SELECT ALL"
 
-                minHeight =
-                    dp(40)
-
                 setOnClickListener {
+
                     selectAllAdminPosts()
                 }
             },
             LinearLayout.LayoutParams(
                 0,
-                dp(40),
+                dp(46),
                 1f
             ).apply {
-                rightMargin = dp(3)
+
+                rightMargin =
+                    dp(4)
             }
         )
 
@@ -1281,19 +1431,19 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "🗑 DELETE SELECTED"
 
-                minHeight =
-                    dp(40)
-
                 setOnClickListener {
+
                     deleteSelectedAdminPosts()
                 }
             },
             LinearLayout.LayoutParams(
                 0,
-                dp(40),
+                dp(46),
                 1f
             ).apply {
-                leftMargin = dp(3)
+
+                leftMargin =
+                    dp(4)
             }
         )
 
@@ -1311,18 +1461,18 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "🗑 DELETE ALL POSTS"
 
-                minHeight =
-                    dp(40)
-
                 setOnClickListener {
+
                     deleteAllAdminPosts()
                 }
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(40)
+                dp(46)
             ).apply {
-                topMargin = dp(3)
+
+                topMargin =
+                    dp(4)
             }
         )
 
@@ -1336,7 +1486,8 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "📚 HOME PAGES"
 
-                textSize = 16f
+                textSize =
+                    17f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1351,9 +1502,9 @@ class AdminActivity : AppCompatActivity() {
 
                 setPadding(
                     0,
-                    dp(5),
+                    dp(8),
                     0,
-                    dp(3)
+                    dp(4)
                 )
             }
         )
@@ -1373,25 +1524,17 @@ class AdminActivity : AppCompatActivity() {
                 "tools" to "Useful Tools"
             )
 
-        pageDefs.forEach { (id, label) ->
+        pageDefs.forEach {
+                (id, label) ->
 
             pageManager.addView(
                 Button(this).apply {
 
                     text =
-                        "✏️ $label — ADD / EDIT"
-
-                    minHeight =
-                        dp(38)
-
-                    setPadding(
-                        dp(5),
-                        0,
-                        dp(5),
-                        0
-                    )
+                        "✏️ $label  —  ADD / EDIT"
 
                     setOnClickListener {
+
                         editHomePage(
                             id,
                             label
@@ -1406,7 +1549,7 @@ class AdminActivity : AppCompatActivity() {
         )
 
         // -----------------------------------------------------
-        // MEDIA STORAGE BUTTON
+        // MEDIA STORAGE
         // -----------------------------------------------------
 
         fixed.addView(
@@ -1415,54 +1558,46 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "💾 Channel Media Storage"
 
-                textSize = 12f
-
-                minHeight =
-                    dp(38)
-
-                setPadding(
-                    dp(6),
-                    0,
-                    dp(6),
-                    0
-                )
+                textSize =
+                    12f
 
                 setOnClickListener {
+
                     showChannelMediaStorage()
                 }
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(38)
+                dp(44)
             ).apply {
-                topMargin = dp(3)
+
+                topMargin =
+                    dp(4)
             }
         )
 
         // -----------------------------------------------------
-        // ANALYTICS BUTTON
+        // ANALYTICS
         // -----------------------------------------------------
 
         fixed.addView(
             Button(this).apply {
 
                 text =
-                    "📊 CHANNEL ANALYSIS"
-
-                textSize = 12f
-
-                minHeight =
-                    dp(38)
+                    "📊 Channel Analytics"
 
                 setOnClickListener {
+
                     showAnalytics()
                 }
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(38)
+                dp(44)
             ).apply {
-                topMargin = dp(3)
+
+                topMargin =
+                    dp(4)
             }
         )
 
@@ -1475,7 +1610,7 @@ class AdminActivity : AppCompatActivity() {
         )
 
         // -----------------------------------------------------
-        // POST HEADER
+        // POSTS HEADER
         // -----------------------------------------------------
 
         val postHeader =
@@ -1484,7 +1619,8 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "📋 Channel Posts — नई post नीचे दिखाई देगी"
 
-                textSize = 15f
+                textSize =
+                    16f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -1498,10 +1634,10 @@ class AdminActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    dp(10),
-                    dp(6),
-                    dp(10),
-                    dp(5)
+                    dp(12),
+                    dp(8),
+                    dp(12),
+                    dp(6)
                 )
 
                 setBackgroundColor(
@@ -1538,10 +1674,10 @@ class AdminActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    dp(10),
+                    dp(12),
                     0,
-                    dp(10),
-                    dp(18)
+                    dp(12),
+                    dp(20)
                 )
             }
 
@@ -1561,9 +1697,9 @@ class AdminActivity : AppCompatActivity() {
         loadAdminPosts()
     }
 
-    // ---------------------------------------------------------
-    // MEDIA STORAGE
-    // ---------------------------------------------------------
+    // =========================================================
+    // CHANNEL MEDIA STORAGE
+    // =========================================================
 
     private fun showChannelMediaStorage() {
 
@@ -1589,16 +1725,24 @@ class AdminActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { snap ->
 
-                var totalBytes = 0L
-                var fileCount = 0
-                var imageCount = 0
-                var documentCount = 0
+                var totalBytes =
+                    0L
+
+                var fileCount =
+                    0
+
+                var imageCount =
+                    0
+
+                var documentCount =
+                    0
 
                 snap.documents.forEach { doc ->
 
                     val size =
-                        doc.getLong("size")
-                            ?: 0L
+                        doc.getLong(
+                            "size"
+                        ) ?: 0L
 
                     totalBytes +=
                         size.coerceAtLeast(
@@ -1612,7 +1756,9 @@ class AdminActivity : AppCompatActivity() {
                             "folder"
                         ).orEmpty()
 
-                    if (folder == "images") {
+                    if (
+                        folder == "images"
+                    ) {
 
                         imageCount++
 
@@ -1624,28 +1770,28 @@ class AdminActivity : AppCompatActivity() {
 
                 val mb =
                     totalBytes.toDouble() /
-                            (
-                                    1024.0 *
-                                            1024.0
-                                    )
+                        (
+                            1024.0 *
+                                1024.0
+                        )
 
                 val gb =
                     totalBytes.toDouble() /
-                            (
-                                    1024.0 *
-                                            1024.0 *
-                                            1024.0
-                                    )
+                        (
+                            1024.0 *
+                                1024.0 *
+                                1024.0
+                        )
 
                 val freeLimitGb =
                     1.0
 
                 val percent =
                     (
-                            gb /
-                                    freeLimitGb *
-                                    100.0
-                            )
+                        gb /
+                            freeLimitGb *
+                            100.0
+                        )
                         .coerceAtMost(
                             100.0
                         )
@@ -1659,15 +1805,33 @@ class AdminActivity : AppCompatActivity() {
                     📄 Documents: $documentCount
                     
                     📦 Uploaded media:
-                    ${String.format(Locale.US, "%.2f MB", mb)}
+                    ${
+                        String.format(
+                            Locale.US,
+                            "%.2f MB",
+                            mb
+                        )
+                    }
                     
-                    ${String.format(Locale.US, "%.4f GB", gb)}
+                    ${
+                        String.format(
+                            Locale.US,
+                            "%.4f GB",
+                            gb
+                        )
+                    }
                     
                     📊 Firestore free storage:
                     1 GiB shared Firestore limit
                     
                     📈 Approx. media usage:
-                    ${String.format(Locale.US, "%.2f%%", percent)}
+                    ${
+                        String.format(
+                            Locale.US,
+                            "%.2f%%",
+                            percent
+                        )
+                    }
                     
                     ⚠️ यह Channel media का declared
                     file-size total है।
@@ -1679,7 +1843,7 @@ class AdminActivity : AppCompatActivity() {
                     
                     🗑️ Delete की गई post की unused
                     image/PDF और उसके chunks
-                    नई delete system से हटेंगे।
+                    repository की delete system से हटेंगे।
                     """.trimIndent()
 
                 dialog.setMessage(
@@ -1690,17 +1854,17 @@ class AdminActivity : AppCompatActivity() {
 
                 dialog.setMessage(
                     "Channel media storage पढ़ा नहीं जा सका:\n\n" +
-                            (
-                                    e.message
-                                        ?: "Firestore error"
-                                    )
+                        (
+                            e.message
+                                ?: "Firestore error"
+                            )
                 )
             }
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // ANALYTICS
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun showAnalytics() {
 
@@ -1733,45 +1897,45 @@ class AdminActivity : AppCompatActivity() {
                         ) ?: 0
                     }\n" +
 
-                            "👁 Channel Post Views: ${
-                                d.getLong(
-                                    "totalPostViews"
-                                ) ?: 0
-                            }\n" +
+                        "👁 Channel Post Views: ${
+                            d.getLong(
+                                "totalPostViews"
+                            ) ?: 0
+                        }\n" +
 
-                            "↗ Channel Post Shares: ${
-                                d.getLong(
-                                    "totalPostShares"
-                                ) ?: 0
-                            }\n" +
+                        "↗ Channel Post Shares: ${
+                            d.getLong(
+                                "totalPostShares"
+                            ) ?: 0
+                        }\n" +
 
-                            "👍 Channel Likes: ${
-                                d.getLong(
-                                    "totalLikes"
-                                ) ?: 0
-                            }\n" +
+                        "👍 Channel Likes: ${
+                            d.getLong(
+                                "totalLikes"
+                            ) ?: 0
+                        }\n" +
 
-                            "💬 Channel Comments: ${
-                                d.getLong(
-                                    "totalComments"
-                                ) ?: 0
-                            }\n\n" +
+                        "💬 Channel Comments: ${
+                            d.getLong(
+                                "totalComments"
+                            ) ?: 0
+                        }\n\n" +
 
-                            "📱 App First-use / Install Users: ${
-                                d.getLong(
-                                    "totalAppUsers"
-                                ) ?: 0
-                            }\n" +
+                        "📱 App First-use / Install Users: ${
+                            d.getLong(
+                                "totalAppUsers"
+                            ) ?: 0
+                        }\n" +
 
-                            "📈 Active User-Days: ${
-                                d.getLong(
-                                    "totalActiveUserDays"
-                                ) ?: 0
-                            }\n\n" +
+                        "📈 Active User-Days: ${
+                            d.getLong(
+                                "totalActiveUserDays"
+                            ) ?: 0
+                        }\n\n" +
 
-                            "Analytics channel_config/main के aggregate counters से पढ़े जा रहे हैं।\n\n" +
+                        "Analytics अब channel_config/main के aggregate counters से पढ़े जा रहे हैं।\n\n" +
 
-                            "नोट: Website से APK file download और APK install अलग metrics हैं।"
+                        "नोट: Website से APK file download और APK install अलग metrics हैं।"
 
                 dialog.setMessage(
                     msg
@@ -1781,17 +1945,17 @@ class AdminActivity : AppCompatActivity() {
 
                 dialog.setMessage(
                     "Channel analytics पढ़ा नहीं जा सका: " +
-                            (
-                                    e.message
-                                        ?: "Firestore error"
-                                    )
+                        (
+                            e.message
+                                ?: "Firestore error"
+                            )
                 )
             }
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // NEW POST
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun newPostDialog() {
 
@@ -1808,10 +1972,10 @@ class AdminActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    dp(8),
-                    dp(5),
-                    dp(8),
-                    dp(5)
+                    10,
+                    10,
+                    10,
+                    10
                 )
             }
 
@@ -1828,7 +1992,8 @@ class AdminActivity : AppCompatActivity() {
                 hint =
                     "विवरण / आदेश का पाठ"
 
-                minLines = 4
+                minLines =
+                    4
             }
 
         val cat =
@@ -1838,19 +2003,27 @@ class AdminActivity : AppCompatActivity() {
                     "Category: आदेश/निर्देश"
             }
 
-        box.addView(title)
-        box.addView(body)
-        box.addView(cat)
+        box.addView(
+            title
+        )
+
+        box.addView(
+            body
+        )
+
+        box.addView(
+            cat
+        )
 
         // -----------------------------------------------------
-        // IMAGE
+        // IMAGE BUTTON
         // -----------------------------------------------------
 
         box.addView(
             Button(this).apply {
 
                 text =
-                    "🖼️ फोटो / Gallery"
+                    "🖼️  फोटो / Gallery"
 
                 setOnClickListener {
 
@@ -1887,7 +2060,7 @@ class AdminActivity : AppCompatActivity() {
         )
 
         // -----------------------------------------------------
-        // FILE
+        // DOCUMENT
         // -----------------------------------------------------
 
         box.addView(
@@ -1930,11 +2103,17 @@ class AdminActivity : AppCompatActivity() {
             comments
         )
 
+        // =====================================================
+        // DIALOG
+        // =====================================================
+
         AlertDialog.Builder(this)
             .setTitle(
                 "नई Channel Post"
             )
-            .setView(box)
+            .setView(
+                box
+            )
             .setPositiveButton(
                 "PUBLISH",
                 null
@@ -2018,7 +2197,8 @@ class AdminActivity : AppCompatActivity() {
 
                         d.getButton(
                             AlertDialog.BUTTON_POSITIVE
-                        ).isEnabled = false
+                        ).isEnabled =
+                            false
 
                         val category =
                             cat.text
@@ -2030,7 +2210,7 @@ class AdminActivity : AppCompatActivity() {
 
                         val commentsEnabled =
                             globalCommentsEnabled &&
-                                    comments.isChecked
+                                comments.isChecked
 
                         // -------------------------------------------------
                         // TEXT ONLY
@@ -2055,8 +2235,10 @@ class AdminActivity : AppCompatActivity() {
                                         "fileName" to "",
                                         "imageMime" to "",
                                         "fileMime" to "",
-                                        "createdAt" to System.currentTimeMillis(),
-                                        "commentsEnabled" to commentsEnabled,
+                                        "createdAt" to
+                                            System.currentTimeMillis(),
+                                        "commentsEnabled" to
+                                            commentsEnabled,
                                         "likeCount" to 0L,
                                         "commentCount" to 0L,
                                         "viewCount" to 0L,
@@ -2068,7 +2250,8 @@ class AdminActivity : AppCompatActivity() {
 
                                         d.getButton(
                                             AlertDialog.BUTTON_POSITIVE
-                                        ).isEnabled = true
+                                        ).isEnabled =
+                                            true
 
                                         if (ok) {
 
@@ -2105,7 +2288,8 @@ class AdminActivity : AppCompatActivity() {
 
                                     d.getButton(
                                         AlertDialog.BUTTON_POSITIVE
-                                    ).isEnabled = true
+                                    ).isEnabled =
+                                        true
 
                                     if (ok) {
 
@@ -2136,9 +2320,9 @@ class AdminActivity : AppCompatActivity() {
             }
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // IMAGE PREVIEW
-    // ---------------------------------------------------------
+    // =========================================================
 
     private fun updateImagePreview() {
 
@@ -2155,7 +2339,9 @@ class AdminActivity : AppCompatActivity() {
                 val iv =
                     ImageView(this).apply {
 
-                        setImageURI(uri)
+                        setImageURI(
+                            uri
+                        )
 
                         scaleType =
                             ImageView.ScaleType.CENTER_CROP
@@ -2174,4 +2360,1312 @@ class AdminActivity : AppCompatActivity() {
                         dp(78),
                         dp(78)
                     ).apply {
-                       
+
+                        rightMargin =
+                            dp(5)
+                    }
+                )
+            }
+    }
+
+    // =========================================================
+    // UPLOAD BOTH
+    // =========================================================
+
+    private fun uploadBoth(
+        title: String,
+        body: String,
+        cat: String,
+        comments: Boolean,
+        done: (
+            Boolean,
+            String?
+        ) -> Unit
+    ) {
+
+        val images =
+            selectedImageUris.toList()
+
+        val file =
+            fileUri
+
+        fun createOne(
+            image: String,
+            fileUrl: String,
+            imageMime: String,
+            fileMime: String,
+            index: Int,
+            total: Int,
+            finish: (
+                Boolean,
+                String?
+            ) -> Unit
+        ) {
+
+            val postTitle =
+                if (
+                    total > 1
+                ) {
+                    "$title (${index + 1}/$total)"
+                } else {
+                    title
+                }
+
+            ChannelRepository
+                .createPost(
+                    mapOf(
+                        "title" to postTitle,
+                        "body" to body,
+                        "published" to true,
+                        "postType" to
+                            if (
+                                body.isNotBlank() &&
+                                image.isBlank() &&
+                                fileUrl.isBlank()
+                            ) {
+                                "text"
+                            } else {
+                                "media"
+                            },
+                        "category" to cat,
+                        "imageUrl" to image,
+                        "fileUrl" to fileUrl,
+                        "fileName" to
+                            (
+                                file?.let {
+                                    displayName(it)
+                                }
+                                    ?: ""
+                                ),
+                        "imageMime" to imageMime,
+                        "fileMime" to fileMime,
+                        "createdAt" to
+                            System.currentTimeMillis(),
+                        "commentsEnabled" to comments,
+                        "likeCount" to 0L,
+                        "commentCount" to 0L,
+                        "viewCount" to 0L,
+                        "shareCount" to 0L
+                    )
+                ) { ok, msg ->
+
+                    finish(
+                        ok,
+                        msg
+                    )
+                }
+        }
+
+        fun publishImages(
+            index: Int
+        ) {
+
+            if (
+                index >= images.size
+            ) {
+
+                // Document-only post
+                if (
+                    file != null &&
+                    images.isEmpty()
+                ) {
+
+                    ChannelRepository
+                        .upload(
+                            file,
+                            "documents"
+                        ) { fu, fe ->
+
+                            if (
+                                fu == null
+                            ) {
+
+                                done(
+                                    false,
+                                    fe
+                                )
+
+                            } else {
+
+                                createOne(
+                                    "",
+                                    fu,
+                                    "",
+                                    contentResolver
+                                        .getType(file)
+                                        ?: "application/pdf",
+                                    0,
+                                    1,
+                                    done
+                                )
+                            }
+                        }
+
+                } else {
+
+                    done(
+                        true,
+                        null
+                    )
+                }
+
+                return
+            }
+
+            val uri =
+                images[index]
+
+            ChannelRepository
+                .upload(
+                    uri,
+                    "images"
+                ) { url, err ->
+
+                    if (
+                        url == null
+                    ) {
+
+                        done(
+                            false,
+                            err
+                        )
+
+                        return@upload
+                    }
+
+                    val imageMime =
+                        contentResolver
+                            .getType(uri)
+                            ?: "image/jpeg"
+
+                    if (
+                        index == images.lastIndex &&
+                        file != null
+                    ) {
+
+                        ChannelRepository
+                            .upload(
+                                file,
+                                "documents"
+                            ) { fu, fe ->
+
+                                if (
+                                    fu == null
+                                ) {
+
+                                    done(
+                                        false,
+                                        fe
+                                    )
+
+                                    return@upload
+                                }
+
+                                createOne(
+                                    url,
+                                    fu,
+                                    imageMime,
+                                    contentResolver
+                                        .getType(file)
+                                        ?: "application/pdf",
+                                    index,
+                                    images.size
+                                ) { ok, msg ->
+
+                                    if (!ok) {
+
+                                        done(
+                                            false,
+                                            msg
+                                        )
+
+                                    } else {
+
+                                        done(
+                                            true,
+                                            null
+                                        )
+                                    }
+                                }
+                            }
+
+                    } else {
+
+                        createOne(
+                            url,
+                            "",
+                            imageMime,
+                            "",
+                            index,
+                            images.size
+                        ) { ok, msg ->
+
+                            if (!ok) {
+
+                                done(
+                                    false,
+                                    msg
+                                )
+
+                            } else {
+
+                                publishImages(
+                                    index + 1
+                                )
+                            }
+                        }
+                    }
+                }
+        }
+
+        publishImages(0)
+    }
+
+    // =========================================================
+    // HOME PAGE EDIT
+    // =========================================================
+
+    private fun editHomePage(
+        pageId: String,
+        fallbackTitle: String
+    ) {
+
+        val box =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    dp(8),
+                    dp(4),
+                    dp(8),
+                    dp(4)
+                )
+            }
+
+        pageImageUri =
+            null
+
+        val title =
+            EditText(this).apply {
+
+                hint =
+                    "Page title"
+            }
+
+        val body =
+            EditText(this).apply {
+
+                hint =
+                    "Page content / text"
+
+                minLines =
+                    7
+
+                gravity =
+                    Gravity.TOP
+            }
+
+        val imageUrl =
+            EditText(this).apply {
+
+                hint =
+                    "Photo URL या firestore-media://... (optional)"
+            }
+
+        pageImageField =
+            imageUrl
+
+        box.addView(
+            title
+        )
+
+        box.addView(
+            body
+        )
+
+        box.addView(
+            imageUrl
+        )
+
+        box.addView(
+            Button(this).apply {
+
+                text =
+                    "🖼️ Page में फोटो जोड़ें / बदलें"
+
+                setOnClickListener {
+
+                    pickPageImage.launch(
+                        "image/*"
+                    )
+                }
+            }
+        )
+
+        db.collection(
+            "home_pages"
+        )
+            .document(
+                pageId
+            )
+            .get()
+            .addOnSuccessListener { d ->
+
+                title.setText(
+                    d.getString(
+                        "title"
+                    )
+                        ?: fallbackTitle
+                )
+
+                body.setText(
+                    d.getString(
+                        "body"
+                    )
+                        ?: ""
+                )
+
+                imageUrl.setText(
+                    d.getString(
+                        "imageUrl"
+                    )
+                        ?: ""
+                )
+            }
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "✏️ $fallbackTitle"
+            )
+            .setView(
+                box
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .create()
+            .also { dlg ->
+
+                dlg.setOnShowListener {
+
+                    dlg.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener {
+
+                        val saveUrl:
+                            (String) -> Unit =
+                            { url ->
+
+                                db.collection(
+                                    "home_pages"
+                                )
+                                    .document(
+                                        pageId
+                                    )
+                                    .set(
+                                        mapOf(
+                                            "title" to
+                                                title.text
+                                                    .toString()
+                                                    .trim()
+                                                    .ifBlank {
+                                                        fallbackTitle
+                                                    },
+                                            "body" to
+                                                body.text
+                                                    .toString(),
+                                            "imageUrl" to
+                                                url,
+                                            "updatedAt" to
+                                                System.currentTimeMillis()
+                                        ),
+                                        com.google.firebase.firestore
+                                            .SetOptions.merge()
+                                    )
+                                    .addOnSuccessListener {
+
+                                        dlg.dismiss()
+
+                                        toast(
+                                            "Page सामग्री सेव हो गई"
+                                        )
+                                    }
+                                    .addOnFailureListener {
+
+                                        toast(
+                                            "SAVE FAILED: ${
+                                                it.message
+                                                    ?: "Permission denied"
+                                            }\nUID: ${
+                                                auth.currentUser
+                                                    ?.uid
+                                                    ?: "none"
+                                            }"
+                                        )
+                                    }
+                            }
+
+                        val chosen =
+                            pageImageUri
+
+                        if (
+                            chosen != null
+                        ) {
+
+                            dlg.getButton(
+                                AlertDialog.BUTTON_POSITIVE
+                            ).isEnabled =
+                                false
+
+                            ChannelRepository
+                                .upload(
+                                    chosen,
+                                    "images"
+                                ) { url, err ->
+
+                                    runOnUiThread {
+
+                                        if (
+                                            url != null
+                                        ) {
+
+                                            saveUrl(
+                                                url
+                                            )
+
+                                        } else {
+
+                                            dlg.getButton(
+                                                AlertDialog.BUTTON_POSITIVE
+                                            ).isEnabled =
+                                                true
+
+                                            toast(
+                                                "Photo upload असफल: $err"
+                                            )
+                                        }
+                                    }
+                                }
+
+                        } else {
+
+                            saveUrl(
+                                imageUrl.text
+                                    .toString()
+                                    .trim()
+                            )
+                        }
+                    }
+                }
+
+                dlg.show()
+            }
+    }
+
+    // =========================================================
+    // LOAD POSTS
+    // =========================================================
+
+    private fun loadAdminPosts() {
+
+        if (
+            !::postsContainer.isInitialized
+        ) {
+            return
+        }
+
+        selectedPostIds.clear()
+
+        postsContainer.removeAllViews()
+
+        ChannelRepository
+            .posts(
+                { ps ->
+
+                    ps
+                        .takeLast(100)
+                        .forEach { p ->
+
+                            addAdminPost(
+                                p
+                            )
+                        }
+
+                    postScroll.post {
+
+                        postScroll.fullScroll(
+                            View.FOCUS_DOWN
+                        )
+                    }
+                },
+                { e ->
+
+                    toast(
+                        "Posts लोड नहीं हुए: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+            )
+    }
+
+    // =========================================================
+    // ADD ADMIN POST
+    // =========================================================
+
+    private fun addAdminPost(
+        p: ChannelPost
+    ) {
+
+        val row =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                background =
+                    GradientFactory.roundedWhite()
+
+                setPadding(
+                    12,
+                    10,
+                    12,
+                    10
+                )
+            }
+
+        val top =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        val check =
+            CheckBox(this).apply {
+
+                isChecked =
+                    false
+
+                setOnCheckedChangeListener {
+                        _,
+                        checked ->
+
+                    if (checked) {
+
+                        selectedPostIds.add(
+                            p.id
+                        )
+
+                    } else {
+
+                        selectedPostIds.remove(
+                            p.id
+                        )
+                    }
+                }
+            }
+
+        top.addView(
+            check,
+            LinearLayout.LayoutParams(
+                dp(50),
+                dp(50)
+            )
+        )
+
+        top.addView(
+            TextView(this).apply {
+
+                text =
+                    p.title
+
+                textSize =
+                    16f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(50),
+                1f
+            )
+        )
+
+        row.addView(
+            top
+        )
+
+        row.addView(
+            TextView(this).apply {
+
+                text =
+                    "${p.category} • " +
+                        "${p.likeCount} likes • " +
+                        "${p.commentCount} comments • " +
+                        "${p.viewCount} views • " +
+                        "${p.shareCount} shares"
+
+                textSize =
+                    12f
+            }
+        )
+
+        row.addView(
+            TextView(this).apply {
+
+                text =
+                    if (
+                        p.createdAt > 0
+                    ) {
+
+                        java.text
+                            .SimpleDateFormat(
+                                "dd MMM yyyy, hh:mm a",
+                                Locale(
+                                    "hi",
+                                    "IN"
+                                )
+                            )
+                            .format(
+                                java.util.Date(
+                                    p.createdAt
+                                )
+                            )
+
+                    } else {
+
+                        ""
+                    }
+
+                textSize =
+                    11f
+
+                setTextColor(
+                    Color.DKGRAY
+                )
+
+                setPadding(
+                    0,
+                    3,
+                    0,
+                    3
+                )
+            }
+        )
+
+        // -----------------------------------------------------
+        // ACTIONS
+        // -----------------------------------------------------
+
+        val actions =
+            LinearLayout(this).apply {
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        val sw =
+            Switch(this).apply {
+
+                text =
+                    "Comments"
+
+                isChecked =
+                    p.commentsEnabled
+
+                setOnCheckedChangeListener {
+                        _,
+                        v ->
+
+                    db.collection(
+                        "channel_posts"
+                    )
+                        .document(
+                            p.id
+                        )
+                        .update(
+                            "commentsEnabled",
+                            v
+                        )
+                }
+            }
+
+        actions.addView(
+            sw,
+            LinearLayout.LayoutParams(
+                0,
+                dp(48),
+                1f
+            )
+        )
+
+        actions.addView(
+            Button(this).apply {
+
+                text =
+                    "✏️ EDIT"
+
+                setOnClickListener {
+
+                    editChannelPostDialog(
+                        p
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                dp(92),
+                dp(48)
+            )
+        )
+
+        actions.addView(
+            Button(this).apply {
+
+                text =
+                    "🗑 DELETE"
+
+                setOnClickListener {
+
+                    confirmDeletePosts(
+                        listOf(
+                            p.id
+                        )
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                dp(100),
+                dp(48)
+            )
+        )
+
+        row.addView(
+            actions
+        )
+
+        postsContainer.addView(
+            row,
+            LinearLayout.LayoutParams(
+                -1,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+
+                bottomMargin =
+                    dp(10)
+            }
+        )
+    }
+
+    // =========================================================
+    // SELECT ALL
+    // =========================================================
+
+    private fun selectAllAdminPosts() {
+
+        for (
+            i in 0 until postsContainer.childCount
+        ) {
+
+            val row =
+                postsContainer.getChildAt(i)
+                    as? LinearLayout
+                    ?: continue
+
+            val top =
+                row.getChildAt(0)
+                    as? LinearLayout
+                    ?: continue
+
+            val cb =
+                top.getChildAt(0)
+                    as? CheckBox
+                    ?: continue
+
+            cb.isChecked =
+                true
+        }
+
+        toast(
+            "सभी posts select हो गईं"
+        )
+    }
+
+    // =========================================================
+    // DELETE SELECTED
+    // =========================================================
+
+    private fun deleteSelectedAdminPosts() {
+
+        if (
+            selectedPostIds.isEmpty()
+        ) {
+
+            toast(
+                "पहले posts के checkbox चुनें"
+            )
+
+            return
+        }
+
+        confirmDeletePosts(
+            selectedPostIds.toList()
+        )
+    }
+
+    // =========================================================
+    // DELETE ALL
+    // =========================================================
+
+    private fun deleteAllAdminPosts() {
+
+        ChannelRepository
+            .posts(
+                { ps ->
+
+                    val ids =
+                        ps.map {
+                            it.id
+                        }
+
+                    if (
+                        ids.isEmpty()
+                    ) {
+
+                        toast(
+                            "Delete करने के लिए कोई post नहीं है"
+                        )
+
+                        return@posts
+                    }
+
+                    confirmDeletePosts(
+                        ids
+                    )
+                },
+                { e ->
+
+                    toast(
+                        "Posts नहीं मिलीं: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+            )
+    }
+
+    // =========================================================
+    // DELETE CONFIRM
+    // =========================================================
+
+    private fun confirmDeletePosts(
+        ids: List<String>
+    ) {
+
+        val clean =
+            ids
+                .filter {
+                    it.isNotBlank()
+                }
+                .distinct()
+
+        if (
+            clean.isEmpty()
+        ) {
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "🗑 Delete Posts"
+            )
+            .setMessage(
+                "${clean.size} post delete की जाएंगी। यह action वापस नहीं होगा।"
+            )
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .setPositiveButton(
+                "DELETE",
+                null
+            )
+            .create()
+            .also { dlg ->
+
+                dlg.setOnShowListener {
+
+                    dlg.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener {
+
+                        dlg.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled =
+                            false
+
+                        deletePostIds(
+                            clean,
+                            0,
+                            dlg
+                        )
+                    }
+                }
+
+                dlg.show()
+            }
+    }
+
+    // =========================================================
+    // DELETE POST IDS
+    // =========================================================
+
+    private fun deletePostIds(
+        ids: List<String>,
+        index: Int,
+        dlg: AlertDialog
+    ) {
+
+        if (
+            index >= ids.size
+        ) {
+
+            dlg.dismiss()
+
+            selectedPostIds.clear()
+
+            toast(
+                "${ids.size} posts delete हो गईं"
+            )
+
+            loadAdminPosts()
+
+            return
+        }
+
+        ChannelRepository
+            .deletePost(
+                ids[index]
+            ) { ok ->
+
+                runOnUiThread {
+
+                    if (!ok) {
+
+                        dlg.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled =
+                            true
+
+                        toast(
+                            "Delete असफल — Firestore Permission/Rules जाँचें"
+                        )
+
+                        return@runOnUiThread
+                    }
+
+                    deletePostIds(
+                        ids,
+                        index + 1,
+                        dlg
+                    )
+                }
+            }
+    }
+
+    // =========================================================
+    // EDIT CHANNEL POST
+    // =========================================================
+
+    private fun editChannelPostDialog(
+        p: ChannelPost
+    ) {
+
+        val box =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    dp(8),
+                    dp(4),
+                    dp(8),
+                    dp(4)
+                )
+            }
+
+        val title =
+            EditText(this).apply {
+
+                hint =
+                    "Post title"
+
+                setText(
+                    p.title
+                )
+            }
+
+        val body =
+            EditText(this).apply {
+
+                hint =
+                    "Post text / details"
+
+                setText(
+                    p.body
+                )
+
+                minLines =
+                    6
+
+                gravity =
+                    Gravity.TOP
+            }
+
+        val cat =
+            EditText(this).apply {
+
+                hint =
+                    "Category"
+
+                setText(
+                    p.category
+                )
+            }
+
+        val comments =
+            Switch(this).apply {
+
+                text =
+                    "Comments ON"
+
+                isChecked =
+                    p.commentsEnabled
+            }
+
+        box.addView(
+            title
+        )
+
+        box.addView(
+            body
+        )
+
+        box.addView(
+            cat
+        )
+
+        box.addView(
+            comments
+        )
+
+        if (
+            p.imageUrl.isNotBlank()
+        ) {
+
+            box.addView(
+                TextView(this).apply {
+
+                    text =
+                        "🖼️ Existing photo सुरक्षित रहेगी"
+
+                    setPadding(
+                        0,
+                        dp(6),
+                        0,
+                        dp(2)
+                    )
+                }
+            )
+        }
+
+        if (
+            p.fileUrl.isNotBlank()
+        ) {
+
+            box.addView(
+                TextView(this).apply {
+
+                    text =
+                        "📄 Existing document सुरक्षित रहेगा"
+
+                    setPadding(
+                        0,
+                        dp(2),
+                        0,
+                        dp(6)
+                    )
+                }
+            )
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "✏️ Edit Channel Post"
+            )
+            .setView(
+                box
+            )
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .create()
+            .also { dlg ->
+
+                dlg.setOnShowListener {
+
+                    dlg.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener {
+
+                        dlg.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled =
+                            false
+
+                        val data =
+                            mapOf(
+                                "title" to
+                                    title.text
+                                        .toString()
+                                        .trim()
+                                        .ifBlank {
+                                            p.title
+                                        },
+
+                                "body" to
+                                    body.text
+                                        .toString(),
+
+                                "category" to
+                                    cat.text
+                                        .toString()
+                                        .trim()
+                                        .ifBlank {
+                                            p.category
+                                        },
+
+                                "commentsEnabled" to
+                                    comments.isChecked,
+
+                                "updatedAt" to
+                                    System.currentTimeMillis()
+                            )
+
+                        ChannelRepository
+                            .updatePost(
+                                p.id,
+                                data
+                            ) { ok, msg ->
+
+                                runOnUiThread {
+
+                                    dlg.getButton(
+                                        AlertDialog.BUTTON_POSITIVE
+                                    ).isEnabled =
+                                        true
+
+                                    if (ok) {
+
+                                        dlg.dismiss()
+
+                                        toast(
+                                            "Post update हो गई"
+                                        )
+
+                                        loadAdminPosts()
+
+                                    } else {
+
+                                        toast(
+                                            "Edit Save असफल: ${
+                                                msg
+                                                    ?: "Permission denied"
+                                            }"
+                                        )
+                                    }
+                                }
+                            }
+                    }
+                }
+
+                dlg.show()
+            }
+    }
+
+    // =========================================================
+    // DISPLAY NAME
+    // =========================================================
+
+    private fun displayName(
+        uri: Uri
+    ): String {
+
+        var name =
+            "document.pdf"
+
+        contentResolver
+            .query(
+                uri,
+                arrayOf(
+                    OpenableColumns.DISPLAY_NAME
+                ),
+                null,
+                null,
+                null
+            )
+            ?.use { cursor ->
+
+                if (
+                    cursor.moveToFirst()
+                ) {
+
+                    name =
+                        cursor.getString(
+                            0
+                        )
+                }
+            }
+
+        return name
+    }
+
+    // =========================================================
+    // TOAST
+    // =========================================================
+
+    private fun toast(
+        s: String
+    ) {
+
+        if (
+            s.isNotBlank()
+        ) {
+
+            Toast.makeText(
+                this,
+                s,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
