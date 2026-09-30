@@ -1,117 +1,428 @@
 rules_version = '2';
+
 service cloud.firestore {
+
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function configuredAdminUid() { return "PfpAI3BR2XfihY4t4B5ldInDBg72"; }
+
+    // =====================================================
+    // COMMON FUNCTIONS
+    // =====================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function configuredAdminUid() {
+      return "PfpAI3BR2XfihY4t4B5ldInDBg72";
+    }
+
     function isAdmin() {
       return signedIn() && (
-        ((get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true) ||
-         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true) ||
-         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")) ||
+        (
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true) ||
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true) ||
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+        )
+        ||
         request.auth.uid == configuredAdminUid()
       );
     }
 
+
+    // =====================================================
+    // USERS
+    // =====================================================
+
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || resource.data.uid == request.auth.uid);
+
+      allow read: if signedIn() &&
+        (
+          request.auth.uid == uid ||
+          resource.data.uid == request.auth.uid
+        );
+
       allow write: if false;
     }
 
+
+    // =====================================================
+    // CHANNEL CONFIG
+    // =====================================================
+
     match /channel_config/main {
+
       allow read: if true;
+
       allow create: if isAdmin();
-      allow update: if isAdmin() || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'followerCount','totalLikes','totalComments','totalPostViews','totalPostShares','totalAppUsers','totalActiveUserDays'
-      ]));
+
+      allow update: if isAdmin() ||
+        (
+          signedIn() &&
+          request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly([
+              'followerCount',
+              'totalLikes',
+              'totalComments',
+              'totalPostViews',
+              'totalPostShares',
+              'totalAppUsers',
+              'totalActiveUserDays'
+            ])
+        );
     }
 
 
-    // Spark-compatible media storage: binary chunks are stored as Firestore Blobs.
+    // =====================================================
+    // CHANNEL MEDIA
+    // Firestore Blob based storage
+    // =====================================================
+
     match /channel_media/{mediaId} {
+
       allow read: if true;
+
       allow create, update, delete: if isAdmin();
+
       match /chunks/{chunkId} {
+
         allow read: if true;
+
         allow create, update, delete: if isAdmin();
       }
     }
+
+
+    // =====================================================
+    // HOME PAGES
+    // Content pages such as:
+    // Syllabus / Study Material / Career Guide etc.
+    // =====================================================
+
     match /home_pages/{pageId} {
+
       allow read: if true;
-      allow create, update, delete: if isAdmin() || (signedIn() && request.auth.uid == configuredAdminUid());
+
+      allow create, update, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == configuredAdminUid()
+        );
     }
+
+
+    // =====================================================
+    // HOME CATEGORIES
+    //
+    // Dynamic Home menu/category management
+    //
+    // Teacher
+    // Student
+    // School
+    // Vacancy
+    // Result
+    // Admit Card
+    // Syllabus
+    // Study Material
+    // Career Guide
+    // Notice
+    // Useful Tools
+    //
+    // Admin can:
+    // Add
+    // Edit
+    // Delete
+    // Change name
+    // Change icon
+    // Change URL
+    // Change position
+    // =====================================================
+
+    match /home_categories/{categoryId} {
+
+      // App users can read Home categories
+      allow read: if true;
+
+      // Only admin can add/edit/delete categories
+      allow create, update, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == configuredAdminUid()
+        );
+    }
+
+
+    // =====================================================
+    // CHANNEL POSTS
+    // =====================================================
 
     match /channel_posts/{postId} {
+
       allow read: if true;
-      allow create, delete: if isAdmin() || (signedIn() && request.auth.uid == configuredAdminUid());
-      allow update: if isAdmin() || (signedIn() &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount','commentCount','viewCount','shareCount']) &&
-        (request.resource.data.likeCount == resource.data.likeCount + 1 || request.resource.data.likeCount == resource.data.likeCount - 1 || request.resource.data.likeCount == resource.data.likeCount) &&
-        (request.resource.data.commentCount == resource.data.commentCount + 1 || request.resource.data.commentCount == resource.data.commentCount) &&
-        (request.resource.data.viewCount == resource.data.viewCount + 1 || request.resource.data.viewCount == resource.data.viewCount) &&
-        (request.resource.data.shareCount == resource.data.shareCount + 1 || request.resource.data.shareCount == resource.data.shareCount));
+
+      allow create, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == configuredAdminUid()
+        );
+
+      allow update: if isAdmin() ||
+        (
+          signedIn() &&
+
+          request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly([
+              'likeCount',
+              'commentCount',
+              'viewCount',
+              'shareCount'
+            ]) &&
+
+          (
+            request.resource.data.likeCount ==
+              resource.data.likeCount + 1 ||
+
+            request.resource.data.likeCount ==
+              resource.data.likeCount - 1 ||
+
+            request.resource.data.likeCount ==
+              resource.data.likeCount
+          ) &&
+
+          (
+            request.resource.data.commentCount ==
+              resource.data.commentCount + 1 ||
+
+            request.resource.data.commentCount ==
+              resource.data.commentCount
+          ) &&
+
+          (
+            request.resource.data.viewCount ==
+              resource.data.viewCount + 1 ||
+
+            request.resource.data.viewCount ==
+              resource.data.viewCount
+          ) &&
+
+          (
+            request.resource.data.shareCount ==
+              resource.data.shareCount + 1 ||
+
+            request.resource.data.shareCount ==
+              resource.data.shareCount
+          )
+        );
     }
+
+
+    // =====================================================
+    // COMMENTS
+    // =====================================================
 
     match /channel_posts/{postId}/comments/{commentId} {
+
       allow read: if true;
+
       allow create: if signedIn();
-      allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.uid);
+
+      allow update, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == resource.data.uid
+        );
     }
+
+
+    // =====================================================
+    // CHANNEL FOLLOWERS
+    // =====================================================
 
     match /channel_followers/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create, delete: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create, delete: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update: if false;
     }
 
+
+    // =====================================================
+    // FIRST APP USE
+    // =====================================================
 
     match /app_first_use/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create, update: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create, update: if signedIn() &&
+        request.auth.uid == uid;
+
       allow delete: if false;
     }
+
+
+    // =====================================================
+    // APP EVENTS
+    // =====================================================
+
     match /app_events/{uid}/events/{eventId} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update, delete: if false;
     }
-    // Allow the admin analytics screen to query engagement collections.
+
+
+    // =====================================================
+    // CHANNEL LIKES
+    // =====================================================
+
     match /channel_likes/{postId}/users/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create, delete: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create, delete: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update: if false;
     }
 
+
+    // =====================================================
+    // POST VIEWS
+    // =====================================================
+
     match /post_views/{postId}/users/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update, delete: if false;
     }
+
+
+    // =====================================================
+    // POST SHARES
+    // =====================================================
 
     match /post_shares/{postId}/users/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update, delete: if false;
     }
 
+
+    // =====================================================
+    // FEED POST VIEWS
+    // =====================================================
+
     match /feed_post_views/{postId}/users/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update, delete: if false;
     }
+
+
+    // =====================================================
+    // FEED POST SHARES
+    // =====================================================
+
     match /feed_post_shares/{postId}/users/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create: if signedIn() &&
+        request.auth.uid == uid;
+
       allow update, delete: if false;
     }
+
+
+    // =====================================================
+    // APP INSTALLS
+    // =====================================================
+
     match /app_installs/{uid} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create, update: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create, update: if signedIn() &&
+        request.auth.uid == uid;
+
       allow delete: if false;
     }
+
+
+    // =====================================================
+    // APP USAGE
+    // =====================================================
+
     match /app_usage/{uid}/days/{day} {
-      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow create, update: if signedIn() && request.auth.uid == uid;
+
+      allow read: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == uid
+        );
+
+      allow create, update: if signedIn() &&
+        request.auth.uid == uid;
+
       allow delete: if false;
     }
+
   }
 }
