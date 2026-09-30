@@ -1202,49 +1202,554 @@ class AdminActivity : AppCompatActivity() {
 
     private fun showPanel() {
 
-        panel =
-            LinearLayout(this)
+    panel = LinearLayout(this)
 
-        val root =
-            LinearLayout(this).apply {
+    val root = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setBackgroundColor(
+            Color.rgb(245, 248, 252)
+        )
+    }
 
-                orientation =
-                    LinearLayout.VERTICAL
+    setContentView(root)
 
-                setBackgroundColor(
-                    Color.rgb(
-                        245,
-                        248,
-                        252
-                    )
+    // =====================================================
+    // FIXED ADMIN CONTROLS
+    // =====================================================
+
+    val fixed = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(10),
+            dp(6),
+            dp(10),
+            dp(5)
+        )
+        setBackgroundColor(Color.WHITE)
+        elevation = 6f
+    }
+
+    // -----------------------------------------------------
+    // HEADER
+    // -----------------------------------------------------
+
+    fixed.addView(
+        TextView(this).apply {
+            text = "⚙ शिक्षा रोजगार Channel Admin"
+            textSize = 19f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(
+                Color.rgb(7, 89, 133)
+            )
+            setPadding(0, 0, 0, dp(3))
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(32)
+        )
+    )
+
+    // -----------------------------------------------------
+    // LOGOUT + GLOBAL COMMENTS
+    // -----------------------------------------------------
+
+    val topRow = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    topRow.addView(
+        Button(this).apply {
+            text = "🚪 Logout"
+            textSize = 11f
+            minHeight = 0
+            setPadding(
+                dp(4),
+                0,
+                dp(4),
+                0
+            )
+
+            setOnClickListener {
+
+                auth.signOut()
+
+                Toast.makeText(
+                    this@AdminActivity,
+                    "Admin Logout हो गया",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                setContentView(
+                    loginUi()
                 )
             }
+        },
+        LinearLayout.LayoutParams(
+            dp(105),
+            dp(38)
+        ).apply {
+            rightMargin = dp(5)
+        }
+    )
 
-        setContentView(
-            root
+    globalSwitch = Switch(this).apply {
+        text = "Comments"
+        textSize = 12f
+        setPadding(0, 0, 0, 0)
+    }
+
+    topRow.addView(
+        globalSwitch,
+        LinearLayout.LayoutParams(
+            0,
+            dp(38),
+            1f
+        )
+    )
+
+    fixed.addView(topRow)
+
+    // -----------------------------------------------------
+    // LOAD GLOBAL COMMENTS
+    // -----------------------------------------------------
+
+    db.document(
+        "channel_config/main"
+    )
+        .get()
+        .addOnSuccessListener {
+
+            globalCommentsEnabled =
+                it.getBoolean(
+                    "commentsEnabled"
+                ) ?: true
+
+            globalSwitch.isChecked =
+                globalCommentsEnabled
+        }
+
+    globalSwitch.setOnCheckedChangeListener {
+            _,
+            checked ->
+
+        globalCommentsEnabled =
+            checked
+
+        db.document(
+            "channel_config/main"
+        ).set(
+            mapOf(
+                "commentsEnabled" to checked
+            ),
+            com.google.firebase.firestore
+                .SetOptions.merge()
+        )
+    }
+
+    // -----------------------------------------------------
+    // NEW POST
+    // -----------------------------------------------------
+
+    fixed.addView(
+        Button(this).apply {
+
+            text = "📢  NEW CHANNEL POST"
+            textSize = 13f
+
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
+
+            setTextColor(Color.WHITE)
+
+            setBackgroundColor(
+                Color.rgb(0, 120, 215)
+            )
+
+            minHeight = 0
+
+            setPadding(
+                dp(4),
+                0,
+                dp(4),
+                0
+            )
+
+            setOnClickListener {
+                newPostDialog()
+            }
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(42)
+        ).apply {
+            topMargin = dp(3)
+            bottomMargin = dp(3)
+        }
+    )
+
+    // -----------------------------------------------------
+    // POST MANAGEMENT BUTTONS
+    // -----------------------------------------------------
+
+    val postTools =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.HORIZONTAL
+
+            gravity =
+                Gravity.CENTER_VERTICAL
+        }
+
+    postTools.addView(
+        Button(this).apply {
+
+            text = "☑ ALL"
+            textSize = 10f
+            minHeight = 0
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+                selectAllAdminPosts()
+            }
+        },
+        LinearLayout.LayoutParams(
+            0,
+            dp(36),
+            1f
+        ).apply {
+            rightMargin = dp(3)
+        }
+    )
+
+    postTools.addView(
+        Button(this).apply {
+
+            text = "🗑 DELETE SELECTED"
+            textSize = 9f
+            minHeight = 0
+
+            setTextColor(Color.WHITE)
+
+            setBackgroundColor(
+                Color.rgb(210, 55, 55)
+            )
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+                deleteSelectedAdminPosts()
+            }
+        },
+        LinearLayout.LayoutParams(
+            0,
+            dp(36),
+            1.35f
+        ).apply {
+            leftMargin = dp(3)
+        }
+    )
+
+    fixed.addView(postTools)
+
+    // -----------------------------------------------------
+    // DELETE ALL
+    // -----------------------------------------------------
+
+    fixed.addView(
+        Button(this).apply {
+
+            text = "🗑 DELETE ALL POSTS"
+            textSize = 10f
+            minHeight = 0
+
+            setTextColor(Color.WHITE)
+
+            setBackgroundColor(
+                Color.rgb(185, 35, 35)
+            )
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+                deleteAllAdminPosts()
+            }
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(34)
+        ).apply {
+            topMargin = dp(3)
+        }
+    )
+
+    // -----------------------------------------------------
+    // HOME PAGES
+    // -----------------------------------------------------
+
+    fixed.addView(
+        TextView(this).apply {
+
+            text = "📚 HOME PAGES"
+            textSize = 14f
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            setTextColor(
+                Color.rgb(7, 89, 133)
+            )
+
+            setPadding(
+                0,
+                dp(5),
+                0,
+                dp(2)
+            )
+        }
+    )
+
+    val pageManager =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.HORIZONTAL
+        }
+
+    val pageDefs =
+        listOf(
+            "syllabus" to "Syllabus",
+            "notices" to "Notice",
+            "career" to "Career",
+            "tools" to "Tools"
         )
 
-        val fixed =
-            LinearLayout(this).apply {
+    pageDefs.forEach {
+            (id, label) ->
 
-                orientation =
-                    LinearLayout.VERTICAL
+        pageManager.addView(
+            Button(this).apply {
+
+                text = label
+                textSize = 9f
+
+                minHeight = 0
 
                 setPadding(
-                    dp(12),
-                    dp(10),
-                    dp(12),
-                    dp(8)
+                    dp(1),
+                    0,
+                    dp(1),
+                    0
                 )
 
-                setBackgroundColor(
-                    Color.WHITE
-                )
+                setOnClickListener {
 
-                elevation =
-                    8f
+                    editHomePage(
+                        id,
+                        label
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(34),
+                1f
+            ).apply {
+
+                leftMargin = dp(2)
+                rightMargin = dp(2)
             }
+        )
+    }
 
+    fixed.addView(pageManager)
+
+    // -----------------------------------------------------
+    // MEDIA STORAGE + ANALYTICS
+    // -----------------------------------------------------
+
+    val utilityRow =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.HORIZONTAL
+        }
+
+    utilityRow.addView(
+        Button(this).apply {
+
+            text = "💾 Media"
+            textSize = 9f
+            minHeight = 0
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+                showChannelMediaStorage()
+            }
+        },
+        LinearLayout.LayoutParams(
+            0,
+            dp(34),
+            1f
+        ).apply {
+            rightMargin = dp(3)
+        }
+    )
+
+    utilityRow.addView(
+        Button(this).apply {
+
+            text = "📊 Analytics"
+            textSize = 9f
+            minHeight = 0
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+                showAnalytics()
+            }
+        },
+        LinearLayout.LayoutParams(
+            0,
+            dp(34),
+            1f
+        ).apply {
+            leftMargin = dp(3)
+        }
+    )
+
+    fixed.addView(
+        utilityRow,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(34)
+        ).apply {
+            topMargin = dp(3)
+        }
+    )
+
+    // =====================================================
+    // ADD FIXED PANEL
+    // =====================================================
+
+    root.addView(
+        fixed,
+        LinearLayout.LayoutParams(
+            -1,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+    )
+
+    // =====================================================
+    // POSTS HEADER
+    // =====================================================
+
+    root.addView(
+        TextView(this).apply {
+
+            text =
+                "📋 Channel Posts — पुरानी ऊपर • नई नीचे"
+
+            textSize = 14f
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            setTextColor(
+                Color.rgb(7, 89, 133)
+            )
+
+            setPadding(
+                dp(10),
+                dp(5),
+                dp(10),
+                dp(4)
+            )
+
+            setBackgroundColor(
+                Color.rgb(235, 241, 248)
+            )
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(34)
+        )
+    )
+
+    // =====================================================
+    // POST SCROLL
+    // =====================================================
+
+    postScroll =
+        ScrollView(this).apply {
+
+            isFillViewport = true
+
+            isVerticalScrollBarEnabled =
+                true
+
+            clipToPadding = false
+        }
+
+    postsContainer =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(8),
+                dp(5),
+                dp(8),
+                dp(20)
+            )
+        }
+
+    postScroll.addView(
+        postsContainer
+    )
+
+    root.addView(
+        postScroll,
+        LinearLayout.LayoutParams(
+            -1,
+            0,
+            1f
+        )
+    )
+
+    loadAdminPosts()
+}
         // -----------------------------------------------------
         // HEADER
         // -----------------------------------------------------
@@ -2922,149 +3427,470 @@ class AdminActivity : AppCompatActivity() {
     // =========================================================
 
     private fun addAdminPost(
-        p: ChannelPost
-    ) {
+    p: ChannelPost
+) {
 
-        val row =
-            LinearLayout(this).apply {
+    val row =
+        LinearLayout(this).apply {
 
-                orientation =
-                    LinearLayout.VERTICAL
+            orientation =
+                LinearLayout.VERTICAL
 
-                background =
-                    GradientFactory.roundedWhite()
+            background =
+                GradientFactory.roundedWhite()
 
-                setPadding(
-                    12,
-                    10,
-                    12,
-                    10
-                )
-            }
+            setPadding(
+                dp(8),
+                dp(6),
+                dp(8),
+                dp(6)
+            )
 
-        val top =
-            LinearLayout(this).apply {
+            elevation = 2f
+        }
 
-                orientation =
-                    LinearLayout.HORIZONTAL
+    // =====================================================
+    // TOP ROW
+    // =====================================================
 
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
+    val top =
+        LinearLayout(this).apply {
 
-        val check =
-            CheckBox(this).apply {
+            orientation =
+                LinearLayout.HORIZONTAL
 
-                isChecked =
-                    false
+            gravity =
+                Gravity.CENTER_VERTICAL
+        }
 
-                setOnCheckedChangeListener {
-                        _,
-                        checked ->
+    val check =
+        CheckBox(this).apply {
 
-                    if (checked) {
+            isChecked =
+                false
 
-                        selectedPostIds.add(
-                            p.id
-                        )
+            setPadding(0, 0, 0, 0)
 
-                    } else {
+            setOnCheckedChangeListener {
+                    _,
+                    checked ->
 
-                        selectedPostIds.remove(
-                            p.id
-                        )
-                    }
+                if (checked) {
+
+                    selectedPostIds.add(
+                        p.id
+                    )
+
+                } else {
+
+                    selectedPostIds.remove(
+                        p.id
+                    )
                 }
             }
+        }
 
-        top.addView(
-            check,
-            LinearLayout.LayoutParams(
-                dp(50),
-                dp(50)
-            )
+    top.addView(
+        check,
+        LinearLayout.LayoutParams(
+            dp(42),
+            dp(40)
         )
+    )
 
-        top.addView(
-            TextView(this).apply {
+    // -----------------------------------------------------
+    // TITLE
+    // -----------------------------------------------------
 
-                text =
+    val titleBox =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            gravity =
+                Gravity.CENTER_VERTICAL
+        }
+
+    titleBox.addView(
+        TextView(this).apply {
+
+            text =
+                if (p.title.isBlank()) {
+                    "बिना Title Post"
+                } else {
                     p.title
+                }
 
-                textSize =
-                    16f
+            textSize = 14f
 
-                typeface =
-                    Typeface.DEFAULT_BOLD
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(50),
-                1f
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            maxLines = 2
+
+            ellipsize =
+                android.text.TextUtils.TruncateAt.END
+        }
+    )
+
+    titleBox.addView(
+        TextView(this).apply {
+
+            text =
+                p.category.ifBlank {
+                    "General"
+                }
+
+            textSize = 10f
+
+            setTextColor(
+                Color.DKGRAY
             )
+        }
+    )
+
+    top.addView(
+        titleBox,
+        LinearLayout.LayoutParams(
+            0,
+            dp(40),
+            1f
         )
+    )
 
-        row.addView(
-            top
-        )
+    // -----------------------------------------------------
+    // OPEN PREVIEW BUTTON
+    // -----------------------------------------------------
 
-        row.addView(
-            TextView(this).apply {
+    top.addView(
+        Button(this).apply {
 
-                text =
-                    "${p.category} • " +
-                        "${p.likeCount} likes • " +
-                        "${p.commentCount} comments • " +
-                        "${p.viewCount} views • " +
-                        "${p.shareCount} shares"
+            text = "OPEN"
+            textSize = 8f
 
-                textSize =
-                    12f
+            minHeight = 0
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+
+                showAdminPostPreview(
+                    p
+                )
             }
-        )
+        },
+        LinearLayout.LayoutParams(
+            dp(62),
+            dp(36)
+        ).apply {
+            leftMargin = dp(4)
+        }
+    )
 
-        row.addView(
-            TextView(this).apply {
+    row.addView(top)
 
-                text =
-                    if (
-                        p.createdAt > 0
-                    ) {
+    // =====================================================
+    // DATE
+    // =====================================================
 
-                        java.text
-                            .SimpleDateFormat(
-                                "dd MMM yyyy, hh:mm a",
-                                Locale(
-                                    "hi",
-                                    "IN"
-                                )
+    row.addView(
+        TextView(this).apply {
+
+            text =
+                if (p.createdAt > 0) {
+
+                    java.text
+                        .SimpleDateFormat(
+                            "dd MMM yyyy, hh:mm a",
+                            Locale(
+                                "hi",
+                                "IN"
                             )
-                            .format(
-                                java.util.Date(
-                                    p.createdAt
-                                )
+                        )
+                        .format(
+                            java.util.Date(
+                                p.createdAt
                             )
+                        )
 
-                    } else {
+                } else {
 
-                        ""
+                    ""
+                }
+
+            textSize = 9f
+
+            setTextColor(
+                Color.GRAY
+            )
+
+            setPadding(
+                dp(42),
+                0,
+                0,
+                dp(2)
+            )
+        }
+    )
+
+    // =====================================================
+    // SHORT POST PREVIEW
+    // =====================================================
+
+    val previewText =
+        when {
+
+            p.body.isNotBlank() ->
+                p.body
+                    .replace(
+                        "\n",
+                        " "
+                    )
+                    .trim()
+                    .take(150)
+
+            p.imageUrl.isNotBlank() ->
+                "🖼️ Photo attached"
+
+            p.fileUrl.isNotBlank() ->
+                "📄 Document attached"
+
+            else ->
+                "Text-only post"
+        }
+
+    row.addView(
+        TextView(this).apply {
+
+            text =
+                previewText
+
+            textSize = 11f
+
+            maxLines = 2
+
+            ellipsize =
+                android.text.TextUtils.TruncateAt.END
+
+            setPadding(
+                dp(42),
+                0,
+                0,
+                dp(3)
+            )
+        }
+    )
+
+    // =====================================================
+    // POST STATS
+    // =====================================================
+
+    row.addView(
+        TextView(this).apply {
+
+            text =
+                "👍 ${p.likeCount}   " +
+                "💬 ${p.commentCount}   " +
+                "👁 ${p.viewCount}   " +
+                "↗ ${p.shareCount}"
+
+            textSize = 9f
+
+            setTextColor(
+                Color.DKGRAY
+            )
+
+            setPadding(
+                dp(42),
+                0,
+                0,
+                dp(3)
+            )
+        }
+    )
+
+    // =====================================================
+    // ACTION ROW
+    // =====================================================
+
+    val actions =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.HORIZONTAL
+
+            gravity =
+                Gravity.CENTER_VERTICAL
+        }
+
+    val sw =
+        Switch(this).apply {
+
+            text = "💬"
+            textSize = 10f
+
+            isChecked =
+                p.commentsEnabled
+
+            setPadding(0, 0, 0, 0)
+
+            setOnCheckedChangeListener {
+                    _,
+                    enabled ->
+
+                db.collection(
+                    "channel_posts"
+                )
+                    .document(
+                        p.id
+                    )
+                    .update(
+                        "commentsEnabled",
+                        enabled
+                    )
+                    .addOnFailureListener {
+                        toast(
+                            "Comments update नहीं हुआ"
+                        )
                     }
+            }
+        }
 
-                textSize =
-                    11f
+    actions.addView(
+        sw,
+        LinearLayout.LayoutParams(
+            0,
+            dp(34),
+            1f
+        )
+    )
 
-                setTextColor(
-                    Color.DKGRAY
-                )
+    // -----------------------------------------------------
+    // EDIT
+    // -----------------------------------------------------
 
-                setPadding(
-                    0,
-                    3,
-                    0,
-                    3
+    actions.addView(
+        Button(this).apply {
+
+            text = "✏️ Edit"
+            textSize = 9f
+
+            minHeight = 0
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+
+                editChannelPostDialog(
+                    p
                 )
             }
-        )
+        },
+        LinearLayout.LayoutParams(
+            dp(76),
+            dp(34)
+        ).apply {
+            leftMargin = dp(3)
+        }
+    )
+
+    // -----------------------------------------------------
+    // DELETE
+    // -----------------------------------------------------
+
+    actions.addView(
+        Button(this).apply {
+
+            text = "🗑 Delete"
+            textSize = 9f
+
+            minHeight = 0
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            setBackgroundColor(
+                Color.rgb(
+                    205,
+                    45,
+                    45
+                )
+            )
+
+            setPadding(
+                dp(2),
+                0,
+                dp(2),
+                0
+            )
+
+            setOnClickListener {
+
+                confirmDeletePosts(
+                    listOf(
+                        p.id
+                    )
+                )
+            }
+        },
+        LinearLayout.LayoutParams(
+            dp(82),
+            dp(34)
+        ).apply {
+            leftMargin = dp(3)
+        }
+    )
+
+    row.addView(actions)
+
+    // =====================================================
+    // SEPARATOR
+    // =====================================================
+
+    row.addView(
+        View(this).apply {
+
+            setBackgroundColor(
+                Color.rgb(
+                    225,
+                    232,
+                    240
+                )
+            )
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(1)
+        ).apply {
+            topMargin = dp(5)
+        }
+    )
+
+    postsContainer.addView(
+        row,
+        LinearLayout.LayoutParams(
+            -1,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+
+            bottomMargin =
+                dp(6)
+        }
+    )
+}
+        
 
         // -----------------------------------------------------
         // ACTIONS
@@ -3168,7 +3994,157 @@ class AdminActivity : AppCompatActivity() {
             }
         )
     }
+private fun showAdminPostPreview(
+    p: ChannelPost
+) {
 
+    val box =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(12),
+                dp(8),
+                dp(12),
+                dp(8)
+            )
+        }
+
+    box.addView(
+        TextView(this).apply {
+
+            text =
+                p.title.ifBlank {
+                    "बिना Title Post"
+                }
+
+            textSize = 19f
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            setPadding(
+                0,
+                0,
+                0,
+                dp(8)
+            )
+        }
+    )
+
+    box.addView(
+        TextView(this).apply {
+
+            text =
+                "Category: " +
+                    p.category.ifBlank {
+                        "General"
+                    }
+
+            textSize = 11f
+
+            setTextColor(
+                Color.DKGRAY
+            )
+        }
+    )
+
+    box.addView(
+        TextView(this).apply {
+
+            text =
+                if (p.body.isNotBlank()) {
+                    p.body
+                } else {
+                    "कोई text नहीं"
+                }
+
+            textSize = 14f
+
+            setPadding(
+                0,
+                dp(10),
+                0,
+                dp(10)
+            )
+        }
+    )
+
+    if (p.imageUrl.isNotBlank()) {
+
+        box.addView(
+            TextView(this).apply {
+
+                text =
+                    "🖼️ इस post में photo attached है"
+
+                textSize = 12f
+
+                setPadding(
+                    0,
+                    dp(5),
+                    0,
+                    dp(5)
+                )
+            }
+        )
+    }
+
+    if (p.fileUrl.isNotBlank()) {
+
+        box.addView(
+            TextView(this).apply {
+
+                text =
+                    "📄 इस post में document/PDF attached है"
+
+                textSize = 12f
+
+                setPadding(
+                    0,
+                    dp(5),
+                    0,
+                    dp(5)
+                )
+            }
+        )
+    }
+
+    box.addView(
+        TextView(this).apply {
+
+            text =
+                "👍 ${p.likeCount}   " +
+                "💬 ${p.commentCount}   " +
+                "👁 ${p.viewCount}   " +
+                "↗ ${p.shareCount}"
+
+            textSize = 12f
+
+            setTextColor(
+                Color.DKGRAY
+            )
+
+            setPadding(
+                0,
+                dp(8),
+                0,
+                dp(4)
+            )
+        }
+    )
+
+    AlertDialog.Builder(this)
+        .setTitle("📋 Post Preview")
+        .setView(box)
+        .setPositiveButton(
+            "CLOSE",
+            null
+        )
+        .show()
+}
     // =========================================================
     // SELECT ALL
     // =========================================================
