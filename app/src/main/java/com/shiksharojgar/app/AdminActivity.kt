@@ -1196,602 +1196,102 @@ class AdminActivity : AppCompatActivity() {
             }
     }
 
-    // =========================================================
+        // =========================================================
     // ADMIN PANEL
     // =========================================================
 
     private fun showPanel() {
 
-    panel = LinearLayout(this)
+        panel = LinearLayout(this)
 
-    val root = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setBackgroundColor(
-            Color.rgb(245, 248, 252)
-        )
-    }
-
-    setContentView(root)
-
-    // =====================================================
-    // FIXED ADMIN CONTROLS
-    // =====================================================
-
-    val fixed = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(
-            dp(10),
-            dp(6),
-            dp(10),
-            dp(5)
-        )
-        setBackgroundColor(Color.WHITE)
-        elevation = 6f
-    }
-
-    // -----------------------------------------------------
-    // HEADER
-    // -----------------------------------------------------
-
-    fixed.addView(
-        TextView(this).apply {
-            text = "⚙ शिक्षा रोजगार Channel Admin"
-            textSize = 19f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(
-                Color.rgb(7, 89, 133)
-            )
-            setPadding(0, 0, 0, dp(3))
-        },
-        LinearLayout.LayoutParams(
-            -1,
-            dp(32)
-        )
-    )
-
-    // -----------------------------------------------------
-    // LOGOUT + GLOBAL COMMENTS
-    // -----------------------------------------------------
-
-    val topRow = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-    }
-
-    topRow.addView(
-        Button(this).apply {
-            text = "🚪 Logout"
-            textSize = 11f
-            minHeight = 0
-            setPadding(
-                dp(4),
-                0,
-                dp(4),
-                0
-            )
-
-            setOnClickListener {
-
-                auth.signOut()
-
-                Toast.makeText(
-                    this@AdminActivity,
-                    "Admin Logout हो गया",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                setContentView(
-                    loginUi()
-                )
-            }
-        },
-        LinearLayout.LayoutParams(
-            dp(105),
-            dp(38)
-        ).apply {
-            rightMargin = dp(5)
-        }
-    )
-
-    globalSwitch = Switch(this).apply {
-        text = "Comments"
-        textSize = 12f
-        setPadding(0, 0, 0, 0)
-    }
-
-    topRow.addView(
-        globalSwitch,
-        LinearLayout.LayoutParams(
-            0,
-            dp(38),
-            1f
-        )
-    )
-
-    fixed.addView(topRow)
-
-    // -----------------------------------------------------
-    // LOAD GLOBAL COMMENTS
-    // -----------------------------------------------------
-
-    db.document(
-        "channel_config/main"
-    )
-        .get()
-        .addOnSuccessListener {
-
-            globalCommentsEnabled =
-                it.getBoolean(
-                    "commentsEnabled"
-                ) ?: true
-
-            globalSwitch.isChecked =
-                globalCommentsEnabled
-        }
-
-    globalSwitch.setOnCheckedChangeListener {
-            _,
-            checked ->
-
-        globalCommentsEnabled =
-            checked
-
-        db.document(
-            "channel_config/main"
-        ).set(
-            mapOf(
-                "commentsEnabled" to checked
-            ),
-            com.google.firebase.firestore
-                .SetOptions.merge()
-        )
-    }
-
-    // -----------------------------------------------------
-    // NEW POST
-    // -----------------------------------------------------
-
-    fixed.addView(
-        Button(this).apply {
-
-            text = "📢  NEW CHANNEL POST"
-            textSize = 13f
-
-            setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-            )
-
-            setTextColor(Color.WHITE)
-
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(
-                Color.rgb(0, 120, 215)
-            )
-
-            minHeight = 0
-
-            setPadding(
-                dp(4),
-                0,
-                dp(4),
-                0
-            )
-
-            setOnClickListener {
-                newPostDialog()
-            }
-        },
-        LinearLayout.LayoutParams(
-            -1,
-            dp(42)
-        ).apply {
-            topMargin = dp(3)
-            bottomMargin = dp(3)
-        }
-    )
-
-    // -----------------------------------------------------
-    // POST MANAGEMENT BUTTONS
-    // -----------------------------------------------------
-
-    val postTools =
-        LinearLayout(this).apply {
-
-            orientation =
-                LinearLayout.HORIZONTAL
-
-            gravity =
-                Gravity.CENTER_VERTICAL
-        }
-
-    postTools.addView(
-        Button(this).apply {
-
-            text = "☑ ALL"
-            textSize = 10f
-            minHeight = 0
-
-            setPadding(
-                dp(2),
-                0,
-                dp(2),
-                0
-            )
-
-            setOnClickListener {
-                selectAllAdminPosts()
-            }
-        },
-        LinearLayout.LayoutParams(
-            0,
-            dp(36),
-            1f
-        ).apply {
-            rightMargin = dp(3)
-        }
-    )
-
-    postTools.addView(
-        Button(this).apply {
-
-            text = "🗑 DELETE SELECTED"
-            textSize = 9f
-            minHeight = 0
-
-            setTextColor(Color.WHITE)
-
-            setBackgroundColor(
-                Color.rgb(210, 55, 55)
-            )
-
-            setPadding(
-                dp(2),
-                0,
-                dp(2),
-                0
-            )
-
-            setOnClickListener {
-                deleteSelectedAdminPosts()
-            }
-        },
-        LinearLayout.LayoutParams(
-            0,
-            dp(36),
-            1.35f
-        ).apply {
-            leftMargin = dp(3)
-        }
-    )
-
-    fixed.addView(postTools)
-
-    // -----------------------------------------------------
-    // DELETE ALL
-    // -----------------------------------------------------
-
-    fixed.addView(
-        Button(this).apply {
-
-            text = "🗑 DELETE ALL POSTS"
-            textSize = 10f
-            minHeight = 0
-
-            setTextColor(Color.WHITE)
-
-            setBackgroundColor(
-                Color.rgb(185, 35, 35)
-            )
-
-            setPadding(
-                dp(2),
-                0,
-                dp(2),
-                0
-            )
-
-            setOnClickListener {
-                deleteAllAdminPosts()
-            }
-        },
-        LinearLayout.LayoutParams(
-            -1,
-            dp(34)
-        ).apply {
-            topMargin = dp(3)
-        }
-    )
-
-    // -----------------------------------------------------
-    // HOME PAGES
-    // -----------------------------------------------------
-
-    fixed.addView(
-        TextView(this).apply {
-
-            text = "📚 HOME PAGES"
-            textSize = 14f
-
-            typeface =
-                Typeface.DEFAULT_BOLD
-
-            setTextColor(
-                Color.rgb(7, 89, 133)
-            )
-
-            setPadding(
-                0,
-                dp(5),
-                0,
-                dp(2)
+                Color.rgb(245, 248, 252)
             )
         }
-    )
 
-    val pageManager =
-        LinearLayout(this).apply {
+        setContentView(root)
 
-            orientation =
-                LinearLayout.HORIZONTAL
-        }
+        // =====================================================
+        // FIXED ADMIN CONTROLS
+        // =====================================================
 
-    val pageDefs =
-        listOf(
-            "syllabus" to "Syllabus",
-            "notices" to "Notice",
-            "career" to "Career",
-            "tools" to "Tools"
-        )
-
-    pageDefs.forEach {
-            (id, label) ->
-
-        pageManager.addView(
-            Button(this).apply {
-
-                text = label
-                textSize = 9f
-
-                minHeight = 0
-
-                setPadding(
-                    dp(1),
-                    0,
-                    dp(1),
-                    0
-                )
-
-                setOnClickListener {
-
-                    editHomePage(
-                        id,
-                        label
-                    )
-                }
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(34),
-                1f
-            ).apply {
-
-                leftMargin = dp(2)
-                rightMargin = dp(2)
-            }
-        )
-    }
-
-    fixed.addView(pageManager)
-
-    // -----------------------------------------------------
-    // MEDIA STORAGE + ANALYTICS
-    // -----------------------------------------------------
-
-    val utilityRow =
-        LinearLayout(this).apply {
-
-            orientation =
-                LinearLayout.HORIZONTAL
-        }
-
-    utilityRow.addView(
-        Button(this).apply {
-
-            text = "💾 Media"
-            textSize = 9f
-            minHeight = 0
-
-            setPadding(
-                dp(2),
-                0,
-                dp(2),
-                0
-            )
-
-            setOnClickListener {
-                showChannelMediaStorage()
-            }
-        },
-        LinearLayout.LayoutParams(
-            0,
-            dp(34),
-            1f
-        ).apply {
-            rightMargin = dp(3)
-        }
-    )
-
-    utilityRow.addView(
-        Button(this).apply {
-
-            text = "📊 Analytics"
-            textSize = 9f
-            minHeight = 0
-
-            setPadding(
-                dp(2),
-                0,
-                dp(2),
-                0
-            )
-
-            setOnClickListener {
-                showAnalytics()
-            }
-        },
-        LinearLayout.LayoutParams(
-            0,
-            dp(34),
-            1f
-        ).apply {
-            leftMargin = dp(3)
-        }
-    )
-
-    fixed.addView(
-        utilityRow,
-        LinearLayout.LayoutParams(
-            -1,
-            dp(34)
-        ).apply {
-            topMargin = dp(3)
-        }
-    )
-
-    // =====================================================
-    // ADD FIXED PANEL
-    // =====================================================
-
-    root.addView(
-        fixed,
-        LinearLayout.LayoutParams(
-            -1,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-    )
-
-    // =====================================================
-    // POSTS HEADER
-    // =====================================================
-
-    root.addView(
-        TextView(this).apply {
-
-            text =
-                "📋 Channel Posts — पुरानी ऊपर • नई नीचे"
-
-            textSize = 14f
-
-            typeface =
-                Typeface.DEFAULT_BOLD
-
-            setTextColor(
-                Color.rgb(7, 89, 133)
-            )
+        val fixed = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
 
             setPadding(
                 dp(10),
-                dp(5),
+                dp(6),
                 dp(10),
-                dp(4)
+                dp(5)
             )
 
-            setBackgroundColor(
-                Color.rgb(235, 241, 248)
-            )
-        },
-        LinearLayout.LayoutParams(
-            -1,
-            dp(34)
-        )
-    )
+            setBackgroundColor(Color.WHITE)
 
-    // =====================================================
-    // POST SCROLL
-    // =====================================================
-
-    postScroll =
-        ScrollView(this).apply {
-
-            isFillViewport = true
-
-            isVerticalScrollBarEnabled =
-                true
-
-            clipToPadding = false
+            elevation = 6f
         }
 
-    postsContainer =
-        LinearLayout(this).apply {
-
-            orientation =
-                LinearLayout.VERTICAL
-
-            setPadding(
-                dp(8),
-                dp(5),
-                dp(8),
-                dp(20)
-            )
-        }
-
-    postScroll.addView(
-        postsContainer
-    )
-
-    root.addView(
-        postScroll,
-        LinearLayout.LayoutParams(
-            -1,
-            0,
-            1f
-        )
-    )
-
-    loadAdminPosts()
-}
-        // -----------------------------------------------------
+        // =====================================================
         // HEADER
-        // -----------------------------------------------------
+        // =====================================================
 
         fixed.addView(
             TextView(this).apply {
 
-                text =
-                    "⚙ शिक्षा रोजगार Channel Admin"
+                text = "⚙ शिक्षा रोजगार Channel Admin"
 
-                textSize =
-                    22f
+                textSize = 19f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
+                    Color.rgb(7, 89, 133)
                 )
 
                 setPadding(
                     0,
                     0,
                     0,
-                    8
+                    dp(3)
                 )
-            }
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(32)
+            )
         )
 
-        // -----------------------------------------------------
-        // LOGOUT
-        // -----------------------------------------------------
+        // =====================================================
+        // LOGOUT + GLOBAL COMMENTS
+        // =====================================================
 
-        fixed.addView(
+        val topRow =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        topRow.addView(
             Button(this).apply {
 
-                text =
-                    "🚪 Logout"
+                text = "🚪 Logout"
+
+                textSize = 11f
+
+                minHeight = 0
+
+                setPadding(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -1809,32 +1309,42 @@ class AdminActivity : AppCompatActivity() {
                 }
             },
             LinearLayout.LayoutParams(
-                -1,
-                dp(46)
+                dp(105),
+                dp(38)
             ).apply {
-
-                bottomMargin =
-                    dp(6)
+                rightMargin = dp(5)
             }
         )
-
-        // -----------------------------------------------------
-        // GLOBAL COMMENTS
-        // -----------------------------------------------------
 
         globalSwitch =
             Switch(this).apply {
 
-                text =
-                    "सभी Posts के Comments"
+                text = "Comments"
 
-                textSize =
-                    15f
+                textSize = 12f
+
+                setPadding(
+                    0,
+                    0,
+                    0,
+                    0
+                )
             }
 
-        fixed.addView(
-            globalSwitch
+        topRow.addView(
+            globalSwitch,
+            LinearLayout.LayoutParams(
+                0,
+                dp(38),
+                1f
+            )
         )
+
+        fixed.addView(topRow)
+
+        // =====================================================
+        // LOAD GLOBAL COMMENTS
+        // =====================================================
 
         db.document(
             "channel_config/main"
@@ -1860,24 +1370,49 @@ class AdminActivity : AppCompatActivity() {
 
             db.document(
                 "channel_config/main"
-            ).set(
-                mapOf(
-                    "commentsEnabled" to checked
-                ),
-                com.google.firebase.firestore
-                    .SetOptions.merge()
             )
+                .set(
+                    mapOf(
+                        "commentsEnabled" to checked
+                    ),
+                    com.google.firebase.firestore
+                        .SetOptions.merge()
+                )
         }
 
-        // -----------------------------------------------------
-        // CREATE POST
-        // -----------------------------------------------------
+        // =====================================================
+        // NEW CHANNEL POST
+        // =====================================================
 
         fixed.addView(
             Button(this).apply {
 
                 text =
-                    "📢 CREATE NEW CHANNEL POST"
+                    "📢  NEW CHANNEL POST"
+
+                textSize = 13f
+
+                setTypeface(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+                )
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(0, 120, 215)
+                )
+
+                minHeight = 0
+
+                setPadding(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -1886,17 +1421,18 @@ class AdminActivity : AppCompatActivity() {
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(50)
+                dp(42)
             ).apply {
 
-                topMargin =
-                    dp(4)
+                topMargin = dp(3)
+
+                bottomMargin = dp(3)
             }
         )
 
-        // -----------------------------------------------------
-        // POST TOOLS
-        // -----------------------------------------------------
+        // =====================================================
+        // POST MANAGEMENT BUTTONS
+        // =====================================================
 
         val postTools =
             LinearLayout(this).apply {
@@ -1911,8 +1447,18 @@ class AdminActivity : AppCompatActivity() {
         postTools.addView(
             Button(this).apply {
 
-                text =
-                    "☑ SELECT ALL"
+                text = "☑ ALL"
+
+                textSize = 10f
+
+                minHeight = 0
+
+                setPadding(
+                    dp(2),
+                    0,
+                    dp(2),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -1921,12 +1467,11 @@ class AdminActivity : AppCompatActivity() {
             },
             LinearLayout.LayoutParams(
                 0,
-                dp(46),
+                dp(36),
                 1f
             ).apply {
 
-                rightMargin =
-                    dp(4)
+                rightMargin = dp(3)
             }
         )
 
@@ -1936,6 +1481,29 @@ class AdminActivity : AppCompatActivity() {
                 text =
                     "🗑 DELETE SELECTED"
 
+                textSize = 9f
+
+                minHeight = 0
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        210,
+                        55,
+                        55
+                    )
+                )
+
+                setPadding(
+                    dp(2),
+                    0,
+                    dp(2),
+                    0
+                )
+
                 setOnClickListener {
 
                     deleteSelectedAdminPosts()
@@ -1943,28 +1511,48 @@ class AdminActivity : AppCompatActivity() {
             },
             LinearLayout.LayoutParams(
                 0,
-                dp(46),
-                1f
+                dp(36),
+                1.35f
             ).apply {
 
-                leftMargin =
-                    dp(4)
+                leftMargin = dp(3)
             }
         )
 
-        fixed.addView(
-            postTools
-        )
+        fixed.addView(postTools)
 
-        // -----------------------------------------------------
+        // =====================================================
         // DELETE ALL
-        // -----------------------------------------------------
+        // =====================================================
 
         fixed.addView(
             Button(this).apply {
 
                 text =
                     "🗑 DELETE ALL POSTS"
+
+                textSize = 10f
+
+                minHeight = 0
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        185,
+                        35,
+                        35
+                    )
+                )
+
+                setPadding(
+                    dp(2),
+                    0,
+                    dp(2),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -1973,26 +1561,24 @@ class AdminActivity : AppCompatActivity() {
             },
             LinearLayout.LayoutParams(
                 -1,
-                dp(46)
+                dp(34)
             ).apply {
 
-                topMargin =
-                    dp(4)
+                topMargin = dp(3)
             }
         )
 
-        // -----------------------------------------------------
-        // HOME PAGES
-        // -----------------------------------------------------
+        // =====================================================
+        // HOME CATEGORY MANAGEMENT
+        // =====================================================
 
         fixed.addView(
             TextView(this).apply {
 
                 text =
-                    "📚 HOME PAGES"
+                    "🏠 HOME CATEGORY MANAGEMENT"
 
-                textSize =
-                    17f
+                textSize = 14f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -2007,9 +1593,110 @@ class AdminActivity : AppCompatActivity() {
 
                 setPadding(
                     0,
-                    dp(8),
+                    dp(7),
                     0,
-                    dp(4)
+                    dp(2)
+                )
+            }
+        )
+
+        fixed.addView(
+            TextView(this).apply {
+
+                text =
+                    "Home के Teacher, Student, School, Vacancy आदि buttons यहाँ से बदलें"
+
+                textSize = 10f
+
+                setTextColor(
+                    Color.DKGRAY
+                )
+
+                setPadding(
+                    0,
+                    0,
+                    0,
+                    dp(3)
+                )
+            }
+        )
+
+        fixed.addView(
+            Button(this).apply {
+
+                text =
+                    "⚙️ MANAGE HOME CATEGORIES"
+
+                textSize = 12f
+
+                setTypeface(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+                )
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
+                )
+
+                minHeight = 0
+
+                setPadding(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
+
+                setOnClickListener {
+
+                    showHomeCategoryManager()
+                }
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(42)
+            ).apply {
+
+                topMargin = dp(2)
+                bottomMargin = dp(3)
+            }
+        )
+
+        // =====================================================
+        // EXISTING HOME PAGES
+        // =====================================================
+
+        fixed.addView(
+            TextView(this).apply {
+
+                text = "📚 HOME PAGES / CONTENT"
+
+                textSize = 13f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
+                )
+
+                setPadding(
+                    0,
+                    dp(5),
+                    0,
+                    dp(2)
                 )
             }
         )
@@ -2018,15 +1705,16 @@ class AdminActivity : AppCompatActivity() {
             LinearLayout(this).apply {
 
                 orientation =
-                    LinearLayout.VERTICAL
+                    LinearLayout.HORIZONTAL
             }
 
         val pageDefs =
             listOf(
                 "syllabus" to "Syllabus",
-                "notices" to "Notices",
-                "career" to "Career Guide",
-                "tools" to "Useful Tools"
+                "notices" to "Notice",
+                "career" to "Career",
+                "tools" to "Tools",
+                "study_material" to "Study Material"
             )
 
         pageDefs.forEach {
@@ -2035,8 +1723,18 @@ class AdminActivity : AppCompatActivity() {
             pageManager.addView(
                 Button(this).apply {
 
-                    text =
-                        "✏️ $label  —  ADD / EDIT"
+                    text = label
+
+                    textSize = 8f
+
+                    minHeight = 0
+
+                    setPadding(
+                        dp(1),
+                        0,
+                        dp(1),
+                        0
+                    )
 
                     setOnClickListener {
 
@@ -2045,26 +1743,48 @@ class AdminActivity : AppCompatActivity() {
                             label
                         )
                     }
+                },
+                LinearLayout.LayoutParams(
+                    0,
+                    dp(34),
+                    1f
+                ).apply {
+
+                    leftMargin = dp(1)
+
+                    rightMargin = dp(1)
                 }
             )
         }
 
-        fixed.addView(
-            pageManager
-        )
+        fixed.addView(pageManager)
 
-        // -----------------------------------------------------
-        // MEDIA STORAGE
-        // -----------------------------------------------------
+        // =====================================================
+        // MEDIA STORAGE + ANALYTICS
+        // =====================================================
 
-        fixed.addView(
+        val utilityRow =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+            }
+
+        utilityRow.addView(
             Button(this).apply {
 
-                text =
-                    "💾 Channel Media Storage"
+                text = "💾 Media"
 
-                textSize =
-                    12f
+                textSize = 9f
+
+                minHeight = 0
+
+                setPadding(
+                    dp(2),
+                    0,
+                    dp(2),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -2072,24 +1792,30 @@ class AdminActivity : AppCompatActivity() {
                 }
             },
             LinearLayout.LayoutParams(
-                -1,
-                dp(44)
+                0,
+                dp(34),
+                1f
             ).apply {
 
-                topMargin =
-                    dp(4)
+                rightMargin = dp(3)
             }
         )
 
-        // -----------------------------------------------------
-        // ANALYTICS
-        // -----------------------------------------------------
-
-        fixed.addView(
+        utilityRow.addView(
             Button(this).apply {
 
-                text =
-                    "📊 Channel Analytics"
+                text = "📊 Analytics"
+
+                textSize = 9f
+
+                minHeight = 0
+
+                setPadding(
+                    dp(2),
+                    0,
+                    dp(2),
+                    0
+                )
 
                 setOnClickListener {
 
@@ -2097,35 +1823,49 @@ class AdminActivity : AppCompatActivity() {
                 }
             },
             LinearLayout.LayoutParams(
-                -1,
-                dp(44)
+                0,
+                dp(34),
+                1f
             ).apply {
 
-                topMargin =
-                    dp(4)
+                leftMargin = dp(3)
             }
         )
+
+        fixed.addView(
+            utilityRow,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(34)
+            ).apply {
+
+                topMargin = dp(3)
+            }
+        )
+
+        // =====================================================
+        // ADD FIXED PANEL
+        // =====================================================
 
         root.addView(
             fixed,
             LinearLayout.LayoutParams(
                 -1,
-                -2
+                LinearLayout.LayoutParams.WRAP_CONTENT
             )
         )
 
-        // -----------------------------------------------------
+        // =====================================================
         // POSTS HEADER
-        // -----------------------------------------------------
+        // =====================================================
 
-        val postHeader =
+        root.addView(
             TextView(this).apply {
 
                 text =
-                    "📋 Channel Posts — नई post नीचे दिखाई देगी"
+                    "📋 Channel Posts — पुरानी ऊपर • नई नीचे"
 
-                textSize =
-                    16f
+                textSize = 14f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -2139,37 +1879,39 @@ class AdminActivity : AppCompatActivity() {
                 )
 
                 setPadding(
-                    dp(12),
-                    dp(8),
-                    dp(12),
-                    dp(6)
+                    dp(10),
+                    dp(5),
+                    dp(10),
+                    dp(4)
                 )
 
                 setBackgroundColor(
                     Color.rgb(
-                        245,
-                        248,
-                        252
+                        235,
+                        241,
+                        248
                     )
                 )
-            }
-
-        root.addView(
-            postHeader
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(34)
+            )
         )
 
-        // -----------------------------------------------------
+        // =====================================================
         // POST SCROLL
-        // -----------------------------------------------------
+        // =====================================================
 
         postScroll =
             ScrollView(this).apply {
 
-                isFillViewport =
-                    true
+                isFillViewport = true
 
                 isVerticalScrollBarEnabled =
                     true
+
+                clipToPadding = false
             }
 
         postsContainer =
@@ -2179,9 +1921,9 @@ class AdminActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setPadding(
-                    dp(12),
-                    0,
-                    dp(12),
+                    dp(8),
+                    dp(5),
+                    dp(8),
                     dp(20)
                 )
             }
@@ -2201,6 +1943,995 @@ class AdminActivity : AppCompatActivity() {
 
         loadAdminPosts()
     }
+
+    // =========================================================
+    // DEFAULT HOME CATEGORIES
+    // =========================================================
+
+    private fun defaultHomeCategories():
+        List<Map<String, Any>> {
+
+        return listOf(
+
+            mapOf(
+                "id" to "teacher",
+                "name" to "Teacher",
+                "icon" to "🧑‍🏫",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/03/teacher-govt-employees.html",
+                "pageId" to "",
+                "position" to 1L
+            ),
+
+            mapOf(
+                "id" to "student",
+                "name" to "Student",
+                "icon" to "🎓",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/03/College%20%20University%20Students.html",
+                "pageId" to "",
+                "position" to 2L
+            ),
+
+            mapOf(
+                "id" to "school",
+                "name" to "School",
+                "icon" to "🏫",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/03/school-students-1-12-section-page.html",
+                "pageId" to "",
+                "position" to 3L
+            ),
+
+            mapOf(
+                "id" to "vacancy",
+                "name" to "Vacancy",
+                "icon" to "💼",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/03/latest-jobs-page.html",
+                "pageId" to "",
+                "position" to 4L
+            ),
+
+            mapOf(
+                "id" to "result",
+                "name" to "Result",
+                "icon" to "📋",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/03/results.html",
+                "pageId" to "",
+                "position" to 5L
+            ),
+
+            mapOf(
+                "id" to "admit_card",
+                "name" to "Admit Card",
+                "icon" to "🎫",
+                "url" to
+                    "https://www.shiksharojgar.com/2026/01/admit-card-download-zone.html",
+                "pageId" to "",
+                "position" to 6L
+            ),
+
+            mapOf(
+                "id" to "syllabus",
+                "name" to "Syllabus",
+                "icon" to "📚",
+                "url" to "",
+                "pageId" to "syllabus",
+                "position" to 7L
+            ),
+
+            mapOf(
+                "id" to "study_material",
+                "name" to "Study Material",
+                "icon" to "📖",
+                "url" to "",
+                "pageId" to "study_material",
+                "position" to 8L
+            ),
+
+            mapOf(
+                "id" to "career",
+                "name" to "Career Guide",
+                "icon" to "🚀",
+                "url" to "",
+                "pageId" to "career",
+                "position" to 9L
+            ),
+
+            mapOf(
+                "id" to "notices",
+                "name" to "Notice",
+                "icon" to "📢",
+                "url" to "",
+                "pageId" to "notices",
+                "position" to 10L
+            ),
+
+            mapOf(
+                "id" to "tools",
+                "name" to "Useful Tools",
+                "icon" to "🛠️",
+                "url" to "",
+                "pageId" to "tools",
+                "position" to 11L
+            )
+        )
+    }
+
+    // =========================================================
+    // HOME CATEGORY MANAGER
+    // =========================================================
+
+    private fun showHomeCategoryManager() {
+
+        val dialog =
+            AlertDialog.Builder(this)
+                .setTitle(
+                    "🏠 Home Categories"
+                )
+                .setMessage(
+                    "Categories load हो रही हैं…"
+                )
+                .setPositiveButton(
+                    "CLOSE",
+                    null
+                )
+                .create()
+
+        dialog.show()
+
+        db.collection(
+            "home_categories"
+        )
+            .get()
+            .addOnSuccessListener { snap ->
+
+                if (snap.isEmpty) {
+
+                    seedDefaultHomeCategories {
+                        runOnUiThread {
+                            dialog.dismiss()
+                            showHomeCategoryManager()
+                        }
+                    }
+
+                    return@addOnSuccessListener
+                }
+
+                dialog.dismiss()
+
+                showHomeCategoryList(
+                    snap.documents
+                )
+            }
+            .addOnFailureListener { e ->
+
+                dialog.setMessage(
+                    "Categories पढ़ने में समस्या:\n\n" +
+                        (
+                            e.message
+                                ?: "Firestore error"
+                            )
+                )
+            }
+    }
+
+    // =========================================================
+    // SEED DEFAULT CATEGORIES
+    // =========================================================
+
+    private fun seedDefaultHomeCategories(
+        done: () -> Unit
+    ) {
+
+        val defaults =
+            defaultHomeCategories()
+
+        fun saveNext(
+            index: Int
+        ) {
+
+            if (
+                index >= defaults.size
+            ) {
+
+                done()
+
+                return
+            }
+
+            val item =
+                defaults[index]
+
+            val id =
+                item["id"]
+                    .toString()
+
+            db.collection(
+                "home_categories"
+            )
+                .document(id)
+                .set(item)
+                .addOnSuccessListener {
+
+                    saveNext(
+                        index + 1
+                    )
+                }
+                .addOnFailureListener {
+
+                    toast(
+                        "Default categories save नहीं हुईं: ${
+                            it.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+        }
+
+        saveNext(0)
+    }
+
+    // =========================================================
+    // CATEGORY LIST
+    // =========================================================
+
+    private fun showHomeCategoryList(
+        docs:
+            List<com.google.firebase.firestore.DocumentSnapshot>
+    ) {
+
+        val sorted =
+            docs.sortedBy {
+
+                it.getLong(
+                    "position"
+                ) ?: 999L
+            }
+
+        val box =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    dp(5),
+                    dp(3),
+                    dp(5),
+                    dp(5)
+                )
+            }
+
+        val scroll =
+            ScrollView(this).apply {
+
+                isFillViewport = true
+            }
+
+        val list =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+            }
+
+        scroll.addView(list)
+
+        sorted.forEachIndexed {
+                index,
+                doc ->
+
+            addCategoryRow(
+                list,
+                sorted,
+                index,
+                doc
+            )
+        }
+
+        box.addView(
+            scroll,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(430)
+            )
+        )
+
+        val add =
+            Button(this).apply {
+
+                text =
+                    "➕ ADD NEW CATEGORY"
+
+                textSize = 11f
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        0,
+                        120,
+                        215
+                    )
+                )
+
+                setOnClickListener {
+
+                    showCategoryEditDialog(
+                        null
+                    )
+                }
+            }
+
+        box.addView(
+            add,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(42)
+            ).apply {
+
+                topMargin = dp(5)
+            }
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "🏠 Manage Home Categories"
+            )
+            .setView(box)
+            .setPositiveButton(
+                "CLOSE",
+                null
+            )
+            .show()
+    }
+
+    // =========================================================
+    // CATEGORY ROW
+    // =========================================================
+
+    private fun addCategoryRow(
+        parent: LinearLayout,
+        sorted:
+            List<com.google.firebase.firestore.DocumentSnapshot>,
+        index: Int,
+        doc:
+            com.google.firebase.firestore.DocumentSnapshot
+    ) {
+
+        val id =
+            doc.id
+
+        val name =
+            doc.getString(
+                "name"
+            ) ?: "Category"
+
+        val icon =
+            doc.getString(
+                "icon"
+            ) ?: "📌"
+
+        val row =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setBackgroundColor(
+                    Color.rgb(
+                        248,
+                        250,
+                        253
+                    )
+                )
+
+                setPadding(
+                    dp(6),
+                    dp(5),
+                    dp(6),
+                    dp(5)
+                )
+            }
+
+        val titleRow =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        titleRow.addView(
+            TextView(this).apply {
+
+                text =
+                    "$icon  $name"
+
+                textSize = 13f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                maxLines = 1
+
+                ellipsize =
+                    android.text.TextUtils.TruncateAt.END
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(34),
+                1f
+            )
+        )
+
+        titleRow.addView(
+            Button(this).apply {
+
+                text = "✏️"
+
+                textSize = 10f
+
+                minHeight = 0
+
+                setPadding(
+                    dp(1),
+                    0,
+                    dp(1),
+                    0
+                )
+
+                setOnClickListener {
+
+                    showCategoryEditDialog(
+                        doc
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                dp(42),
+                dp(34)
+            ).apply {
+                leftMargin = dp(2)
+            }
+        )
+
+        titleRow.addView(
+            Button(this).apply {
+
+                text = "🗑"
+
+                textSize = 10f
+
+                minHeight = 0
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        205,
+                        45,
+                        45
+                    )
+                )
+
+                setPadding(
+                    dp(1),
+                    0,
+                    dp(1),
+                    0
+                )
+
+                setOnClickListener {
+
+                    deleteHomeCategory(
+                        id,
+                        name
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                dp(42),
+                dp(34)
+            ).apply {
+                leftMargin = dp(2)
+            }
+        )
+
+        row.addView(titleRow)
+
+        val moveRow =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+            }
+
+        moveRow.addView(
+            Button(this).apply {
+
+                text = "⬆ UP"
+
+                textSize = 9f
+
+                minHeight = 0
+
+                isEnabled =
+                    index > 0
+
+                setOnClickListener {
+
+                    swapHomeCategoryPosition(
+                        sorted[index],
+                        sorted[index - 1]
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(30),
+                1f
+            ).apply {
+                rightMargin = dp(2)
+            }
+        )
+
+        moveRow.addView(
+            Button(this).apply {
+
+                text = "⬇ DOWN"
+
+                textSize = 9f
+
+                minHeight = 0
+
+                isEnabled =
+                    index <
+                        sorted.lastIndex
+
+                setOnClickListener {
+
+                    swapHomeCategoryPosition(
+                        sorted[index],
+                        sorted[index + 1]
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(30),
+                1f
+            ).apply {
+                leftMargin = dp(2)
+            }
+        )
+
+        row.addView(moveRow)
+
+        parent.addView(
+            row,
+            LinearLayout.LayoutParams(
+                -1,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+
+                bottomMargin = dp(4)
+            }
+        )
+
+        parent.addView(
+            View(this).apply {
+
+                setBackgroundColor(
+                    Color.rgb(
+                        220,
+                        228,
+                        237
+                    )
+                )
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(1)
+            )
+        )
+    }
+
+    // =========================================================
+    // ADD / EDIT CATEGORY
+    // =========================================================
+
+    private fun showCategoryEditDialog(
+        existing:
+            com.google.firebase.firestore.DocumentSnapshot?
+    ) {
+
+        val box =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                setPadding(
+                    dp(8),
+                    dp(4),
+                    dp(8),
+                    dp(4)
+                )
+            }
+
+        val id =
+            EditText(this).apply {
+
+                hint =
+                    "Category ID — जैसे study_material"
+
+                setText(
+                    existing?.id ?: ""
+                )
+
+                isEnabled =
+                    existing == null
+            }
+
+        val name =
+            EditText(this).apply {
+
+                hint =
+                    "Category Name"
+
+                setText(
+                    existing?.getString(
+                        "name"
+                    ) ?: ""
+                )
+            }
+
+        val icon =
+            EditText(this).apply {
+
+                hint =
+                    "Icon — जैसे 📖"
+
+                setText(
+                    existing?.getString(
+                        "icon"
+                    ) ?: "📌"
+                )
+            }
+
+        val url =
+            EditText(this).apply {
+
+                hint =
+                    "URL — external website या blank"
+
+                setText(
+                    existing?.getString(
+                        "url"
+                    ) ?: ""
+                )
+            }
+
+        val pageId =
+            EditText(this).apply {
+
+                hint =
+                    "Internal Page ID — जैसे study_material"
+
+                setText(
+                    existing?.getString(
+                        "pageId"
+                    ) ?: ""
+                )
+            }
+
+        val position =
+            EditText(this).apply {
+
+                hint =
+                    "Position"
+
+                inputType =
+                    android.text.InputType.TYPE_CLASS_NUMBER
+
+                setText(
+                    (
+                        existing?.getLong(
+                            "position"
+                        ) ?: 99L
+                        ).toString()
+                )
+            }
+
+        box.addView(id)
+        box.addView(name)
+        box.addView(icon)
+        box.addView(url)
+        box.addView(pageId)
+        box.addView(position)
+
+        val title =
+            if (existing == null) {
+                "➕ Add Home Category"
+            } else {
+                "✏️ Edit Home Category"
+            }
+
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(box)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .create()
+            .also { dlg ->
+
+                dlg.setOnShowListener {
+
+                    dlg.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener {
+
+                        val categoryId =
+                            id.text
+                                .toString()
+                                .trim()
+                                .lowercase(
+                                    Locale.US
+                                )
+                                .replace(
+                                    " ",
+                                    "_"
+                                )
+
+                        val categoryName =
+                            name.text
+                                .toString()
+                                .trim()
+
+                        val categoryIcon =
+                            icon.text
+                                .toString()
+                                .trim()
+                                .ifBlank {
+                                    "📌"
+                                }
+
+                        val categoryUrl =
+                            url.text
+                                .toString()
+                                .trim()
+
+                        val categoryPageId =
+                            pageId.text
+                                .toString()
+                                .trim()
+
+                        val categoryPosition =
+                            position.text
+                                .toString()
+                                .toLongOrNull()
+                                ?: 99L
+
+                        if (
+                            categoryId.isBlank()
+                        ) {
+
+                            toast(
+                                "Category ID डालें"
+                            )
+
+                            return@setOnClickListener
+                        }
+
+                        if (
+                            categoryName.isBlank()
+                        ) {
+
+                            toast(
+                                "Category Name डालें"
+                            )
+
+                            return@setOnClickListener
+                        }
+
+                        if (
+                            categoryUrl.isBlank() &&
+                            categoryPageId.isBlank()
+                        ) {
+
+                            toast(
+                                "URL या Internal Page ID में से कम से कम एक दें"
+                            )
+
+                            return@setOnClickListener
+                        }
+
+                        dlg.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled =
+                            false
+
+                        val data =
+                            mapOf(
+                                "name" to categoryName,
+                                "icon" to categoryIcon,
+                                "url" to categoryUrl,
+                                "pageId" to categoryPageId,
+                                "position" to
+                                    categoryPosition,
+                                "updatedAt" to
+                                    System.currentTimeMillis()
+                            )
+
+                        db.collection(
+                            "home_categories"
+                        )
+                            .document(
+                                categoryId
+                            )
+                            .set(
+                                data,
+                                com.google.firebase.firestore
+                                    .SetOptions.merge()
+                            )
+                            .addOnSuccessListener {
+
+                                dlg.dismiss()
+
+                                toast(
+                                    "Home Category सेव हो गई"
+                                )
+                            }
+                            .addOnFailureListener { e ->
+
+                                dlg.getButton(
+                                    AlertDialog.BUTTON_POSITIVE
+                                ).isEnabled =
+                                    true
+
+                                toast(
+                                    "Category SAVE failed:\n${
+                                        e.message
+                                            ?: "Permission denied"
+                                    }"
+                                )
+                            }
+                    }
+                }
+
+                dlg.show()
+            }
+    }
+
+    // =========================================================
+    // DELETE CATEGORY
+    // =========================================================
+
+    private fun deleteHomeCategory(
+        id: String,
+        name: String
+    ) {
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "🗑 Delete Category"
+            )
+            .setMessage(
+                "\"$name\" को Home से delete करना है?"
+            )
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .setPositiveButton(
+                "DELETE"
+            ) { _, _ ->
+
+                db.collection(
+                    "home_categories"
+                )
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener {
+
+                        toast(
+                            "Category delete हो गई"
+                        )
+                    }
+                    .addOnFailureListener { e ->
+
+                        toast(
+                            "Delete failed: ${
+                                e.message
+                                    ?: "Permission denied"
+                            }"
+                        )
+                    }
+            }
+            .show()
+    }
+
+    // =========================================================
+    // MOVE CATEGORY UP / DOWN
+    // =========================================================
+
+    private fun swapHomeCategoryPosition(
+        first:
+            com.google.firebase.firestore.DocumentSnapshot,
+        second:
+            com.google.firebase.firestore.DocumentSnapshot
+    ) {
+
+        val firstPosition =
+            first.getLong(
+                "position"
+            ) ?: 0L
+
+        val secondPosition =
+            second.getLong(
+                "position"
+            ) ?: 0L
+
+        val batch =
+            db.batch()
+
+        batch.update(
+            db.collection(
+                "home_categories"
+            ).document(
+                first.id
+            ),
+            "position",
+            secondPosition
+        )
+
+        batch.update(
+            db.collection(
+                "home_categories"
+            ).document(
+                second.id
+            ),
+            "position",
+            firstPosition
+        )
+
+        batch.commit()
+            .addOnSuccessListener {
+
+                toast(
+                    "Category position बदल गई"
+                )
+
+                showHomeCategoryManager()
+            }
+            .addOnFailureListener { e ->
+
+                toast(
+                    "Position update failed: ${
+                        e.message
+                            ?: "Firestore error"
+                    }"
+                )
+            }
+    }
+
+
 
     // =========================================================
     // CHANNEL MEDIA STORAGE
