@@ -205,7 +205,21 @@ class AdminActivity : AppCompatActivity() {
         val pageDefs=listOf("syllabus" to "Syllabus","notices" to "Notices","career" to "Career Guide","tools" to "Useful Tools")
         pageDefs.forEach{(id,label)-> pageManager.addView(Button(this).apply{text="✏️ $label  —  ADD / EDIT";setOnClickListener{editHomePage(id,label)}})}
         fixed.addView(pageManager)
-        fixed.addView(Button(this).apply{text="📊 Channel Analytics";setOnClickListener{showAnalytics()}},LinearLayout.LayoutParams(-1,dp(44)).apply{topMargin=dp(4)})
+        fixed.addView(
+    Button(this).apply {
+        text = "💾 Channel Media Storage"
+        textSize = 13f
+        setOnClickListener {
+            showChannelMediaStorage()
+        }
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(42)
+    ).apply {
+        topMargin = dp(4)
+    }
+)
         root.addView(fixed,LinearLayout.LayoutParams(-1,-2))
 
         val postHeader=TextView(this).apply{text="📋 Channel Posts — नई post नीचे दिखाई देगी";textSize=16f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.rgb(7,89,133));setPadding(dp(12),dp(8),dp(12),dp(6));setBackgroundColor(Color.rgb(245,248,252))}
@@ -217,6 +231,103 @@ class AdminActivity : AppCompatActivity() {
         loadAdminPosts()
     }
     private fun showAnalytics(){
+        private fun showChannelMediaStorage() {
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("💾 Channel Media Storage")
+        .setMessage("Storage calculate हो रहा है…")
+        .setPositiveButton("OK", null)
+        .create()
+
+    dialog.show()
+
+    db.collection("channel_media")
+        .get()
+        .addOnSuccessListener { snap ->
+
+            var totalBytes = 0L
+            var fileCount = 0
+            var imageCount = 0
+            var documentCount = 0
+
+            snap.documents.forEach { doc ->
+
+                val size =
+                    doc.getLong("size") ?: 0L
+
+                totalBytes +=
+                    size.coerceAtLeast(0L)
+
+                fileCount++
+
+                val folder =
+                    doc.getString("folder")
+                        .orEmpty()
+
+                if (folder == "images") {
+                    imageCount++
+                } else {
+                    documentCount++
+                }
+            }
+
+            val mb =
+                totalBytes.toDouble() /
+                    (1024.0 * 1024.0)
+
+            val gb =
+                totalBytes.toDouble() /
+                    (1024.0 * 1024.0 * 1024.0)
+
+            val freeLimitGb = 1.0
+
+            val percent =
+                ((gb / freeLimitGb) * 100.0)
+                    .coerceAtMost(100.0)
+
+            val message =
+                """
+                💾 Channel Media
+
+                📁 Total media files: $fileCount
+                🖼️ Images: $imageCount
+                📄 Documents: $documentCount
+
+                📦 Uploaded media:
+                ${String.format(Locale.US, "%.2f MB", mb)}
+
+                ${String.format(Locale.US, "%.4f GB", gb)}
+
+                📊 Firestore free storage:
+                1 GiB shared Firestore limit
+
+                📈 Approx. media usage:
+                ${String.format(Locale.US, "%.2f%%", percent)}
+
+                ⚠️ यह Channel media का declared
+                file-size total है।
+
+                Firebase Console में दिखने वाला
+                actual billed Firestore storage
+                indexes/document overhead सहित
+                इससे थोड़ा अलग हो सकता है।
+
+                🗑️ अब नई Delete system से
+                deleted post की unused image/PDF
+                और उसके chunks भी हटेंगे।
+                """.trimIndent()
+
+            dialog.setMessage(message)
+
+        }
+        .addOnFailureListener { e ->
+
+            dialog.setMessage(
+                "Channel media storage पढ़ा नहीं जा सका:\n\n" +
+                    (e.message ?: "Firestore error")
+            )
+        }
+        }
         val dialog=AlertDialog.Builder(this)
             .setTitle("📊 Shiksha Rojgar Analytics")
             .setMessage("लोड हो रहा है…")
