@@ -113,29 +113,7 @@ service cloud.firestore {
 
     // =====================================================
     // HOME CATEGORIES
-    //
     // Dynamic Home menu/category management
-    //
-    // Teacher
-    // Student
-    // School
-    // Vacancy
-    // Result
-    // Admit Card
-    // Syllabus
-    // Study Material
-    // Career Guide
-    // Notice
-    // Useful Tools
-    //
-    // Admin can:
-    // Add
-    // Edit
-    // Delete
-    // Change name
-    // Change icon
-    // Change URL
-    // Change position
     // =====================================================
 
     match /home_categories/{categoryId} {
@@ -144,6 +122,36 @@ service cloud.firestore {
       allow read: if true;
 
       // Only admin can add/edit/delete categories
+      allow create, update, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == configuredAdminUid()
+        );
+    }
+
+
+    // =====================================================
+    // HOME SUB-CATEGORIES
+    //
+    // Example:
+    // home_subcategories/teacher_vacancy
+    //
+    // Fields:
+    // name
+    // icon
+    // url
+    // pageType
+    // parentId
+    // position
+    // enabled
+    // =====================================================
+
+    match /home_subcategories/{subCategoryId} {
+
+      // App users can read sub-categories
+      allow read: if true;
+
+      // Only admin can add/edit/delete sub-categories
       allow create, update, delete: if isAdmin() ||
         (
           signedIn() &&
@@ -255,7 +263,7 @@ service cloud.firestore {
 
 
     // =====================================================
-    // FIRST APP USE
+    // APP FIRST USE
     // =====================================================
 
     match /app_first_use/{uid} {
