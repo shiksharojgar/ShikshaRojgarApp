@@ -1567,7 +1567,56 @@ class AdminActivity : AppCompatActivity() {
                 topMargin = dp(3)
             }
         )
+        // =====================================================
+        // MANAGE HOME SUB-CATEGORIES
+        // =====================================================
+        fixed.addView(
+            Button(this).apply {
 
+                text = "🔽 MANAGE SUB-CATEGORIES"
+
+                textSize = 12f
+
+                setTypeface(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+                )
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.rgb(
+                        7,
+                        89,
+                        133
+                    )
+                )
+
+                minHeight = 0
+
+                setPadding(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
+
+                setOnClickListener {
+
+                    showHomeSubCategoryManager()
+                }
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(42)
+            ).apply {
+
+                topMargin = dp(2)
+                bottomMargin = dp(3)
+            }
+        )
         // =====================================================
         // HOME CATEGORY MANAGEMENT
         // =====================================================
@@ -5355,6 +5404,990 @@ private fun showAdminPostPreview(
 
         return name
     }
+    // ============================================================
+// HOME SUB-CATEGORY MANAGER
+// ============================================================
+private fun showHomeSubCategoryManager() {
+
+    val categories = listOf(
+        "Teacher" to "teacher",
+        "Student" to "student",
+        "School" to "school",
+        "Vacancy" to "vacancy",
+        "Result" to "result",
+        "Admit Card" to "admit_card"
+    )
+
+    val selectedCategory = arrayOf(0)
+
+    val root = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(12),
+            dp(8),
+            dp(12),
+            dp(8)
+        )
+    }
+
+    val spinner = Spinner(this)
+
+    val categoryNames = categories.map {
+        it.first
+    }.toTypedArray()
+
+    spinner.adapter = ArrayAdapter(
+        this,
+        android.R.layout.simple_spinner_dropdown_item,
+        categoryNames
+    )
+
+    root.addView(
+        TextView(this).apply {
+
+            text = "मुख्य Category चुनें"
+
+            textSize = 13f
+
+            typeface = Typeface.DEFAULT_BOLD
+
+            setTextColor(
+                Color.rgb(
+                    7,
+                    89,
+                    133
+                )
+            )
+
+            setPadding(
+                0,
+                0,
+                0,
+                dp(4)
+            )
+        }
+    )
+
+    root.addView(
+        spinner,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val listContainer = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+    }
+
+    root.addView(
+        ScrollView(this).apply {
+
+            addView(
+                listContainer,
+                LinearLayout.LayoutParams(
+                    -1,
+                    -2
+                )
+            )
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            0,
+            1f
+        )
+    )
+
+    val addButton = Button(this).apply {
+
+        text = "➕ ADD SUB-CATEGORY"
+
+        textSize = 12f
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(Color.WHITE)
+
+        setBackgroundColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        minHeight = 0
+
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            0
+        )
+    }
+
+    root.addView(
+        addButton,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(44)
+        ).apply {
+            topMargin = dp(6)
+        }
+    )
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("🔽 MANAGE SUB-CATEGORIES")
+        .setView(root)
+        .setNegativeButton("Close", null)
+        .create()
+
+    // ========================================================
+    // EDIT / ADD DIALOG
+    // ========================================================
+    fun showEditor(
+        documentId: String?,
+        existing: com.google.firebase.firestore.DocumentSnapshot?,
+        parentId: String
+    ) {
+
+        val form = LinearLayout(this).apply {
+
+            orientation = LinearLayout.VERTICAL
+
+            setPadding(
+                dp(18),
+                dp(5),
+                dp(18),
+                dp(5)
+            )
+        }
+
+        val nameInput = EditText(this).apply {
+
+            hint = "Sub-Category Name"
+
+            setSingleLine(true)
+
+            setText(
+                existing?.getString("name") ?: ""
+            )
+        }
+
+        val iconInput = EditText(this).apply {
+
+            hint = "Icon (जैसे 📚)"
+
+            setSingleLine(true)
+
+            setText(
+                existing?.getString("icon") ?: ""
+            )
+        }
+
+        val urlInput = EditText(this).apply {
+
+            hint = "Website URL"
+
+            setSingleLine(true)
+
+            setText(
+                existing?.getString("url") ?: ""
+            )
+        }
+
+        val pageTypes = arrayOf(
+            "Website",
+            "Text",
+            "Image",
+            "PDF"
+        )
+
+        val pageTypeSpinner = Spinner(this)
+
+        pageTypeSpinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            pageTypes
+        )
+
+        val oldPageType =
+            existing?.getString("pageType") ?: "Website"
+
+        val oldPageIndex =
+            pageTypes.indexOf(oldPageType)
+
+        if (oldPageIndex >= 0) {
+            pageTypeSpinner.setSelection(
+                oldPageIndex
+            )
+        }
+
+        val positionInput = EditText(this).apply {
+
+            hint = "Position"
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER
+
+            setSingleLine(true)
+
+            setText(
+                (
+                    existing?.getLong("position")
+                        ?: 1L
+                    ).toString()
+            )
+        }
+
+        val enabledSwitch = Switch(this).apply {
+
+            text = "Enabled"
+
+            isChecked =
+                existing?.getBoolean("enabled")
+                    ?: true
+        }
+
+        form.addView(
+            nameInput,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(52)
+            )
+        )
+
+        form.addView(
+            iconInput,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(52)
+            )
+        )
+
+        form.addView(
+            urlInput,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(52)
+            )
+        )
+
+        form.addView(
+            TextView(this).apply {
+
+                text = "Page Type"
+
+                textSize = 12f
+
+                setTextColor(Color.DKGRAY)
+
+                setPadding(
+                    0,
+                    dp(4),
+                    0,
+                    0
+                )
+            }
+        )
+
+        form.addView(
+            pageTypeSpinner,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(48)
+            )
+        )
+
+        form.addView(
+            positionInput,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(52)
+            )
+        )
+
+        form.addView(
+            enabledSwitch,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(48)
+            )
+        )
+
+        val editorDialog =
+            AlertDialog.Builder(this)
+                .setTitle(
+                    if (documentId == null)
+                        "➕ Add Sub-Category"
+                    else
+                        "✏️ Edit Sub-Category"
+                )
+                .setView(form)
+                .setNegativeButton(
+                    "Cancel",
+                    null
+                )
+                .setPositiveButton(
+                    "Save",
+                    null
+                )
+                .create()
+
+        editorDialog.setOnShowListener {
+
+            editorDialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
+
+                val name =
+                    nameInput.text
+                        .toString()
+                        .trim()
+
+                val icon =
+                    iconInput.text
+                        .toString()
+                        .trim()
+
+                val url =
+                    urlInput.text
+                        .toString()
+                        .trim()
+
+                val pageType =
+                    pageTypes[
+                        pageTypeSpinner.selectedItemPosition
+                    ]
+
+                val position =
+                    positionInput.text
+                        .toString()
+                        .toLongOrNull()
+                        ?: 1L
+
+                val enabled =
+                    enabledSwitch.isChecked
+
+                if (name.isEmpty()) {
+
+                    nameInput.error =
+                        "Name जरूरी है"
+
+                    return@setOnClickListener
+                }
+
+                if (
+                    pageType == "Website" &&
+                    url.isEmpty()
+                ) {
+
+                    urlInput.error =
+                        "Website URL जरूरी है"
+
+                    return@setOnClickListener
+                }
+
+                val data = hashMapOf(
+                    "name" to name,
+                    "icon" to icon,
+                    "url" to url,
+                    "pageType" to pageType,
+                    "parentId" to parentId,
+                    "position" to position,
+                    "enabled" to enabled
+                )
+
+                val task = if (documentId == null) {
+
+                    val newId =
+                        parentId +
+                        "_" +
+                        System.currentTimeMillis()
+
+                    db.collection(
+                        "home_subcategories"
+                    )
+                        .document(newId)
+                        .set(data)
+
+                } else {
+
+                    db.collection(
+                        "home_subcategories"
+                    )
+                        .document(documentId)
+                        .update(data)
+                }
+
+                task.addOnSuccessListener {
+
+                    Toast.makeText(
+                        this,
+                        "Sub-Category Save हो गई",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    editorDialog.dismiss()
+
+                    loadList()
+                }
+
+                task.addOnFailureListener { e ->
+
+                    Toast.makeText(
+                        this,
+                        "Save failed: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
+        editorDialog.show()
+    }
+
+    // ========================================================
+    // LIST LOAD
+    // ========================================================
+    fun loadList() {
+
+        listContainer.removeAllViews()
+
+        val parentId =
+            categories[
+                selectedCategory[0]
+            ].second
+
+        listContainer.addView(
+            TextView(this).apply {
+
+                text =
+                    "Loading..."
+
+                textSize = 13f
+
+                setPadding(
+                    0,
+                    dp(10),
+                    0,
+                    dp(10)
+                )
+            }
+        )
+
+        db.collection(
+            "home_subcategories"
+        )
+            .whereEqualTo(
+                "parentId",
+                parentId
+            )
+            .get()
+            .addOnSuccessListener { result ->
+
+                listContainer.removeAllViews()
+
+                val docs =
+                    result.documents.sortedBy {
+
+                        it.getLong(
+                            "position"
+                        ) ?: 999999L
+                    }
+
+                if (docs.isEmpty()) {
+
+                    listContainer.addView(
+                        TextView(this).apply {
+
+                            text =
+                                "इस Category में अभी कोई Sub-Category नहीं है।"
+
+                            textSize = 13f
+
+                            setTextColor(
+                                Color.DKGRAY
+                            )
+
+                            setPadding(
+                                0,
+                                dp(12),
+                                0,
+                                dp(12)
+                            )
+                        }
+                    )
+
+                    return@addOnSuccessListener
+                }
+
+                docs.forEachIndexed {
+                    index,
+                    doc ->
+
+                    val card =
+                        LinearLayout(this).apply {
+
+                            orientation =
+                                LinearLayout.VERTICAL
+
+                            setPadding(
+                                dp(8),
+                                dp(7),
+                                dp(8),
+                                dp(7)
+                            )
+
+                            setBackgroundColor(
+                                Color.rgb(
+                                    245,
+                                    248,
+                                    250
+                                )
+                            )
+                        }
+
+                    val name =
+                        doc.getString("name")
+                            ?: ""
+
+                    val icon =
+                        doc.getString("icon")
+                            ?: ""
+
+                    val pageType =
+                        doc.getString("pageType")
+                            ?: "Website"
+
+                    val url =
+                        doc.getString("url")
+                            ?: ""
+
+                    val position =
+                        doc.getLong("position")
+                            ?: 0L
+
+                    val enabled =
+                        doc.getBoolean("enabled")
+                            ?: true
+
+                    card.addView(
+                        TextView(this).apply {
+
+                            text =
+                                "$icon  $name"
+
+                            textSize = 16f
+
+                            typeface =
+                                Typeface.DEFAULT_BOLD
+
+                            setTextColor(
+                                Color.rgb(
+                                    7,
+                                    89,
+                                    133
+                                )
+                            )
+                        }
+                    )
+
+                    card.addView(
+                        TextView(this).apply {
+
+                            text =
+                                "Type: $pageType   |   Position: $position   |   Enabled: $enabled"
+
+                            textSize = 11f
+
+                            setTextColor(
+                                Color.DKGRAY
+                            )
+                        }
+                    )
+
+                    if (url.isNotEmpty()) {
+
+                        card.addView(
+                            TextView(this).apply {
+
+                                text = url
+
+                                textSize = 10f
+
+                                setTextColor(
+                                    Color.GRAY
+                                )
+
+                                maxLines = 2
+                            }
+                        )
+                    }
+
+                    val buttons =
+                        LinearLayout(this).apply {
+
+                            orientation =
+                                LinearLayout.HORIZONTAL
+
+                            gravity =
+                                Gravity.CENTER_VERTICAL
+                        }
+
+                    val editButton =
+                        Button(this).apply {
+
+                            text = "✏️ Edit"
+
+                            textSize = 10f
+
+                            minHeight = 0
+
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
+
+                            setOnClickListener {
+
+                                showEditor(
+                                    doc.id,
+                                    doc,
+                                    parentId
+                                )
+                            }
+                        }
+
+                    val deleteButton =
+                        Button(this).apply {
+
+                            text = "🗑 Delete"
+
+                            textSize = 10f
+
+                            minHeight = 0
+
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
+
+                            setOnClickListener {
+
+                                AlertDialog.Builder(this@AdminActivity)
+                                    .setTitle(
+                                        "Delete Sub-Category?"
+                                    )
+                                    .setMessage(
+                                        name
+                                    )
+                                    .setNegativeButton(
+                                        "Cancel",
+                                        null
+                                    )
+                                    .setPositiveButton(
+                                        "Delete"
+                                    ) { _, _ ->
+
+                                        db.collection(
+                                            "home_subcategories"
+                                        )
+                                            .document(doc.id)
+                                            .delete()
+                                            .addOnSuccessListener {
+
+                                                Toast.makeText(
+                                                    this@AdminActivity,
+                                                    "Deleted",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                                loadList()
+                                            }
+                                    }
+                                    .show()
+                            }
+                        }
+
+                    val upButton =
+                        Button(this).apply {
+
+                            text = "⬆"
+
+                            textSize = 11f
+
+                            minHeight = 0
+
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
+
+                            isEnabled =
+                                index > 0
+
+                            setOnClickListener {
+
+                                val previous =
+                                    docs[index - 1]
+
+                                val currentPosition =
+                                    doc.getLong(
+                                        "position"
+                                    ) ?: 0L
+
+                                val previousPosition =
+                                    previous.getLong(
+                                        "position"
+                                    ) ?: 0L
+
+                                val batch =
+                                    db.batch()
+
+                                batch.update(
+                                    db.collection(
+                                        "home_subcategories"
+                                    ).document(doc.id),
+                                    "position",
+                                    previousPosition
+                                )
+
+                                batch.update(
+                                    db.collection(
+                                        "home_subcategories"
+                                    ).document(previous.id),
+                                    "position",
+                                    currentPosition
+                                )
+
+                                batch.commit()
+                                    .addOnSuccessListener {
+                                        loadList()
+                                    }
+                            }
+                        }
+
+                    val downButton =
+                        Button(this).apply {
+
+                            text = "⬇"
+
+                            textSize = 11f
+
+                            minHeight = 0
+
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
+
+                            isEnabled =
+                                index <
+                                docs.lastIndex
+
+                            setOnClickListener {
+
+                                val next =
+                                    docs[index + 1]
+
+                                val currentPosition =
+                                    doc.getLong(
+                                        "position"
+                                    ) ?: 0L
+
+                                val nextPosition =
+                                    next.getLong(
+                                        "position"
+                                    ) ?: 0L
+
+                                val batch =
+                                    db.batch()
+
+                                batch.update(
+                                    db.collection(
+                                        "home_subcategories"
+                                    ).document(doc.id),
+                                    "position",
+                                    nextPosition
+                                )
+
+                                batch.update(
+                                    db.collection(
+                                        "home_subcategories"
+                                    ).document(next.id),
+                                    "position",
+                                    currentPosition
+                                )
+
+                                batch.commit()
+                                    .addOnSuccessListener {
+                                        loadList()
+                                    }
+                            }
+                        }
+
+                    val enabledButton =
+                        Button(this).apply {
+
+                            text =
+                                if (enabled)
+                                    "🔴 Disable"
+                                else
+                                    "🟢 Enable"
+
+                            textSize = 10f
+
+                            minHeight = 0
+
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
+
+                            setOnClickListener {
+
+                                db.collection(
+                                    "home_subcategories"
+                                )
+                                    .document(doc.id)
+                                    .update(
+                                        "enabled",
+                                        !enabled
+                                    )
+                                    .addOnSuccessListener {
+
+                                        loadList()
+                                    }
+                            }
+                        }
+
+                    buttons.addView(
+                        editButton
+                    )
+
+                    buttons.addView(
+                        deleteButton
+                    )
+
+                    buttons.addView(
+                        upButton
+                    )
+
+                    buttons.addView(
+                        downButton
+                    )
+
+                    buttons.addView(
+                        enabledButton
+                    )
+
+                    card.addView(
+                        buttons,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            dp(44)
+                        )
+                    )
+
+                    listContainer.addView(
+                        card,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            -2
+                        ).apply {
+
+                            bottomMargin =
+                                dp(6)
+                        }
+                    )
+                }
+            }
+            .addOnFailureListener { e ->
+
+                listContainer.removeAllViews()
+
+                listContainer.addView(
+                    TextView(this).apply {
+
+                        text =
+                            "Load failed: ${e.message}"
+
+                        textSize = 12f
+
+                        setTextColor(
+                            Color.RED
+                        )
+                    }
+                )
+            }
+    }
+
+    // ========================================================
+    // ADD BUTTON
+    // ========================================================
+    addButton.setOnClickListener {
+
+        val parentId =
+            categories[
+                selectedCategory[0]
+            ].second
+
+        showEditor(
+            null,
+            null,
+            parentId
+        )
+    }
+
+    // ========================================================
+    // CATEGORY CHANGE
+    // ========================================================
+    spinner.onItemSelectedListener =
+        object :
+            android.widget.AdapterView.OnItemSelectedListener {
+
+            override fun onItemSelected(
+                parent:
+                    android.widget.AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                selectedCategory[0] =
+                    position
+
+                loadList()
+            }
+
+            override fun onNothingSelected(
+                parent:
+                    android.widget.AdapterView<*>?
+            ) {
+            }
+        }
+
+    dialog.setOnShowListener {
+
+        loadList()
+    }
+
+    dialog.show()
+}
 
     // =========================================================
     // TOAST
