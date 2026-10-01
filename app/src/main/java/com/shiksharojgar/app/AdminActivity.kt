@@ -4671,109 +4671,6 @@ class AdminActivity : AppCompatActivity() {
     )
 }
         
-
-        // -----------------------------------------------------
-        // ACTIONS
-        // -----------------------------------------------------
-
-        val actions =
-            LinearLayout(this).apply {
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
-
-        val sw =
-            Switch(this).apply {
-
-                text =
-                    "Comments"
-
-                isChecked =
-                    p.commentsEnabled
-
-                setOnCheckedChangeListener {
-                        _,
-                        v ->
-
-                    db.collection(
-                        "channel_posts"
-                    )
-                        .document(
-                            p.id
-                        )
-                        .update(
-                            "commentsEnabled",
-                            v
-                        )
-                }
-            }
-
-        actions.addView(
-            sw,
-            LinearLayout.LayoutParams(
-                0,
-                dp(48),
-                1f
-            )
-        )
-
-        actions.addView(
-            Button(this).apply {
-
-                text =
-                    "✏️ EDIT"
-
-                setOnClickListener {
-
-                    editChannelPostDialog(
-                        p
-                    )
-                }
-            },
-            LinearLayout.LayoutParams(
-                dp(92),
-                dp(48)
-            )
-        )
-
-        actions.addView(
-            Button(this).apply {
-
-                text =
-                    "🗑 DELETE"
-
-                setOnClickListener {
-
-                    confirmDeletePosts(
-                        listOf(
-                            p.id
-                        )
-                    )
-                }
-            },
-            LinearLayout.LayoutParams(
-                dp(100),
-                dp(48)
-            )
-        )
-
-        row.addView(
-            actions
-        )
-
-        postsContainer.addView(
-            row,
-            LinearLayout.LayoutParams(
-                -1,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-
-                bottomMargin =
-                    dp(10)
-            }
-        )
-    }
 private fun showAdminPostPreview(
     p: ChannelPost
 ) {
@@ -6296,7 +6193,20 @@ val enabledButton =
         }
     }
 
+buttons.addView(editButton)
+buttons.addView(deleteButton)
+buttons.addView(upButton)
+buttons.addView(downButton)
+buttons.addView(enabledButton)
 
+card.addView(buttons, ...)
+
+listContainer.addView(card, ...)
+
+}
+}
+
+.addOnFailureListener { e -> ... }
     // ========================================================
     // ADD BUTTON
     // ========================================================
