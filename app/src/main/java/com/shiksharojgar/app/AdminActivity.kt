@@ -5409,6 +5409,9 @@ private fun showAdminPostPreview(
 // ============================================================
 private fun showHomeSubCategoryManager() {
 
+    val activity = this@AdminActivity
+    val firestore = FirebaseFirestore.getInstance()
+
     val categories = listOf(
         "Teacher" to "teacher",
         "Student" to "student",
@@ -5891,13 +5894,16 @@ private fun showHomeSubCategoryManager() {
 
                 listContainer.removeAllViews()
 
-                val docs =
-                    result.documents.sortedBy {
+                val docs:
+    List<com.google.firebase.firestore.DocumentSnapshot> =
+    result.documents.sortedBy { snapshot ->
 
-                        it.getLong(
-                            "position"
-                        ) ?: 999999L
-                    }
+        (
+            snapshot.get("position")
+                as? Number
+            )?.toLong()
+                ?: 999999L
+    }
 
                 if (docs.isEmpty()) {
 
@@ -5926,8 +5932,8 @@ private fun showHomeSubCategoryManager() {
                 }
 
                 docs.forEachIndexed {
-                    index,
-                    doc ->
+    index: Int,
+    doc: com.google.firebase.firestore.DocumentSnapshot ->
 
                     val card =
                         LinearLayout(this).apply {
@@ -6142,17 +6148,21 @@ private fun showHomeSubCategoryManager() {
                                     docs[index - 1]
 
                                 val currentPosition =
-                                    doc.getLong(
-                                        "position"
-                                    ) ?: 0L
+    (
+        doc.get("position")
+            as? Number
+        )?.toLong()
+            ?: 0L
 
-                                val previousPosition =
-                                    previous.getLong(
-                                        "position"
-                                    ) ?: 0L
+val previousPosition =
+    (
+        previous.get("position")
+            as? Number
+        )?.toLong()
+            ?: 0L
 
                                 val batch =
-                                    db.batch()
+    FirebaseFirestore.getInstance().batch()
 
                                 batch.update(
                                     db.collection(
@@ -6203,14 +6213,18 @@ private fun showHomeSubCategoryManager() {
                                     docs[index + 1]
 
                                 val currentPosition =
-                                    doc.getLong(
-                                        "position"
-                                    ) ?: 0L
+    (
+        doc.get("position")
+            as? Number
+        )?.toLong()
+            ?: 0L
 
-                                val nextPosition =
-                                    next.getLong(
-                                        "position"
-                                    ) ?: 0L
+val nextPosition =
+    (
+        next.get("position")
+            as? Number
+        )?.toLong()
+            ?: 0L
 
                                 val batch =
                                     db.batch()
@@ -6237,104 +6251,51 @@ private fun showHomeSubCategoryManager() {
                                     }
                             }
                         }
+val enabledButton =
+    Button(this@AdminActivity).apply {
 
-                    val enabledButton =
-                        Button(this).apply {
+        text =
+            if (enabled)
+                "🔴 Disable"
+            else
+                "🟢 Enable"
 
-                            text =
-                                if (enabled)
-                                    "🔴 Disable"
-                                else
-                                    "🟢 Enable"
+        textSize = 10f
 
-                            textSize = 10f
+        minHeight = 0
 
-                            minHeight = 0
+        setPadding(
+            activity.dp(3),
+            0,
+            activity.dp(3),
+            0
+        )
 
-                            setPadding(
-                                dp(3),
-                                0,
-                                dp(3),
-                                0
-                            )
+        setOnClickListener {
 
-                            setOnClickListener {
-
-                                db.collection(
-                                    "home_subcategories"
-                                )
-                                    .document(doc.id)
-                                    .update(
-                                        "enabled",
-                                        !enabled
-                                    )
-                                    .addOnSuccessListener {
-
-                                        loadList()
-                                    }
-                            }
-                        }
-
-                    buttons.addView(
-                        editButton
-                    )
-
-                    buttons.addView(
-                        deleteButton
-                    )
-
-                    buttons.addView(
-                        upButton
-                    )
-
-                    buttons.addView(
-                        downButton
-                    )
-
-                    buttons.addView(
-                        enabledButton
-                    )
-
-                    card.addView(
-                        buttons,
-                        LinearLayout.LayoutParams(
-                            -1,
-                            dp(44)
-                        )
-                    )
-
-                    listContainer.addView(
-                        card,
-                        LinearLayout.LayoutParams(
-                            -1,
-                            -2
-                        ).apply {
-
-                            bottomMargin =
-                                dp(6)
-                        }
-                    )
-                }
-            }
-            .addOnFailureListener { e ->
-
-                listContainer.removeAllViews()
-
-                listContainer.addView(
-                    TextView(this).apply {
-
-                        text =
-                            "Load failed: ${e.message}"
-
-                        textSize = 12f
-
-                        setTextColor(
-                            Color.RED
-                        )
-                    }
+            firestore.collection(
+                "home_subcategories"
+            )
+                .document(doc.id)
+                .update(
+                    "enabled",
+                    !enabled
                 )
-            }
+                .addOnSuccessListener {
+
+                    loadList()
+                }
+                .addOnFailureListener { e: Exception ->
+
+                    Toast.makeText(
+                        activity,
+                        "Update failed: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
     }
+
 
     // ========================================================
     // ADD BUTTON
