@@ -5301,13 +5301,12 @@ private fun showAdminPostPreview(
 
         return name
     }
-    // ============================================================
+    
+ 
+                // ============================================================
 // HOME SUB-CATEGORY MANAGER
 // ============================================================
 private fun showHomeSubCategoryManager() {
-
-    val activity = this@AdminActivity
-    val firestore = FirebaseFirestore.getInstance()
 
     val categories = listOf(
         "Teacher" to "teacher",
@@ -5320,8 +5319,10 @@ private fun showHomeSubCategoryManager() {
 
     val selectedCategory = arrayOf(0)
 
-    val root = LinearLayout(this).apply {
+    val root = LinearLayout(this@AdminActivity).apply {
+
         orientation = LinearLayout.VERTICAL
+
         setPadding(
             dp(12),
             dp(8),
@@ -5330,20 +5331,20 @@ private fun showHomeSubCategoryManager() {
         )
     }
 
-    val spinner = Spinner(this)
+    val spinner = Spinner(this@AdminActivity)
 
-    val categoryNames = categories.map {
-        it.first
-    }.toTypedArray()
+    val categoryNames =
+        categories.map { it.first }.toTypedArray()
 
-    spinner.adapter = ArrayAdapter(
-        this,
-        android.R.layout.simple_spinner_dropdown_item,
-        categoryNames
-    )
+    spinner.adapter =
+        ArrayAdapter(
+            this@AdminActivity,
+            android.R.layout.simple_spinner_dropdown_item,
+            categoryNames
+        )
 
     root.addView(
-        TextView(this).apply {
+        TextView(this@AdminActivity).apply {
 
             text = "मुख्य Category चुनें"
 
@@ -5376,12 +5377,15 @@ private fun showHomeSubCategoryManager() {
         )
     )
 
-    val listContainer = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-    }
+    val listContainer =
+        LinearLayout(this@AdminActivity).apply {
 
-    root.addView(
-        ScrollView(this).apply {
+            orientation =
+                LinearLayout.VERTICAL
+        }
+
+    val listScroll =
+        ScrollView(this@AdminActivity).apply {
 
             addView(
                 listContainer,
@@ -5390,7 +5394,10 @@ private fun showHomeSubCategoryManager() {
                     -2
                 )
             )
-        },
+        }
+
+    root.addView(
+        listScroll,
         LinearLayout.LayoutParams(
             -1,
             0,
@@ -5398,36 +5405,37 @@ private fun showHomeSubCategoryManager() {
         )
     )
 
-    val addButton = Button(this).apply {
+    val addButton =
+        Button(this@AdminActivity).apply {
 
-        text = "➕ ADD SUB-CATEGORY"
+            text = "➕ ADD SUB-CATEGORY"
 
-        textSize = 12f
+            textSize = 12f
 
-        setTypeface(
-            Typeface.DEFAULT,
-            Typeface.BOLD
-        )
-
-        setTextColor(Color.WHITE)
-
-        setBackgroundColor(
-            Color.rgb(
-                7,
-                89,
-                133
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
             )
-        )
 
-        minHeight = 0
+            setTextColor(Color.WHITE)
 
-        setPadding(
-            dp(4),
-            0,
-            dp(4),
-            0
-        )
-    }
+            setBackgroundColor(
+                Color.rgb(
+                    7,
+                    89,
+                    133
+                )
+            )
+
+            minHeight = 0
+
+            setPadding(
+                dp(4),
+                0,
+                dp(4),
+                0
+            )
+        }
 
     root.addView(
         addButton,
@@ -5435,122 +5443,154 @@ private fun showHomeSubCategoryManager() {
             -1,
             dp(44)
         ).apply {
+
             topMargin = dp(6)
         }
     )
 
-    val dialog = AlertDialog.Builder(this)
-        .setTitle("🔽 MANAGE SUB-CATEGORIES")
-        .setView(root)
-        .setNegativeButton("Close", null)
-        .create()
+    val dialog =
+        AlertDialog.Builder(this@AdminActivity)
+            .setTitle(
+                "🔽 MANAGE SUB-CATEGORIES"
+            )
+            .setView(root)
+            .setNegativeButton(
+                "Close",
+                null
+            )
+            .create()
 
     // ========================================================
-    // EDIT / ADD DIALOG
+    // LOAD LIST REFERENCE
+    // ========================================================
+    lateinit var loadList: () -> Unit
+
+    // ========================================================
+    // ADD / EDIT
     // ========================================================
     fun showEditor(
         documentId: String?,
-        existing: com.google.firebase.firestore.DocumentSnapshot?,
+        existing:
+            com.google.firebase.firestore.DocumentSnapshot?,
         parentId: String
     ) {
 
-        val form = LinearLayout(this).apply {
+        val form =
+            LinearLayout(this@AdminActivity).apply {
 
-            orientation = LinearLayout.VERTICAL
+                orientation =
+                    LinearLayout.VERTICAL
 
-            setPadding(
-                dp(18),
-                dp(5),
-                dp(18),
-                dp(5)
+                setPadding(
+                    dp(18),
+                    dp(5),
+                    dp(18),
+                    dp(5)
+                )
+            }
+
+        val nameInput =
+            EditText(this@AdminActivity).apply {
+
+                hint = "Sub-Category Name"
+
+                setSingleLine(true)
+
+                setText(
+                    existing?.getString("name")
+                        ?: ""
+                )
+            }
+
+        val iconInput =
+            EditText(this@AdminActivity).apply {
+
+                hint = "Icon (जैसे 📚)"
+
+                setSingleLine(true)
+
+                setText(
+                    existing?.getString("icon")
+                        ?: ""
+                )
+            }
+
+        val urlInput =
+            EditText(this@AdminActivity).apply {
+
+                hint = "Website URL"
+
+                setSingleLine(true)
+
+                setText(
+                    existing?.getString("url")
+                        ?: ""
+                )
+            }
+
+        val pageTypes =
+            arrayOf(
+                "Website",
+                "Text",
+                "Image",
+                "PDF"
             )
-        }
 
-        val nameInput = EditText(this).apply {
+        val pageTypeSpinner =
+            Spinner(this@AdminActivity)
 
-            hint = "Sub-Category Name"
-
-            setSingleLine(true)
-
-            setText(
-                existing?.getString("name") ?: ""
+        pageTypeSpinner.adapter =
+            ArrayAdapter(
+                this@AdminActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                pageTypes
             )
-        }
-
-        val iconInput = EditText(this).apply {
-
-            hint = "Icon (जैसे 📚)"
-
-            setSingleLine(true)
-
-            setText(
-                existing?.getString("icon") ?: ""
-            )
-        }
-
-        val urlInput = EditText(this).apply {
-
-            hint = "Website URL"
-
-            setSingleLine(true)
-
-            setText(
-                existing?.getString("url") ?: ""
-            )
-        }
-
-        val pageTypes = arrayOf(
-            "Website",
-            "Text",
-            "Image",
-            "PDF"
-        )
-
-        val pageTypeSpinner = Spinner(this)
-
-        pageTypeSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            pageTypes
-        )
 
         val oldPageType =
-            existing?.getString("pageType") ?: "Website"
+            existing?.getString("pageType")
+                ?: "Website"
 
         val oldPageIndex =
             pageTypes.indexOf(oldPageType)
 
         if (oldPageIndex >= 0) {
+
             pageTypeSpinner.setSelection(
                 oldPageIndex
             )
         }
 
-        val positionInput = EditText(this).apply {
+        val positionInput =
+            EditText(this@AdminActivity).apply {
 
-            hint = "Position"
+                hint = "Position"
 
-            inputType =
-                android.text.InputType.TYPE_CLASS_NUMBER
+                inputType =
+                    android.text.InputType.TYPE_CLASS_NUMBER
 
-            setSingleLine(true)
+                setSingleLine(true)
 
-            setText(
-                (
-                    existing?.getLong("position")
-                        ?: 1L
-                    ).toString()
-            )
-        }
+                val oldPosition =
+                    (
+                        existing?.get("position")
+                            as? Number
+                        )?.toLong()
+                            ?: 1L
 
-        val enabledSwitch = Switch(this).apply {
+                setText(
+                    oldPosition.toString()
+                )
+            }
 
-            text = "Enabled"
+        val enabledSwitch =
+            Switch(this@AdminActivity).apply {
 
-            isChecked =
-                existing?.getBoolean("enabled")
-                    ?: true
-        }
+                text = "Enabled"
+
+                isChecked =
+                    existing?.getBoolean("enabled")
+                        ?: true
+            }
 
         form.addView(
             nameInput,
@@ -5577,13 +5617,15 @@ private fun showHomeSubCategoryManager() {
         )
 
         form.addView(
-            TextView(this).apply {
+            TextView(this@AdminActivity).apply {
 
                 text = "Page Type"
 
                 textSize = 12f
 
-                setTextColor(Color.DKGRAY)
+                setTextColor(
+                    Color.DKGRAY
+                )
 
                 setPadding(
                     0,
@@ -5619,7 +5661,9 @@ private fun showHomeSubCategoryManager() {
         )
 
         val editorDialog =
-            AlertDialog.Builder(this)
+            AlertDialog.Builder(
+                this@AdminActivity
+            )
                 .setTitle(
                     if (documentId == null)
                         "➕ Add Sub-Category"
@@ -5691,42 +5735,55 @@ private fun showHomeSubCategoryManager() {
                     return@setOnClickListener
                 }
 
-                val data = hashMapOf(
-                    "name" to name,
-                    "icon" to icon,
-                    "url" to url,
-                    "pageType" to pageType,
-                    "parentId" to parentId,
-                    "position" to position,
-                    "enabled" to enabled
-                )
+                // IMPORTANT:
+                // Explicit Map<String, Any>
+                // Firestore type mismatch fix
+                val data:
+                    Map<String, Any> =
+                    hashMapOf<String, Any>(
 
-                val task = if (documentId == null) {
+                        "name" to name,
 
-                    val newId =
-                        parentId +
-                        "_" +
-                        System.currentTimeMillis()
+                        "icon" to icon,
 
-                    db.collection(
-                        "home_subcategories"
+                        "url" to url,
+
+                        "pageType" to pageType,
+
+                        "parentId" to parentId,
+
+                        "position" to position,
+
+                        "enabled" to enabled
                     )
-                        .document(newId)
-                        .set(data)
 
-                } else {
+                val task =
+                    if (documentId == null) {
 
-                    db.collection(
-                        "home_subcategories"
-                    )
-                        .document(documentId)
-                        .update(data)
-                }
+                        val newId =
+                            parentId +
+                            "_" +
+                            System.currentTimeMillis()
+
+                        db.collection(
+                            "home_subcategories"
+                        )
+                            .document(newId)
+                            .set(data)
+
+                    } else {
+
+                        db.collection(
+                            "home_subcategories"
+                        )
+                            .document(documentId)
+                            .update(data)
+                    }
 
                 task.addOnSuccessListener {
 
                     Toast.makeText(
-                        this,
+                        this@AdminActivity,
                         "Sub-Category Save हो गई",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -5739,7 +5796,7 @@ private fun showHomeSubCategoryManager() {
                 task.addOnFailureListener { e ->
 
                     Toast.makeText(
-                        this,
+                        this@AdminActivity,
                         "Save failed: ${e.message}",
                         Toast.LENGTH_LONG
                     ).show()
@@ -5751,9 +5808,9 @@ private fun showHomeSubCategoryManager() {
     }
 
     // ========================================================
-    // LIST LOAD
+    // LOAD LIST
     // ========================================================
-    fun loadList() {
+    loadList = {
 
         listContainer.removeAllViews()
 
@@ -5763,10 +5820,9 @@ private fun showHomeSubCategoryManager() {
             ].second
 
         listContainer.addView(
-            TextView(this).apply {
+            TextView(this@AdminActivity).apply {
 
-                text =
-                    "Loading..."
+                text = "Loading..."
 
                 textSize = 13f
 
@@ -5791,21 +5847,22 @@ private fun showHomeSubCategoryManager() {
 
                 listContainer.removeAllViews()
 
-                val docs:
-    List<com.google.firebase.firestore.DocumentSnapshot> =
-    result.documents.sortedBy { snapshot ->
+                val docs =
+                    result.documents.sortedBy { snapshot ->
 
-        (
-            snapshot.get("position")
-                as? Number
-            )?.toLong()
-                ?: 999999L
-    }
+                        (
+                            snapshot.get("position")
+                                as? Number
+                            )?.toLong()
+                                ?: 999999L
+                    }
 
                 if (docs.isEmpty()) {
 
                     listContainer.addView(
-                        TextView(this).apply {
+                        TextView(
+                            this@AdminActivity
+                        ).apply {
 
                             text =
                                 "इस Category में अभी कोई Sub-Category नहीं है।"
@@ -5829,11 +5886,13 @@ private fun showHomeSubCategoryManager() {
                 }
 
                 docs.forEachIndexed {
-    index: Int,
-    doc: com.google.firebase.firestore.DocumentSnapshot ->
+                    index,
+                    doc ->
 
                     val card =
-                        LinearLayout(this).apply {
+                        LinearLayout(
+                            this@AdminActivity
+                        ).apply {
 
                             orientation =
                                 LinearLayout.VERTICAL
@@ -5871,15 +5930,20 @@ private fun showHomeSubCategoryManager() {
                             ?: ""
 
                     val position =
-                        doc.getLong("position")
-                            ?: 0L
+                        (
+                            doc.get("position")
+                                as? Number
+                            )?.toLong()
+                                ?: 0L
 
                     val enabled =
                         doc.getBoolean("enabled")
                             ?: true
 
                     card.addView(
-                        TextView(this).apply {
+                        TextView(
+                            this@AdminActivity
+                        ).apply {
 
                             text =
                                 "$icon  $name"
@@ -5900,7 +5964,9 @@ private fun showHomeSubCategoryManager() {
                     )
 
                     card.addView(
-                        TextView(this).apply {
+                        TextView(
+                            this@AdminActivity
+                        ).apply {
 
                             text =
                                 "Type: $pageType   |   Position: $position   |   Enabled: $enabled"
@@ -5916,7 +5982,9 @@ private fun showHomeSubCategoryManager() {
                     if (url.isNotEmpty()) {
 
                         card.addView(
-                            TextView(this).apply {
+                            TextView(
+                                this@AdminActivity
+                            ).apply {
 
                                 text = url
 
@@ -5932,7 +6000,9 @@ private fun showHomeSubCategoryManager() {
                     }
 
                     val buttons =
-                        LinearLayout(this).apply {
+                        LinearLayout(
+                            this@AdminActivity
+                        ).apply {
 
                             orientation =
                                 LinearLayout.HORIZONTAL
@@ -5942,7 +6012,9 @@ private fun showHomeSubCategoryManager() {
                         }
 
                     val editButton =
-                        Button(this).apply {
+                        Button(
+                            this@AdminActivity
+                        ).apply {
 
                             text = "✏️ Edit"
 
@@ -5968,7 +6040,9 @@ private fun showHomeSubCategoryManager() {
                         }
 
                     val deleteButton =
-                        Button(this).apply {
+                        Button(
+                            this@AdminActivity
+                        ).apply {
 
                             text = "🗑 Delete"
 
@@ -5985,7 +6059,9 @@ private fun showHomeSubCategoryManager() {
 
                             setOnClickListener {
 
-                                AlertDialog.Builder(this@AdminActivity)
+                                AlertDialog.Builder(
+                                    this@AdminActivity
+                                )
                                     .setTitle(
                                         "Delete Sub-Category?"
                                     )
@@ -6003,7 +6079,9 @@ private fun showHomeSubCategoryManager() {
                                         db.collection(
                                             "home_subcategories"
                                         )
-                                            .document(doc.id)
+                                            .document(
+                                                doc.id
+                                            )
                                             .delete()
                                             .addOnSuccessListener {
 
@@ -6015,13 +6093,23 @@ private fun showHomeSubCategoryManager() {
 
                                                 loadList()
                                             }
+                                            .addOnFailureListener { e ->
+
+                                                Toast.makeText(
+                                                    this@AdminActivity,
+                                                    "Delete failed: ${e.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
                                     }
                                     .show()
                             }
                         }
 
                     val upButton =
-                        Button(this).apply {
+                        Button(
+                            this@AdminActivity
+                        ).apply {
 
                             text = "⬆"
 
@@ -6045,26 +6133,32 @@ private fun showHomeSubCategoryManager() {
                                     docs[index - 1]
 
                                 val currentPosition =
-    (
-        doc.get("position")
-            as? Number
-        )?.toLong()
-            ?: 0L
+                                    (
+                                        doc.get(
+                                            "position"
+                                        )
+                                            as? Number
+                                        )?.toLong()
+                                            ?: 0L
 
-val previousPosition =
-    (
-        previous.get("position")
-            as? Number
-        )?.toLong()
-            ?: 0L
+                                val previousPosition =
+                                    (
+                                        previous.get(
+                                            "position"
+                                        )
+                                            as? Number
+                                        )?.toLong()
+                                            ?: 0L
 
                                 val batch =
-    FirebaseFirestore.getInstance().batch()
+                                    db.batch()
 
                                 batch.update(
                                     db.collection(
                                         "home_subcategories"
-                                    ).document(doc.id),
+                                    ).document(
+                                        doc.id
+                                    ),
                                     "position",
                                     previousPosition
                                 )
@@ -6072,7 +6166,9 @@ val previousPosition =
                                 batch.update(
                                     db.collection(
                                         "home_subcategories"
-                                    ).document(previous.id),
+                                    ).document(
+                                        previous.id
+                                    ),
                                     "position",
                                     currentPosition
                                 )
@@ -6081,11 +6177,21 @@ val previousPosition =
                                     .addOnSuccessListener {
                                         loadList()
                                     }
+                                    .addOnFailureListener { e ->
+
+                                        Toast.makeText(
+                                            this@AdminActivity,
+                                            "Move failed: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                             }
                         }
 
                     val downButton =
-                        Button(this).apply {
+                        Button(
+                            this@AdminActivity
+                        ).apply {
 
                             text = "⬇"
 
@@ -6101,8 +6207,7 @@ val previousPosition =
                             )
 
                             isEnabled =
-                                index <
-                                docs.lastIndex
+                                index < docs.lastIndex
 
                             setOnClickListener {
 
@@ -6110,18 +6215,22 @@ val previousPosition =
                                     docs[index + 1]
 
                                 val currentPosition =
-    (
-        doc.get("position")
-            as? Number
-        )?.toLong()
-            ?: 0L
+                                    (
+                                        doc.get(
+                                            "position"
+                                        )
+                                            as? Number
+                                        )?.toLong()
+                                            ?: 0L
 
-val nextPosition =
-    (
-        next.get("position")
-            as? Number
-        )?.toLong()
-            ?: 0L
+                                val nextPosition =
+                                    (
+                                        next.get(
+                                            "position"
+                                        )
+                                            as? Number
+                                        )?.toLong()
+                                            ?: 0L
 
                                 val batch =
                                     db.batch()
@@ -6129,7 +6238,9 @@ val nextPosition =
                                 batch.update(
                                     db.collection(
                                         "home_subcategories"
-                                    ).document(doc.id),
+                                    ).document(
+                                        doc.id
+                                    ),
                                     "position",
                                     nextPosition
                                 )
@@ -6137,7 +6248,9 @@ val nextPosition =
                                 batch.update(
                                     db.collection(
                                         "home_subcategories"
-                                    ).document(next.id),
+                                    ).document(
+                                        next.id
+                                    ),
                                     "position",
                                     currentPosition
                                 )
@@ -6146,67 +6259,170 @@ val nextPosition =
                                     .addOnSuccessListener {
                                         loadList()
                                     }
+                                    .addOnFailureListener { e ->
+
+                                        Toast.makeText(
+                                            this@AdminActivity,
+                                            "Move failed: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                             }
                         }
-val enabledButton =
-    Button(this@AdminActivity).apply {
 
-        text =
-            if (enabled)
-                "🔴 Disable"
-            else
-                "🟢 Enable"
+                    val enabledButton =
+                        Button(
+                            this@AdminActivity
+                        ).apply {
 
-        textSize = 10f
+                            text =
+                                if (enabled)
+                                    "🔴 Disable"
+                                else
+                                    "🟢 Enable"
 
-        minHeight = 0
+                            textSize = 10f
 
-        setPadding(
-            activity.dp(3),
-            0,
-            activity.dp(3),
-            0
-        )
+                            minHeight = 0
 
-        setOnClickListener {
+                            setPadding(
+                                dp(3),
+                                0,
+                                dp(3),
+                                0
+                            )
 
-            firestore.collection(
-                "home_subcategories"
-            )
-                .document(doc.id)
-                .update(
-                    "enabled",
-                    !enabled
+                            setOnClickListener {
+
+                                db.collection(
+                                    "home_subcategories"
+                                )
+                                    .document(
+                                        doc.id
+                                    )
+                                    .update(
+                                        "enabled",
+                                        !enabled
+                                    )
+                                    .addOnSuccessListener {
+                                        loadList()
+                                    }
+                                    .addOnFailureListener { e ->
+
+                                        Toast.makeText(
+                                            this@AdminActivity,
+                                            "Update failed: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                        }
+
+                    // ====================================================
+                    // BUTTONS
+                    // ====================================================
+                    buttons.addView(
+                        editButton,
+                        LinearLayout.LayoutParams(
+                            0,
+                            dp(42),
+                            1f
+                        ).apply {
+                            marginEnd = dp(2)
+                        }
+                    )
+
+                    buttons.addView(
+                        deleteButton,
+                        LinearLayout.LayoutParams(
+                            0,
+                            dp(42),
+                            1f
+                        ).apply {
+                            marginEnd = dp(2)
+                        }
+                    )
+
+                    buttons.addView(
+                        upButton,
+                        LinearLayout.LayoutParams(
+                            0,
+                            dp(42),
+                            0.65f
+                        ).apply {
+                            marginEnd = dp(2)
+                        }
+                    )
+
+                    buttons.addView(
+                        downButton,
+                        LinearLayout.LayoutParams(
+                            0,
+                            dp(42),
+                            0.65f
+                        ).apply {
+                            marginEnd = dp(2)
+                        }
+                    )
+
+                    buttons.addView(
+                        enabledButton,
+                        LinearLayout.LayoutParams(
+                            0,
+                            dp(42),
+                            1f
+                        )
+                    )
+
+                    card.addView(
+                        buttons,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            dp(44)
+                        )
+                    )
+
+                    listContainer.addView(
+                        card,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            -2
+                        ).apply {
+
+                            bottomMargin = dp(6)
+                        }
+                    )
+                }
+            }
+            .addOnFailureListener { e ->
+
+                listContainer.removeAllViews()
+
+                listContainer.addView(
+                    TextView(
+                        this@AdminActivity
+                    ).apply {
+
+                        text =
+                            "List load failed: ${e.message}"
+
+                        textSize = 13f
+
+                        setTextColor(
+                            Color.RED
+                        )
+
+                        setPadding(
+                            0,
+                            dp(12),
+                            0,
+                            dp(12)
+                        )
+                    }
                 )
-                .addOnSuccessListener {
-
-                    loadList()
-                }
-                .addOnFailureListener { e: Exception ->
-
-                    Toast.makeText(
-                        activity,
-                        "Update failed: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        }
+            }
     }
 
-buttons.addView(editButton)
-buttons.addView(deleteButton)
-buttons.addView(upButton)
-buttons.addView(downButton)
-buttons.addView(enabledButton)
-
-card.addView(buttons, ...)
-
-listContainer.addView(card, ...)
-
-}
-}
-
-.addOnFailureListener { e -> ... }
     // ========================================================
     // ADD BUTTON
     // ========================================================
@@ -6229,7 +6445,8 @@ listContainer.addView(card, ...)
     // ========================================================
     spinner.onItemSelectedListener =
         object :
-            android.widget.AdapterView.OnItemSelectedListener {
+            android.widget.AdapterView
+                .OnItemSelectedListener {
 
             override fun onItemSelected(
                 parent:
@@ -6252,13 +6469,14 @@ listContainer.addView(card, ...)
             }
         }
 
-    dialog.setOnShowListener {
-
-        loadList()
-    }
-
+    // ========================================================
+    // SHOW
+    // ========================================================
     dialog.show()
+
+    loadList()
 }
+
 
     // =========================================================
     // TOAST
