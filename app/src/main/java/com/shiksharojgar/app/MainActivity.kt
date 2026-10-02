@@ -1368,10 +1368,10 @@ private fun showHomeSubCategoryDialog(
 
     scroll.addView(
         list,
-        android.widget.ScrollView.LayoutParams(
-            -1,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
+        android.widget.FrameLayout.LayoutParams(
+    -1,
+    LinearLayout.LayoutParams.WRAP_CONTENT
+)
     )
 
 
