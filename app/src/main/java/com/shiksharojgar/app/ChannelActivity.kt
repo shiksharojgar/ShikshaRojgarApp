@@ -76,7 +76,23 @@ class ChannelActivity : AppCompatActivity() {
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }
+private fun samePostContent(
+    a: ChannelPost,
+    b: ChannelPost
+): Boolean {
 
+    return a.id == b.id &&
+        a.title == b.title &&
+        a.body == b.body &&
+        a.imageUrl == b.imageUrl &&
+        a.fileUrl == b.fileUrl &&
+        a.fileName == b.fileName &&
+        a.imageMime == b.imageMime &&
+        a.fileMime == b.fileMime &&
+        a.category == b.category &&
+        a.createdAt == b.createdAt &&
+        a.commentsEnabled == b.commentsEnabled
+}
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
@@ -147,61 +163,80 @@ if (::channelStrip.isInitialized) {
         }
 
         ChannelRepository.posts(
-            { p ->
+    { p ->
 
-                val oldNewest =
-                    posts.lastOrNull()?.id
+        val oldPosts =
+            posts.toList()
 
-                posts.clear()
-                posts.addAll(p)
+        val structureChanged =
+            oldPosts.size != p.size ||
+                oldPosts.indices.any { index ->
+                    !samePostContent(
+                        oldPosts[index],
+                        p[index]
+                    )
+                }
 
-                runOnUiThread {
+        val oldNewest =
+            posts.lastOrNull()?.id
 
-    val newNewest =
-        posts.lastOrNull()?.id
+        posts.clear()
+        posts.addAll(p)
 
-    val shouldGoToNewest =
-        firstFeedRender ||
-            oldNewest != newNewest
+        runOnUiThread {
 
-    /*
-     * पहली बार या नई post आने पर
-     * पुरानी scroll position बिल्कुल restore नहीं करनी है।
-     */
-    renderPosts(
-        preservePosition = !shouldGoToNewest
-    )
-
-    if (shouldGoToNewest) {
-
-        feedScroll.post {
-
-            feedScroll.fullScroll(
-                View.FOCUS_DOWN
-            )
-        }
-    }
-
-    pendingPostId?.let { id ->
-
-        val index =
-            posts.indexOfFirst {
-                it.id == id
+            /*
+             * केवल Like / Comment / View / Share count बदला है।
+             * पूरा feed दोबारा मत बनाओ।
+             */
+            if (
+                !structureChanged &&
+                !firstFeedRender
+            ) {
+                return@runOnUiThread
             }
 
-        if (index >= 0) {
-            scrollToPost(index)
+            val newNewest =
+                posts.lastOrNull()?.id
+
+            val shouldGoToNewest =
+                firstFeedRender ||
+                    oldNewest != newNewest
+
+            renderPosts(
+                preservePosition =
+                    !shouldGoToNewest
+            )
+
+            if (shouldGoToNewest) {
+
+                feedScroll.post {
+
+                    feedScroll.fullScroll(
+                        View.FOCUS_DOWN
+                    )
+                }
+            }
+
+            pendingPostId?.let { id ->
+
+                val index =
+                    posts.indexOfFirst {
+                        it.id == id
+                    }
+
+                if (index >= 0) {
+                    scrollToPost(index)
+                }
+
+                pendingPostId = null
+            }
+
+            firstFeedRender = false
         }
-
-        pendingPostId = null
-    }
-
-    firstFeedRender = false
-}
-                        
-            },
-            {}
-        )
+    },
+    {}
+)
 
         ChannelRepository.ensureSignedIn { connected ->
 
