@@ -1148,8 +1148,12 @@ class ChannelActivity : AppCompatActivity() {
         }
     }
 
-    /*
+        /*
      * RENDER FEED
+     *
+     * IMPORTANT:
+     * Rebuilding the post views must NOT move the user
+     * away from the post they are currently reading.
      */
     private fun renderPosts() {
 
@@ -1157,6 +1161,42 @@ class ChannelActivity : AppCompatActivity() {
             return
         }
 
+        /*
+         * Remember the currently visible post before
+         * removing/rebuilding the child views.
+         */
+        var oldVisiblePostId: String? = null
+        var oldVisibleOffset = 0
+
+        if (::feedScroll.isInitialized) {
+
+            val oldScrollY =
+                feedScroll.scrollY
+
+            for (i in 0 until list.childCount) {
+
+                val child =
+                    list.getChildAt(i)
+
+                val tag =
+                    child.tag
+
+                if (
+                    tag is String &&
+                    child.top <= oldScrollY &&
+                    child.bottom > oldScrollY
+                ) {
+                    oldVisiblePostId = tag
+                    oldVisibleOffset =
+                        oldScrollY - child.top
+                    break
+                }
+            }
+        }
+
+        /*
+         * Rebuild the feed.
+         */
         list.removeAllViews()
 
         if (posts.isEmpty()) {
@@ -1185,10 +1225,9 @@ class ChannelActivity : AppCompatActivity() {
         }
 
         /*
-         * ChannelRepository already sorts:
          * OLD -> NEW
          *
-         * Therefore newest post remains at bottom.
+         * Newest post remains at the bottom.
          */
         posts.forEachIndexed { index, post ->
 
@@ -1196,7 +1235,8 @@ class ChannelActivity : AppCompatActivity() {
                 postView(post)
 
             /*
-             * Used by deep-link scrolling.
+             * Used for restoring the exact visible post
+             * after the feed is rebuilt.
              */
             postView.tag =
                 post.id
@@ -1226,7 +1266,7 @@ class ChannelActivity : AppCompatActivity() {
             }
 
             /*
-             * One view per session.
+             * One view count per session.
              */
             if (viewedSession.add(post.id)) {
 
@@ -1240,6 +1280,53 @@ class ChannelActivity : AppCompatActivity() {
                     this,
                     post.id
                 )
+            }
+        }
+
+        /*
+         * Restore the user's previous reading position.
+         *
+         * This is the important part that prevents:
+         * Like -> feed jumps to top
+         * Share -> feed jumps
+         * Comment -> feed jumps
+         * Firebase refresh -> feed jumps
+         */
+        if (oldVisiblePostId != null) {
+
+            val restoreId =
+                oldVisiblePostId
+
+            val restoreOffset =
+                oldVisibleOffset
+
+            feedScroll.post {
+
+                var target: View? = null
+
+                for (i in 0 until list.childCount) {
+
+                    val child =
+                        list.getChildAt(i)
+
+                    if (
+                        child.tag == restoreId
+                    ) {
+                        target = child
+                        break
+                    }
+                }
+
+                target?.let { child ->
+
+                    feedScroll.scrollTo(
+                        0,
+                        (
+                            child.top +
+                                restoreOffset
+                        ).coerceAtLeast(0)
+                    )
+                }
             }
         }
     }
