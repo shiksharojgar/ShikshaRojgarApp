@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                     .setDuration(150L)
                     .start()
 
-                b.text = "↻ Refresh"
+                b.text = "↻"
                 b.isEnabled = true
             }
         }
@@ -1112,16 +1112,15 @@ private fun openHomeCategory(
 // ============================================================
 // HOME SUB-CATEGORY MODEL
 // ============================================================
-
 private data class HomeSubCategory(
     val id: String,
     val name: String,
     val icon: String,
     val url: String,
     val pageType: String,
-    val position: Long
+    val position: Long,
+    val buttonColor: String
 )
-
 
 // ============================================================
 // MAIN CATEGORY DIRECT OPEN
@@ -1318,8 +1317,17 @@ setTextColor(
 background =
     GradientDrawable().apply {
 
+        val color =
+            try {
+                Color.parseColor(
+                    sub.buttonColor
+                )
+            } catch (e: Exception) {
+                Color.WHITE
+            }
+
         setColor(
-            Color.WHITE
+            color
         )
 
         cornerRadius =
