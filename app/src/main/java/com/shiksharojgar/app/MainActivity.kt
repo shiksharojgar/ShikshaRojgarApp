@@ -216,14 +216,18 @@ class MainActivity : AppCompatActivity() {
         setupWebsites()
         setupSocials()
 
-        findViewById<TextView>(
+                findViewById<TextView>(
             R.id.refreshButton
         ).setOnClickListener {
 
             val b =
                 findViewById<TextView>(R.id.refreshButton)
 
-            b.text = "↻ Refreshing…"
+            /*
+             * केवल ↻ icon घूमेगा।
+             * Refresh text अपनी जगह स्थिर रहेगा।
+             */
+            b.text = "↻ Refresh"
             b.isEnabled = false
 
             b.animate()
