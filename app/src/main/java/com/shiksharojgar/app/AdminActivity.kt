@@ -2825,6 +2825,749 @@ class AdminActivity : AppCompatActivity() {
     loadSubCategories("teacher")
 }
     // =========================================================
+// ADD SUB-CATEGORY
+// =========================================================
+
+private fun showAddSubCategoryDialog(
+    parentId: String,
+    onSaved: () -> Unit
+) {
+
+    val box =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(10),
+                dp(5),
+                dp(10),
+                dp(5)
+            )
+        }
+
+    val nameField =
+        EditText(this).apply {
+
+            hint = "Sub-Category Name"
+
+            textSize = 13f
+
+            singleLine = true
+        }
+
+    box.addView(
+        nameField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val iconField =
+        EditText(this).apply {
+
+            hint = "Icon e.g. 🧑‍🏫"
+
+            textSize = 13f
+
+            singleLine = true
+        }
+
+    box.addView(
+        iconField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val urlField =
+        EditText(this).apply {
+
+            hint = "Website / URL"
+
+            textSize = 13f
+
+            singleLine = true
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+
+    box.addView(
+        urlField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val pageTypeLabel =
+        TextView(this).apply {
+
+            text = "Page Type"
+
+            textSize = 12f
+
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
+
+            setTextColor(
+                Color.rgb(7, 89, 133)
+            )
+
+            setPadding(
+                0,
+                dp(4),
+                0,
+                dp(2)
+            )
+        }
+
+    box.addView(
+        pageTypeLabel
+    )
+
+    val pageTypeSpinner =
+        Spinner(this)
+
+    val pageTypes =
+        arrayOf(
+            "Website",
+            "App Page",
+            "External Link"
+        )
+
+    pageTypeSpinner.adapter =
+        ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            pageTypes
+        )
+
+    box.addView(
+        pageTypeSpinner,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(45)
+        )
+    )
+
+    val positionField =
+        EditText(this).apply {
+
+            hint = "Position"
+
+            text = "1"
+
+            textSize = 13f
+
+            singleLine = true
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+    box.addView(
+        positionField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val enabledSwitch =
+        Switch(this).apply {
+
+            text = "Enabled"
+
+            textSize = 12f
+
+            isChecked = true
+        }
+
+    box.addView(
+        enabledSwitch,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(45)
+        )
+    )
+
+    val dialog =
+        AlertDialog.Builder(this)
+            .setTitle(
+                "➕ Add Sub-Category"
+            )
+            .setView(box)
+            .setNegativeButton(
+                "CANCEL",
+                null
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .create()
+
+    dialog.setOnShowListener {
+
+        dialog.getButton(
+            AlertDialog.BUTTON_POSITIVE
+        ).setOnClickListener {
+
+            val name =
+                nameField.text
+                    .toString()
+                    .trim()
+
+            val icon =
+                iconField.text
+                    .toString()
+                    .trim()
+
+            val url =
+                urlField.text
+                    .toString()
+                    .trim()
+
+            val pageType =
+                pageTypes[
+                    pageTypeSpinner.selectedItemPosition
+                ]
+
+            val position =
+                positionField.text
+                    .toString()
+                    .trim()
+                    .toLongOrNull()
+
+            if (name.isEmpty()) {
+
+                nameField.error =
+                    "Name जरूरी है"
+
+                return@setOnClickListener
+            }
+
+            if (position == null) {
+
+                positionField.error =
+                    "सही Position डालें"
+
+                return@setOnClickListener
+            }
+
+            val data =
+                hashMapOf<String, Any>(
+                    "name" to name,
+                    "icon" to icon,
+                    "url" to url,
+                    "pageType" to pageType,
+                    "parentId" to parentId,
+                    "position" to position,
+                    "enabled" to enabledSwitch.isChecked
+                )
+
+            val doc =
+                db.collection(
+                    "home_subcategories"
+                ).document()
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = false
+
+            doc.set(data)
+                .addOnSuccessListener {
+
+                    toast(
+                        "Sub-Category save हो गई"
+                    )
+
+                    dialog.dismiss()
+
+                    onSaved()
+                }
+                .addOnFailureListener { e ->
+
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = true
+
+                    toast(
+                        "Save failed: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+        }
+    }
+
+    dialog.show()
+}
+// =========================================================
+// EDIT SUB-CATEGORY
+// =========================================================
+
+private fun showEditSubCategoryDialog(
+    documentId: String,
+    parentId: String,
+    doc: com.google.firebase.firestore.DocumentSnapshot
+) {
+
+    val box =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(10),
+                dp(5),
+                dp(10),
+                dp(5)
+            )
+        }
+
+    val nameField =
+        EditText(this).apply {
+
+            hint = "Sub-Category Name"
+
+            textSize = 13f
+
+            singleLine = true
+
+            setText(
+                doc.getString("name") ?: ""
+            )
+        }
+
+    box.addView(
+        nameField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val iconField =
+        EditText(this).apply {
+
+            hint = "Icon"
+
+            textSize = 13f
+
+            singleLine = true
+
+            setText(
+                doc.getString("icon") ?: ""
+            )
+        }
+
+    box.addView(
+        iconField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val urlField =
+        EditText(this).apply {
+
+            hint = "Website / URL"
+
+            textSize = 13f
+
+            singleLine = true
+
+            setText(
+                doc.getString("url") ?: ""
+            )
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+
+    box.addView(
+        urlField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val pageTypeLabel =
+        TextView(this).apply {
+
+            text = "Page Type"
+
+            textSize = 12f
+
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
+
+            setTextColor(
+                Color.rgb(7, 89, 133)
+            )
+
+            setPadding(
+                0,
+                dp(4),
+                0,
+                dp(2)
+            )
+        }
+
+    box.addView(
+        pageTypeLabel
+    )
+
+    val pageTypes =
+        arrayOf(
+            "Website",
+            "App Page",
+            "External Link"
+        )
+
+    val pageTypeSpinner =
+        Spinner(this)
+
+    pageTypeSpinner.adapter =
+        ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            pageTypes
+        )
+
+    val oldPageType =
+        doc.getString("pageType")
+            ?: "Website"
+
+    val oldPageIndex =
+        pageTypes.indexOf(oldPageType)
+
+    pageTypeSpinner.setSelection(
+        if (oldPageIndex >= 0) {
+            oldPageIndex
+        } else {
+            0
+        }
+    )
+
+    box.addView(
+        pageTypeSpinner,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(45)
+        )
+    )
+
+    val oldPosition =
+        doc.getLong("position")
+            ?: 1L
+
+    val positionField =
+        EditText(this).apply {
+
+            hint = "Position"
+
+            text =
+                oldPosition.toString()
+
+            textSize = 13f
+
+            singleLine = true
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+    box.addView(
+        positionField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val enabledSwitch =
+        Switch(this).apply {
+
+            text = "Enabled"
+
+            textSize = 12f
+
+            isChecked =
+                doc.getBoolean("enabled")
+                    ?: true
+        }
+
+    box.addView(
+        enabledSwitch,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(45)
+        )
+    )
+
+    val dialog =
+        AlertDialog.Builder(this)
+            .setTitle(
+                "✏️ Edit Sub-Category"
+            )
+            .setView(box)
+            .setNegativeButton(
+                "CANCEL",
+                null
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .create()
+
+    dialog.setOnShowListener {
+
+        dialog.getButton(
+            AlertDialog.BUTTON_POSITIVE
+        ).setOnClickListener {
+
+            val name =
+                nameField.text
+                    .toString()
+                    .trim()
+
+            val icon =
+                iconField.text
+                    .toString()
+                    .trim()
+
+            val url =
+                urlField.text
+                    .toString()
+                    .trim()
+
+            val pageType =
+                pageTypes[
+                    pageTypeSpinner.selectedItemPosition
+                ]
+
+            val position =
+                positionField.text
+                    .toString()
+                    .trim()
+                    .toLongOrNull()
+
+            if (name.isEmpty()) {
+
+                nameField.error =
+                    "Name जरूरी है"
+
+                return@setOnClickListener
+            }
+
+            if (position == null) {
+
+                positionField.error =
+                    "सही Position डालें"
+
+                return@setOnClickListener
+            }
+
+            val data =
+                hashMapOf<String, Any>(
+                    "name" to name,
+                    "icon" to icon,
+                    "url" to url,
+                    "pageType" to pageType,
+                    "parentId" to parentId,
+                    "position" to position,
+                    "enabled" to enabledSwitch.isChecked
+                )
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = false
+
+            db.collection(
+                "home_subcategories"
+            )
+                .document(documentId)
+                .set(
+                    data,
+                    com.google.firebase.firestore.SetOptions.merge()
+                )
+                .addOnSuccessListener {
+
+                    toast(
+                        "Sub-Category update हो गई"
+                    )
+
+                    dialog.dismiss()
+                }
+                .addOnFailureListener { e ->
+
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = true
+
+                    toast(
+                        "Update failed: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+        }
+    }
+
+    dialog.show()
+}
+// =========================================================
+// MOVE SUB-CATEGORY UP / DOWN
+// =========================================================
+
+private fun moveSubCategory(
+    documentId: String,
+    parentId: String,
+    newPosition: Long,
+    refresh: (String) -> Unit
+) {
+
+    db.collection(
+        "home_subcategories"
+    )
+        .whereEqualTo(
+            "parentId",
+            parentId
+        )
+        .get()
+        .addOnSuccessListener { result ->
+
+            if (result.isEmpty) {
+                return@addOnSuccessListener
+            }
+
+            val sorted =
+                result.documents.sortedBy {
+
+                    it.getLong("position")
+                        ?: 999999L
+                }
+
+            val currentIndex =
+                sorted.indexOfFirst {
+
+                    it.id == documentId
+                }
+
+            if (currentIndex < 0) {
+                return@addOnSuccessListener
+            }
+
+            val currentPosition =
+                sorted[currentIndex]
+                    .getLong("position")
+                    ?: 0L
+
+            val targetIndex =
+                when {
+
+                    newPosition < currentPosition ->
+                        currentIndex - 1
+
+                    newPosition > currentPosition ->
+                        currentIndex + 1
+
+                    else ->
+                        currentIndex
+                }
+
+            if (
+                targetIndex < 0 ||
+                targetIndex >= sorted.size
+            ) {
+
+                toast(
+                    if (targetIndex < 0) {
+                        "यह पहले से सबसे ऊपर है"
+                    } else {
+                        "यह पहले से सबसे नीचे है"
+                    }
+                )
+
+                return@addOnSuccessListener
+            }
+
+            val targetDoc =
+                sorted[targetIndex]
+
+            val targetPosition =
+                targetDoc.getLong("position")
+                    ?: currentPosition
+
+            val batch =
+                db.batch()
+
+            batch.update(
+                db.collection(
+                    "home_subcategories"
+                ).document(documentId),
+                "position",
+                targetPosition
+            )
+
+            batch.update(
+                db.collection(
+                    "home_subcategories"
+                ).document(targetDoc.id),
+                "position",
+                currentPosition
+            )
+
+            batch.commit()
+                .addOnSuccessListener {
+
+                    toast(
+                        "Position बदल गई"
+                    )
+
+                    refresh(parentId)
+                }
+                .addOnFailureListener { e ->
+
+                    toast(
+                        "Position बदलने में समस्या: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+        }
+        .addOnFailureListener { e ->
+
+            toast(
+                "Sub-Categories पढ़ने में समस्या: ${
+                    e.message
+                        ?: "Firestore error"
+                }"
+            )
+        }
+}
+
+    // =========================================================
     // SEED DEFAULT CATEGORIES
     // =========================================================
 
