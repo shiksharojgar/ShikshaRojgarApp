@@ -1168,7 +1168,7 @@ class ChannelActivity : AppCompatActivity() {
         var oldVisiblePostId: String? = null
         var oldVisibleOffset = 0
 
-        if (::feedScroll.isInitialized) {
+                if (::feedScroll.isInitialized) {
 
             val oldScrollY =
                 feedScroll.scrollY
@@ -1181,15 +1181,31 @@ class ChannelActivity : AppCompatActivity() {
                 val tag =
                     child.tag
 
-                if (
-                    tag is String &&
-                    child.top <= oldScrollY &&
-                    child.bottom > oldScrollY
-                ) {
-                    oldVisiblePostId = tag
-                    oldVisibleOffset =
-                        oldScrollY - child.top
-                    break
+                /*
+                 * Only actual post cards have a String tag.
+                 * Blue divider has no tag.
+                 */
+                if (tag is String) {
+
+                    val childTop =
+                        child.top
+
+                    val childBottom =
+                        child.bottom
+
+                    if (
+                        childTop <= oldScrollY &&
+                        childBottom > oldScrollY
+                    ) {
+
+                        oldVisiblePostId =
+                            tag
+
+                        oldVisibleOffset =
+                            oldScrollY - childTop
+
+                        break
+                    }
                 }
             }
         }
