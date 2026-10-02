@@ -929,10 +929,11 @@ class MainActivity : AppCompatActivity() {
     // ============================================================
 
     private fun learningCard(
-        label: String,
-        emoji: String,
-        action: () -> Unit
-    ): TextView =
+    label: String,
+    emoji: String,
+    colors: Pair<String, String>,
+    action: () -> Unit
+): TextView =
         TextView(this).apply {
 
             text = "$emoji\n$label"
@@ -954,23 +955,10 @@ class MainActivity : AppCompatActivity() {
                 android.graphics.Typeface.DEFAULT_BOLD
 
             background =
-                GradientDrawable().apply {
-
-                    setColor(
-                        Color.WHITE
-                    )
-
-                    cornerRadius = 20f
-
-                    setStroke(
-                        2,
-                        Color.rgb(
-                            226,
-                            232,
-                            240
-                        )
-                    )
-                }
+    GradientFactory.gradient(
+        colors.first,
+        colors.second
+    )
 
             setPadding(
                 3,
@@ -1860,20 +1848,37 @@ private fun openHomeSubCategory(
          * Learning / secondary grid design
          */
         categories
-            .drop(6)
-            .forEach { category ->
+    .drop(6)
+    .take(4)
+    .forEachIndexed { index, category ->
 
-                learningGrid.addView(
-                    learningCard(
-                        category.name,
-                        category.icon
-                    ) {
-                        openHomeCategory(
-                            category
-                        )
-                    }
+        val colors =
+            when (index) {
+                0 ->
+                    "#DBEAFE" to "#93C5FD"
+
+                1 ->
+                    "#DCFCE7" to "#86EFAC"
+
+                2 ->
+                    "#FEF3C7" to "#FCD34D"
+
+                else ->
+                    "#FCE7F3" to "#F9A8D4"
+            }
+
+        learningGrid.addView(
+            learningCard(
+                category.name,
+                category.icon,
+                colors
+            ) {
+                openHomeCategory(
+                    category
                 )
             }
+        )
+    }
     }
 
     // ============================================================
