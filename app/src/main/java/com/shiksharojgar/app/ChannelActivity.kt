@@ -709,7 +709,7 @@ root.addView(
             true
 
         descendantFocusability =
-            ViewGroup.FOCUS_BEFORE_DESCENDANTS
+    ViewGroup.FOCUS_BLOCK_DESCENDANTS
 
         setPadding(
             0,
