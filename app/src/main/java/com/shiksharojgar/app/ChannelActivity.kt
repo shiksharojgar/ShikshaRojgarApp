@@ -146,10 +146,7 @@ private fun samePostContent(
                     followerCountView.text =
                         "👥 $followerCount"
                 }
-if (::followerCountView.isInitialized) {
-    followerCountView.text =
-        "👥 $followerCount"
-}
+
 
                 if (::commentStatusView.isInitialized) {
                     commentStatusView.text =
@@ -718,7 +715,7 @@ if (::followerCountView.isInitialized) {
                             "📢  शिक्षा रोजगार चैनल"
 
                         textSize =
-                            15f
+                            17f
 
                         typeface =
                             Typeface.DEFAULT_BOLD
@@ -762,7 +759,7 @@ if (::followerCountView.isInitialized) {
                             "• शासकीय आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी • नौकरी • परीक्षा • रिजल्ट • महत्वपूर्ण अपडेट के लिए follow करें!"
 
                         textSize =
-                            8.5f
+                            10.5f
 
                         setTextColor(
                             Color.WHITE
@@ -797,7 +794,7 @@ if (::followerCountView.isInitialized) {
                     "शिक्षा रोजगार ऐप"
 
                 textSize =
-                    9f
+                    11f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
