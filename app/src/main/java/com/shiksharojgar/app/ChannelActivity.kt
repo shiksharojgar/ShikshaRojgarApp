@@ -143,7 +143,6 @@ if (::channelStrip.isInitialized) {
                         }
                 }
 
-                renderPosts()
             }
         }
 
@@ -158,19 +157,47 @@ if (::channelStrip.isInitialized) {
 
                 runOnUiThread {
 
-                    renderPosts()
+    val newNewest =
+        posts.lastOrNull()?.id
 
-                    val newNewest =
-                        posts.lastOrNull()?.id
+    val shouldGoToNewest =
+        firstFeedRender ||
+            oldNewest != newNewest
 
-                    if (
-                        firstFeedRender ||
-                        oldNewest != newNewest
-                    ) {
-                        scrollToNewest()
-                    }
+    /*
+     * पहली बार या नई post आने पर
+     * पुरानी scroll position बिल्कुल restore नहीं करनी है।
+     */
+    renderPosts(
+        preservePosition = !shouldGoToNewest
+    )
 
-                    pendingPostId?.let { id ->
+    if (shouldGoToNewest) {
+
+        feedScroll.post {
+
+            feedScroll.fullScroll(
+                View.FOCUS_DOWN
+            )
+        }
+    }
+
+    pendingPostId?.let { id ->
+
+        val index =
+            posts.indexOfFirst {
+                it.id == id
+            }
+
+        if (index >= 0) {
+            scrollToPost(index)
+        }
+
+        pendingPostId = null
+    }
+
+    firstFeedRender = false
+}
 
                         val index =
                             posts.indexOfFirst {
@@ -1217,104 +1244,23 @@ root.addView(
      * Rebuilding the post views must NOT move the user
      * away from the post they are currently reading.
      */
-    private fun renderPosts() {
+    private fun renderPosts(
+    preservePosition: Boolean = true
+) {
 
     if (!::list.isInitialized) {
         return
     }
 
-    /*
-     * पहले यह पता करें कि अभी कौन-सी post स्क्रीन पर
-     * दिखाई दे रही है और उसकी exact screen position क्या है।
-     *
-     * IMPORTANT:
-     * ScrollView का scrollY और child.top अलग coordinate
-     * system में हो सकते हैं, इसलिए getLocationOnScreen()
-     * इस्तेमाल कर रहे हैं।
-     */
-    var oldVisiblePostId: String? = null
-    var oldVisibleTop = 0
+    var oldScrollY = 0
 
-    if (::feedScroll.isInitialized) {
-
-        val scrollLocation = IntArray(2)
-
-        feedScroll.getLocationOnScreen(
-            scrollLocation
-        )
-
-        val viewportTop =
-            scrollLocation[1]
-
-        val viewportBottom =
-            viewportTop +
-                feedScroll.height
-
-        var bestVisibleDistance =
-            Int.MAX_VALUE
-
-        for (i in 0 until list.childCount) {
-
-            val child =
-                list.getChildAt(i)
-
-            val tag =
-                child.tag
-
-            /*
-             * केवल post cards में String ID tag है।
-             * Divider में tag नहीं है।
-             */
-            if (tag is String) {
-
-                val location =
-                    IntArray(2)
-
-                child.getLocationOnScreen(
-                    location
-                )
-
-                val childTop =
-                    location[1]
-
-                val childBottom =
-                    childTop +
-                        child.height
-
-                /*
-                 * जो post viewport के अंदर है
-                 * उसे candidate मानें।
-                 */
-                if (
-                    childBottom > viewportTop &&
-                    childTop < viewportBottom
-                ) {
-
-                    val distance =
-                        kotlin.math.abs(
-                            childTop -
-                                viewportTop
-                        )
-
-                    if (
-                        distance <
-                            bestVisibleDistance
-                    ) {
-
-                        bestVisibleDistance =
-                            distance
-
-                        oldVisiblePostId =
-                            tag
-
-                        oldVisibleTop =
-                            childTop -
-                                viewportTop
-                    }
-                }
-            }
-        }
-    }
+if (
+    preservePosition &&
+    ::feedScroll.isInitialized
+) {
+    oldScrollY =
+        feedScroll.scrollY
+}
 
     /*
      * Feed rebuild करें।
@@ -1416,67 +1362,21 @@ root.addView(
      * Comment -> jump नहीं
      * Firebase refresh -> jump नहीं
      */
-    if (oldVisiblePostId != null) {
+if (
+    preservePosition &&
+    ::feedScroll.isInitialized
+) {
 
-        val restoreId =
-            oldVisiblePostId
+    feedScroll.post {
 
-        val restoreTop =
-            oldVisibleTop
-
-        feedScroll.post {
-
-            var target: View? = null
-
-            for (i in 0 until list.childCount) {
-
-                val child =
-                    list.getChildAt(i)
-
-                if (
-                    child.tag == restoreId
-                ) {
-                    target = child
-                    break
-                }
-            }
-
-            target?.let { child ->
-
-                val location =
-                    IntArray(2)
-
-                child.getLocationOnScreen(
-                    location
-                )
-
-                val scrollLocation =
-                    IntArray(2)
-
-                feedScroll.getLocationOnScreen(
-                    scrollLocation
-                )
-
-                val currentTop =
-                    location[1] -
-                        scrollLocation[1]
-
-                val difference =
-                    currentTop -
-                        restoreTop
-
-                if (difference != 0) {
-
-                    feedScroll.scrollBy(
-                        0,
-                        difference
-                    )
-                }
-            }
-        }
+        feedScroll.scrollTo(
+            0,
+            oldScrollY.coerceAtLeast(0)
+        )
     }
 }
 
+            
         /*
      * SINGLE POST CARD
      *
