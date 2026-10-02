@@ -146,9 +146,9 @@ private fun samePostContent(
                     followerCountView.text =
                         "👥 $followerCount"
                 }
-if (::channelStrip.isInitialized) {
-    channelStrip.text =
-        "📢  शिक्षा रोजगार चैनल\n👥 Followers: $followerCount"
+if (::followerCountView.isInitialized) {
+    followerCountView.text =
+        "👥 $followerCount"
 }
 
                 if (::commentStatusView.isInitialized) {
