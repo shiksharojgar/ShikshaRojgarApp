@@ -955,10 +955,21 @@ class MainActivity : AppCompatActivity() {
                 android.graphics.Typeface.DEFAULT_BOLD
 
             background =
-    GradientFactory.gradient(
-        colors.first,
-        colors.second
-    )
+    GradientDrawable(
+        GradientDrawable.Orientation.LEFT_RIGHT,
+        intArrayOf(
+            Color.parseColor(
+                colors.first
+            ),
+            Color.parseColor(
+                colors.second
+            )
+        )
+    ).apply {
+
+        cornerRadius =
+            20f
+    }
 
             setPadding(
                 3,
