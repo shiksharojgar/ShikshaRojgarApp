@@ -198,21 +198,7 @@ if (::channelStrip.isInitialized) {
 
     firstFeedRender = false
 }
-
-                        val index =
-                            posts.indexOfFirst {
-                                it.id == id
-                            }
-
-                        if (index >= 0) {
-                            scrollToPost(index)
-                        }
-
-                        pendingPostId = null
-                    }
-
-                    firstFeedRender = false
-                }
+                        
             },
             {}
         )
