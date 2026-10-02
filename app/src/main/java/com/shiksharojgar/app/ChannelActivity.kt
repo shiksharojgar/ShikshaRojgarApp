@@ -1361,7 +1361,7 @@ if (
         )
     }
 }
-
+    }
             
         /*
      * SINGLE POST CARD
