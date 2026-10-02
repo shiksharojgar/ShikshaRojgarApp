@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
             R.id.refreshButton
         ).setOnClickListener {
 
-            val b =
+            
                 findViewById<TextView>(
             R.id.refreshButton
         ).setOnClickListener {
