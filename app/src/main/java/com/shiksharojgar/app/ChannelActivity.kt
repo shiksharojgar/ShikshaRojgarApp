@@ -1353,13 +1353,10 @@ if (
     ::feedScroll.isInitialized
 ) {
 
-    feedScroll.post {
-
-        feedScroll.scrollTo(
-            0,
-            oldScrollY.coerceAtLeast(0)
-        )
-    }
+    feedScroll.scrollTo(
+        0,
+        oldScrollY.coerceAtLeast(0)
+    )
 }
     }
             
