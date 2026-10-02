@@ -1005,54 +1005,555 @@ class MainActivity : AppCompatActivity() {
         }
 
     // ============================================================
-    // OPEN HOME CATEGORY
-    // ============================================================
+// OPEN HOME CATEGORY + SUB-CATEGORIES
+// ============================================================
 
-    private fun openHomeCategory(
-        category: HomeCategory
-    ) {
+private fun openHomeCategory(
+    category: HomeCategory
+) {
 
-        /*
-         * यदि Admin ने pageId दिया है,
-         * तो Firestore managed page खुलेगा।
-         *
-         * Example:
-         * syllabus
-         * notices
-         * career
-         * tools
-         * study_material
-         */
+    FirebaseFirestore.getInstance()
+        .collection("home_subcategories")
+        .whereEqualTo(
+            "parentId",
+            category.id
+        )
+        .whereEqualTo(
+            "enabled",
+            true
+        )
+        .get()
+        .addOnSuccessListener { snapshot ->
 
-        if (category.pageId.isNotBlank()) {
+            val subCategories =
+                snapshot.documents
+                    .mapNotNull { doc ->
 
-            openManagedPage(
-                category.pageId,
-                category.name
+                        val name =
+                            doc.getString("name")
+                                ?.trim()
+                                ?: return@mapNotNull null
+
+                        if (name.isBlank()) {
+                            return@mapNotNull null
+                        }
+
+                        val icon =
+                            doc.getString("icon")
+                                ?.trim()
+                                .takeUnless {
+                                    it.isNullOrBlank()
+                                }
+                                ?: "📌"
+
+                        val url =
+                            doc.getString("url")
+                                ?.trim()
+                                ?: ""
+
+                        val pageType =
+                            doc.getString("pageType")
+                                ?.trim()
+                                ?: "Website"
+
+                        val position =
+                            doc.getLong("position")
+                                ?: 9999L
+
+                        HomeSubCategory(
+                            id = doc.id,
+                            name = name,
+                            icon = icon,
+                            url = url,
+                            pageType = pageType,
+                            position = position
+                        )
+                    }
+                    .sortedBy {
+                        it.position
+                    }
+
+            /*
+             * यदि इस Main Category में
+             * कोई Sub-Category नहीं है,
+             * तो पुराना direct-open behavior रहेगा।
+             */
+            if (subCategories.isEmpty()) {
+
+                openMainCategoryDirectly(
+                    category
+                )
+
+                return@addOnSuccessListener
+            }
+
+            showHomeSubCategoryDialog(
+                category,
+                subCategories
             )
+        }
+        .addOnFailureListener {
+
+            /*
+             * Firestore error होने पर भी
+             * पुराना Home link काम करता रहेगा।
+             */
+            openMainCategoryDirectly(
+                category
+            )
+        }
+}
+
+
+// ============================================================
+// HOME SUB-CATEGORY MODEL
+// ============================================================
+
+private data class HomeSubCategory(
+    val id: String,
+    val name: String,
+    val icon: String,
+    val url: String,
+    val pageType: String,
+    val position: Long
+)
+
+
+// ============================================================
+// MAIN CATEGORY DIRECT OPEN
+// ============================================================
+
+private fun openMainCategoryDirectly(
+    category: HomeCategory
+) {
+
+    /*
+     * Managed App Page
+     */
+    if (category.pageId.isNotBlank()) {
+
+        openManagedPage(
+            category.pageId,
+            category.name
+        )
+
+        return
+    }
+
+    /*
+     * Website
+     */
+    if (category.url.isNotBlank()) {
+
+        openInApp(
+            category.url
+        )
+
+        return
+    }
+
+    Toast.makeText(
+        this,
+        "${category.name} का link अभी उपलब्ध नहीं है",
+        Toast.LENGTH_SHORT
+    ).show()
+}
+
+
+// ============================================================
+// SHOW HOME SUB-CATEGORY DIALOG
+// ============================================================
+
+private fun showHomeSubCategoryDialog(
+    category: HomeCategory,
+    subCategories: List<HomeSubCategory>
+) {
+
+    val outer =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                18,
+                4,
+                18,
+                8
+            )
+        }
+
+
+    /*
+     * Main Category header
+     */
+    val header =
+        TextView(this).apply {
+
+            text =
+                "${category.icon}  ${category.name}"
+
+            textSize = 19f
+
+            gravity =
+                Gravity.CENTER
+
+            setTextColor(
+                Color.rgb(
+                    7,
+                    89,
+                    133
+                )
+            )
+
+            typeface =
+                android.graphics.Typeface.DEFAULT_BOLD
+
+            setPadding(
+                5,
+                8,
+                5,
+                12
+            )
+        }
+
+    outer.addView(
+        header,
+        LinearLayout.LayoutParams(
+            -1,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+    )
+
+
+    /*
+     * Scroll area
+     */
+    val scroll =
+        android.widget.ScrollView(this).apply {
+
+            isFillViewport = true
+        }
+
+
+    val list =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                0,
+                2,
+                0,
+                2
+            )
+        }
+
+
+    /*
+     * Direction indicator
+     *
+     * नीचे और देखें / ऊपर और देखें
+     */
+    val indicator =
+        TextView(this).apply {
+
+            textSize = 12f
+
+            gravity =
+                Gravity.CENTER
+
+            setTextColor(
+                Color.rgb(
+                    7,
+                    89,
+                    133
+                )
+            )
+
+            typeface =
+                android.graphics.Typeface.DEFAULT_BOLD
+
+            visibility =
+                View.GONE
+
+            setPadding(
+                4,
+                5,
+                4,
+                5
+            )
+        }
+
+
+    /*
+     * Sub-category buttons
+     */
+    subCategories.forEach { sub ->
+
+        val button =
+            android.widget.Button(this).apply {
+
+                text =
+                    "${sub.icon}  ${sub.name}"
+
+                textSize = 14f
+
+                typeface =
+                    android.graphics.Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(
+                        30,
+                        41,
+                        59
+                    )
+                )
+
+                background =
+                    GradientDrawable().apply {
+
+                        setColor(
+                            Color.WHITE
+                        )
+
+                        cornerRadius =
+                            18f
+
+                        setStroke(
+                            2,
+                            Color.rgb(
+                                226,
+                                232,
+                                240
+                            )
+                        )
+                    }
+
+                minHeight = 0
+
+                setPadding(
+                    12,
+                    5,
+                    12,
+                    5
+                )
+
+                setOnClickListener {
+
+                    openHomeSubCategory(
+                        sub
+                    )
+                }
+            }
+
+        list.addView(
+            button,
+            LinearLayout.LayoutParams(
+                -1,
+                54
+            ).apply {
+
+                topMargin = 4
+                bottomMargin = 4
+            }
+        )
+    }
+
+
+    scroll.addView(
+        list,
+        android.widget.ScrollView.LayoutParams(
+            -1,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+    )
+
+
+    outer.addView(
+        scroll,
+        LinearLayout.LayoutParams(
+            -1,
+            0,
+            1f
+        )
+    )
+
+
+    outer.addView(
+        indicator,
+        LinearLayout.LayoutParams(
+            -1,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+    )
+
+
+    /*
+     * Scroll indicator logic
+     */
+    fun updateSubCategoryIndicator() {
+
+        val maxScroll =
+            scroll.getChildAt(0)
+                ?.height
+                ?.minus(scroll.height)
+                ?: 0
+
+        val current =
+            scroll.scrollY
+
+        if (maxScroll <= 10) {
+
+            indicator.visibility =
+                View.GONE
 
             return
         }
 
-        /*
-         * अन्य categories के लिए URL खुलेगा।
-         */
+        indicator.visibility =
+            View.VISIBLE
 
-        if (category.url.isNotBlank()) {
+        when {
 
-            openInApp(
-                category.url
-            )
+            current <= 10 -> {
 
-            return
+                indicator.text =
+                    "↓ नीचे और देखें"
+            }
+
+            current >= maxScroll - 10 -> {
+
+                indicator.text =
+                    "↑ ऊपर और देखें"
+            }
+
+            else -> {
+
+                indicator.text =
+                    "↕ ऊपर / नीचे स्क्रॉल करें"
+            }
         }
+    }
+
+
+    scroll.viewTreeObserver
+        .addOnGlobalLayoutListener {
+
+            updateSubCategoryIndicator()
+        }
+
+
+    scroll.setOnScrollChangeListener {
+            _: View,
+            _: Int,
+            _: Int,
+            _: Int,
+            _: Int ->
+
+        updateSubCategoryIndicator()
+    }
+
+
+    AlertDialog.Builder(this)
+        .setTitle(
+            "📂 ${category.name}"
+        )
+        .setView(outer)
+        .setNegativeButton(
+            "CLOSE",
+            null
+        )
+        .show()
+}
+
+
+// ============================================================
+// OPEN SELECTED SUB-CATEGORY
+// ============================================================
+
+private fun openHomeSubCategory(
+    sub: HomeSubCategory
+) {
+
+    if (sub.url.isBlank()) {
 
         Toast.makeText(
             this,
-            "${category.name} का link अभी उपलब्ध नहीं है",
+            "${sub.name} का link अभी उपलब्ध नहीं है",
             Toast.LENGTH_SHORT
         ).show()
+
+        return
     }
+
+
+    when (
+        sub.pageType.lowercase()
+    ) {
+
+        "website" -> {
+
+            openInApp(
+                sub.url
+            )
+        }
+
+
+        "external link" -> {
+
+            openExternal(
+                sub.url
+            )
+        }
+
+
+        "app page" -> {
+
+            /*
+             * App Page में Admin द्वारा
+             * url field में pageId रखा जाएगा।
+             *
+             * जैसे:
+             * syllabus
+             * study_material
+             * career
+             * notices
+             * tools
+             */
+
+            if (
+                sub.url.startsWith(
+                    "http://"
+                ) ||
+                sub.url.startsWith(
+                    "https://"
+                )
+            ) {
+
+                openInApp(
+                    sub.url
+                )
+
+            } else {
+
+                openManagedPage(
+                    sub.url,
+                    sub.name
+                )
+            }
+        }
+
+
+        else -> {
+
+            openInApp(
+                sub.url
+            )
+        }
+    }
+}
 
     // ============================================================
     // DYNAMIC HOME CATEGORIES
