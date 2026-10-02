@@ -35,6 +35,7 @@ class ChannelActivity : AppCompatActivity() {
     private lateinit var followerCountView: TextView
     private lateinit var commentStatusView: TextView
     private lateinit var feedScroll: ScrollView
+    private lateinit var channelStrip: TextView
 
     private var globalComments = true
 
@@ -127,6 +128,10 @@ class ChannelActivity : AppCompatActivity() {
                     followerCountView.text =
                         "👥 $followerCount"
                 }
+if (::channelStrip.isInitialized) {
+    channelStrip.text =
+        "📢  शिक्षा रोजगार चैनल\n👥 Followers: $followerCount"
+}
 
                 if (::commentStatusView.isInitialized) {
                     commentStatusView.text =
@@ -582,7 +587,7 @@ class ChannelActivity : AppCompatActivity() {
  * CHANNEL HOME-STYLE STRIP
  * Same design as Home Channel button
  */
-val channelStrip =
+ channelStrip =
     TextView(this).apply {
 
         text =
