@@ -221,35 +221,39 @@ class MainActivity : AppCompatActivity() {
         ).setOnClickListener {
 
             val b =
-                findViewById<TextView>(R.id.refreshButton).setOnClickListener {
+                findViewById<TextView>(
+            R.id.refreshButton
+        ).setOnClickListener {
 
-    val b =
-        findViewById<TextView>(R.id.refreshButton)
+            val b =
+                findViewById<TextView>(
+                    R.id.refreshButton
+                )
 
-    b.isEnabled = false
+            b.isEnabled = false
 
-    b.text = "↻"
+            b.text = "↻"
 
-    b.animate()
-        .rotationBy(720f)
-        .setDuration(700L)
-        .withEndAction {
-            b.rotation = 0f
+            b.animate()
+                .rotationBy(720f)
+                .setDuration(700L)
+                .withEndAction {
+                    b.rotation = 0f
+                }
+                .start()
+
+            loadPosts {
+
+                b.animate()
+                    .rotation(0f)
+                    .setDuration(150L)
+                    .start()
+
+                b.text = "↻ Refresh"
+
+                b.isEnabled = true
+            }
         }
-        .start()
-
-    loadPosts {
-
-        b.animate()
-            .rotation(0f)
-            .setDuration(150L)
-            .start()
-
-        b.text = "↻ Refresh"
-
-        b.isEnabled = true
-    }
-}
 
         findViewById<TextView>(
             R.id.searchButton
@@ -1065,17 +1069,17 @@ private fun openHomeCategory(
                             doc.getLong("position")
                                 ?: 9999L
 
-                        1067:                         HomeSubCategory(
-1068:                             id = doc.id,
-1069:                             name = name,
-1070:                             icon = icon,
-1071:                             url = url,
-1072:                             pageType = pageType,
-1073:                             position = position,
-1074:                             buttonColor =
-1075:                                 doc.getString("buttonColor")
-1076:                                     ?: "#E3F2FD"
-1077:                         )
+                       HomeSubCategory(
+                          id = doc.id,                    
+                           name = name,
+                            icon = icon,
+                            url = url,
+                           pageType = pageType,
+                          position = position,
+                         buttonColor =
+                              doc.getString("buttonColor")
+                                   ?: "#E3F2FD"
+                      )
                     }
                     .sortedBy {
                         it.position
