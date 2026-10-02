@@ -693,21 +693,30 @@ root.addView(
          * FEED
          */
         feedScroll =
-            ScrollView(this).apply {
+    ScrollView(this).apply {
 
-                isFillViewport =
-                    true
+        isFillViewport =
+            true
 
-                clipToPadding =
-                    false
+        clipToPadding =
+            false
 
-                setPadding(
-                    0,
-                    0,
-                    0,
-                    0
-                )
-            }
+        isFocusable =
+            true
+
+        isFocusableInTouchMode =
+            true
+
+        descendantFocusability =
+            ViewGroup.FOCUS_BEFORE_DESCENDANTS
+
+        setPadding(
+            0,
+            0,
+            0,
+            0
+        )
+    }
 
         list =
             LinearLayout(this).apply {
