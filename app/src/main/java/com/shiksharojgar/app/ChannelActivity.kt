@@ -594,9 +594,9 @@ if (::channelStrip.isInitialized) {
         text =
             "📢  शिक्षा रोजगार चैनल\n👥 Followers: $followerCount"
 
-        textColor =
-            Color.WHITE
-
+        setTextColor(
+    Color.WHITE
+)
         textSize =
             15f
 
