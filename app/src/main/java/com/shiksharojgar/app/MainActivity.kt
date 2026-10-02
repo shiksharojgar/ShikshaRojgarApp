@@ -1304,45 +1304,45 @@ private fun showHomeSubCategoryDialog(
 
                 textSize = 14f
 
-                typeface =
-                    android.graphics.Typeface.DEFAULT_BOLD
+typeface =
+    android.graphics.Typeface.DEFAULT_BOLD
 
-                setTextColor(
-                    Color.rgb(
-                        30,
-                        41,
-                        59
-                    )
-                )
+setTextColor(
+    Color.rgb(
+        30,
+        41,
+        59
+    )
+)
 
-                background =
-                    GradientDrawable().apply {
+background =
+    GradientDrawable().apply {
 
-                        setColor(
-                            Color.WHITE
-                        )
+        setColor(
+            Color.WHITE
+        )
 
-                        cornerRadius =
-                            18f
+        cornerRadius =
+            18f
 
-                        setStroke(
-                            2,
-                            Color.rgb(
-                                226,
-                                232,
-                                240
-                            )
-                        )
-                    }
+        setStroke(
+            2,
+            Color.rgb(
+                226,
+                232,
+                240
+            )
+        )
+    }
 
-                minHeight = 0
+minHeight = 0
 
-                setPadding(
-                    12,
-                    5,
-                    12,
-                    5
-                )
+setPadding(
+    6,
+    2,
+    6,
+    2
+)
 
                 setOnClickListener {
 
@@ -1353,16 +1353,16 @@ private fun showHomeSubCategoryDialog(
             }
 
         list.addView(
-            button,
-            LinearLayout.LayoutParams(
-                -1,
-                54
-            ).apply {
+    button,
+    LinearLayout.LayoutParams(
+        -1,
+        48
+    ).apply {
 
-                topMargin = 4
-                bottomMargin = 4
-            }
-        )
+        topMargin = 2
+        bottomMargin = 2
+    }
+)
     }
 
 
