@@ -1219,195 +1219,263 @@ root.addView(
      */
     private fun renderPosts() {
 
-        if (!::list.isInitialized) {
-            return
+    if (!::list.isInitialized) {
+        return
+    }
+
+    /*
+     * पहले यह पता करें कि अभी कौन-सी post स्क्रीन पर
+     * दिखाई दे रही है और उसकी exact screen position क्या है।
+     *
+     * IMPORTANT:
+     * ScrollView का scrollY और child.top अलग coordinate
+     * system में हो सकते हैं, इसलिए getLocationOnScreen()
+     * इस्तेमाल कर रहे हैं।
+     */
+    var oldVisiblePostId: String? = null
+    var oldVisibleTop = 0
+
+    if (::feedScroll.isInitialized) {
+
+        val scrollLocation = IntArray(2)
+
+        feedScroll.getLocationOnScreen(
+            scrollLocation
+        )
+
+        val viewportTop =
+            scrollLocation[1]
+
+        val viewportBottom =
+            viewportTop +
+                feedScroll.height
+
+        var bestVisibleDistance =
+            Int.MAX_VALUE
+
+        for (i in 0 until list.childCount) {
+
+            val child =
+                list.getChildAt(i)
+
+            val tag =
+                child.tag
+
+            /*
+             * केवल post cards में String ID tag है।
+             * Divider में tag नहीं है।
+             */
+            if (tag is String) {
+
+                val location =
+                    IntArray(2)
+
+                child.getLocationOnScreen(
+                    location
+                )
+
+                val childTop =
+                    location[1]
+
+                val childBottom =
+                    childTop +
+                        child.height
+
+                /*
+                 * जो post viewport के अंदर है
+                 * उसे candidate मानें।
+                 */
+                if (
+                    childBottom > viewportTop &&
+                    childTop < viewportBottom
+                ) {
+
+                    val distance =
+                        kotlin.math.abs(
+                            childTop -
+                                viewportTop
+                        )
+
+                    if (
+                        distance <
+                            bestVisibleDistance
+                    ) {
+
+                        bestVisibleDistance =
+                            distance
+
+                        oldVisiblePostId =
+                            tag
+
+                        oldVisibleTop =
+                            childTop -
+                                viewportTop
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * Feed rebuild करें।
+     */
+    list.removeAllViews()
+
+    if (posts.isEmpty()) {
+
+        list.addView(
+            TextView(this).apply {
+
+                text =
+                    "अभी चैनल में कोई पोस्ट नहीं है।"
+
+                textSize = 16f
+
+                gravity =
+                    Gravity.CENTER
+
+                setPadding(
+                    dp(16),
+                    dp(24),
+                    dp(16),
+                    dp(24)
+                )
+            }
+        )
+
+        return
+    }
+
+    /*
+     * OLD -> NEW
+     *
+     * नई post हमेशा नीचे रहेगी।
+     */
+    posts.forEachIndexed { index, post ->
+
+        val postView =
+            postView(post)
+
+        /*
+         * Post ID को tag में रखें।
+         */
+        postView.tag =
+            post.id
+
+        list.addView(
+            postView
+        )
+
+        /*
+         * Posts के बीच blue divider।
+         */
+        if (index < posts.lastIndex) {
+
+            list.addView(
+                View(this).apply {
+
+                    setBackgroundColor(
+                        Color.rgb(
+                            30,
+                            136,
+                            229
+                        )
+                    )
+                },
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(7)
+                )
+            )
         }
 
         /*
-         * Remember the currently visible post before
-         * removing/rebuilding the child views.
+         * एक session में एक ही बार view count।
          */
-        var oldVisiblePostId: String? = null
-        var oldVisibleOffset = 0
+        if (viewedSession.add(post.id)) {
 
-                if (::feedScroll.isInitialized) {
+            viewOverrides[post.id] =
+                (
+                    viewOverrides[post.id]
+                        ?: post.viewCount
+                ) + 1L
 
-            val oldScrollY =
-                feedScroll.scrollY
+            AnalyticsTracker.uniquePostView(
+                this,
+                post.id
+            )
+        }
+    }
+
+    /*
+     * पुरानी visible post को फिर से उसी जगह पर रखें।
+     *
+     * इससे:
+     * Like -> jump नहीं
+     * Share -> jump नहीं
+     * Comment -> jump नहीं
+     * Firebase refresh -> jump नहीं
+     */
+    if (oldVisiblePostId != null) {
+
+        val restoreId =
+            oldVisiblePostId
+
+        val restoreTop =
+            oldVisibleTop
+
+        feedScroll.post {
+
+            var target: View? = null
 
             for (i in 0 until list.childCount) {
 
                 val child =
                     list.getChildAt(i)
 
-                val tag =
-                    child.tag
-
-                /*
-                 * Only actual post cards have a String tag.
-                 * Blue divider has no tag.
-                 */
-                if (tag is String) {
-
-                    val childTop =
-                        child.top
-
-                    val childBottom =
-                        child.bottom
-
-                    if (
-                        childTop <= oldScrollY &&
-                        childBottom > oldScrollY
-                    ) {
-
-                        oldVisiblePostId =
-                            tag
-
-                        oldVisibleOffset =
-                            oldScrollY - childTop
-
-                        break
-                    }
+                if (
+                    child.tag == restoreId
+                ) {
+                    target = child
+                    break
                 }
             }
-        }
 
-        /*
-         * Rebuild the feed.
-         */
-        list.removeAllViews()
+            target?.let { child ->
 
-        if (posts.isEmpty()) {
+                val location =
+                    IntArray(2)
 
-            list.addView(
-                TextView(this).apply {
-
-                    text =
-                        "अभी चैनल में कोई पोस्ट नहीं है।"
-
-                    textSize = 16f
-
-                    gravity =
-                        Gravity.CENTER
-
-                    setPadding(
-                        dp(16),
-                        dp(24),
-                        dp(16),
-                        dp(24)
-                    )
-                }
-            )
-
-            return
-        }
-
-        /*
-         * OLD -> NEW
-         *
-         * Newest post remains at the bottom.
-         */
-        posts.forEachIndexed { index, post ->
-
-            val postView =
-                postView(post)
-
-            /*
-             * Used for restoring the exact visible post
-             * after the feed is rebuilt.
-             */
-            postView.tag =
-                post.id
-
-            list.addView(
-                postView
-            )
-
-            if (index < posts.lastIndex) {
-
-                list.addView(
-                    View(this).apply {
-
-                        setBackgroundColor(
-                            Color.rgb(
-                                30,
-                                136,
-                                229
-                            )
-                        )
-                    },
-                    LinearLayout.LayoutParams(
-                        -1,
-                        dp(7)
-                    )
+                child.getLocationOnScreen(
+                    location
                 )
-            }
 
-            /*
-             * One view count per session.
-             */
-            if (viewedSession.add(post.id)) {
+                val scrollLocation =
+                    IntArray(2)
 
-                viewOverrides[post.id] =
-                    (
-                        viewOverrides[post.id]
-                            ?: post.viewCount
-                    ) + 1L
-
-                AnalyticsTracker.uniquePostView(
-                    this,
-                    post.id
+                feedScroll.getLocationOnScreen(
+                    scrollLocation
                 )
-            }
-        }
 
-        /*
-         * Restore the user's previous reading position.
-         *
-         * This is the important part that prevents:
-         * Like -> feed jumps to top
-         * Share -> feed jumps
-         * Comment -> feed jumps
-         * Firebase refresh -> feed jumps
-         */
-        if (oldVisiblePostId != null) {
+                val currentTop =
+                    location[1] -
+                        scrollLocation[1]
 
-            val restoreId =
-                oldVisiblePostId
+                val difference =
+                    currentTop -
+                        restoreTop
 
-            val restoreOffset =
-                oldVisibleOffset
+                if (difference != 0) {
 
-            feedScroll.post {
-
-                var target: View? = null
-
-                for (i in 0 until list.childCount) {
-
-                    val child =
-                        list.getChildAt(i)
-
-                    if (
-                        child.tag == restoreId
-                    ) {
-                        target = child
-                        break
-                    }
-                }
-
-                target?.let { child ->
-
-                    feedScroll.scrollTo(
+                    feedScroll.scrollBy(
                         0,
-                        (
-                            child.top +
-                                restoreOffset
-                        ).coerceAtLeast(0)
+                        difference
                     )
                 }
             }
         }
     }
+}
 
         /*
      * SINGLE POST CARD
