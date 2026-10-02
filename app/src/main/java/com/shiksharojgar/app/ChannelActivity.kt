@@ -578,7 +578,63 @@ class ChannelActivity : AppCompatActivity() {
                 dp(62)
             )
         )
+/*
+ * CHANNEL HOME-STYLE STRIP
+ * Same design as Home Channel button
+ */
+val channelStrip =
+    TextView(this).apply {
 
+        text =
+            "📢  शिक्षा रोजगार चैनल\n👥 Followers: $followerCount"
+
+        textColor =
+            Color.WHITE
+
+        textSize =
+            15f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        gravity =
+            Gravity.CENTER_VERTICAL
+
+        setPadding(
+            dp(18),
+            dp(8),
+            dp(18),
+            dp(8)
+        )
+
+        background =
+            ContextCompat.getDrawable(
+                this@ChannelActivity,
+                R.drawable.channel_card_bg
+            )
+
+        elevation =
+            dp(8).toFloat()
+
+        setOnClickListener {
+            // Channel strip intentionally does not open another screen
+        }
+    }
+
+root.addView(
+    channelStrip,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(88)
+    ).apply {
+        setMargins(
+            dp(10),
+            dp(12),
+            dp(10),
+            dp(4)
+        )
+    }
+)
         /*
          * FEED
          */
