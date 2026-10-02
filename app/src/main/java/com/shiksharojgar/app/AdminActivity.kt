@@ -2639,7 +2639,49 @@ class AdminActivity : AppCompatActivity() {
                                 1f
                             )
                         )
+buttons.addView(
+    smallButton(
+        if (enabled) "🔴 Disable"
+        else "🟢 Enable"
+    ) {
 
+        db.collection(
+            "home_subcategories"
+        )
+            .document(doc.id)
+            .update(
+                "enabled",
+                !enabled
+            )
+            .addOnSuccessListener {
+
+                toast(
+                    if (enabled)
+                        "Sub-Category Disabled"
+                    else
+                        "Sub-Category Enabled"
+                )
+
+                loadSubCategories(
+                    parentId
+                )
+            }
+            .addOnFailureListener { e ->
+
+                toast(
+                    "Status update failed: ${
+                        e.message
+                            ?: "Firestore error"
+                    }"
+                )
+            }
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(38),
+        1f
+    )
+)
                         buttons.addView(
                             smallButton("🗑 Delete") {
 
