@@ -739,10 +739,10 @@ root.addView(
             false
 
         isFocusable =
-            true
+            false
 
         isFocusableInTouchMode =
-            true
+            false
         isSaveEnabled =
             false
         
