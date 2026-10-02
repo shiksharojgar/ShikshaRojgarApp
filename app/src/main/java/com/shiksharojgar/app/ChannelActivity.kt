@@ -707,7 +707,9 @@ root.addView(
 
         isFocusableInTouchMode =
             true
-
+        isSaveEnabled =
+            false
+        
         descendantFocusability =
     ViewGroup.FOCUS_BLOCK_DESCENDANTS
 
