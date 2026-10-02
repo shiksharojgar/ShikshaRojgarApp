@@ -211,13 +211,49 @@ if (::channelStrip.isInitialized) {
 
             if (shouldGoToNewest) {
 
-                feedScroll.post {
+    feedScroll.post {
 
-                    feedScroll.fullScroll(
-                        View.FOCUS_DOWN
-                    )
-                }
-            }
+        feedScroll.fullScroll(
+            View.FOCUS_DOWN
+        )
+
+        feedScroll.postDelayed(
+            {
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            },
+            150
+        )
+
+        feedScroll.postDelayed(
+            {
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            },
+            400
+        )
+
+        feedScroll.postDelayed(
+            {
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            },
+            800
+        )
+
+        feedScroll.postDelayed(
+            {
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            },
+            1500
+        )
+    }
+}
 
             pendingPostId?.let { id ->
 
