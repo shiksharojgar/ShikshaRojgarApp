@@ -1637,22 +1637,13 @@ private fun openHomeSubCategory(
                     6
                 ),
 
-                HomeCategory(
-                    "syllabus",
-                    "Syllabus",
-                    "🎓",
-                    "",
-                    "syllabus",
-                    7
-                ),
-
-                HomeCategory(
+                                HomeCategory(
                     "study_material",
                     "Study Material",
                     "📖",
                     "",
                     "study_material",
-                    8
+                    7
                 ),
 
                 HomeCategory(
@@ -1661,16 +1652,16 @@ private fun openHomeSubCategory(
                     "📚",
                     "",
                     "career",
-                    9
+                    8
                 ),
 
                 HomeCategory(
                     "notices",
-                    "Notice",
+                    "Notice/Update",
                     "📢",
                     "",
                     "notices",
-                    10
+                    9
                 ),
 
                 HomeCategory(
@@ -1679,7 +1670,7 @@ private fun openHomeSubCategory(
                     "⚙️",
                     "",
                     "tools",
-                    11
+                    10
                 )
             )
 
