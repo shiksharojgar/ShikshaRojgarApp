@@ -3022,7 +3022,25 @@ private fun showAddSubCategoryDialog(
             dp(48)
         )
     )
+val colorField =
+    EditText(this).apply {
 
+        hint = "Button Color HEX e.g. #E3F2FD"
+
+        textSize = 13f
+
+        setSingleLine(true)
+
+        setText("#E3F2FD")
+    }
+
+box.addView(
+    colorField,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
     val enabledSwitch =
         Switch(this).apply {
 
@@ -3113,7 +3131,10 @@ private fun showAddSubCategoryDialog(
                     "pageType" to pageType,
                     "parentId" to parentId,
                     "position" to position,
-                    "enabled" to enabledSwitch.isChecked
+"buttonColor" to colorField.text
+    .toString()
+    .trim(),
+"enabled" to enabledSwitch.isChecked
                 )
 
             val doc =
@@ -3344,7 +3365,28 @@ private fun showEditSubCategoryDialog(
             dp(48)
         )
     )
+val colorField =
+    EditText(this).apply {
 
+        hint = "Button Color HEX e.g. #E3F2FD"
+
+        textSize = 13f
+
+        setSingleLine(true)
+
+        setText(
+            doc.getString("buttonColor")
+                ?: "#E3F2FD"
+        )
+    }
+
+box.addView(
+    colorField,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
     val enabledSwitch =
         Switch(this).apply {
 
@@ -3437,7 +3479,10 @@ private fun showEditSubCategoryDialog(
                     "pageType" to pageType,
                     "parentId" to parentId,
                     "position" to position,
-                    "enabled" to enabledSwitch.isChecked
+"buttonColor" to colorField.text
+    .toString()
+    .trim(),
+"enabled" to enabledSwitch.isChecked
                 )
 
             dialog.getButton(
