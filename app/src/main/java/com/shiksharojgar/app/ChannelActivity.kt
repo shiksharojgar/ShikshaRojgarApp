@@ -37,7 +37,7 @@ class ChannelActivity : AppCompatActivity() {
     private lateinit var followerCountView: TextView
     private lateinit var commentStatusView: TextView
     private lateinit var feedScroll: ScrollView
-    private lateinit var channelStrip: TextView
+    private lateinit var channelStrip: LinearLayout
 
     private var globalComments = true
 
@@ -674,27 +674,18 @@ if (::channelStrip.isInitialized) {
  * Same design as Home Channel button
  */
  channelStrip =
-    TextView(this).apply {
+    LinearLayout(this).apply {
 
-        text =
-            "📢  शिक्षा रोजगार चैनल\n👥 Followers: $followerCount"
-
-        setTextColor(
-    Color.WHITE
-)
-        textSize =
-            15f
-
-        typeface =
-            Typeface.DEFAULT_BOLD
+        orientation =
+            LinearLayout.HORIZONTAL
 
         gravity =
             Gravity.CENTER_VERTICAL
 
         setPadding(
-            dp(18),
+            dp(16),
             dp(8),
-            dp(18),
+            dp(12),
             dp(8)
         )
 
@@ -707,16 +698,139 @@ if (::channelStrip.isInitialized) {
         elevation =
             dp(8).toFloat()
 
-        setOnClickListener {
-            // Channel strip intentionally does not open another screen
-        }
+        val left =
+            LinearLayout(
+                this@ChannelActivity
+            ).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                val title =
+                    TextView(
+                        this@ChannelActivity
+                    ).apply {
+
+                        text =
+                            "📢  शिक्षा रोजगार चैनल"
+
+                        textSize =
+                            15f
+
+                        typeface =
+                            Typeface.DEFAULT_BOLD
+
+                        setTextColor(
+                            Color.WHITE
+                        )
+                    }
+
+                addView(title)
+
+                followerCountView =
+                    TextView(
+                        this@ChannelActivity
+                    ).apply {
+
+                        text =
+                            "👥 Followers: $followerCount"
+
+                        textSize =
+                            14f
+
+                        typeface =
+                            Typeface.DEFAULT_BOLD
+
+                        setTextColor(
+                            Color.WHITE
+                        )
+                    }
+
+                addView(
+                    followerCountView
+                )
+
+                val tagline =
+                    TextView(
+                        this@ChannelActivity
+                    ).apply {
+
+                        text =
+                            "• शासकीय आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी • नौकरी • परीक्षा • रिजल्ट • महत्वपूर्ण अपडेट के लिए follow करें!"
+
+                        textSize =
+                            8.5f
+
+                        setTextColor(
+                            Color.WHITE
+                        )
+
+                        setPadding(
+                            0,
+                            dp(2),
+                            0,
+                            0
+                        )
+                    }
+
+                addView(tagline)
+            }
+
+        addView(
+            left,
+            LinearLayout.LayoutParams(
+                0,
+                -2,
+                1f
+            )
+        )
+
+        val appName =
+            TextView(
+                this@ChannelActivity
+            ).apply {
+
+                text =
+                    "शिक्षा रोजगार ऐप"
+
+                textSize =
+                    9f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                gravity =
+                    Gravity.CENTER
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setPadding(
+                    dp(6),
+                    0,
+                    0,
+                    0
+                )
+            }
+
+        addView(
+            appName,
+            LinearLayout.LayoutParams(
+                dp(70),
+                -2
+            )
+        )
     }
 
 root.addView(
     channelStrip,
     LinearLayout.LayoutParams(
         -1,
-        dp(88)
+        dp(100)
     ).apply {
         setMargins(
             dp(10),
