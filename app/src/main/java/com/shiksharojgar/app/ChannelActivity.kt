@@ -1992,8 +1992,11 @@ if (
 
                 setOnClickListener {
 
-                    sharePost(p)
-                }
+    sharePost(
+        p,
+        this
+    )
+}
             }
 
         actions.addView(
@@ -2487,18 +2490,23 @@ if (
      * POST SHARE
      */
     private fun sharePost(
-        p: ChannelPost
-    ) {
+    p: ChannelPost,
+    shareButton: TextView
+) {
 
         shareOverrides[p.id] =
-            (
-                shareOverrides[p.id]
-                    ?: p.shareCount
-            ) + 1L
+    (
+        shareOverrides[p.id]
+            ?: p.shareCount
+    ) + 1L
 
-        renderPosts()
+runOnUiThread {
 
-        AnalyticsTracker.uniquePostShare(
+    shareButton.text =
+        "↗ Share ${shareOverrides[p.id]}"
+}
+
+AnalyticsTracker.uniquePostShare(
             this,
             p.id
         )
