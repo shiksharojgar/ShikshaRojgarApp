@@ -2167,6 +2167,663 @@ class AdminActivity : AppCompatActivity() {
             }
     }
 
+    private fun showHomeSubCategoryManager() {
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("🔽 MANAGE SUB-CATEGORIES")
+        .create()
+
+    val root = LinearLayout(this).apply {
+
+        orientation = LinearLayout.VERTICAL
+
+        setPadding(
+            dp(12),
+            dp(8),
+            dp(12),
+            dp(8)
+        )
+    }
+
+    // =====================================================
+    // CATEGORY SELECTOR
+    // =====================================================
+
+    val categoryLabel = TextView(this).apply {
+
+        text = "Main Category"
+
+        textSize = 13f
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(
+            Color.rgb(7, 89, 133)
+        )
+
+        setPadding(
+            0,
+            dp(2),
+            0,
+            dp(4)
+        )
+    }
+
+    root.addView(categoryLabel)
+
+    val categorySpinner = Spinner(this)
+
+    val categories = arrayOf(
+        "Teacher",
+        "Student",
+        "School",
+        "Vacancy",
+        "Result",
+        "Admit Card"
+    )
+
+    val spinnerAdapter = ArrayAdapter(
+        this,
+        android.R.layout.simple_spinner_dropdown_item,
+        categories
+    )
+
+    categorySpinner.adapter = spinnerAdapter
+
+    root.addView(
+        categorySpinner,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(45)
+        )
+    )
+
+    // =====================================================
+    // ADD BUTTON
+    // =====================================================
+
+    val addButton = Button(this).apply {
+
+        text = "➕ ADD SUB-CATEGORY"
+
+        textSize = 12f
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(Color.WHITE)
+
+        setBackgroundColor(
+            Color.rgb(7, 89, 133)
+        )
+
+        minHeight = 0
+
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            0
+        )
+    }
+
+    root.addView(
+        addButton,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(42)
+        ).apply {
+
+            topMargin = dp(6)
+            bottomMargin = dp(6)
+        }
+    )
+
+    // =====================================================
+    // SCROLL AREA
+    // =====================================================
+
+    val scrollView = ScrollView(this).apply {
+
+        isFillViewport = true
+    }
+
+    val listLayout = LinearLayout(this).apply {
+
+        orientation = LinearLayout.VERTICAL
+    }
+
+    scrollView.addView(
+        listLayout,
+        ScrollView.LayoutParams(
+            -1,
+            -2
+        )
+    )
+
+    root.addView(
+        scrollView,
+        LinearLayout.LayoutParams(
+            -1,
+            0,
+            1f
+        )
+    )
+
+    // =====================================================
+    // SCROLL INDICATOR
+    // =====================================================
+
+    val scrollIndicator = TextView(this).apply {
+
+        text = "↓ नीचे और देखें"
+
+        textSize = 11f
+
+        gravity = Gravity.CENTER
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(
+            Color.rgb(7, 89, 133)
+        )
+
+        setPadding(
+            0,
+            dp(4),
+            0,
+            dp(4)
+        )
+
+        visibility = View.GONE
+    }
+
+    root.addView(
+        scrollIndicator,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(30)
+        )
+    )
+
+    // =====================================================
+    // SCROLL POSITION CHECK
+    // =====================================================
+
+    scrollView.viewTreeObserver.addOnScrollChangedListener {
+
+        val child = scrollView.getChildAt(0)
+
+        if (child != null) {
+
+            val canScrollDown =
+                scrollView.scrollY <
+                        child.measuredHeight -
+                        scrollView.measuredHeight
+
+            val canScrollUp =
+                scrollView.scrollY > 0
+
+            when {
+
+                canScrollDown -> {
+
+                    scrollIndicator.text =
+                        "↓ नीचे और देखें"
+
+                    scrollIndicator.visibility =
+                        View.VISIBLE
+                }
+
+                canScrollUp -> {
+
+                    scrollIndicator.text =
+                        "↑ ऊपर और देखें"
+
+                    scrollIndicator.visibility =
+                        View.VISIBLE
+                }
+
+                else -> {
+
+                    scrollIndicator.visibility =
+                        View.GONE
+                }
+            }
+        }
+    }
+
+    // =====================================================
+    // LOAD SUB-CATEGORIES
+    // =====================================================
+
+    fun loadSubCategories(parentId: String) {
+
+        listLayout.removeAllViews()
+
+        val loading = TextView(this).apply {
+
+            text = "लोड हो रहा है..."
+
+            textSize = 13f
+
+            gravity = Gravity.CENTER
+
+            setPadding(
+                0,
+                dp(15),
+                0,
+                dp(15)
+            )
+        }
+
+        listLayout.addView(
+            loading,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(50)
+            )
+        )
+
+        db.collection("home_subcategories")
+            .whereEqualTo("parentId", parentId)
+            .get()
+            .addOnSuccessListener { result ->
+
+                listLayout.removeAllViews()
+
+                if (result.isEmpty) {
+
+                    val emptyText =
+                        TextView(this).apply {
+
+                            text =
+                                "इस category में अभी कोई Sub-Category नहीं है।"
+
+                            textSize = 13f
+
+                            gravity = Gravity.CENTER
+
+                            setPadding(
+                                0,
+                                dp(20),
+                                0,
+                                dp(20)
+                            )
+                        }
+
+                    listLayout.addView(
+                        emptyText,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            -2
+                        )
+                    )
+
+                } else {
+
+                    val documents =
+                        result.documents.sortedBy {
+
+                            it.getLong("position")
+                                ?: 999999L
+                        }
+
+                    documents.forEach { doc ->
+
+                        val card =
+                            LinearLayout(this).apply {
+
+                                orientation =
+                                    LinearLayout.VERTICAL
+
+                                setPadding(
+                                    dp(10),
+                                    dp(8),
+                                    dp(10),
+                                    dp(8)
+                                )
+
+                                setBackgroundColor(
+                                    Color.rgb(
+                                        245,
+                                        248,
+                                        250
+                                    )
+                                )
+                            }
+
+                        val name =
+                            doc.getString("name")
+                                ?: "Unnamed"
+
+                        val icon =
+                            doc.getString("icon")
+                                ?: ""
+
+                        val pageType =
+                            doc.getString("pageType")
+                                ?: ""
+
+                        val url =
+                            doc.getString("url")
+                                ?: ""
+
+                        val enabled =
+                            doc.getBoolean("enabled")
+                                ?: true
+
+                        val position =
+                            doc.getLong("position")
+                                ?: 0L
+
+                        val info =
+                            TextView(this).apply {
+
+                                text =
+                                    "$icon  $name\n" +
+                                    "Type: $pageType\n" +
+                                    "URL: $url\n" +
+                                    "Position: $position\n" +
+                                    "Enabled: ${if (enabled) "YES" else "NO"}"
+
+                                textSize = 12f
+
+                                setTextColor(
+                                    Color.DKGRAY
+                                )
+
+                                setPadding(
+                                    0,
+                                    0,
+                                    0,
+                                    dp(6)
+                                )
+                            }
+
+                        card.addView(
+                            info,
+                            LinearLayout.LayoutParams(
+                                -1,
+                                -2
+                            )
+                        )
+
+                        val buttons =
+                            LinearLayout(this).apply {
+
+                                orientation =
+                                    LinearLayout.HORIZONTAL
+                            }
+
+                        fun smallButton(
+                            title: String,
+                            action: () -> Unit
+                        ): Button {
+
+                            return Button(this).apply {
+
+                                text = title
+
+                                textSize = 10f
+
+                                minHeight = 0
+
+                                setPadding(
+                                    dp(2),
+                                    0,
+                                    dp(2),
+                                    0
+                                )
+
+                                setOnClickListener {
+                                    action()
+                                }
+                            }
+                        }
+
+                        buttons.addView(
+                            smallButton("✏️ Edit") {
+
+                                showEditSubCategoryDialog(
+                                    doc.id,
+                                    parentId,
+                                    doc
+                                )
+                            },
+                            LinearLayout.LayoutParams(
+                                0,
+                                dp(38),
+                                1f
+                            )
+                        )
+
+                        buttons.addView(
+                            smallButton("⬆ Up") {
+
+                            moveSubCategory(
+                                doc.id,
+                                parentId,
+                                position - 1,
+                                ::loadSubCategories
+                            )
+                        },
+                            LinearLayout.LayoutParams(
+                                0,
+                                dp(38),
+                                1f
+                            )
+                        )
+
+                        buttons.addView(
+                            smallButton("⬇ Down") {
+
+                                moveSubCategory(
+                                    doc.id,
+                                    parentId,
+                                    position + 1,
+                                    ::loadSubCategories
+                                )
+                            },
+                            LinearLayout.LayoutParams(
+                                0,
+                                dp(38),
+                                1f
+                            )
+                        )
+
+                        buttons.addView(
+                            smallButton("🗑 Delete") {
+
+                                AlertDialog.Builder(this)
+                                    .setTitle("Delete Sub-Category?")
+                                    .setMessage(
+                                        "क्या \"$name\" को delete करना है?"
+                                    )
+                                    .setNegativeButton(
+                                        "Cancel",
+                                        null
+                                    )
+                                    .setPositiveButton(
+                                        "Delete"
+                                    ) { _, _ ->
+
+                                        db.collection(
+                                            "home_subcategories"
+                                        )
+                                            .document(doc.id)
+                                            .delete()
+                                            .addOnSuccessListener {
+
+                                                toast(
+                                                    "Sub-Category deleted"
+                                                )
+
+                                                loadSubCategories(
+                                                    parentId
+                                                )
+                                            }
+                                            .addOnFailureListener { e ->
+
+                                                toast(
+                                                    "Delete failed: ${e.message}"
+                                                )
+                                            }
+                                    }
+                                    .show()
+                            },
+                            LinearLayout.LayoutParams(
+                                0,
+                                dp(38),
+                                1f
+                            )
+                        )
+
+                        listLayout.addView(
+                            card,
+                            LinearLayout.LayoutParams(
+                                -1,
+                                -2
+                            ).apply {
+
+                                bottomMargin = dp(8)
+                            }
+                        )
+                    }
+                }
+
+                scrollView.post {
+
+                    val child =
+                        scrollView.getChildAt(0)
+
+                    if (child != null) {
+
+                        val canScrollDown =
+                            scrollView.scrollY <
+                                    child.measuredHeight -
+                                    scrollView.measuredHeight
+
+                        if (canScrollDown) {
+
+                            scrollIndicator.text =
+                                "↓ नीचे और देखें"
+
+                            scrollIndicator.visibility =
+                                View.VISIBLE
+
+                        } else {
+
+                            scrollIndicator.visibility =
+                                View.GONE
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+
+                listLayout.removeAllViews()
+
+                val error =
+                    TextView(this).apply {
+
+                        text =
+                            "Data load नहीं हुआ:\n${e.message}"
+
+                        textSize = 13f
+
+                        setTextColor(Color.RED)
+
+                        setPadding(
+                            0,
+                            dp(15),
+                            0,
+                            dp(15)
+                        )
+                    }
+
+                listLayout.addView(
+                    error,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        -2
+                    )
+                )
+            }
+    }
+
+    // =====================================================
+    // CATEGORY CHANGE
+    // =====================================================
+
+    categorySpinner.onItemSelectedListener =
+        object : AdapterView.OnItemSelectedListener {
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                loadSubCategories(
+                    categories[position].lowercase(
+                        Locale.getDefault()
+                    ).replace(" ", "_")
+                )
+            }
+
+            override fun onNothingSelected(
+                parent: AdapterView<*>?
+            ) {
+            }
+        }
+
+    // =====================================================
+    // ADD SUB-CATEGORY
+    // =====================================================
+
+    addButton.setOnClickListener {
+
+        val selectedCategory =
+            categories[
+                categorySpinner.selectedItemPosition
+            ]
+
+        val parentId =
+            selectedCategory.lowercase(
+                Locale.getDefault()
+            ).replace(" ", "_")
+
+        showAddSubCategoryDialog(
+            parentId
+        ) {
+
+            loadSubCategories(parentId)
+        }
+    }
+
+    dialog.setView(root)
+
+    dialog.setButton(
+        AlertDialog.BUTTON_NEGATIVE,
+        "Close"
+    ) { _, _ ->
+        dialog.dismiss()
+    }
+
+    dialog.show()
+
+    loadSubCategories("teacher")
+}
     // =========================================================
     // SEED DEFAULT CATEGORIES
     // =========================================================
