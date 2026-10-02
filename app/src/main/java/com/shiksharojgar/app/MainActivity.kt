@@ -221,34 +221,35 @@ class MainActivity : AppCompatActivity() {
         ).setOnClickListener {
 
             val b =
-                findViewById<TextView>(R.id.refreshButton)
+                findViewById<TextView>(R.id.refreshButton).setOnClickListener {
 
-            /*
-             * केवल ↻ icon घूमेगा।
-             * Refresh text अपनी जगह स्थिर रहेगा।
-             */
-            b.text = "↻ Refresh"
-            b.isEnabled = false
+    val b =
+        findViewById<TextView>(R.id.refreshButton)
 
-            b.animate()
-                .rotationBy(720f)
-                .setDuration(700L)
-                .withEndAction {
-                    b.rotation = 0f
-                }
-                .start()
+    b.isEnabled = false
 
-            loadPosts {
+    b.text = "↻"
 
-                b.animate()
-                    .rotation(0f)
-                    .setDuration(150L)
-                    .start()
-
-                b.text = "↻"
-                b.isEnabled = true
-            }
+    b.animate()
+        .rotationBy(720f)
+        .setDuration(700L)
+        .withEndAction {
+            b.rotation = 0f
         }
+        .start()
+
+    loadPosts {
+
+        b.animate()
+            .rotation(0f)
+            .setDuration(150L)
+            .start()
+
+        b.text = "↻ Refresh"
+
+        b.isEnabled = true
+    }
+}
 
         findViewById<TextView>(
             R.id.searchButton
