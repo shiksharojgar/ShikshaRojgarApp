@@ -216,10 +216,6 @@ class MainActivity : AppCompatActivity() {
         setupWebsites()
         setupSocials()
 
-                findViewById<TextView>(
-            R.id.refreshButton
-        ).setOnClickListener {
-
             
                 findViewById<TextView>(
             R.id.refreshButton
