@@ -2300,10 +2300,10 @@ class AdminActivity : AppCompatActivity() {
 
     scrollView.addView(
         listLayout,
-        ScrollView.LayoutParams(
-            -1,
-            -2
-        )
+        android.widget.FrameLayout.LayoutParams(
+    -1,
+    -2
+)
     )
 
     root.addView(
@@ -2854,7 +2854,7 @@ private fun showAddSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
         }
 
     box.addView(
@@ -2872,7 +2872,7 @@ private fun showAddSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
         }
 
     box.addView(
@@ -2890,7 +2890,7 @@ private fun showAddSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             inputType =
                 android.text.InputType.TYPE_CLASS_TEXT or
@@ -2963,11 +2963,11 @@ private fun showAddSubCategoryDialog(
 
             hint = "Position"
 
-            text = "1"
+          setText("1")
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             inputType =
                 android.text.InputType.TYPE_CLASS_NUMBER
@@ -3143,7 +3143,7 @@ private fun showEditSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             setText(
                 doc.getString("name") ?: ""
@@ -3165,7 +3165,7 @@ private fun showEditSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             setText(
                 doc.getString("icon") ?: ""
@@ -3187,7 +3187,7 @@ private fun showEditSubCategoryDialog(
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             setText(
                 doc.getString("url") ?: ""
@@ -3283,12 +3283,13 @@ private fun showEditSubCategoryDialog(
 
             hint = "Position"
 
-            text =
-                oldPosition.toString()
+            setText(
+    oldPosition.toString()
+)
 
             textSize = 13f
 
-            singleLine = true
+            setSingleLine(true)
 
             inputType =
                 android.text.InputType.TYPE_CLASS_NUMBER
