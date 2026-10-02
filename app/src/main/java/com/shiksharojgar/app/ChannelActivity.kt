@@ -1924,11 +1924,12 @@ if (
 
                 setOnClickListener {
 
-                    toggleLike(
-                        p,
-                        currentLiked
-                    )
-                }
+    toggleLike(
+        p,
+        currentLiked,
+        this
+    )
+}
             }
 
         actions.addView(
@@ -2315,80 +2316,172 @@ if (
     }
 
     private fun toggleLike(
-        p: ChannelPost,
-        currentLiked: Boolean
-    ) {
+    p: ChannelPost,
+    currentLiked: Boolean,
+    likeButton: TextView
+) {
 
-        ChannelRepository.ensureSignedIn { connected ->
+    ChannelRepository.ensureSignedIn { connected ->
 
-            if (!connected) {
+        if (!connected) {
+
+            runOnUiThread {
+
+                Toast.makeText(
+                    this@ChannelActivity,
+                    "Like के लिए sign-in नहीं हो पाया",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            return@ensureSignedIn
+        }
+
+        val target =
+            !currentLiked
+
+        likedState[p.id] =
+            target
+
+        val base =
+            likeOverrides[p.id]
+                ?: p.likeCount
+
+        val newCount =
+            (
+                base +
+                    if (target) {
+                        1L
+                    } else {
+                        -1L
+                    }
+            ).coerceAtLeast(0L)
+
+        likeOverrides[p.id] =
+            newCount
+
+        runOnUiThread {
+
+            likeButton.text =
+                "👍 Like $newCount"
+
+            likeButton.setTextColor(
+                if (target) {
+                    Color.WHITE
+                } else {
+                    Color.rgb(
+                        14,
+                        91,
+                        215
+                    )
+                }
+            )
+
+            likeButton.background =
+                if (target) {
+
+                    GradientFactory.gradient(
+                        "#2563EB",
+                        "#38BDF8"
+                    )
+
+                } else {
+
+                    android.graphics.drawable
+                        .GradientDrawable()
+                        .apply {
+
+                            setColor(
+                                Color.WHITE
+                            )
+
+                            cornerRadius =
+                                dp(20).toFloat()
+
+                            setStroke(
+                                dp(1),
+                                Color.rgb(
+                                    14,
+                                    91,
+                                    215
+                                )
+                            )
+                        }
+                }
+        }
+
+        ChannelRepository.like(
+            p.id,
+            target
+        ) { ok ->
+
+            if (!ok) {
+
+                likedState[p.id] =
+                    currentLiked
+
+                likeOverrides[p.id] =
+                    p.likeCount
 
                 runOnUiThread {
 
+                    likeButton.text =
+                        "👍 Like ${p.likeCount}"
+
+                    likeButton.setTextColor(
+                        if (currentLiked) {
+                            Color.WHITE
+                        } else {
+                            Color.rgb(
+                                14,
+                                91,
+                                215
+                            )
+                        }
+                    )
+
+                    likeButton.background =
+                        if (currentLiked) {
+
+                            GradientFactory.gradient(
+                                "#2563EB",
+                                "#38BDF8"
+                            )
+
+                        } else {
+
+                            android.graphics.drawable
+                                .GradientDrawable()
+                                .apply {
+
+                                    setColor(
+                                        Color.WHITE
+                                    )
+
+                                    cornerRadius =
+                                        dp(20).toFloat()
+
+                                    setStroke(
+                                        dp(1),
+                                        Color.rgb(
+                                            14,
+                                            91,
+                                            215
+                                        )
+                                    )
+                                }
+                        }
+
                     Toast.makeText(
                         this@ChannelActivity,
-                        "Like के लिए sign-in नहीं हो पाया",
+                        "Like अपडेट नहीं हुआ",
                         Toast.LENGTH_SHORT
                     ).show()
-                }
-
-                return@ensureSignedIn
-            }
-
-            val target =
-                !currentLiked
-
-            /*
-             * Instant local state.
-             */
-            likedState[p.id] =
-                target
-
-            val base =
-                likeOverrides[p.id]
-                    ?: p.likeCount
-
-            likeOverrides[p.id] =
-                (
-                    base +
-                        if (target) {
-                            1L
-                        } else {
-                            -1L
-                        }
-                ).coerceAtLeast(0L)
-
-            runOnUiThread {
-                renderPosts()
-            }
-
-            ChannelRepository.like(
-                p.id,
-                target
-            ) { ok ->
-
-                if (!ok) {
-
-                    runOnUiThread {
-
-                        likedState[p.id] =
-                            currentLiked
-
-                        likeOverrides[p.id] =
-                            p.likeCount
-
-                        renderPosts()
-
-                        Toast.makeText(
-                            this@ChannelActivity,
-                            "Like अपडेट नहीं हुआ",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
             }
         }
     }
+}
 
     /*
      * POST SHARE
