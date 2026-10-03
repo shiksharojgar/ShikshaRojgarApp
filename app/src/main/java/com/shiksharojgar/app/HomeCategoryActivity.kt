@@ -148,7 +148,7 @@ class HomeCategoryActivity : AppCompatActivity() {
         val scroll =
             android.widget.ScrollView(this).apply {
 
-                fillViewport = true
+                isFillViewport = true
             }
 
         listLayout =
