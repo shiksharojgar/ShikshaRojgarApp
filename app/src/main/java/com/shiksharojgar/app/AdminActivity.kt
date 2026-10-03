@@ -3529,9 +3529,14 @@ private fun showEditSubCategoryDialog(
                     "pageType" to pageType,
                     "parentId" to parentId,
                     "position" to position,
-"buttonColor" to colorField.text
-    .toString()
-    .trim(),
+"buttonColor" to when (position % 6L) {
+    1L -> "#4CAF50"
+    2L -> "#2196F3"
+    3L -> "#9C27B0"
+    4L -> "#FF9800"
+    5L -> "#009688"
+    else -> "#E53935"
+},
 "enabled" to enabledSwitch.isChecked
                 )
 
