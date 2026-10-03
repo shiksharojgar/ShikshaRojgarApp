@@ -1158,17 +1158,35 @@ private fun openHomeCategory(
              */
             if (subCategories.isEmpty()) {
 
-                openMainCategoryDirectly(
-                    category
-                )
+    openMainCategoryDirectly(
+        category
+    )
 
-                return@addOnSuccessListener
-            }
+    return@addOnSuccessListener
+}
 
-            showHomeSubCategoryDialog(
-                category,
-                subCategories
-            )
+val intent =
+    Intent(
+        this,
+        HomeCategoryActivity::class.java
+    )
+
+intent.putExtra(
+    "categoryId",
+    category.id
+)
+
+intent.putExtra(
+    "categoryName",
+    category.name
+)
+
+intent.putExtra(
+    "categoryIcon",
+    category.icon
+)
+
+startActivity(intent)
         }
         .addOnFailureListener {
 
