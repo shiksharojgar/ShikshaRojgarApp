@@ -1501,68 +1501,67 @@ private fun loadFloatingNoticePhoto() {
             -1
         )
     )
+if (
+    label.equals(
+        "Notice/Update",
+        ignoreCase = true
+    ) ||
+    label.equals(
+        "Notice / Update",
+        ignoreCase = true
+    )
+) {
 
-    if (
-        label.equals(
-            "Notice/Update",
-            ignoreCase = true
-        ) ||
-        label.equals(
-            "Notice / Update",
-            ignoreCase = true
-        )
-    ) {
-        noticeCardView = frame
-        val badge =
-            TextView(this).apply {
+    noticeCardView = frame
 
-                id =
-                    R.id.noticeUnreadBadge
+    val badge =
+        TextView(this).apply {
 
-                text = "0"
+            id = R.id.noticeUnreadBadge
 
-                gravity =
-                    Gravity.CENTER
+            text = "0"
 
-                textSize = 14f
+            gravity = Gravity.CENTER
 
-                setTextColor(
-                    Color.WHITE
+            textSize = 13f
+
+            setTextColor(Color.WHITE)
+
+            typeface =
+                android.graphics.Typeface.DEFAULT_BOLD
+
+            background =
+                androidx.core.content.ContextCompat.getDrawable(
+                    this@MainActivity,
+                    R.drawable.badge_bg
                 )
 
-                typeface =
-                    android.graphics.Typeface.DEFAULT_BOLD
+            visibility = View.GONE
 
-                background =
-                    androidx.core.content.ContextCompat.getDrawable(
-                        this@MainActivity,
-                        R.drawable.badge_bg
-                    )
+            elevation = 12f
 
-                visibility =
-                    View.GONE
+            includeFontPadding = false
+        }
 
-                elevation = 8f
-            }
+    val badgeParams =
+        android.widget.FrameLayout.LayoutParams(
+            38,
+            38
+        ).apply {
 
-        val badgeParams =
-            android.widget.FrameLayout.LayoutParams(
-                36,
-                36
-            ).apply {
+            gravity =
+                Gravity.TOP or Gravity.END
 
-                gravity =
-                    Gravity.TOP or Gravity.END
+            topMargin = 2
 
-                topMargin = 2
-                rightMargin = 2
-            }
+            rightMargin = 2
+        }
 
-        frame.addView(
-            badge,
-            badgeParams
-        )
-    }
+    frame.addView(
+        badge,
+        badgeParams
+    )
+}
 
     return frame
 }
