@@ -3847,7 +3847,7 @@ private fun moveSubCategory(
                 setBackgroundColor(
     Color.rgb(76, 175, 80)
 )
-                )
+                
 
                 setOnClickListener {
 
