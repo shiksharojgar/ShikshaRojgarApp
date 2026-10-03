@@ -49,6 +49,8 @@
             <!-- Channel Card -->
 <FrameLayout
     android:id="@+id/channelButtonContainer"
+    android:clickable="true"
+    android:focusable="true"
     android:layout_width="match_parent"
     android:layout_height="88dp"
     android:layout_marginTop="12dp"
@@ -72,8 +74,7 @@
             android:textColor="@android:color/white"
             android:textSize="17sp"
             android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"/>
+            
 
         <TextView
             android:layout_width="wrap_content"
