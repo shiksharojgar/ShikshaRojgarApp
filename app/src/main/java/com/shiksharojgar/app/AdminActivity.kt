@@ -3249,7 +3249,9 @@ private fun showAddSubCategoryDialog(
 
                 return@setOnClickListener
             }
-
+val selectedNoticeImage =
+    noticeImageUri
+            
             val data =
                 hashMapOf<String, Any>(
                     "name" to name,
