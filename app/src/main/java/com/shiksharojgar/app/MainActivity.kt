@@ -171,9 +171,9 @@ class MainActivity : AppCompatActivity() {
          */
         setupQuickCards()
 
-        findViewById<TextView>(
-            R.id.channelButton
-        ).setOnClickListener {
+        findViewById<View>(
+    R.id.channelButtonContainer
+).setOnClickListener {
             startActivity(
                 Intent(
                     this,
