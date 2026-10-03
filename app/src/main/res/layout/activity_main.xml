@@ -73,7 +73,7 @@
             android:text="📢  शिक्षा रोजगार चैनल"
             android:textColor="@android:color/white"
             android:textSize="17sp"
-            android:textStyle="bold"
+            android:textStyle="bold"/>
             
 
         <TextView
