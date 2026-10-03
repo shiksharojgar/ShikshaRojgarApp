@@ -50,5 +50,7 @@
         </activity>
         <activity
     android:name=".HomeCategoryActivity" />
+        <activity
+    android:name=".NoticeActivity" />
     </application>
 </manifest>
