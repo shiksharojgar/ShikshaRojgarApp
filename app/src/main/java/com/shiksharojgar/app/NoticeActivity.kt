@@ -454,16 +454,24 @@ private fun loadNotices() {
                     doc
                 )
             }
-            getSharedPreferences(
+            val newestNoticeTime =
+    notices
+        .mapNotNull {
+            it.getLong("createdAt")
+        }
+        .maxOrNull()
+        ?: System.currentTimeMillis()
+
+getSharedPreferences(
     "sr_notifications",
     MODE_PRIVATE
 )
-    .edit()
-    .putLong(
-        "notice_last_seen_at",
-        System.currentTimeMillis()
-    )
-    .apply()
+.edit()
+.putLong(
+    "notice_last_seen_at",
+    newestNoticeTime
+)
+.apply()
         }
         .addOnFailureListener { e ->
 
