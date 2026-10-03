@@ -129,8 +129,6 @@
 
 </FrameLayout>
 
-</FrameLayout>
-
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quick Access"
             android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text" android:layout_marginTop="14dp" android:layout_marginBottom="8dp"/>
         <GridLayout android:id="@+id/quickGrid" android:layout_width="match_parent" android:layout_height="wrap_content"
