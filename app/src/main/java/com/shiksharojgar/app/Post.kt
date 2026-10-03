@@ -1,3 +1,10 @@
 package com.shiksharojgar.app
 
-data class Post(val title: String, val url: String, val date: String, val source: String)
+data class Post(
+    val title: String,
+    val url: String,
+    val date: String,
+    val source: String,
+    val description: String = "",
+    val imageUrl: String = ""
+)
