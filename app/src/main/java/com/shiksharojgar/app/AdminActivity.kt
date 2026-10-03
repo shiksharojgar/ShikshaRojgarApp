@@ -4102,6 +4102,401 @@ private fun showNoticeManager() {
             )
         }
 }
+// =========================================================
+// ADD / EDIT NOTICE
+// =========================================================
+
+private fun showNoticeEditDialog(
+    existing:
+        com.google.firebase.firestore.DocumentSnapshot?
+) {
+
+    val box =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(8),
+                dp(4),
+                dp(8),
+                dp(4)
+            )
+        }
+
+    val titleField =
+        EditText(this).apply {
+
+            hint =
+                "Notice Title"
+
+            textSize = 14f
+
+            setSingleLine(false)
+
+            setText(
+                existing?.getString(
+                    "title"
+                ) ?: ""
+            )
+        }
+
+    box.addView(
+        titleField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(55)
+        )
+    )
+
+    val bodyField =
+        EditText(this).apply {
+
+            hint =
+                "पूरा Notice / Update Text"
+
+            textSize = 14f
+
+            gravity =
+                Gravity.TOP
+
+            minLines = 6
+
+            setSingleLine(false)
+
+            setText(
+                existing?.getString(
+                    "body"
+                ) ?: ""
+            )
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        }
+
+    box.addView(
+        bodyField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(150)
+        )
+    )
+
+    val linkLabelField =
+        EditText(this).apply {
+
+            hint =
+                "Link का नाम — जैसे Official Website"
+
+            textSize = 13f
+
+            setText(
+                existing?.getString(
+                    "linkLabel"
+                ) ?: ""
+            )
+        }
+
+    box.addView(
+        linkLabelField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(50)
+        )
+    )
+
+    val linkUrlField =
+        EditText(this).apply {
+
+            hint =
+                "Clickable URL — https://..."
+
+            textSize = 13f
+
+            setText(
+                existing?.getString(
+                    "linkUrl"
+                ) ?: ""
+            )
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+
+    box.addView(
+        linkUrlField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(50)
+        )
+    )
+
+    val startField =
+        EditText(this).apply {
+
+            hint =
+                "Start Time — खाली = तुरंत"
+
+            textSize = 13f
+
+            setText(
+                (
+                    existing?.getLong(
+                        "startAt"
+                    ) ?: 0L
+                ).toString()
+            )
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+    box.addView(
+        startField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(50)
+        )
+    )
+
+    val endField =
+        EditText(this).apply {
+
+            hint =
+                "End Time — खाली/0 = हमेशा"
+
+            textSize = 13f
+
+            setText(
+                (
+                    existing?.getLong(
+                        "endAt"
+                    ) ?: 0L
+                ).toString()
+            )
+
+            inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+    box.addView(
+        endField,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(50)
+        )
+    )
+
+    val enabledSwitch =
+        Switch(this).apply {
+
+            text =
+                "🏠 Home पर Notice दिखाएँ"
+
+            textSize = 13f
+
+            isChecked =
+                existing?.getBoolean(
+                    "enabled"
+                ) ?: true
+        }
+
+    box.addView(
+        enabledSwitch,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    val dialog =
+        AlertDialog.Builder(this)
+            .setTitle(
+                if (existing == null) {
+                    "➕ Add Notice"
+                } else {
+                    "✏️ Edit Notice"
+                }
+            )
+            .setView(box)
+            .setNegativeButton(
+                "CANCEL",
+                null
+            )
+            .setPositiveButton(
+                "SAVE",
+                null
+            )
+            .create()
+
+    dialog.setOnShowListener {
+
+        dialog.getButton(
+            AlertDialog.BUTTON_POSITIVE
+        ).setOnClickListener {
+
+            val title =
+                titleField.text
+                    .toString()
+                    .trim()
+
+            val body =
+                bodyField.text
+                    .toString()
+                    .trim()
+
+            val linkLabel =
+                linkLabelField.text
+                    .toString()
+                    .trim()
+
+            val linkUrl =
+                linkUrlField.text
+                    .toString()
+                    .trim()
+
+            val startAt =
+                startField.text
+                    .toString()
+                    .trim()
+                    .toLongOrNull()
+                    ?: 0L
+
+            val endAt =
+                endField.text
+                    .toString()
+                    .trim()
+                    .toLongOrNull()
+                    ?: 0L
+
+            if (title.isBlank()) {
+
+                titleField.error =
+                    "Title जरूरी है"
+
+                return@setOnClickListener
+            }
+
+            if (body.isBlank()) {
+
+                bodyField.error =
+                    "Notice का पूरा Text लिखें"
+
+                return@setOnClickListener
+            }
+
+            if (
+                linkUrl.isNotBlank() &&
+                !linkUrl.startsWith(
+                    "http://"
+                ) &&
+                !linkUrl.startsWith(
+                    "https://"
+                )
+            ) {
+
+                linkUrlField.error =
+                    "URL https:// से शुरू करें"
+
+                return@setOnClickListener
+            }
+
+            if (
+                endAt > 0L &&
+                startAt > 0L &&
+                endAt < startAt
+            ) {
+
+                endField.error =
+                    "End Time, Start Time से बाद होना चाहिए"
+
+                return@setOnClickListener
+            }
+
+            val data =
+                hashMapOf<String, Any>(
+
+                    "title" to title,
+
+                    "body" to body,
+
+                    "linkLabel" to linkLabel,
+
+                    "linkUrl" to linkUrl,
+
+                    "startAt" to startAt,
+
+                    "endAt" to endAt,
+
+                    "enabled" to
+                        enabledSwitch.isChecked,
+
+                    "createdAt" to (
+                        existing?.getLong(
+                            "createdAt"
+                        ) ?: System.currentTimeMillis()
+                    )
+                )
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = false
+
+            val task =
+                if (existing == null) {
+
+                    db.collection(
+                        "home_notices"
+                    )
+                        .add(data)
+
+                } else {
+
+                    db.collection(
+                        "home_notices"
+                    )
+                        .document(
+                            existing.id
+                        )
+                        .set(
+                            data
+                        )
+                }
+
+            task.addOnSuccessListener {
+
+                toast(
+                    if (existing == null) {
+                        "Notice Added"
+                    } else {
+                        "Notice Updated"
+                    }
+                )
+
+                dialog.dismiss()
+            }
+                .addOnFailureListener { e ->
+
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = true
+
+                    toast(
+                        "Notice save नहीं हुआ: ${
+                            e.message
+                                ?: "Firestore error"
+                        }"
+                    )
+                }
+        }
+    }
+
+    dialog.show()
+}
     // =========================================================
     // SEED DEFAULT CATEGORIES
     // =========================================================
