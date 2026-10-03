@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     private val liveHandler = Handler(Looper.getMainLooper())
     private var floatingNoticeImage: ImageView? = null
-
+   private var noticeCardView: View? = null
     private val liveTickerRunnable = object : Runnable {
         override fun run() {
             animateTicker()
@@ -1398,7 +1398,7 @@ private fun loadFloatingNoticePhoto() {
             ignoreCase = true
         )
     ) {
-
+        noticeCardView = frame
         val badge =
             TextView(this).apply {
 
