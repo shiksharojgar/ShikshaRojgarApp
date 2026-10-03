@@ -625,6 +625,95 @@ morePostsButton.visibility =
                 View.GONE
             }
     }
+private fun updateNoticeUnreadCount() {
+
+    val noticeBadge =
+        findViewById<TextView?>(
+            resources.getIdentifier(
+                "noticeUnreadBadge",
+                "id",
+                packageName
+            )
+        )
+
+    if (noticeBadge == null) {
+        return
+    }
+
+    val lastSeen =
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
+            .getLong(
+                "notice_last_seen_at",
+                0L
+            )
+
+    FirebaseFirestore.getInstance()
+        .collection("home_notices")
+        .whereEqualTo(
+            "enabled",
+            true
+        )
+        .get()
+        .addOnSuccessListener { snapshot ->
+
+            val now =
+                System.currentTimeMillis()
+
+            val count =
+                snapshot.documents.count { doc ->
+
+                    val createdAt =
+                        doc.getLong(
+                            "createdAt"
+                        ) ?: 0L
+
+                    val startAt =
+                        doc.getLong(
+                            "startAt"
+                        ) ?: 0L
+
+                    val endAt =
+                        doc.getLong(
+                            "endAt"
+                        ) ?: 0L
+
+                    val active =
+                        (
+                            startAt == 0L ||
+                            now >= startAt
+                        ) &&
+                        (
+                            endAt == 0L ||
+                            now <= endAt
+                        )
+
+                    active &&
+                    createdAt > lastSeen
+                }
+
+            noticeBadge.text =
+                if (count > 99) {
+                    "99+"
+                } else {
+                    count.toString()
+                }
+
+            noticeBadge.visibility =
+                if (count > 0) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+        }
+        .addOnFailureListener {
+
+            noticeBadge.visibility =
+                View.GONE
+        }
+}
 
     // ============================================================
     // LIFECYCLE
