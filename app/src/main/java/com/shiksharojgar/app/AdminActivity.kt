@@ -1605,7 +1605,9 @@ class AdminActivity : AppCompatActivity() {
 
                 setOnClickListener {
 
-                    showHomeSubCategoryManager()
+                    showHomeSubCategoryManager(
+    ""
+)
                 }
             },
             LinearLayout.LayoutParams(
