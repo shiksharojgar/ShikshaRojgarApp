@@ -52,10 +52,26 @@ val content =
 val html =
     if (content.isNotBlank()) content else summary
 
+// Blogger CSS / JavaScript / HTML को Description से हटाएँ
+val cleanHtml =
+    html
+        .replace(
+            Regex("(?is)<style[^>]*>.*?</style>"),
+            ""
+        )
+        .replace(
+            Regex("(?is)<script[^>]*>.*?</script>"),
+            ""
+        )
+        .replace(
+            Regex("(?is)<!--.*?-->"),
+            ""
+        )
+
 val description =
     android.text.Html
         .fromHtml(
-            html,
+            cleanHtml,
             android.text.Html.FROM_HTML_MODE_LEGACY
         )
         .toString()
