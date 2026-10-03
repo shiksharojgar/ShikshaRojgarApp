@@ -1809,7 +1809,58 @@ class AdminActivity : AppCompatActivity() {
         }
 
         fixed.addView(pageManager)
+// =====================================================
+// NOTICE MANAGEMENT
+// =====================================================
 
+fixed.addView(
+    Button(this).apply {
+
+        text =
+            "📢 MANAGE NOTICES"
+
+        textSize = 12f
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        setBackgroundColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        minHeight = 0
+
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            0
+        )
+
+        setOnClickListener {
+
+            showNoticeManager()
+        }
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(42)
+    ).apply {
+
+        topMargin = dp(3)
+        bottomMargin = dp(3)
+    }
+)
         // =====================================================
         // MEDIA STORAGE + ANALYTICS
         // =====================================================
