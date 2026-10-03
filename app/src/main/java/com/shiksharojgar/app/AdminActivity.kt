@@ -2167,7 +2167,9 @@ class AdminActivity : AppCompatActivity() {
             }
     }
 
-    private fun showHomeSubCategoryManager() {
+    private fun showHomeSubCategoryManager(
+    parentId: String
+) {
 
     val dialog = AlertDialog.Builder(this)
         .setTitle("🔽 MANAGE SUB-CATEGORIES")
