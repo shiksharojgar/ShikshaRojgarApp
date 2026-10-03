@@ -17,17 +17,19 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn() && (
-        (
-          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true) ||
-          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true) ||
-          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
-        )
-        ||
-        request.auth.uid == configuredAdminUid()
-      );
-    }
-
+  return signedIn() && (
+    request.auth.uid == configuredAdminUid() ||
+    get(
+      /databases/$(database)/documents/users/$(request.auth.uid)
+    ).data.admin == true ||
+    get(
+      /databases/$(database)/documents/users/$(request.auth.uid)
+    ).data.isAdmin == true ||
+    get(
+      /databases/$(database)/documents/users/$(request.auth.uid)
+    ).data.role == "admin"
+  );
+}
 
     // =====================================================
     // USERS
