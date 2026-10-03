@@ -876,7 +876,12 @@ floatingNoticeImage?.let {
 
                     scaleType =
                         ImageView.ScaleType.CENTER_CROP
+background =
+    android.graphics.drawable.GradientDrawable().apply {
+        cornerRadius = 14f
+    }
 
+clipToOutline = true
                     elevation = 12f
 
                     setOnClickListener {
@@ -932,17 +937,17 @@ floatingNoticeImage = imageView
 
                     val animation =
                         TranslateAnimation(
-                            Animation.RELATIVE_TO_PARENT,
-                            1f,
-                            Animation.RELATIVE_TO_PARENT,
-                            -0.15f,
+    Animation.RELATIVE_TO_PARENT,
+    1f,
+    Animation.RELATIVE_TO_PARENT,
+    -1f,
                             Animation.RELATIVE_TO_PARENT,
                             0f,
                             Animation.RELATIVE_TO_PARENT,
                             0f
                         ).apply {
 
-                            duration = 7000L
+                            duration = 10000L
 
                             repeatCount =
                                 Animation.INFINITE
