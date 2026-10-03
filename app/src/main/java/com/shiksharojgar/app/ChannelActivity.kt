@@ -2661,95 +2661,64 @@ if (
     shareButton: TextView
 ) {
 
-        shareOverrides[p.id] =
-    (
-        shareOverrides[p.id]
-            ?: p.shareCount
-    ) + 1L
+    shareOverrides[p.id] =
+        (
+            shareOverrides[p.id]
+                ?: p.shareCount
+        ) + 1L
 
-runOnUiThread {
+    runOnUiThread {
+        shareButton.text =
+            "↗ Share ${shareOverrides[p.id]}"
+    }
 
-    shareButton.text =
-        "↗ Share ${shareOverrides[p.id]}"
-}
+    AnalyticsTracker.uniquePostShare(
+        this,
+        p.id
+    )
 
-AnalyticsTracker.uniquePostShare(
-            this,
-            p.id
-        )
+    val web =
+        "https://shiksha-rojgar.web.app/channel" +
+            "?post=${Uri.encode(p.id)}"
 
-        val web =
-            "https://shiksha-rojgar.web.app/channel" +
-                "?post=${Uri.encode(p.id)}"
+    val text =
+        buildString {
 
-        val app =
-            "shiksharojgar://channel/post/" +
-                Uri.encode(p.id)
+            append(
+                "📢 शिक्षा रोजगार चैनल\n"
+            )
 
-        val text =
-            buildString {
+            if (p.title.isNotBlank()) {
+                append(p.title)
+            }
 
+            if (p.body.isNotBlank()) {
                 append(
-                    "📢 शिक्षा रोजगार चैनल\n"
-                )
-
-                if (p.title.isNotBlank()) {
-                    append(p.title)
-                }
-
-                if (p.body.isNotBlank()) {
-
-                    append(
-                        "\n\n${p.body}"
-                    )
-                }
-
-                if (p.fileUrl.isNotBlank()) {
-
-                    append(
-                        "\n\n📄 PDF/Document: " +
-                            p.fileUrl
-                    )
-                }
-
-                append(
-                    "\n\n🌐 Channel Link:\n$web"
-                )
-
-                append(
-                    "\n📲 Direct App Link:\n$app"
+                    "\n\n${p.body}"
                 )
             }
 
-        try {
-
-            startActivity(
-                Intent.createChooser(
-                    Intent(
-                        Intent.ACTION_SEND
-                    ).apply {
-
-                        type =
-                            "text/plain"
-
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            text
-                        )
-                    },
-                    "Share Channel Post"
+            if (p.fileUrl.isNotBlank()) {
+                append(
+                    "\n\n📄 PDF/Document: " +
+                        p.fileUrl
                 )
+            }
+
+            append(
+                "\n\n🌐 पोस्ट खोलें:\n$web"
             )
-
-        } catch (_: Exception) {
-
-            Toast.makeText(
-                this,
-                "Share करने के लिए कोई app उपलब्ध नहीं है",
-                Toast.LENGTH_SHORT
-            ).show()
         }
-    }
+
+    ShareHelper.shareImageOrText(
+        this,
+        "Shiksha Rojgar Channel",
+        text,
+        p.imageUrl,
+        "Share Channel Post"
+    )
+}
+                            
 
     /*
      * COMMENTS
