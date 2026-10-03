@@ -711,20 +711,21 @@ private fun addNoticeCard(
 
                 setOnClickListener {
 
-                    try {
+    try {
 
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(
-                                    linkUrl
-                                )
-                            )
-                        )
+        startActivity(
+            Intent(
+                this@NoticeActivity,
+                WebViewActivity::class.java
+            ).putExtra(
+                "url",
+                linkUrl
+            )
+        )
 
-                    } catch (
-                        _: Exception
-                    ) {
+    } catch (
+        _: Exception
+    ) {
 
                         Toast.makeText(
                             this@NoticeActivity,
