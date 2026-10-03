@@ -37,7 +37,62 @@ object FeedLoader {
                     val l = links.optJSONObject(j) ?: continue
                     if (l.optString("rel") == "alternate") { link = l.optString("href"); break }
                 }
-                if (title.isNotBlank() && link.isNotBlank()) result += Post(title, link, published, source)
+                val summary =
+    entry.optJSONObject("summary")
+        ?.optString("\$t", "")
+        ?.trim()
+        .orEmpty()
+
+val content =
+    entry.optJSONObject("content")
+        ?.optString("\$t", "")
+        ?.trim()
+        .orEmpty()
+
+val html =
+    if (content.isNotBlank()) content else summary
+
+val description =
+    android.text.Html
+        .fromHtml(
+            html,
+            android.text.Html.FROM_HTML_MODE_LEGACY
+        )
+        .toString()
+        .replace(Regex("\\s+"), " ")
+        .trim()
+        .take(180)
+
+var imageUrl = ""
+
+val imageRegex =
+    Regex(
+        """<img[^>]+src=["']([^"']+)["']""",
+        RegexOption.IGNORE_CASE
+    )
+
+val imageMatch =
+    imageRegex.find(html)
+
+if (imageMatch != null) {
+    imageUrl =
+        imageMatch.groupValues[1]
+            .trim()
+}
+
+if (
+    title.isNotBlank() &&
+    link.isNotBlank()
+) {
+    result += Post(
+        title = title,
+        url = link,
+        date = published,
+        source = source,
+        description = description,
+        imageUrl = imageUrl
+    )
+}
             }
         } finally { connection.disconnect() }
         return result
