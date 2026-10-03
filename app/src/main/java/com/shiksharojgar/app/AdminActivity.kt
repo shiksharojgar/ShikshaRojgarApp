@@ -3760,7 +3760,348 @@ private fun moveSubCategory(
             )
         }
 }
+// =========================================================
+// NOTICE MANAGER
+// =========================================================
 
+private fun showNoticeManager() {
+
+    val box =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(6),
+                dp(4),
+                dp(6),
+                dp(6)
+            )
+        }
+
+    val scroll =
+        ScrollView(this).apply {
+
+            isFillViewport = true
+        }
+
+    val list =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+        }
+
+    scroll.addView(list)
+
+    box.addView(
+        scroll,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(430)
+        )
+    )
+
+    val addButton =
+        Button(this).apply {
+
+            text =
+                "➕ ADD NEW NOTICE"
+
+            textSize = 12f
+
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            setBackgroundColor(
+                Color.rgb(
+                    76,
+                    175,
+                    80
+                )
+            )
+
+            minHeight = 0
+
+            setOnClickListener {
+
+                showNoticeEditDialog(
+                    null
+                )
+            }
+        }
+
+    box.addView(
+        addButton,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(44)
+        ).apply {
+
+            topMargin = dp(5)
+        }
+    )
+
+    val dialog =
+        AlertDialog.Builder(this)
+            .setTitle(
+                "📢 Manage Notices"
+            )
+            .setView(box)
+            .setPositiveButton(
+                "CLOSE",
+                null
+            )
+            .create()
+
+    dialog.show()
+
+    db.collection(
+        "home_notices"
+    )
+        .get()
+        .addOnSuccessListener { snapshot ->
+
+            list.removeAllViews()
+
+            val docs =
+                snapshot.documents.sortedByDescending {
+
+                    it.getLong(
+                        "createdAt"
+                    ) ?: 0L
+                }
+
+            if (docs.isEmpty()) {
+
+                list.addView(
+                    TextView(this).apply {
+
+                        text =
+                            "अभी कोई Notice नहीं है।"
+
+                        textSize = 14f
+
+                        gravity =
+                            Gravity.CENTER
+
+                        setPadding(
+                            0,
+                            dp(25),
+                            0,
+                            dp(25)
+                        )
+                    }
+                )
+
+                return@addOnSuccessListener
+            }
+
+            docs.forEach { doc ->
+
+                val title =
+                    doc.getString(
+                        "title"
+                    ).orEmpty()
+
+                val enabled =
+                    doc.getBoolean(
+                        "enabled"
+                    ) ?: true
+
+                val startAt =
+                    doc.getLong(
+                        "startAt"
+                    ) ?: 0L
+
+                val endAt =
+                    doc.getLong(
+                        "endAt"
+                    ) ?: 0L
+
+                val card =
+                    LinearLayout(this).apply {
+
+                        orientation =
+                            LinearLayout.VERTICAL
+
+                        setPadding(
+                            dp(8),
+                            dp(6),
+                            dp(8),
+                            dp(6)
+                        )
+
+                        setBackgroundColor(
+                            Color.rgb(
+                                245,
+                                248,
+                                250
+                            )
+                        )
+                    }
+
+                val info =
+                    TextView(this).apply {
+
+                        text =
+                            "📢 $title\n" +
+                            "Enabled: " +
+                            if (enabled) {
+                                "YES"
+                            } else {
+                                "NO"
+                            } +
+                            "\nStart: $startAt" +
+                            "\nEnd: $endAt"
+
+                        textSize = 12f
+
+                        setTextColor(
+                            Color.DKGRAY
+                        )
+                    }
+
+                card.addView(
+                    info,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        -2
+                    )
+                )
+
+                val edit =
+                    Button(this).apply {
+
+                        text =
+                            "✏️ EDIT"
+
+                        textSize = 10f
+
+                        minHeight = 0
+
+                        setOnClickListener {
+
+                            showNoticeEditDialog(
+                                doc
+                            )
+                        }
+                    }
+
+                card.addView(
+                    edit,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        dp(36)
+                    )
+                )
+
+                val delete =
+                    Button(this).apply {
+
+                        text =
+                            "🗑 DELETE"
+
+                        textSize = 10f
+
+                        minHeight = 0
+
+                        setTextColor(
+                            Color.WHITE
+                        )
+
+                        setBackgroundColor(
+                            Color.rgb(
+                                185,
+                                35,
+                                35
+                            )
+                        )
+
+                        setOnClickListener {
+
+                            AlertDialog.Builder(
+                                this@AdminActivity
+                            )
+                                .setTitle(
+                                    "Delete Notice?"
+                                )
+                                .setMessage(
+                                    title
+                                )
+                                .setNegativeButton(
+                                    "CANCEL",
+                                    null
+                                )
+                                .setPositiveButton(
+                                    "DELETE"
+                                ) { _, _ ->
+
+                                    db.collection(
+                                        "home_notices"
+                                    )
+                                        .document(
+                                            doc.id
+                                        )
+                                        .delete()
+                                        .addOnSuccessListener {
+
+                                            toast(
+                                                "Notice deleted"
+                                            )
+
+                                            showNoticeManager()
+                                        }
+                                        .addOnFailureListener { e ->
+
+                                            toast(
+                                                e.message
+                                                    ?: "Delete failed"
+                                            )
+                                        }
+                                }
+                                .show()
+                        }
+                    }
+
+                card.addView(
+                    delete,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        dp(36)
+                    )
+                )
+
+                list.addView(
+                    card,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        -2
+                    ).apply {
+
+                        bottomMargin =
+                            dp(6)
+                    }
+                )
+            }
+        }
+        .addOnFailureListener { e ->
+
+            toast(
+                "Notice पढ़ने में समस्या: ${
+                    e.message
+                        ?: "Firestore error"
+                }"
+            )
+        }
+}
     // =========================================================
     // SEED DEFAULT CATEGORIES
     // =========================================================
