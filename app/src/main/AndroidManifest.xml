@@ -1,20 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application
-        <manifest>
-        <provider
-    android:name="androidx.core.content.FileProvider"
-    android:authorities="com.shiksharojgar.app.fileprovider"
-    android:exported="false"
-    android:grantUriPermissions="true">
-
-    <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/file_paths" />
-
-</provider>
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Shiksha Rojgar"
@@ -22,47 +14,119 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
-        <activity android:name=".WebViewActivity" android:exported="false" />
-        <activity android:name=".ContentPageActivity" android:exported="false" />
-        <service android:name=".ShikshaMessagingService" android:exported="false">
+
+        <activity
+            android:name=".WebViewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ContentPageActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".ShikshaMessagingService"
+            android:exported="false">
+
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
+
         </service>
-        <activity android:name=".ChannelActivity" android:exported="true" android:launchMode="singleTop">
+
+        <activity
+            android:name=".ChannelActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+
+            <!-- Existing custom App Link -->
             <intent-filter>
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="shiksharojgar" android:host="channel" />
-                <data android:scheme="shiksharojgar" android:host="channel" android:pathPrefix="/post" />
+
+                <data
+                    android:scheme="shiksharojgar"
+                    android:host="channel" />
+
+                <data
+                    android:scheme="shiksharojgar"
+                    android:host="channel"
+                    android:pathPrefix="/post" />
+
             </intent-filter>
+
+            <!-- Existing website App Link -->
             <intent-filter android:autoVerify="true">
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="www.shiksharojgar.com" android:pathPrefix="/app/channel" />
+
+                <data
+                    android:scheme="https"
+                    android:host="www.shiksharojgar.com"
+                    android:pathPrefix="/app/channel" />
+
             </intent-filter>
+
+            <!-- Firebase Hosting App Link -->
             <intent-filter android:autoVerify="true">
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="shiksha-rojgar.web.app" android:pathPrefix="/channel" />
+
+                <data
+                    android:scheme="https"
+                    android:host="shiksha-rojgar.web.app"
+                    android:pathPrefix="/channel" />
+
             </intent-filter>
+
         </activity>
-        <activity android:name=".AdminActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <provider android:name="androidx.core.content.FileProvider" android:authorities="com.shiksharojgar.app.fileprovider" android:exported="false" android:grantUriPermissions="true">
-            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- FileProvider: only ONE provider is required -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.shiksharojgar.app.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
         </provider>
-        <activity android:name=".MainActivity" android:exported="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+
             <intent-filter>
+
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
+
         </activity>
+
         <activity
-    android:name=".HomeCategoryActivity" />
+            android:name=".HomeCategoryActivity" />
+
         <activity
-    android:name=".NoticeActivity" />
+            android:name=".NoticeActivity" />
+
     </application>
+
 </manifest>
