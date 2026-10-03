@@ -806,21 +806,24 @@ loadFloatingNoticePhoto()
     // LIVE BREAKING
     // ============================================================
 
-   private fun loadFloatingNoticePhoto() {
+private fun loadFloatingNoticePhoto() {
 
     val root =
         findViewById<android.view.ViewGroup>(
             android.R.id.content
         )
-floatingNoticeImage?.let {
-    root.removeView(it)
-    floatingNoticeImage = null
-}
-    FirebaseFirestore
-        .getInstance()
+
+    floatingNoticeImage?.let {
+        root.removeView(it)
+        floatingNoticeImage = null
+    }
+
+    FirebaseFirestore.getInstance()
         .collection("home_notices")
-        .whereEqualTo("enabled", true)
-        .whereEqualTo("floatingPhoto", true)
+        .whereEqualTo(
+            "enabled",
+            true
+        )
         .get()
         .addOnSuccessListener { snapshot ->
 
@@ -830,114 +833,190 @@ floatingNoticeImage?.let {
             val notice =
                 snapshot.documents
                     .sortedByDescending {
-                        it.getLong("createdAt") ?: 0L
+                        it.getLong(
+                            "createdAt"
+                        ) ?: 0L
                     }
                     .firstOrNull { doc ->
 
                         val startAt =
-                            doc.getLong("startAt") ?: 0L
+                            doc.getLong(
+                                "startAt"
+                            ) ?: 0L
 
                         val endAt =
-                            doc.getLong("endAt") ?: 0L
+                            doc.getLong(
+                                "endAt"
+                            ) ?: 0L
 
                         val imageUrl =
-                            doc.getString("imageUrl")
-                                .orEmpty()
+                            doc.getString(
+                                "imageUrl"
+                            ).orEmpty()
 
                         imageUrl.isNotBlank() &&
-                            (startAt == 0L || now >= startAt) &&
-                            (endAt == 0L || now <= endAt)
+                        (
+                            startAt == 0L ||
+                            now >= startAt
+                        ) &&
+                        (
+                            endAt == 0L ||
+                            now <= endAt
+                        )
                     }
                     ?: return@addOnSuccessListener
 
             val imageUrl =
-                notice.getString("imageUrl")
-                    ?: return@addOnSuccessListener
+                notice.getString(
+                    "imageUrl"
+                ).orEmpty()
+
+            if (imageUrl.isBlank()) {
+                return@addOnSuccessListener
+            }
 
             val imageView =
                 ImageView(this).apply {
 
                     scaleType =
                         ImageView.ScaleType.CENTER_CROP
-background =
-    android.graphics.drawable.GradientDrawable().apply {
-        cornerRadius = 14f
-    }
 
-clipToOutline = true
-                    elevation = 12f
-
-                    setOnClickListener {
-
-                        val link =
-                            notice.getString(
-                                "linkUrl"
-                            ).orEmpty()
-
-                        if (link.isNotBlank()) {
-                            openInApp(link)
+                    background =
+                        GradientDrawable().apply {
+                            cornerRadius = 18f
                         }
-                    }
+
+                    clipToOutline = true
+
+                    elevation = 12f
                 }
 
             val size =
-    (75 * resources.displayMetrics.density)
-        .toInt()
+                (
+                    85 *
+                    resources.displayMetrics.density
+                ).toInt()
 
-val params =
-    android.widget.FrameLayout.LayoutParams(
-        size,
-        size
-    ).apply {
+            val params =
+                android.widget.FrameLayout.LayoutParams(
+                    size,
+                    size
+                ).apply {
 
                     gravity =
-                        Gravity.TOP or Gravity.END
+                        Gravity.TOP or
+                        Gravity.CENTER_HORIZONTAL
 
                     topMargin =
-                        (120 * resources.displayMetrics.density)
-                            .toInt()
-
-                    rightMargin =
-                        (8 * resources.displayMetrics.density)
-                            .toInt()
+                        (
+                            170 *
+                            resources.displayMetrics.density
+                        ).toInt()
                 }
-floatingNoticeImage = imageView
-            
+
+            floatingNoticeImage =
+                imageView
+
             root.addView(
                 imageView,
                 params
             )
 
             ChannelRepository.loadImage(
-    imageUrl
-) { bitmap, error ->
+                imageUrl
+            ) { bitmap, _ ->
 
-                if (bitmap != null) {
+                if (bitmap == null) {
+                    return@loadImage
+                }
+
+                runOnUiThread {
 
                     imageView.setImageBitmap(
                         bitmap
                     )
 
                     val animation =
-                        TranslateAnimation(
-    Animation.RELATIVE_TO_PARENT,
-    1f,
-    Animation.RELATIVE_TO_PARENT,
-    -1f,
-                            Animation.RELATIVE_TO_PARENT,
-                            0f,
-                            Animation.RELATIVE_TO_PARENT,
-                            0f
+                        android.view.animation.AnimationSet(
+                            true
                         ).apply {
 
-                            duration = 10000L
+                            duration = 9000L
 
-                            repeatCount =
-                                Animation.INFINITE
+                            fillAfter = false
 
-                            repeatMode =
-                                Animation.RESTART
+                            addAnimation(
+                                android.view.animation.TranslateAnimation(
+                                    0f,
+                                    0f,
+                                    -80f,
+                                    500f
+                                )
+                            )
+
+                            addAnimation(
+                                android.view.animation.ScaleAnimation(
+                                    0.65f,
+                                    1.0f,
+                                    0.65f,
+                                    1.0f,
+                                    android.view.animation.Animation.RELATIVE_TO_SELF,
+                                    0.5f,
+                                    android.view.animation.Animation.RELATIVE_TO_SELF,
+                                    0.5f
+                                )
+                            )
+
+                            addAnimation(
+                                android.view.animation.AlphaAnimation(
+                                    0.0f,
+                                    1.0f
+                                )
+                            )
                         }
+
+                    animation.setAnimationListener(
+                        object :
+                            android.view.animation.Animation.AnimationListener {
+
+                            override fun onAnimationStart(
+                                animation:
+                                    android.view.animation.Animation?
+                            ) {
+                            }
+
+                            override fun onAnimationRepeat(
+                                animation:
+                                    android.view.animation.Animation?
+                            ) {
+                            }
+
+                            override fun onAnimationEnd(
+                                animation:
+                                    android.view.animation.Animation?
+                            ) {
+
+                                imageView.animate()
+                                    .alpha(0f)
+                                    .setDuration(700L)
+                                    .withEndAction {
+
+                                        root.removeView(
+                                            imageView
+                                        )
+
+                                        if (
+                                            floatingNoticeImage ===
+                                            imageView
+                                        ) {
+                                            floatingNoticeImage =
+                                                null
+                                        }
+                                    }
+                                    .start()
+                            }
+                        }
+                    )
 
                     imageView.startAnimation(
                         animation
@@ -946,6 +1025,7 @@ floatingNoticeImage = imageView
             }
         }
 }
+
     private fun setupLiveBreaking() {
 
         val live =
