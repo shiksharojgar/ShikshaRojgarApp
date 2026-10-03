@@ -928,8 +928,8 @@ floatingNoticeImage = imageView
             )
 
             ChannelRepository.loadImage(
-                imageUrl
-            ) { bitmap ->
+    imageUrl
+) { bitmap, error ->
 
                 if (bitmap != null) {
 
