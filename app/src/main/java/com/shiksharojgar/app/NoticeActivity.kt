@@ -270,6 +270,16 @@ private fun loadNotices() {
                     doc
                 )
             }
+            getSharedPreferences(
+    "sr_notifications",
+    MODE_PRIVATE
+)
+    .edit()
+    .putLong(
+        "notice_last_seen_at",
+        System.currentTimeMillis()
+    )
+    .apply()
         }
         .addOnFailureListener { e ->
 
