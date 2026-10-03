@@ -741,12 +741,14 @@ loadFloatingNoticePhoto()
 
     override fun onPause() {
 
-        liveHandler.removeCallbacks(
-            liveTickerRunnable
-        )
+    liveHandler.removeCallbacks(
+        liveTickerRunnable
+    )
 
-        super.onPause()
-    }
+    floatingNoticeImage?.clearAnimation()
+
+    super.onPause()
+}
 
     override fun onDestroy() {
 
