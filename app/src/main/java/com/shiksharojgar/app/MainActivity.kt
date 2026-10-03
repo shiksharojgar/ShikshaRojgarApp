@@ -659,6 +659,18 @@ private fun updateNoticeUnreadCount() {
         return
     }
 
+    val prefs =
+        getSharedPreferences(
+            "sr_notifications",
+            MODE_PRIVATE
+        )
+
+    val lastSeen =
+        prefs.getLong(
+            "notice_last_seen_at",
+            0L
+        )
+
     FirebaseFirestore.getInstance()
         .collection("home_notices")
         .whereEqualTo(
@@ -684,6 +696,11 @@ private fun updateNoticeUnreadCount() {
                             "endAt"
                         ) ?: 0L
 
+                    val createdAt =
+                        doc.getLong(
+                            "createdAt"
+                        ) ?: 0L
+
                     (
                         startAt == 0L ||
                         now >= startAt
@@ -691,7 +708,8 @@ private fun updateNoticeUnreadCount() {
                     (
                         endAt == 0L ||
                         now <= endAt
-                    )
+                    ) &&
+                    createdAt > lastSeen
                 }
 
             noticeBadge.text =
@@ -1506,7 +1524,7 @@ private fun loadFloatingNoticePhoto() {
                 gravity =
                     Gravity.CENTER
 
-                textSize = 13f
+                textSize = 14f
 
                 setTextColor(
                     Color.WHITE
@@ -1529,8 +1547,8 @@ private fun loadFloatingNoticePhoto() {
 
         val badgeParams =
             android.widget.FrameLayout.LayoutParams(
-                32,
-                32
+                36,
+                36
             ).apply {
 
                 gravity =
