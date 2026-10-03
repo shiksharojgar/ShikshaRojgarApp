@@ -174,7 +174,8 @@
     android:layout_height="44dp"
     android:orientation="horizontal"
     android:gravity="center"
-    android:elevation="10dp">
+    android:background="@android:color/transparent"
+    android:elevation="0dp">
 
     <TextView
         android:id="@+id/morePostsButton"
