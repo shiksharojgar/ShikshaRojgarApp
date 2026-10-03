@@ -22,7 +22,7 @@
             android:gravity="center" android:text="🔔" android:textSize="21sp" android:clickable="true" android:focusable="true"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="45dp"
         android:background="@color/navy" android:gravity="center_vertical"
         android:paddingStart="10dp" android:paddingEnd="10dp">
         <TextView android:id="@+id/searchButton" android:layout_width="match_parent" android:layout_height="40dp"
@@ -45,36 +45,32 @@
             </FrameLayout>
         </LinearLayout>
 
-        <FrameLayout
-    android:id="@+id/channelButtonContainer"
+        <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="88dp"
-    android:layout_marginTop="12dp"
-    android:background="@drawable/channel_card_bg"
-    android:elevation="8dp">
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingStart="18dp"
+    android:paddingEnd="90dp">
 
     <TextView
         android:id="@+id/channelButton"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:paddingStart="18dp"
-        android:paddingEnd="90dp"
-        android:text="📢  शिक्षा रोजगार चैनल\n👥 Join / Follow  •  सरकारी आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी • नौकरी • परीक्षा • रिजल्ट • महत्वपूर्ण अपडेट"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📢  शिक्षा रोजगार चैनल"
         android:textColor="@android:color/white"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:clickable="true"
-        android:focusable="true"/>
+        android:textSize="17sp"
+        android:textStyle="bold"/>
 
-    <LinearLayout
-        android:layout_width="82dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end|center_vertical"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingTop="7dp"
-        android:paddingBottom="5dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="👥 Join / Follow  •  सरकारी आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी • नौकरी • परीक्षा • रिजल्ट • महत्वपूर्ण अपडेट"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"/>
+</LinearLayout>
 
         <FrameLayout
             android:layout_width="32dp"
