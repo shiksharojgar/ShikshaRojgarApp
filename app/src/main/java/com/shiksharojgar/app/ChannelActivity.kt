@@ -532,7 +532,7 @@ private fun samePostContent(
 
             view.setPadding(
                 view.paddingLeft,
-                top + dp(6),
+                top + dp(10),
                 view.paddingRight,
                 dp(6)
             )
@@ -663,7 +663,7 @@ private fun samePostContent(
             toolbar,
             LinearLayout.LayoutParams(
                 -1,
-                dp(62)
+                dp(66)
             )
         )
 /*
