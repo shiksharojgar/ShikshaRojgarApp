@@ -1086,6 +1086,15 @@ morePostsButton.visibility =
 private fun openHomeCategory(
     category: HomeCategory
 ) {
+if (category.id == "notices") {
+    startActivity(
+        Intent(
+            this,
+            NoticeActivity::class.java
+        )
+    )
+    return
+}
 
     FirebaseFirestore.getInstance()
         .collection("home_subcategories")
