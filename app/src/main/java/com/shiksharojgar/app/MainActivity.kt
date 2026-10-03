@@ -829,7 +829,10 @@ private fun updateNoticeUnreadCount() {
         findViewById<android.view.ViewGroup>(
             android.R.id.content
         )
-
+floatingNoticeImage?.let {
+    root.removeView(it)
+    floatingNoticeImage = null
+}
     FirebaseFirestore
         .getInstance()
         .collection("home_notices")
@@ -910,7 +913,8 @@ private fun updateNoticeUnreadCount() {
                         (8 * resources.displayMetrics.density)
                             .toInt()
                 }
-
+floatingNoticeImage = imageView
+            
             root.addView(
                 imageView,
                 params
