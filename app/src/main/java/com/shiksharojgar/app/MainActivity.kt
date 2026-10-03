@@ -452,11 +452,18 @@ contentScroll.setOnScrollChangeListener {
         child.height - 24
 
     topPostsButton.visibility =
-        if (atBottom) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+    if (atBottom) {
+        View.VISIBLE
+    } else {
+        View.GONE
+    }
+
+morePostsButton.visibility =
+    if (atBottom) {
+        View.GONE
+    } else {
+        View.VISIBLE
+    }
 }
         loadPosts()
 
