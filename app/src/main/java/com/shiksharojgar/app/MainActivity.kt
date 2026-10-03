@@ -1206,7 +1206,7 @@ private fun updateNoticeUnreadCount() {
                 gravity =
                     Gravity.CENTER
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     Color.WHITE
@@ -1218,7 +1218,7 @@ private fun updateNoticeUnreadCount() {
                 background =
                     androidx.core.content.ContextCompat.getDrawable(
                         this@MainActivity,
-                        R.drawable.notice_badge_background
+                        R.drawable.badge_bg
                     )
 
                 visibility =
@@ -1229,8 +1229,8 @@ private fun updateNoticeUnreadCount() {
 
         val badgeParams =
             android.widget.FrameLayout.LayoutParams(
-                26,
-                26
+                32,
+                32
             ).apply {
 
                 gravity =
