@@ -3944,6 +3944,12 @@ private fun moveSubCategory(
 
                 ellipsize =
                     android.text.TextUtils.TruncateAt.END
+                setOnClickListener {
+
+    showHomeSubCategoryManager(
+        doc.id
+    )
+                }
             },
             LinearLayout.LayoutParams(
                 0,
