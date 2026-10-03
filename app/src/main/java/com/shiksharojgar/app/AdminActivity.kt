@@ -4229,6 +4229,30 @@ box.addView(
         bottomMargin = dp(4)
     }
 )
+// =========================================================
+// HOME FLOATING PHOTO
+// =========================================================
+
+val floatingPhotoSwitch =
+    Switch(this).apply {
+
+        text = "🏠 Home Page पर Floating Photo दिखाएँ"
+
+        textSize = 13f
+
+        isChecked =
+            existing?.getBoolean(
+                "floatingPhoto"
+            ) ?: false
+    }
+
+box.addView(
+    floatingPhotoSwitch,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(50)
+    )
+)
     val linkLabelField =
         EditText(this).apply {
 
@@ -4493,6 +4517,8 @@ fun saveNotice(
 
             "enabled" to
                 enabledSwitch.isChecked,
+            "floatingPhoto" to
+    floatingPhotoSwitch.isChecked,
 
             "createdAt" to (
                 existing?.getLong(
