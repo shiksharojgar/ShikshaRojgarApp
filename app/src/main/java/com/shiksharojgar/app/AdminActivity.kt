@@ -46,7 +46,20 @@ class AdminActivity : AppCompatActivity() {
     private val selectedPostIds = mutableSetOf<String>()
 
     private var phoneVerificationId: String? = null
+    
+// =========================================================
+// NOTICE PHOTO PICKER
+// =========================================================
 
+private var noticeImageUri: Uri? = null
+
+private val pickNoticeImage =
+    registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+
+        noticeImageUri = uri
+    }
     // =========================================================
     // IMAGE PICKER
     // =========================================================
@@ -4184,7 +4197,36 @@ private fun showNoticeEditDialog(
             dp(150)
         )
     )
+// =========================================================
+// NOTICE PHOTO
+// =========================================================
 
+val noticePhotoButton =
+    Button(this).apply {
+
+        text = "📷 NOTICE PHOTO चुनें"
+
+        textSize = 12f
+
+        setOnClickListener {
+
+            pickNoticeImage.launch(
+                "image/*"
+            )
+        }
+    }
+
+box.addView(
+    noticePhotoButton,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(44)
+    ).apply {
+
+        topMargin = dp(4)
+        bottomMargin = dp(4)
+    }
+)
     val linkLabelField =
         EditText(this).apply {
 
