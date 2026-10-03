@@ -12,6 +12,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -339,6 +341,25 @@ root.addView(
         dp(70)
     )
 )
+
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
+
+    val navigationBottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        view.paddingTop,
+        view.paddingRight,
+        navigationBottom + dp(6)
+    )
+
+    insets
+}
 
 return root
 }
