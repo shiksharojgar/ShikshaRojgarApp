@@ -393,7 +393,71 @@ class MainActivity : AppCompatActivity() {
         ).setOnClickListener {
             showMenu()
         }
+// ============================================================
+// LATEST POSTS NAVIGATION
+// ============================================================
 
+val contentScroll =
+    findViewById<android.widget.ScrollView>(
+        R.id.contentScroll
+    )
+
+val morePostsButton =
+    findViewById<TextView>(
+        R.id.morePostsButton
+    )
+
+val topPostsButton =
+    findViewById<TextView>(
+        R.id.topPostsButton
+    )
+
+morePostsButton.setOnClickListener {
+
+    contentScroll.post {
+
+        contentScroll.smoothScrollTo(
+            0,
+            findViewById<View>(
+                R.id.postsRecycler
+            ).top
+        )
+    }
+}
+
+topPostsButton.setOnClickListener {
+
+    contentScroll.smoothScrollTo(
+        0,
+        0
+    )
+}
+
+contentScroll.setOnScrollChangeListener {
+        v,
+        _,
+        scrollY,
+        _,
+        _ ->
+
+    val scrollView =
+        v as android.widget.ScrollView
+
+    val child =
+        scrollView.getChildAt(0)
+
+    val atBottom =
+        scrollY +
+        scrollView.height >=
+        child.height - 24
+
+    topPostsButton.visibility =
+        if (atBottom) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+}
         loadPosts()
 
         startLocalChannelUnreadTracker()
