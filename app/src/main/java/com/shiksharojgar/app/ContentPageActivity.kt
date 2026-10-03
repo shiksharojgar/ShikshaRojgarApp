@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ContentPageActivity : AppCompatActivity() {
@@ -268,6 +270,25 @@ root.addView(
         70
     )
 )
+
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
+
+    val navigationBottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        view.paddingTop,
+        view.paddingRight,
+        navigationBottom + 6
+    )
+
+    insets
+}
 
 return root
     }
