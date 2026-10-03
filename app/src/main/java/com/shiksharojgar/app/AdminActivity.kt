@@ -3099,25 +3099,7 @@ private fun showAddSubCategoryDialog(
             dp(48)
         )
     )
-val colorField =
-    EditText(this).apply {
 
-        hint = "Button Color HEX e.g. #E3F2FD"
-
-        textSize = 13f
-
-        setSingleLine(true)
-
-        setText("#E3F2FD")
-    }
-
-box.addView(
-    colorField,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(48)
-    )
-)
     val enabledSwitch =
         Switch(this).apply {
 
