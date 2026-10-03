@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 class MainActivity : AppCompatActivity() {
 
     private val liveHandler = Handler(Looper.getMainLooper())
+    private var floatingNoticeImage: ImageView? = null
 
     private val liveTickerRunnable = object : Runnable {
         override fun run() {
@@ -822,6 +823,137 @@ private fun updateNoticeUnreadCount() {
     // LIVE BREAKING
     // ============================================================
 
+   private fun loadFloatingNoticePhoto() {
+
+    val root =
+        findViewById<android.view.ViewGroup>(
+            android.R.id.content
+        )
+
+    FirebaseFirestore
+        .getInstance()
+        .collection("home_notices")
+        .whereEqualTo("enabled", true)
+        .whereEqualTo("floatingPhoto", true)
+        .get()
+        .addOnSuccessListener { snapshot ->
+
+            val now =
+                System.currentTimeMillis()
+
+            val notice =
+                snapshot.documents
+                    .sortedByDescending {
+                        it.getLong("createdAt") ?: 0L
+                    }
+                    .firstOrNull { doc ->
+
+                        val startAt =
+                            doc.getLong("startAt") ?: 0L
+
+                        val endAt =
+                            doc.getLong("endAt") ?: 0L
+
+                        val imageUrl =
+                            doc.getString("imageUrl")
+                                .orEmpty()
+
+                        imageUrl.isNotBlank() &&
+                            (startAt == 0L || now >= startAt) &&
+                            (endAt == 0L || now <= endAt)
+                    }
+                    ?: return@addOnSuccessListener
+
+            val imageUrl =
+                notice.getString("imageUrl")
+                    ?: return@addOnSuccessListener
+
+            val imageView =
+                ImageView(this).apply {
+
+                    scaleType =
+                        ImageView.ScaleType.CENTER_CROP
+
+                    elevation = 12f
+
+                    setOnClickListener {
+
+                        val link =
+                            notice.getString(
+                                "linkUrl"
+                            ).orEmpty()
+
+                        if (link.isNotBlank()) {
+                            openInApp(link)
+                        }
+                    }
+                }
+
+            val size =
+                (90 * resources.displayMetrics.density)
+                    .toInt()
+
+            val params =
+                android.widget.FrameLayout.LayoutParams(
+                    size,
+                    size
+                ).apply {
+
+                    gravity =
+                        Gravity.TOP or Gravity.END
+
+                    topMargin =
+                        (120 * resources.displayMetrics.density)
+                            .toInt()
+
+                    rightMargin =
+                        (8 * resources.displayMetrics.density)
+                            .toInt()
+                }
+
+            root.addView(
+                imageView,
+                params
+            )
+
+            ChannelRepository.loadImage(
+                imageUrl
+            ) { bitmap ->
+
+                if (bitmap != null) {
+
+                    imageView.setImageBitmap(
+                        bitmap
+                    )
+
+                    val animation =
+                        TranslateAnimation(
+                            Animation.RELATIVE_TO_PARENT,
+                            1f,
+                            Animation.RELATIVE_TO_PARENT,
+                            -0.15f,
+                            Animation.RELATIVE_TO_PARENT,
+                            0f,
+                            Animation.RELATIVE_TO_PARENT,
+                            0f
+                        ).apply {
+
+                            duration = 7000L
+
+                            repeatCount =
+                                Animation.INFINITE
+
+                            repeatMode =
+                                Animation.RESTART
+                        }
+
+                    imageView.startAnimation(
+                        animation
+                    )
+                }
+            }
+        }
+}
     private fun setupLiveBreaking() {
 
         val live =
