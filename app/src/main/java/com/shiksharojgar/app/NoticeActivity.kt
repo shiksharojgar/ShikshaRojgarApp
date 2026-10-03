@@ -28,24 +28,6 @@ override fun onCreate(savedInstanceState: Bundle?) {
     setContentView(buildUi())
 
     loadNotices()
-
-    /*
-     * Notice page खोलते ही वर्तमान notices को
-     * read माना जाएगा।
-     *
-     * Home पर unread badge के लिए यही timestamp
-     * बाद में MainActivity इस्तेमाल करेगी।
-     */
-    getSharedPreferences(
-        "sr_notifications",
-        MODE_PRIVATE
-    )
-        .edit()
-        .putLong(
-            "notice_last_seen_at",
-            System.currentTimeMillis()
-        )
-        .apply()
 }
 
 // ============================================================
@@ -212,11 +194,7 @@ private fun loadNotices() {
             "enabled",
             true
         )
-        .orderBy(
-            "createdAt",
-            Query.Direction.DESCENDING
-        )
-        .limit(50)
+        
         .get()
         .addOnSuccessListener { snapshot ->
 
@@ -231,8 +209,12 @@ private fun loadNotices() {
              * startAt = 0  → कोई start restriction नहीं
              * endAt   = 0  → कोई end restriction नहीं
              */
+             val sortedDocuments =
+    snapshot.documents.sortedByDescending {
+        it.getLong("createdAt") ?: 0L
+    }
             val notices =
-                snapshot.documents.filter { doc ->
+    sortedDocuments.filter { doc ->
 
                     val startAt =
                         doc.getLong(
