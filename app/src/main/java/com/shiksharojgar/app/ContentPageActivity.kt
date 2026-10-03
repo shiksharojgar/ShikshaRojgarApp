@@ -22,15 +22,254 @@ class ContentPageActivity : AppCompatActivity() {
     private fun buildUi(title: String): LinearLayout {
         val root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setBackgroundColor(Color.rgb(248,250,252))}
         val bar=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL;setPadding(8,8,8,8);setBackgroundColor(Color.rgb(7,89,133))}
-        bar.addView(Button(this).apply{text="←";setTextColor(Color.WHITE);setBackgroundColor(Color.TRANSPARENT);setOnClickListener{finish()}},LinearLayout.LayoutParams(52,52))
-        titleView=TextView(this).apply{text=title;textSize=18f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE);gravity=Gravity.CENTER_VERTICAL}
-        bar.addView(titleView,LinearLayout.LayoutParams(0,60,1f))
-        bar.addView(Button(this).apply{text="⌂";setTextColor(Color.WHITE);setBackgroundColor(Color.TRANSPARENT);setOnClickListener{finish()}},LinearLayout.LayoutParams(52,52))
-        root.addView(bar)
-        val scroll=ScrollView(this)
-        bodyBox=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(14,14,14,28)}
-        scroll.addView(bodyBox);root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
-        return root
+        bar.addView(
+    Button(this).apply {
+        text = "←"
+        setTextColor(Color.WHITE)
+        setBackgroundColor(Color.TRANSPARENT)
+
+        setOnClickListener {
+            finish()
+        }
+    },
+    LinearLayout.LayoutParams(
+        52,
+        52
+    )
+)
+
+titleView =
+    TextView(this).apply {
+
+        text = title
+
+        textSize = 18f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        gravity =
+            Gravity.CENTER_VERTICAL
+    }
+
+bar.addView(
+    titleView,
+    LinearLayout.LayoutParams(
+        0,
+        60,
+        1f
+    )
+)
+
+bar.addView(
+    Button(this).apply {
+
+        text = "⌂"
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        setBackgroundColor(
+            Color.TRANSPARENT
+        )
+
+        setOnClickListener {
+
+            val intent =
+                android.content.Intent(
+                    this@ContentPageActivity,
+                    MainActivity::class.java
+                ).apply {
+
+                    flags =
+                        android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+
+            startActivity(intent)
+
+            finish()
+        }
+    },
+    LinearLayout.LayoutParams(
+        52,
+        52
+    )
+)
+
+root.addView(
+    bar
+)
+
+val scroll =
+    ScrollView(this)
+
+bodyBox =
+    LinearLayout(this).apply {
+
+        orientation =
+            LinearLayout.VERTICAL
+
+        setPadding(
+            14,
+            14,
+            14,
+            90
+        )
+    }
+
+scroll.addView(
+    bodyBox
+)
+
+root.addView(
+    scroll,
+    LinearLayout.LayoutParams(
+        -1,
+        0,
+        1f
+    )
+)
+
+/*
+ * BOTTOM NAVIGATION
+ */
+val bottomBar =
+    LinearLayout(this).apply {
+
+        orientation =
+            LinearLayout.HORIZONTAL
+
+        gravity =
+            Gravity.CENTER
+
+        setPadding(
+            6,
+            6,
+            6,
+            6
+        )
+
+        setBackgroundColor(
+            Color.WHITE
+        )
+
+        elevation = 10f
+    }
+
+val homeButton =
+    Button(this).apply {
+
+        text = "⌂\nHome"
+
+        textSize = 11f
+
+        setOnClickListener {
+
+            val intent =
+                android.content.Intent(
+                    this@ContentPageActivity,
+                    MainActivity::class.java
+                ).apply {
+
+                    flags =
+                        android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+
+            startActivity(intent)
+
+            finish()
+        }
+    }
+
+val shareButton =
+    Button(this).apply {
+
+        text = "↗\nShare"
+
+        textSize = 11f
+
+        setOnClickListener {
+
+            val shareText =
+                titleView.text.toString() +
+                    "\n\nShiksha Rojgar App"
+
+            startActivity(
+                android.content.Intent.createChooser(
+                    android.content.Intent(
+                        android.content.Intent.ACTION_SEND
+                    ).apply {
+
+                        type =
+                            "text/plain"
+
+                        putExtra(
+                            android.content.Intent.EXTRA_TEXT,
+                            shareText
+                        )
+                    },
+                    "Share"
+                )
+            )
+        }
+    }
+
+val backButton =
+    Button(this).apply {
+
+        text = "‹\nBack"
+
+        textSize = 11f
+
+        setOnClickListener {
+
+            finish()
+        }
+    }
+
+bottomBar.addView(
+    homeButton,
+    LinearLayout.LayoutParams(
+        0,
+        58,
+        1f
+    )
+)
+
+bottomBar.addView(
+    shareButton,
+    LinearLayout.LayoutParams(
+        0,
+        58,
+        1f
+    )
+)
+
+bottomBar.addView(
+    backButton,
+    LinearLayout.LayoutParams(
+        0,
+        58,
+        1f
+    )
+)
+
+root.addView(
+    bottomBar,
+    LinearLayout.LayoutParams(
+        -1,
+        70
+    )
+)
+
+return root
     }
     private fun load(pageId:String,fallback:String){
         db.collection("home_pages").document(pageId).get().addOnSuccessListener { d ->
