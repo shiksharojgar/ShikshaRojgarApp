@@ -110,7 +110,23 @@ service cloud.firestore {
         );
     }
 
+    // =====================================================
+    // HOME NOTICES
+    // Notice / Update button content
+    // =====================================================
 
+    match /home_notices/{noticeId} {
+
+      // सभी app users Notice पढ़ सकते हैं
+      allow read: if true;
+
+      // केवल Admin Notice बना/बदल/हटा सकता है
+      allow create, update, delete: if isAdmin() ||
+        (
+          signedIn() &&
+          request.auth.uid == configuredAdminUid()
+        );
+    }
     // =====================================================
     // HOME CATEGORIES
     // Dynamic Home menu/category management
