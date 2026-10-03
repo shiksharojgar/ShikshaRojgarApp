@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                     ::adapter.isInitialized
                 ) {
                     updateChannelBadge()
+                    updateNoticeUnreadCount()
                 }
             }
         }
@@ -726,6 +727,7 @@ private fun updateNoticeUnreadCount() {
         if (::adapter.isInitialized) {
             updateChannelBadge()
         }
+        updateNoticeUnreadCount()
 
         liveHandler.removeCallbacks(
             liveTickerRunnable
@@ -1093,59 +1095,10 @@ private fun updateNoticeUnreadCount() {
     emoji: String,
     colors: Pair<String, String>,
     action: () -> Unit
-): TextView =
-        TextView(this).apply {
+): View {
 
-            text = "$emoji\n$label"
-
-            gravity =
-                Gravity.CENTER
-
-            textSize = 10.5f
-
-            setTextColor(
-                Color.rgb(
-                    30,
-                    41,
-                    59
-                )
-            )
-
-            typeface =
-                android.graphics.Typeface.DEFAULT_BOLD
-
-            background =
-    GradientDrawable(
-        GradientDrawable.Orientation.LEFT_RIGHT,
-        intArrayOf(
-            Color.parseColor(
-                colors.first
-            ),
-            Color.parseColor(
-                colors.second
-            )
-        )
-    ).apply {
-
-        cornerRadius =
-            20f
-    }
-
-            setPadding(
-                3,
-                10,
-                3,
-                10
-            )
-
-            elevation = 3f
-
-            isClickable = true
-            isFocusable = true
-
-            setOnClickListener {
-                action()
-            }
+    val frame =
+        android.widget.FrameLayout(this).apply {
 
             layoutParams =
                 GridLayout.LayoutParams().apply {
@@ -1167,6 +1120,134 @@ private fun updateNoticeUnreadCount() {
                     )
                 }
         }
+
+    val card =
+        TextView(this).apply {
+
+            text =
+                "$emoji\n$label"
+
+            gravity =
+                Gravity.CENTER
+
+            textSize = 10.5f
+
+            setTextColor(
+                Color.rgb(
+                    30,
+                    41,
+                    59
+                )
+            )
+
+            typeface =
+                android.graphics.Typeface.DEFAULT_BOLD
+
+            background =
+                GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT,
+                    intArrayOf(
+                        Color.parseColor(
+                            colors.first
+                        ),
+                        Color.parseColor(
+                            colors.second
+                        )
+                    )
+                ).apply {
+
+                    cornerRadius = 20f
+                }
+
+            setPadding(
+                3,
+                10,
+                3,
+                10
+            )
+
+            elevation = 3f
+
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                action()
+            }
+        }
+
+    frame.addView(
+        card,
+        android.widget.FrameLayout.LayoutParams(
+            -1,
+            -1
+        )
+    )
+
+    if (
+        label.equals(
+            "Notice/Update",
+            ignoreCase = true
+        ) ||
+        label.equals(
+            "Notice / Update",
+            ignoreCase = true
+        )
+    ) {
+
+        val badge =
+            TextView(this).apply {
+
+                id =
+                    R.id.noticeUnreadBadge
+
+                text = "0"
+
+                gravity =
+                    Gravity.CENTER
+
+                textSize = 11f
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                typeface =
+                    android.graphics.Typeface.DEFAULT_BOLD
+
+                background =
+                    androidx.core.content.ContextCompat.getDrawable(
+                        this@MainActivity,
+                        R.drawable.notice_badge_background
+                    )
+
+                visibility =
+                    View.GONE
+
+                elevation = 8f
+            }
+
+        val badgeParams =
+            android.widget.FrameLayout.LayoutParams(
+                26,
+                26
+            ).apply {
+
+                gravity =
+                    Gravity.TOP or Gravity.END
+
+                topMargin = 2
+                rightMargin = 2
+            }
+
+        frame.addView(
+            badge,
+            badgeParams
+        )
+    }
+
+    return frame
+}
 
     // ============================================================
 // OPEN HOME CATEGORY + SUB-CATEGORIES
