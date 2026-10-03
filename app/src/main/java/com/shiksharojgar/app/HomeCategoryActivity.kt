@@ -378,74 +378,46 @@ class HomeCategoryActivity : AppCompatActivity() {
     }
 
     private fun openSubCategory(
-        url: String,
-        pageType: String,
-        name: String
+    url: String,
+    pageType: String,
+    name: String
+) {
+
+    if (url.isBlank()) {
+
+        Toast.makeText(
+            this,
+            "$name का URL अभी उपलब्ध नहीं है।",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        return
+    }
+
+    try {
+
+        startActivity(
+            Intent(
+                this,
+                WebViewActivity::class.java
+            ).putExtra(
+                "url",
+                url
+            )
+        )
+
+    } catch (
+        e: Exception
     ) {
 
-        if (url.isBlank()) {
-
-            Toast.makeText(
-                this,
-                "$name का URL अभी उपलब्ध नहीं है।",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
-        }
-
-        when (
-            pageType.lowercase()
-        ) {
-
-            "externallink",
-            "external link" -> {
-
-                try {
-
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            android.net.Uri.parse(url)
-                        )
-                    )
-
-                } catch (
-                    e: Exception
-                ) {
-
-                    Toast.makeText(
-                        this,
-                        "Link open नहीं हो सका।",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            else -> {
-
-                try {
-
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            android.net.Uri.parse(url)
-                        )
-                    )
-
-                } catch (
-                    e: Exception
-                ) {
-
-                    Toast.makeText(
-                        this,
-                        "Page open नहीं हो सका।",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
+        Toast.makeText(
+            this,
+            "Page open नहीं हो सका।",
+            Toast.LENGTH_SHORT
+        ).show()
     }
+}
+
 
     private fun dp(
         value: Int
