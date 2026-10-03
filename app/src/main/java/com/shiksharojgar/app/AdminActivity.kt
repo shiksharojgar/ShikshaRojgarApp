@@ -4461,82 +4461,139 @@ box.addView(
 
                 return@setOnClickListener
             }
+val selectedNoticeImage =
+    noticeImageUri
 
-            val data =
-                hashMapOf<String, Any>(
+val existingImageUrl =
+    existing?.getString(
+        "imageUrl"
+    ).orEmpty()
 
-                    "title" to title,
+dialog.getButton(
+    AlertDialog.BUTTON_POSITIVE
+).isEnabled = false
 
-                    "body" to body,
+fun saveNotice(
+    imageUrl: String?
+) {
 
-                    "linkLabel" to linkLabel,
+    val data =
+        hashMapOf<String, Any>(
 
-                    "linkUrl" to linkUrl,
+            "title" to title,
 
-                    "startAt" to startAt,
+            "body" to body,
 
-                    "endAt" to endAt,
+            "linkLabel" to linkLabel,
 
-                    "enabled" to
-                        enabledSwitch.isChecked,
+            "linkUrl" to linkUrl,
 
-                    "createdAt" to (
-                        existing?.getLong(
-                            "createdAt"
-                        ) ?: System.currentTimeMillis()
-                    )
+            "startAt" to startAt,
+
+            "endAt" to endAt,
+
+            "enabled" to
+                enabledSwitch.isChecked,
+
+            "createdAt" to (
+                existing?.getLong(
+                    "createdAt"
+                ) ?: System.currentTimeMillis()
+            )
+        )
+
+    if (!imageUrl.isNullOrBlank()) {
+
+        data["imageUrl"] =
+            imageUrl
+    }
+
+    val task =
+        if (existing == null) {
+
+            db.collection(
+                "home_notices"
+            )
+                .add(data)
+
+        } else {
+
+            db.collection(
+                "home_notices"
+            )
+                .document(
+                    existing.id
                 )
+                .set(data)
+        }
+
+    task.addOnSuccessListener {
+
+        noticeImageUri = null
+
+        toast(
+            if (existing == null) {
+                "Notice Added"
+            } else {
+                "Notice Updated"
+            }
+        )
+
+        dialog.dismiss()
+    }
+        .addOnFailureListener { e ->
 
             dialog.getButton(
                 AlertDialog.BUTTON_POSITIVE
-            ).isEnabled = false
+            ).isEnabled = true
 
-            val task =
-                if (existing == null) {
+            toast(
+                "Notice save नहीं हुआ: ${
+                    e.message
+                        ?: "Firestore error"
+                }"
+            )
+        }
+}
 
-                    db.collection(
-                        "home_notices"
-                    )
-                        .add(data)
+if (selectedNoticeImage != null) {
 
-                } else {
+    ChannelRepository.upload(
+        selectedNoticeImage,
+        "images"
+    ) { imageUrl, error ->
 
-                    db.collection(
-                        "home_notices"
-                    )
-                        .document(
-                            existing.id
-                        )
-                        .set(
-                            data
-                        )
-                }
+        if (!imageUrl.isNullOrBlank()) {
 
-            task.addOnSuccessListener {
+            saveNotice(
+                imageUrl
+            )
 
-                toast(
-                    if (existing == null) {
-                        "Notice Added"
-                    } else {
-                        "Notice Updated"
-                    }
-                )
+        } else {
 
-                dialog.dismiss()
-            }
-                .addOnFailureListener { e ->
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = true
 
-                    dialog.getButton(
-                        AlertDialog.BUTTON_POSITIVE
-                    ).isEnabled = true
+            toast(
+                error
+                    ?: "Notice photo upload failed"
+            )
+        }
+    }
 
-                    toast(
-                        "Notice save नहीं हुआ: ${
-                            e.message
-                                ?: "Firestore error"
-                        }"
-                    )
-                }
+} else {
+
+    saveNotice(
+        if (existingImageUrl.isNotBlank()) {
+            existingImageUrl
+        } else {
+            null
+        }
+    )
+}
+
+                    
         }
     }
 
