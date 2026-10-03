@@ -2557,92 +2557,143 @@ class AdminActivity : AppCompatActivity() {
                             )
                         )
 
-                        val buttons =
-                            LinearLayout(this).apply {
+                        val buttonsContainer =
+    LinearLayout(this).apply {
 
-                                orientation =
-                                    LinearLayout.HORIZONTAL
-                            }
+        orientation =
+            LinearLayout.VERTICAL
+    }
 
-                        fun smallButton(
-                            title: String,
-                            action: () -> Unit
-                        ): Button {
+fun smallButton(
+    title: String,
+    backgroundColor: Int,
+    action: () -> Unit
+): Button {
 
-                            return Button(this).apply {
+    return Button(this).apply {
 
-                                text = title
+        text = title
 
-                                textSize = 10f
+        textSize = 10f
 
-                                minHeight = 0
+        minHeight = 0
+        minWidth = 0
 
-                                setPadding(
-                                    dp(2),
-                                    0,
-                                    dp(2),
-                                    0
-                                )
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            0
+        )
 
-                                setOnClickListener {
-                                    action()
-                                }
-                            }
-                        }
+        setTextColor(Color.WHITE)
 
-                        buttons.addView(
-                            smallButton("✏️ Edit") {
+        setBackgroundColor(
+            backgroundColor
+        )
 
-                                showEditSubCategoryDialog(
-                                    doc.id,
-                                    parentId,
-                                    doc
-                                )
-                            },
-                            LinearLayout.LayoutParams(
-                                0,
-                                dp(38),
-                                1f
-                            )
-                        )
+        setOnClickListener {
+            action()
+        }
+    }
+}
 
-                        buttons.addView(
-                            smallButton("⬆ Up") {
+/* ---------- ROW 1 ---------- */
 
-                            moveSubCategory(
-                                doc.id,
-                                parentId,
-                                position - 1,
-                                ::loadSubCategories
-                            )
-                        },
-                            LinearLayout.LayoutParams(
-                                0,
-                                dp(38),
-                                1f
-                            )
-                        )
+val row1 =
+    LinearLayout(this).apply {
 
-                        buttons.addView(
-                            smallButton("⬇ Down") {
+        orientation =
+            LinearLayout.HORIZONTAL
+    }
 
-                                moveSubCategory(
-                                    doc.id,
-                                    parentId,
-                                    position + 1,
-                                    ::loadSubCategories
-                                )
-                            },
-                            LinearLayout.LayoutParams(
-                                0,
-                                dp(38),
-                                1f
-                            )
-                        )
-buttons.addView(
+row1.addView(
     smallButton(
-        if (enabled) "🔴 Disable"
-        else "🟢 Enable"
+        "✏️ Edit",
+        Color.rgb(33, 150, 243)
+    ) {
+
+        showEditSubCategoryDialog(
+            doc.id,
+            parentId,
+            doc
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(40),
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
+)
+
+row1.addView(
+    smallButton(
+        "⬆ Up",
+        Color.rgb(96, 125, 139)
+    ) {
+
+        moveSubCategory(
+            doc.id,
+            parentId,
+            position - 1,
+            ::loadSubCategories
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(40),
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
+)
+
+row1.addView(
+    smallButton(
+        "⬇ Down",
+        Color.rgb(96, 125, 139)
+    ) {
+
+        moveSubCategory(
+            doc.id,
+            parentId,
+            position + 1,
+            ::loadSubCategories
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(40),
+        1f
+    )
+)
+
+buttonsContainer.addView(
+    row1
+)
+
+/* ---------- ROW 2 ---------- */
+
+val row2 =
+    LinearLayout(this).apply {
+
+        orientation =
+            LinearLayout.HORIZONTAL
+    }
+
+row2.addView(
+    smallButton(
+        if (enabled)
+            "🔴 Disable"
+        else
+            "🟢 Enable",
+
+        if (enabled)
+            Color.rgb(198, 40, 40)
+        else
+            Color.rgb(46, 125, 50)
     ) {
 
         db.collection(
@@ -2678,56 +2729,82 @@ buttons.addView(
     },
     LinearLayout.LayoutParams(
         0,
-        dp(38),
+        dp(40),
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
+)
+
+row2.addView(
+    smallButton(
+        "🗑 Delete",
+        Color.rgb(211, 47, 47)
+    ) {
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                "Delete Sub-Category?"
+            )
+            .setMessage(
+                "क्या \"$name\" को delete करना है?"
+            )
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .setPositiveButton(
+                "Delete"
+            ) { _, _ ->
+
+                db.collection(
+                    "home_subcategories"
+                )
+                    .document(doc.id)
+                    .delete()
+                    .addOnSuccessListener {
+
+                        toast(
+                            "Sub-Category deleted"
+                        )
+
+                        loadSubCategories(
+                            parentId
+                        )
+                    }
+                    .addOnFailureListener { e ->
+
+                        toast(
+                            "Delete failed: ${e.message}"
+                        )
+                    }
+            }
+            .show()
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(40),
         1f
     )
 )
-                        buttons.addView(
-                            smallButton("🗑 Delete") {
 
-                                AlertDialog.Builder(this)
-                                    .setTitle("Delete Sub-Category?")
-                                    .setMessage(
-                                        "क्या \"$name\" को delete करना है?"
-                                    )
-                                    .setNegativeButton(
-                                        "Cancel",
-                                        null
-                                    )
-                                    .setPositiveButton(
-                                        "Delete"
-                                    ) { _, _ ->
+buttonsContainer.addView(
+    row2
+)
 
-                                        db.collection(
-                                            "home_subcategories"
-                                        )
-                                            .document(doc.id)
-                                            .delete()
-                                            .addOnSuccessListener {
+card.addView(
+    buttonsContainer,
+    LinearLayout.LayoutParams(
+        -1,
+        -2
+    )
+)
 
-                                                toast(
-                                                    "Sub-Category deleted"
-                                                )
+                                
+                        
+                                
 
-                                                loadSubCategories(
-                                                    parentId
-                                                )
-                                            }
-                                            .addOnFailureListener { e ->
-
-                                                toast(
-                                                    "Delete failed: ${e.message}"
-                                                )
-                                            }
-                                    }
-                                    .show()
-                            },
-                            LinearLayout.LayoutParams(
-                                0,
-                                dp(38),
-                                1f
-                            )
-                        )
+                
 
                         listLayout.addView(
                             card,
