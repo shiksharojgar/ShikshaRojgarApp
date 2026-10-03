@@ -642,16 +642,6 @@ private fun updateNoticeUnreadCount() {
         return
     }
 
-    val lastSeen =
-        getSharedPreferences(
-            "sr_notifications",
-            MODE_PRIVATE
-        )
-            .getLong(
-                "notice_last_seen_at",
-                0L
-            )
-
     FirebaseFirestore.getInstance()
         .collection("home_notices")
         .whereEqualTo(
@@ -667,11 +657,6 @@ private fun updateNoticeUnreadCount() {
             val count =
                 snapshot.documents.count { doc ->
 
-                    val createdAt =
-                        doc.getLong(
-                            "createdAt"
-                        ) ?: 0L
-
                     val startAt =
                         doc.getLong(
                             "startAt"
@@ -682,18 +667,14 @@ private fun updateNoticeUnreadCount() {
                             "endAt"
                         ) ?: 0L
 
-                    val active =
-                        (
-                            startAt == 0L ||
-                            now >= startAt
-                        ) &&
-                        (
-                            endAt == 0L ||
-                            now <= endAt
-                        )
-
-                    active &&
-                    createdAt > lastSeen
+                    (
+                        startAt == 0L ||
+                        now >= startAt
+                    ) &&
+                    (
+                        endAt == 0L ||
+                        now <= endAt
+                    )
                 }
 
             noticeBadge.text =
