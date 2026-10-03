@@ -729,7 +729,7 @@ private fun updateNoticeUnreadCount() {
             updateChannelBadge()
         }
         updateNoticeUnreadCount()
-
+loadFloatingNoticePhoto()
         liveHandler.removeCallbacks(
             liveTickerRunnable
         )
