@@ -893,14 +893,14 @@ floatingNoticeImage?.let {
                 }
 
             val size =
-                (90 * resources.displayMetrics.density)
-                    .toInt()
+    (75 * resources.displayMetrics.density)
+        .toInt()
 
-            val params =
-                android.widget.FrameLayout.LayoutParams(
-                    size,
-                    size
-                ).apply {
+val params =
+    android.widget.FrameLayout.LayoutParams(
+        size,
+        size
+    ).apply {
 
                     gravity =
                         Gravity.TOP or Gravity.END
