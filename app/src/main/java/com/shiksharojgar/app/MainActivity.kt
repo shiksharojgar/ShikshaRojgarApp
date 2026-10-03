@@ -36,6 +36,23 @@ class MainActivity : AppCompatActivity() {
     private val liveHandler = Handler(Looper.getMainLooper())
     private var floatingNoticeImage: ImageView? = null
    private var noticeCardView: View? = null
+private val floatingNoticeHandler =
+    Handler(Looper.getMainLooper())
+
+private val floatingNoticeRunnable =
+    object : Runnable {
+
+        override fun run() {
+
+            loadFloatingNoticePhoto()
+
+            floatingNoticeHandler.postDelayed(
+                this,
+                14000L
+            )
+        }
+    }
+    
     private val liveTickerRunnable = object : Runnable {
         override fun run() {
             animateTicker()
@@ -710,7 +727,13 @@ private fun updateNoticeUnreadCount() {
             updateChannelBadge()
         }
         updateNoticeUnreadCount()
-loadFloatingNoticePhoto()
+floatingNoticeHandler.removeCallbacks(
+    floatingNoticeRunnable
+)
+
+floatingNoticeHandler.post(
+    floatingNoticeRunnable
+)
         liveHandler.removeCallbacks(
             liveTickerRunnable
         )
@@ -725,7 +748,9 @@ loadFloatingNoticePhoto()
     liveHandler.removeCallbacks(
         liveTickerRunnable
     )
-
+floatingNoticeHandler.removeCallbacks(
+    floatingNoticeRunnable
+)
     floatingNoticeImage?.clearAnimation()
 
     super.onPause()
