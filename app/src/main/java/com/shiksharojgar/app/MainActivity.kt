@@ -818,6 +818,10 @@ private fun loadFloatingNoticePhoto() {
         floatingNoticeImage = null
     }
 
+    val noticeCard =
+        noticeCardView
+            ?: return
+
     FirebaseFirestore.getInstance()
         .collection("home_notices")
         .whereEqualTo(
@@ -875,156 +879,223 @@ private fun loadFloatingNoticePhoto() {
                 return@addOnSuccessListener
             }
 
-            val imageView =
-                ImageView(this).apply {
+            noticeCard.post {
 
-                    scaleType =
-                        ImageView.ScaleType.CENTER_CROP
+                val noticeLocation =
+                    IntArray(2)
 
-                    background =
-                        GradientDrawable().apply {
-                            cornerRadius = 18f
-                        }
+                val rootLocation =
+                    IntArray(2)
 
-                    clipToOutline = true
+                noticeCard.getLocationOnScreen(
+                    noticeLocation
+                )
 
-                    elevation = 12f
-                }
+                root.getLocationOnScreen(
+                    rootLocation
+                )
 
-            val size =
-                (
-                    85 *
-                    resources.displayMetrics.density
-                ).toInt()
+                val imageView =
+                    ImageView(this).apply {
 
-            val params =
-                android.widget.FrameLayout.LayoutParams(
-                    size,
-                    size
-                ).apply {
+                        scaleType =
+                            ImageView.ScaleType.CENTER_CROP
 
-                    gravity =
-                        Gravity.TOP or
-                        Gravity.CENTER_HORIZONTAL
+                        background =
+                            GradientDrawable().apply {
+                                cornerRadius = 18f
+                            }
 
-                    topMargin =
+                        clipToOutline = true
+
+                        elevation = 12f
+                    }
+
+                val size =
+                    (
+                        85 *
+                        resources.displayMetrics.density
+                    ).toInt()
+
+                val startTop =
+                    noticeLocation[1] -
+                    rootLocation[1] +
+                    noticeCard.height
+
+                val startLeft =
+                    noticeLocation[0] -
+                    rootLocation[0] +
+                    (
+                        noticeCard.width -
+                        size
+                    ) / 2
+
+                val liveLabel =
+                    findViewById<View?>(
+                        R.id.liveLabel
+                    )
+
+                var endTop =
+                    root.height -
+                    size -
+                    20
+
+                if (liveLabel != null) {
+
+                    val liveLocation =
+                        IntArray(2)
+
+                    liveLabel.getLocationOnScreen(
+                        liveLocation
+                    )
+
+                    endTop =
                         (
-                            170 *
-                            resources.displayMetrics.density
-                        ).toInt()
+                            liveLocation[1] -
+                            rootLocation[1] -
+                            size -
+                            8
+                        )
+                            .coerceAtLeast(
+                                startTop
+                            )
                 }
 
-            floatingNoticeImage =
-                imageView
-
-            root.addView(
-                imageView,
-                params
-            )
-
-            ChannelRepository.loadImage(
-                imageUrl
-            ) { bitmap, _ ->
-
-                if (bitmap == null) {
-                    return@loadImage
-                }
-
-                runOnUiThread {
-
-                    imageView.setImageBitmap(
-                        bitmap
+                val moveDistance =
+                    (
+                        endTop -
+                        startTop
                     )
+                        .coerceAtLeast(0)
 
-                    val animation =
-                        android.view.animation.AnimationSet(
-                            true
-                        ).apply {
+                val params =
+                    android.widget.FrameLayout.LayoutParams(
+                        size,
+                        size
+                    ).apply {
 
-                            duration = 9000L
+                        leftMargin =
+                            startLeft
 
-                            fillAfter = false
+                        topMargin =
+                            startTop
+                    }
 
-                            addAnimation(
-                                android.view.animation.TranslateAnimation(
-                                    0f,
-                                    0f,
-                                    -80f,
-                                    500f
+                floatingNoticeImage =
+                    imageView
+
+                root.addView(
+                    imageView,
+                    params
+                )
+
+                ChannelRepository.loadImage(
+                    imageUrl
+                ) { bitmap, _ ->
+
+                    if (bitmap == null) {
+                        return@loadImage
+                    }
+
+                    runOnUiThread {
+
+                        imageView.setImageBitmap(
+                            bitmap
+                        )
+
+                        val animation =
+                            android.view.animation.AnimationSet(
+                                true
+                            ).apply {
+
+                                duration =
+                                    7000L
+
+                                fillAfter =
+                                    false
+
+                                addAnimation(
+                                    android.view.animation.TranslateAnimation(
+                                        0f,
+                                        0f,
+                                        0f,
+                                        moveDistance.toFloat()
+                                    )
                                 )
-                            )
 
-                            addAnimation(
-                                android.view.animation.ScaleAnimation(
-                                    0.65f,
-                                    1.0f,
-                                    0.65f,
-                                    1.0f,
-                                    android.view.animation.Animation.RELATIVE_TO_SELF,
-                                    0.5f,
-                                    android.view.animation.Animation.RELATIVE_TO_SELF,
-                                    0.5f
+                                addAnimation(
+                                    android.view.animation.ScaleAnimation(
+                                        0.65f,
+                                        1.0f,
+                                        0.65f,
+                                        1.0f,
+                                        android.view.animation.Animation.RELATIVE_TO_SELF,
+                                        0.5f,
+                                        android.view.animation.Animation.RELATIVE_TO_SELF,
+                                        0.5f
+                                    )
                                 )
-                            )
 
-                            addAnimation(
-                                android.view.animation.AlphaAnimation(
-                                    0.0f,
-                                    1.0f
+                                addAnimation(
+                                    android.view.animation.AlphaAnimation(
+                                        0.0f,
+                                        1.0f
+                                    )
                                 )
-                            )
-                        }
-
-                    animation.setAnimationListener(
-                        object :
-                            android.view.animation.Animation.AnimationListener {
-
-                            override fun onAnimationStart(
-                                animation:
-                                    android.view.animation.Animation?
-                            ) {
                             }
 
-                            override fun onAnimationRepeat(
-                                animation:
-                                    android.view.animation.Animation?
-                            ) {
-                            }
+                        animation.setAnimationListener(
+                            object :
+                                android.view.animation.Animation.AnimationListener {
 
-                            override fun onAnimationEnd(
-                                animation:
-                                    android.view.animation.Animation?
-                            ) {
+                                override fun onAnimationStart(
+                                    animation:
+                                        android.view.animation.Animation?
+                                ) {
+                                }
 
-                                imageView.animate()
-                                    .alpha(0f)
-                                    .setDuration(700L)
-                                    .withEndAction {
+                                override fun onAnimationRepeat(
+                                    animation:
+                                        android.view.animation.Animation?
+                                ) {
+                                }
 
-                                        root.removeView(
-                                            imageView
-                                        )
+                                override fun onAnimationEnd(
+                                    animation:
+                                        android.view.animation.Animation?
+                                ) {
 
-                                        if (
-                                            floatingNoticeImage ===
-                                            imageView
-                                        ) {
-                                            floatingNoticeImage =
-                                                null
+                                    imageView.animate()
+                                        .alpha(0f)
+                                        .setDuration(700L)
+                                        .withEndAction {
+
+                                            root.removeView(
+                                                imageView
+                                            )
+
+                                            if (
+                                                floatingNoticeImage ===
+                                                imageView
+                                            ) {
+                                                floatingNoticeImage =
+                                                    null
+                                            }
                                         }
-                                    }
-                                    .start()
+                                        .start()
+                                }
                             }
-                        }
-                    )
+                        )
 
-                    imageView.startAnimation(
-                        animation
-                    )
+                        imageView.startAnimation(
+                            animation
+                        )
+                    }
                 }
             }
         }
 }
+                               
 
     private fun setupLiveBreaking() {
 
