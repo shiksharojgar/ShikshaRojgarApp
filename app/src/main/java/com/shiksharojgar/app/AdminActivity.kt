@@ -3586,7 +3586,6 @@ private fun showEditSubCategoryDialog(
 
                 return@setOnClickListener
             }
-/
             
             val data =
                 hashMapOf<String, Any>(
