@@ -344,10 +344,10 @@ class HomeCategoryActivity : AppCompatActivity() {
                     GradientDrawable().apply {
 
                         setColor(
-                            colors[
-                                index %
-                                    colors.size
-                            ]
+                            this@HomeCategoryActivity.colors[
+    index %
+        this@HomeCategoryActivity.colors.size
+]
                         )
 
                         cornerRadius =
