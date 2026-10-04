@@ -220,10 +220,39 @@ unreadCountAtOpen =
 
     feedScroll.post {
 
-        feedScroll.fullScroll(
-            View.FOCUS_DOWN
-        
-        )
+        if (
+            unreadCountAtOpen > 0 &&
+            pendingPostId == null
+        ) {
+
+            val marker =
+                list.children
+                    .firstOrNull {
+                        it is TextView &&
+                            (it as TextView).text ==
+                                "🔴 $unreadCountAtOpen नई पोस्ट"
+                    }
+
+            if (marker != null) {
+
+                feedScroll.scrollTo(
+                    0,
+                    marker.top
+                )
+
+            } else {
+
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            }
+
+        } else {
+
+            feedScroll.fullScroll(
+                View.FOCUS_DOWN
+            )
+        }
     }
 }
 
