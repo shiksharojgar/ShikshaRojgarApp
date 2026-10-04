@@ -104,7 +104,28 @@ private val floatingNoticeRunnable =
                 }
             }
         }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
 
+        if (requestCode == 1001) {
+
+            if (
+                grantResults.isNotEmpty() &&
+                grantResults[0] ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                updateChannelBadge()
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -118,7 +139,18 @@ private val floatingNoticeRunnable =
         )
 
         setContentView(R.layout.activity_main)
-
+        if (
+            android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.TIRAMISU
+        ) {
+            androidx.core.app.ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ),
+                1001
+            )
+        }
         updateChannelBadge()
 
         AnalyticsTracker.appOpen(this)
