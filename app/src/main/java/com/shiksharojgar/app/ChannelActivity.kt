@@ -1006,7 +1006,9 @@ root.addView(
         1f
     )
 )
-
+feedScroll.post {
+    updateLatestPostButtonVisibility()
+}
         /*
          * FOLLOW + COMMENTS
          *
