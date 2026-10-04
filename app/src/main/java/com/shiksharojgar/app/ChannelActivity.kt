@@ -39,6 +39,8 @@ class ChannelActivity : AppCompatActivity() {
     private lateinit var feedScroll: ScrollView
     private lateinit var channelStrip: LinearLayout
 
+    private lateinit var latestPostButton: TextView
+
     private var globalComments = true
 
     private val posts = mutableListOf<ChannelPost>()
@@ -382,11 +384,12 @@ private fun samePostContent(
     }
 private fun createLatestPostButton(): TextView {
 
-    return TextView(this).apply {
+    latestPostButton =
+    TextView(this).apply {
 
         text = "˅\n˅"
 
-        textSize = 18f
+        textSize = 16f
 
         gravity = Gravity.CENTER
 
@@ -419,17 +422,24 @@ private fun createLatestPostButton(): TextView {
 }
     private fun scrollToNewest() {
 
-        if (!::feedScroll.isInitialized) {
-            return
-        }
+    if (!::feedScroll.isInitialized) {
+        return
+    }
 
-        feedScroll.post {
+    feedScroll.post {
 
-            feedScroll.fullScroll(
-                View.FOCUS_DOWN
+        val child =
+            feedScroll.getChildAt(0)
+
+        if (child != null) {
+
+            feedScroll.scrollTo(
+                0,
+                child.bottom
             )
         }
     }
+}
 
     private fun toolButton(
         label: String,
@@ -847,8 +857,8 @@ val latestPostButtonBox =
         addView(
             latestPostButton,
             FrameLayout.LayoutParams(
-                dp(44),
-                dp(54)
+                dp(38),
+                dp(44)
             ).apply {
 
                 gravity =
