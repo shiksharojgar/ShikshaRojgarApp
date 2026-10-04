@@ -1549,7 +1549,13 @@ feedScroll.post {
     if (!::list.isInitialized) {
         return
     }
-
+    val unreadStartIndex =
+        if (unreadCountAtOpen > 0) {
+            (posts.size - unreadCountAtOpen)
+                .coerceAtLeast(0)
+        } else {
+            -1
+        }
     var oldScrollY = 0
 
 if (
