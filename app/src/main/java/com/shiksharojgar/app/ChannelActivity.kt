@@ -990,10 +990,21 @@ val latestPostButtonBox =
         )
     }
     feedScroll.setOnScrollChangeListener {
-        _, _, _, _, _ ->
+    _, _, _, _, _ ->
 
-        updateLatestPostButtonVisibility()
+    updateLatestPostButtonVisibility()
+
+    val marker =
+        list.findViewWithTag<View>("channel_unread_marker")
+
+    if (
+        marker != null &&
+        marker.visibility == View.VISIBLE &&
+        feedScroll.scrollY > marker.bottom
+    ) {
+        marker.visibility = View.GONE
     }
+}
         list =
             LinearLayout(this).apply {
 
@@ -1639,7 +1650,7 @@ if (
 
             list.addView(
                 TextView(this).apply {
-
+tag = "channel_unread_marker"
                     text =
                         "🔴 $unreadCountAtOpen नई पोस्ट"
 
