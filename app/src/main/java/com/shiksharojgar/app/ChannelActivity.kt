@@ -1602,7 +1602,46 @@ if (
      * नई post हमेशा नीचे रहेगी।
      */
     posts.forEachIndexed { index, post ->
+        if (
+            index == unreadStartIndex &&
+            unreadCountAtOpen > 0
+        ) {
 
+            list.addView(
+                TextView(this).apply {
+
+                    text =
+                        "🔴 $unreadCountAtOpen नई पोस्ट"
+
+                    textSize = 14f
+
+                    typeface =
+                        Typeface.DEFAULT_BOLD
+
+                    setTextColor(
+                        Color.rgb(
+                            200,
+                            0,
+                            0
+                        )
+                    )
+
+                    gravity =
+                        Gravity.CENTER
+
+                    setPadding(
+                        dp(8),
+                        dp(8),
+                        dp(8),
+                        dp(8)
+                    )
+
+                    setBackgroundColor(
+                        Color.WHITE
+                    )
+                }
+            )
+        }
         val postView =
             postView(post)
 
