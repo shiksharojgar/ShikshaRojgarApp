@@ -415,7 +415,43 @@ private fun samePostContent(
             }
         }
     }
+private fun createLatestPostButton(): TextView {
 
+    return TextView(this).apply {
+
+        text = "˅\n˅"
+
+        textSize = 18f
+
+        gravity = Gravity.CENTER
+
+        typeface = Typeface.DEFAULT_BOLD
+
+        setTextColor(Color.WHITE)
+
+        background =
+            GradientFactory.rounded(
+                "#174E86"
+            )
+
+        elevation = dp(8).toFloat()
+
+        isClickable = true
+        isFocusable = true
+
+        setPadding(
+            dp(6),
+            dp(2),
+            dp(6),
+            dp(2)
+        )
+
+        setOnClickListener {
+
+            scrollToNewest()
+        }
+    }
+}
     private fun scrollToNewest() {
 
         if (!::feedScroll.isInitialized) {
