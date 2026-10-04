@@ -379,6 +379,7 @@ private fun samePostContent(
                     0,
                     child.top
                 )
+                updateLatestPostButtonVisibility()
             }
         }
     }
@@ -390,7 +391,12 @@ private fun createLatestPostButton(): TextView {
 
         text = "˅\n˅"
 
-        textSize = 16f
+textSize = 15f
+
+setLineSpacing(
+    -2f,
+    0.85f
+)
 
         gravity = Gravity.CENTER
 
@@ -399,9 +405,20 @@ private fun createLatestPostButton(): TextView {
         setTextColor(Color.WHITE)
 
         background =
-            GradientFactory.rounded(
-                "#174E86"
-            )
+    android.graphics.drawable.GradientDrawable().apply {
+
+        shape =
+            android.graphics.drawable.GradientDrawable.OVAL
+
+        setColor(
+            Color.parseColor("#0EA5E9")
+        )
+
+        setStroke(
+            dp(1),
+            Color.parseColor("#7DD3FC")
+        )
+    }
 
         elevation = dp(8).toFloat()
 
@@ -420,6 +437,35 @@ private fun createLatestPostButton(): TextView {
             scrollToNewest()
         }
     }
+}
+private fun updateLatestPostButtonVisibility() {
+
+    if (
+        !::feedScroll.isInitialized ||
+        !::latestPostButton.isInitialized
+    ) {
+        return
+    }
+
+    val child =
+        feedScroll.getChildAt(0)
+
+    if (child == null) {
+        return
+    }
+
+    val atBottom =
+        feedScroll.scrollY >=
+            child.bottom -
+                feedScroll.height -
+                dp(8)
+
+    latestPostButton.visibility =
+        if (atBottom) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
 }
     private fun scrollToNewest() {
 
@@ -858,8 +904,8 @@ val latestPostButtonBox =
         addView(
             latestPostButton,
             FrameLayout.LayoutParams(
-                dp(38),
-                dp(44)
+                dp(42),
+                dp(42)
             ).apply {
 
                 gravity =
@@ -905,7 +951,11 @@ val latestPostButtonBox =
             0
         )
     }
+    feedScroll.setOnScrollChangeListener {
+        _, _, _, _, _ ->
 
+        updateLatestPostButtonVisibility()
+    }
         list =
             LinearLayout(this).apply {
 
