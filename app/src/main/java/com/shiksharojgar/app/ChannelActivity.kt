@@ -952,14 +952,34 @@ val latestPostButtonBox =
             )
         )
 
-        root.addView(
+        val feedContainer =
+    FrameLayout(this).apply {
+
+        addView(
             feedScroll,
-            LinearLayout.LayoutParams(
+            FrameLayout.LayoutParams(
                 -1,
-                0,
-                1f
+                -1
             )
         )
+
+        addView(
+            latestPostButtonBox,
+            FrameLayout.LayoutParams(
+                -1,
+                -1
+            )
+        )
+    }
+
+root.addView(
+    feedContainer,
+    LinearLayout.LayoutParams(
+        -1,
+        0,
+        1f
+    )
+)
 
         /*
          * FOLLOW + COMMENTS
