@@ -384,8 +384,9 @@ private fun samePostContent(
     }
 private fun createLatestPostButton(): TextView {
 
-    latestPostButton =
-    TextView(this).apply {
+    return TextView(this).apply {
+
+    latestPostButton = this
 
         text = "˅\n˅"
 
