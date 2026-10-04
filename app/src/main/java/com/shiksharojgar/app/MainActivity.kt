@@ -692,10 +692,11 @@ morePostsButton.visibility =
                         "$count नई Channel पोस्ट"
                     )
                     .setNumber(count)
-                    .setAutoCancel(false)
-                    .setPriority(
-                        androidx.core.app.NotificationCompat.PRIORITY_LOW
-                    )
+.setAutoCancel(false)
+.setOnlyAlertOnce(true)
+.setPriority(
+    androidx.core.app.NotificationCompat.PRIORITY_LOW
+)
                     .build()
 
             notificationManager.notify(
