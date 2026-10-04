@@ -643,6 +643,70 @@ morePostsButton.visibility =
             } else {
                 View.GONE
             }
+                    // Launcher app icon unread badge
+        val notificationManager =
+            getSystemService(
+                android.content.Context.NOTIFICATION_SERVICE
+            ) as android.app.NotificationManager
+
+        if (count > 0) {
+
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+
+                val channelId =
+                    "channel_unread_badge"
+
+                if (
+                    notificationManager.getNotificationChannel(
+                        channelId
+                    ) == null
+                ) {
+
+                    val channel =
+                        android.app.NotificationChannel(
+                            channelId,
+                            "Channel Unread",
+                            android.app.NotificationManager.IMPORTANCE_LOW
+                        )
+
+                    channel.setShowBadge(true)
+
+                    notificationManager.createNotificationChannel(
+                        channel
+                    )
+                }
+            }
+
+            val notification =
+                androidx.core.app.NotificationCompat.Builder(
+                    this,
+                    "channel_unread_badge"
+                )
+                    .setSmallIcon(
+                        R.mipmap.ic_launcher
+                    )
+                    .setContentTitle(
+                        "Shiksha Rojgar Channel"
+                    )
+                    .setContentText(
+                        "$count नई Channel पोस्ट"
+                    )
+                    .setNumber(count)
+                    .setAutoCancel(false)
+                    .setPriority(
+                        androidx.core.app.NotificationCompat.PRIORITY_LOW
+                    )
+                    .build()
+
+            notificationManager.notify(
+                9001,
+                notification
+            )
+
+        } else {
+
+            notificationManager.cancel(9001)
+        }
     }
 private fun updateNoticeUnreadCount() {
 
