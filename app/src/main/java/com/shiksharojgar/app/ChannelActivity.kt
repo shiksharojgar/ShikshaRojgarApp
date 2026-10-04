@@ -873,6 +873,32 @@ root.addView(
         )
     }
 )
+val latestPostButton =
+    createLatestPostButton()
+
+val latestPostButtonBox =
+    FrameLayout(this).apply {
+
+        addView(
+            latestPostButton,
+            FrameLayout.LayoutParams(
+                dp(44),
+                dp(54)
+            ).apply {
+
+                gravity =
+                    Gravity.END or
+                        Gravity.BOTTOM
+
+                setMargins(
+                    0,
+                    0,
+                    dp(14),
+                    dp(14)
+                )
+            }
+        )
+    }
         /*
          * FEED
          */
