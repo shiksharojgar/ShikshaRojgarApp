@@ -65,7 +65,8 @@ class ChannelActivity : AppCompatActivity() {
     private var followBusy = false
 
     private var firstFeedRender = true
-
+private var unreadCountAtOpen = 0
+    
     private var followingState = false
 
     private var pendingPostId: String? = null
@@ -111,7 +112,14 @@ private fun samePostContent(
                         uri.path?.contains("/post") == true
                     }
             }
-
+unreadCountAtOpen =
+    getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    ).getInt(
+        "channel_unread",
+        0
+    )
         getSharedPreferences(
             "sr_notifications",
             MODE_PRIVATE
