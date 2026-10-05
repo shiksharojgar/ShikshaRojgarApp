@@ -4049,7 +4049,7 @@ if (
         }
     }
 
-
+}
 private fun Int.toDrawable():
         android.graphics.drawable.ColorDrawable =
     android.graphics.drawable.ColorDrawable(this)
@@ -4113,4 +4113,4 @@ object GradientFactory {
             }
     }
 }
-    }
+    
