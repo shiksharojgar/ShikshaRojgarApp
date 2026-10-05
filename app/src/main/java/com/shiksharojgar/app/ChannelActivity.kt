@@ -1688,6 +1688,7 @@ if (
 unreadMarkerView = marker
 
 list.addView(marker)
+        }
         val postView =
             postView(post)
 
