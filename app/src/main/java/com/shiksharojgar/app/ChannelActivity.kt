@@ -995,15 +995,16 @@ val latestPostButtonBox =
     updateLatestPostButtonVisibility()
 
     val marker =
-        list.findViewWithTag<View>("channel_unread_marker")
+    unreadMarkerView
 
-    if (
-        marker != null &&
-        marker.visibility == View.VISIBLE &&
-        feedScroll.scrollY > marker.bottom
-    ) {
-        marker.visibility = View.GONE
-    }
+if (
+    marker != null &&
+    marker.visibility == View.VISIBLE &&
+    feedScroll.scrollY > marker.bottom
+) {
+    marker.visibility =
+        View.GONE
+}
 }
         list =
             LinearLayout(this).apply {
