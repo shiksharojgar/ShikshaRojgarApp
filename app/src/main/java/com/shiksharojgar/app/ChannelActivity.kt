@@ -1648,16 +1648,25 @@ if (
             unreadCountAtOpen > 0
         ) {
 
-            list.addView(
-                TextView(this).apply {
-tag = "channel_unread_marker"
-                    text =
-                        "🔴 $unreadCountAtOpen नई पोस्ट"
+            val marker =
+    TextView(this).apply {
 
-                    textSize = 14f
+        tag = "channel_unread_marker"
 
-                    typeface =
-                        Typeface.DEFAULT_BOLD
+        text =
+            "🔴 $unreadCountAtOpen नई पोस्ट"
+
+        textSize = 14f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        // बाकी existing code
+    }
+
+unreadMarkerView = marker
+
+list.addView(marker)
 
                     setTextColor(
                         Color.rgb(
