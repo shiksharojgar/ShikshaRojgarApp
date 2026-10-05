@@ -518,7 +518,7 @@ private fun updateLatestPostButtonVisibility() {
 
         if (child != null) {
 
-            feedScroll.scrollTo(
+            feedScroll.smoothScrollTo(
                 0,
                 child.bottom
             )
