@@ -1661,37 +1661,32 @@ if (
         typeface =
             Typeface.DEFAULT_BOLD
 
-        // बाकी existing code
+        setTextColor(
+            Color.rgb(
+                200,
+                0,
+                0
+            )
+        )
+
+        gravity =
+            Gravity.CENTER
+
+        setPadding(
+            dp(8),
+            dp(8),
+            dp(8),
+            dp(8)
+        )
+
+        setBackgroundColor(
+            Color.WHITE
+        )
     }
 
 unreadMarkerView = marker
 
 list.addView(marker)
-
-                    setTextColor(
-                        Color.rgb(
-                            200,
-                            0,
-                            0
-                        )
-                    )
-
-                    gravity =
-                        Gravity.CENTER
-
-                    setPadding(
-                        dp(8),
-                        dp(8),
-                        dp(8),
-                        dp(8)
-                    )
-
-                    setBackgroundColor(
-                        Color.WHITE
-                    )
-                }
-            )
-        }
         val postView =
             postView(post)
 
