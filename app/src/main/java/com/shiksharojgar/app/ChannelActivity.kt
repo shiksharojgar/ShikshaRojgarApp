@@ -67,7 +67,7 @@ class ChannelActivity : AppCompatActivity() {
 
     private var firstFeedRender = true
 private var unreadCountAtOpen = 0
-    
+ private var unreadMarkerView: View? = null   
     private var followingState = false
 
     private var pendingPostId: String? = null
