@@ -427,9 +427,9 @@ private fun createLatestPostButton(): TextView {
 
     latestPostButton = this
 
-        text = "˅\n˅"
+        text = "⌄\n⌄"
 
-textSize = 15f
+textSize = 20f
 
 setLineSpacing(
     -2f,
