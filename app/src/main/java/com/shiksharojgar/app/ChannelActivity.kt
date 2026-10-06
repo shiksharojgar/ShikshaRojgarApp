@@ -899,7 +899,7 @@ ViewCompat.setOnApplyWindowInsetsListener(
             toolbar,                                              // 142
             LinearLayout.LayoutParams(                            // 143
                 -1,                                                // 144
-                dp(54)                                             // 145
+                dp(68)                                             // 145
             )
         )
 
@@ -1337,117 +1337,214 @@ feedScroll.post {
                 dp(46)
             )
         )
+/*
+ * =========================================================
+ * COMMON BOTTOM NAVIGATION
+ * =========================================================
+ */
 
-        /*
-         * HOME / SHARE / BACK
-         */
-        val bottom =
-            LinearLayout(this).apply {
+val bottomBar =
+    LinearLayout(this).apply {
 
-                orientation =
-                    LinearLayout.HORIZONTAL
+        orientation =
+            LinearLayout.HORIZONTAL
 
-                gravity =
-                    Gravity.CENTER
+        gravity =
+            Gravity.CENTER
 
-                setPadding(
-                    dp(6),
-                    dp(4),
-                    dp(6),
-                    dp(4)
-                )
-
-                background =
-                    Color.WHITE.toDrawable()
-
-                elevation = 3f
-            }
-
-        bottom.addView(
-            bottomButton(
-                "⌂  Home"
-            ) {
-                goHome()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(44),
-                1f
-            )
+        setPadding(
+            dp(7),
+            dp(5),
+            dp(7),
+            dp(7)
         )
 
-        bottom.addView(
-            bottomButton(
-                "↗  Share"
-            ) {
-                shareChannel()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(44),
-                1f
-            ).apply {
+        background =
+            Color.WHITE.toDrawable()
 
-                setMargins(
-                    dp(6),
-                    0,
-                    0,
-                    0
-                )
-            }
-        )
-
-        bottom.addView(
-            bottomButton(
-                "‹  Back"
-            ) {
-                onBackPressedDispatcher
-                    .onBackPressed()
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(44),
-                1f
-            ).apply {
-
-                setMargins(
-                    dp(6),
-                    0,
-                    0,
-                    0
-                )
-            }
-        )
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            bottom
-        ) { view, insets ->
-
-            val bottomInset =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars()
-                ).bottom
-
-            view.setPadding(
-                view.paddingLeft,
-                dp(4),
-                view.paddingRight,
-                dp(4) + bottomInset
-            )
-
-            insets
-        }
-
-        root.addView(
-            bottom,
-            LinearLayout.LayoutParams(
-                -1,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        )
-
-        return root
+        elevation =
+            dp(16).toFloat()
     }
+
+val homeButton =
+    bottomButton(
+        "🏠\nHome"
+    ) {
+        goHome()
+    }
+
+val channelBox =
+    FrameLayout(this)
+
+val channelButton =
+    bottomButton(
+        "📢\nChannel"
+    ) {
+        // पहले से Channel पर हैं
+    }
+
+channelBox.addView(
+    channelButton,
+    FrameLayout.LayoutParams(
+        -1,
+        dp(60)
+    )
+)
+
+val unreadBadge =
+    TextView(this).apply {
+
+        textSize = 10f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        gravity =
+            Gravity.CENTER
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        setBackgroundColor(
+            Color.RED
+        )
+
+        visibility =
+            View.GONE
+    }
+
+channelBox.addView(
+    unreadBadge,
+    FrameLayout.LayoutParams(
+        dp(26),
+        dp(22)
+    ).apply {
+
+        gravity =
+            Gravity.TOP or
+            Gravity.END
+
+        rightMargin =
+            dp(4)
+    }
+)
+
+val noticeButton =
+    bottomButton(
+        "🔔\nNotice"
+    ) {
+
+        startActivity(
+            Intent(
+                this,
+                NoticeActivity::class.java
+            )
+        )
+    }
+
+val impButton =
+    bottomButton(
+        "📌\nImp Info"
+    ) {
+
+        startActivity(
+            Intent(
+                this,
+                ContentPageActivity::class.java
+            ).apply {
+
+                putExtra(
+                    "pageId",
+                    "important_information"
+                )
+
+                putExtra(
+                    "pageTitle",
+                    "📌 Important Information"
+                )
+            }
+        )
+    }
+
+val moreButton =
+    bottomButton(
+        "☰\nMore"
+    ) {
+        showChannelMenu()
+    }
+
+bottomBar.addView(
+    homeButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    channelBox,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    noticeButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    impButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    moreButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+root.addView(
+    bottomBar,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
+
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
+
+    val bottomInset =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        dp(5),
+        view.paddingRight,
+        dp(7) + bottomInset
+    )
+
+    insets
+}
 
     private fun bottomButton(
         label: String,
@@ -1495,7 +1592,7 @@ feedScroll.post {
         gravity =
             Gravity.CENTER
 
-        textSize = 11f
+        textSize = 12f
 
         includeFontPadding =
             false
