@@ -1712,7 +1712,173 @@ feedScroll.post {
                 )
         }
     }
+    /*
+     * =========================================================
+     * CHANNEL THREE-DOT MENU
+     * =========================================================
+     */
+    private fun showChannelMenu() {
 
+        val items =
+            mutableListOf<String>()
+
+        /*
+         * Unfollow केवल तभी दिखे जब user Follow कर चुका हो।
+         */
+        if (followingState) {
+
+            items.add(
+                "🔕 Unfollow Channel"
+            )
+        }
+
+        items.add(
+            "🔔 Notification Settings"
+        )
+
+        items.add(
+            "🔗 Share Channel"
+        )
+
+        items.add(
+            "ℹ️ Channel Info"
+        )
+
+        AlertDialog.Builder(this)
+            .setItems(
+                items.toTypedArray()
+            ) { _, which ->
+
+                val selected =
+                    items[which]
+
+                when (selected) {
+
+                    "🔕 Unfollow Channel" -> {
+                        unfollowChannel()
+                    }
+
+                    "🔔 Notification Settings" -> {
+                        showNotificationSettings()
+                    }
+
+                    "🔗 Share Channel" -> {
+                        shareChannel()
+                    }
+
+                    "ℹ️ Channel Info" -> {
+                        showChannelInfo()
+                    }
+                }
+            }
+            .show()
+    }
+
+
+    /*
+     * =========================================================
+     * UNFOLLOW CHANNEL
+     * =========================================================
+     *
+     * Existing toggleFollow() की पूरी existing logic
+     * इस्तेमाल होगी।
+     *
+     * इससे:
+     * - Firestore follow state बदलेगा
+     * - follower count सही बदलेगा
+     * - notification topic unsubscribe होगा
+     * - button state update होगा
+     */
+    private fun unfollowChannel() {
+
+        if (!followingState) {
+            return
+        }
+
+        toggleFollow()
+    }
+
+
+    /*
+     * =========================================================
+     * NOTIFICATION SETTINGS
+     * =========================================================
+     *
+     * Android की App Notification Settings खोलें।
+     * Channel का notification topic इसी app के अंदर
+     * existing Firebase notification system से जुड़ा है।
+     */
+    private fun showNotificationSettings() {
+
+        try {
+
+            val intent =
+                Intent(
+                    android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                ).apply {
+
+                    putExtra(
+                        android.provider.Settings.EXTRA_APP_PACKAGE,
+                        packageName
+                    )
+                }
+
+            startActivity(intent)
+
+        } catch (_: Exception) {
+
+            try {
+
+                startActivity(
+                    Intent(
+                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse(
+                            "package:$packageName"
+                        )
+                    )
+                )
+
+            } catch (_: Exception) {
+
+                Toast.makeText(
+                    this,
+                    "Notification Settings नहीं खुल सकी",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+
+    /*
+     * =========================================================
+     * CHANNEL INFO
+     * =========================================================
+     */
+    private fun showChannelInfo() {
+
+        AlertDialog.Builder(this)
+
+            .setTitle(
+                "ℹ️ शिक्षा रोजगार चैनल"
+            )
+
+            .setMessage(
+                "📢 शिक्षा रोजगार चैनल\n\n" +
+                    "शासकीय आदेश, निर्देश, शिक्षा, " +
+                    "शिक्षक, विद्यार्थी, नौकरी, परीक्षा, " +
+                    "रिजल्ट एवं महत्वपूर्ण अपडेट के लिए " +
+                    "Channel Follow करें।\n\n" +
+                    "👥 Followers: $followerCount"
+            )
+
+            .setPositiveButton(
+                "OK",
+                null
+            )
+
+            .show()
+    }
         /*
      * RENDER FEED
      *
