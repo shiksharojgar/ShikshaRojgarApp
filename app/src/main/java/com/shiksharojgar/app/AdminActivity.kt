@@ -177,7 +177,112 @@ private val pickNoticeImage =
                 resources.displayMetrics.density
             ).toInt()
     }
+// =========================================================
+// ADMIN UI DESIGN HELPERS
+// =========================================================
 
+private fun adminSectionTitle(
+    icon: String,
+    title: String
+): TextView {
+
+    return TextView(this).apply {
+
+        text = "$icon  $title"
+
+        textSize = 15f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        setPadding(
+            dp(4),
+            dp(8),
+            dp(4),
+            dp(4)
+        )
+    }
+}
+
+
+private fun adminSectionNote(
+    textValue: String
+): TextView {
+
+    return TextView(this).apply {
+
+        text = textValue
+
+        textSize = 11f
+
+        setTextColor(
+            Color.rgb(
+                71,
+                85,
+                105
+            )
+        )
+
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            dp(6)
+        )
+    }
+}
+
+
+private fun adminActionButton(
+    textValue: String,
+    click: () -> Unit
+): Button {
+
+    return Button(this).apply {
+
+        text = textValue
+
+        textSize = 12f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        setBackgroundColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        minHeight = 0
+
+        minimumHeight = 0
+
+        setPadding(
+            dp(8),
+            0,
+            dp(8),
+            0
+        )
+
+        setOnClickListener {
+            click()
+        }
+    }
+}
     // =========================================================
     // LOGIN UI
     // =========================================================
