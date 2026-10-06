@@ -1886,36 +1886,7 @@ homeContent.addView(
 )
 
 
-        // =====================================================
-        // EXISTING HOME PAGES
-        // =====================================================
-
-        fixed.addView(
-            TextView(this).apply {
-
-                text = "📚 HOME PAGES / CONTENT"
-
-                textSize = 13f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
-                )
-
-                setPadding(
-                    0,
-                    dp(5),
-                    0,
-                    dp(2)
-                )
-            }
-        )
+    
 
         val pageManager =
             LinearLayout(this).apply {
