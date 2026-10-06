@@ -242,7 +242,7 @@ class HomeCategoryActivity : AppCompatActivity() {
                     Color.WHITE
                 )
 
-                elevation = 10f
+                elevation = 12f
             }
 
         /*
@@ -277,7 +277,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             channelButton,
             FrameLayout.LayoutParams(
                 -1,
-                dp(68)
+                dp(60)
             )
         )
 
@@ -361,7 +361,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             homeButton,
             LinearLayout.LayoutParams(
                 0,
-                dp(68),
+                dp(60),
                 1f
             )
         )
@@ -370,7 +370,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             channelBox,
             LinearLayout.LayoutParams(
                 0,
-                dp(68),
+                dp(60),
                 1f
             )
         )
@@ -379,7 +379,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             noticeButton,
             LinearLayout.LayoutParams(
                 0,
-                dp(68),
+                dp(60),
                 1f
             )
         )
@@ -388,7 +388,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             impButton,
             LinearLayout.LayoutParams(
                 0,
-                dp(68),
+                dp(60),
                 1f
             )
         )
@@ -397,18 +397,18 @@ class HomeCategoryActivity : AppCompatActivity() {
             moreButton,
             LinearLayout.LayoutParams(
                 0,
-                dp(68),
+                dp(60),
                 1f
             )
         )
 
         root.addView(
-            bottomBar,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(72)
-            )
-        )
+    bottomBar,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
 
         /*
          * =====================================================
