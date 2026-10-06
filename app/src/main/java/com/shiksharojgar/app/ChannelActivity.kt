@@ -627,30 +627,35 @@ private fun updateLatestPostButtonVisibility() {
                 )
             )
         }
+/*
+ * =========================================================
+ * HEADER / STATUS BAR FIX
+ * =========================================================
+ *
+ * Android 15/16 + targetSdk 35 में edge-to-edge के कारण
+ * status bar Toolbar के ऊपर overlap कर सकता है।
+ *
+ * इसलिए top inset ROOT पर लगाया जा रहा है,
+ * Toolbar पर नहीं।
+ */
+ViewCompat.setOnApplyWindowInsetsListener(
+    root
+) { view, insets ->
 
-        /*
-         * =========================================================
-         * SYSTEM STATUS BAR / TOP INSET
-         * =========================================================
-         */
-        ViewCompat.setOnApplyWindowInsetsListener(             // 13
-            toolbar                                                // 14
-        ) { view, insets ->                                     // 15
+    val bars =
+        insets.getInsets(
+            WindowInsetsCompat.Type.systemBars()
+        )
 
-            val top =                                            // 16
-                insets.getInsets(                                // 17
-                    WindowInsetsCompat.Type.systemBars()        // 18
-                ).top                                           // 19
+    view.setPadding(
+        bars.left,
+        bars.top,
+        bars.right,
+        view.paddingBottom
+    )
 
-            view.setPadding(                                     // 20
-                view.paddingLeft,                                // 21
-                top + dp(4),                                     // 22
-                view.paddingRight,                               // 23
-                dp(4)                                            // 24
-            )
-
-            insets                                                // 25
-        }
+    insets
+}
 
         /*
          * =========================================================
