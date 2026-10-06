@@ -2,15 +2,15 @@ package com.shiksharojgar.app
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeCategoryActivity : AppCompatActivity() {
@@ -19,6 +19,7 @@ class HomeCategoryActivity : AppCompatActivity() {
         FirebaseFirestore.getInstance()
 
     private lateinit var listLayout: LinearLayout
+    private lateinit var unreadBadge: TextView
 
     private val colors = listOf(
         Color.rgb(46, 125, 50),
@@ -48,6 +49,30 @@ class HomeCategoryActivity : AppCompatActivity() {
             intent.getStringExtra("categoryIcon")
                 ?: ""
 
+        setContentView(
+            buildUi(
+                categoryName,
+                categoryIcon
+            )
+        )
+
+        loadSubCategories(
+            categoryId
+        )
+
+        updateUnreadBadge()
+    }
+
+    /*
+     * =========================================================
+     * COMMON PAGE UI
+     * =========================================================
+     */
+    private fun buildUi(
+        categoryName: String,
+        categoryIcon: String
+    ): LinearLayout {
+
         val root =
             LinearLayout(this).apply {
 
@@ -55,10 +80,15 @@ class HomeCategoryActivity : AppCompatActivity() {
                     LinearLayout.VERTICAL
 
                 setBackgroundColor(
-                    Color.WHITE
+                    Color.rgb(248, 250, 252)
                 )
             }
 
+        /*
+         * =====================================================
+         * COMMON HEADER
+         * =====================================================
+         */
         val header =
             LinearLayout(this).apply {
 
@@ -69,26 +99,141 @@ class HomeCategoryActivity : AppCompatActivity() {
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
-                    dp(16),
-                    dp(12),
-                    dp(16),
-                    dp(12)
+                    dp(10),
+                    dp(6),
+                    dp(10),
+                    dp(6)
                 )
 
                 setBackgroundColor(
-                    Color.rgb(25, 118, 210)
+                    Color.rgb(7, 89, 133)
+                )
+            }
+
+        val logo =
+            TextView(this).apply {
+
+                text = "📱"
+
+                textSize = 25f
+
+                gravity =
+                    Gravity.CENTER
+
+                setBackgroundColor(
+                    Color.WHITE
+                )
+            }
+
+        header.addView(
+            logo,
+            LinearLayout.LayoutParams(
+                dp(44),
+                dp(44)
+            ).apply {
+                rightMargin = dp(8)
+            }
+        )
+
+        val headerText =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        val appName =
+            TextView(this).apply {
+
+                text =
+                    "📱 Shiksha Rojgar App"
+
+                textSize = 17f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.WHITE
+                )
+            }
+
+        val tagline =
+            TextView(this).apply {
+
+                text =
+                    "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
+
+                textSize = 11f
+
+                setTextColor(
+                    Color.WHITE
+                )
+            }
+
+        headerText.addView(
+            appName
+        )
+
+        headerText.addView(
+            tagline
+        )
+
+        header.addView(
+            headerText,
+            LinearLayout.LayoutParams(
+                0,
+                -2,
+                1f
+            )
+        )
+
+        root.addView(
+            header,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(60)
+            )
+        )
+
+        /*
+         * =====================================================
+         * PAGE TITLE STRIP
+         * =====================================================
+         */
+        val titleStrip =
+            LinearLayout(this).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    dp(10),
+                    0,
+                    dp(10),
+                    0
+                )
+
+                setBackgroundColor(
+                    Color.rgb(219, 242, 255)
                 )
             }
 
         val back =
             TextView(this).apply {
 
-                text = "‹"
+                text = "←"
 
-                textSize = 34f
+                textSize = 25f
 
                 setTextColor(
-                    Color.WHITE
+                    Color.rgb(7, 89, 133)
                 )
 
                 gravity =
@@ -99,11 +244,11 @@ class HomeCategoryActivity : AppCompatActivity() {
                 }
             }
 
-        header.addView(
+        titleStrip.addView(
             back,
             LinearLayout.LayoutParams(
-                dp(45),
-                dp(50)
+                dp(44),
+                dp(48)
             )
         )
 
@@ -117,36 +262,43 @@ class HomeCategoryActivity : AppCompatActivity() {
                         categoryName
                     }
 
-                textSize = 20f
+                textSize = 18f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
 
                 setTextColor(
-                    Color.WHITE
-                )
-
-                setTypeface(
-                    null,
-                    android.graphics.Typeface.BOLD
+                    Color.rgb(7, 89, 133)
                 )
 
                 gravity =
                     Gravity.CENTER_VERTICAL
             }
 
-        header.addView(
+        titleStrip.addView(
             title,
             LinearLayout.LayoutParams(
                 0,
-                dp(50),
+                dp(48),
                 1f
             )
         )
 
         root.addView(
-            header
+            titleStrip,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(48)
+            )
         )
 
+        /*
+         * =====================================================
+         * SUB CATEGORY CONTENT
+         * =====================================================
+         */
         val scroll =
-            android.widget.ScrollView(this).apply {
+            ScrollView(this).apply {
 
                 isFillViewport = true
             }
@@ -161,7 +313,7 @@ class HomeCategoryActivity : AppCompatActivity() {
                     dp(16),
                     dp(16),
                     dp(16),
-                    dp(24)
+                    dp(100)
                 )
             }
 
@@ -178,13 +330,367 @@ class HomeCategoryActivity : AppCompatActivity() {
             )
         )
 
-        setContentView(root)
+        /*
+         * =====================================================
+         * COMMON BOTTOM BAR
+         * =====================================================
+         */
+        val bottomBar =
+            LinearLayout(this).apply {
 
-        loadSubCategories(
-            categoryId
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER
+
+                setPadding(
+                    dp(2),
+                    dp(4),
+                    dp(2),
+                    dp(4)
+                )
+
+                setBackgroundColor(
+                    Color.WHITE
+                )
+
+                elevation = 10f
+            }
+
+        /*
+         * HOME
+         */
+        val homeButton =
+            bottomButton(
+                "🏠\nHome"
+            ) {
+                goHome()
+            }
+
+        /*
+         * CHANNEL + BADGE
+         */
+        val channelBox =
+            FrameLayout(this)
+
+        val channelButton =
+            bottomButton(
+                "📢\nChannel"
+            ) {
+                startActivity(
+                    Intent(
+                        this,
+                        ChannelActivity::class.java
+                    )
+                )
+            }
+
+        channelBox.addView(
+            channelButton,
+            FrameLayout.LayoutParams(
+                -1,
+                dp(68)
+            )
+        )
+
+        unreadBadge =
+            TextView(this).apply {
+
+                text = ""
+
+                textSize = 10f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                gravity =
+                    Gravity.CENTER
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setBackgroundColor(
+                    Color.RED
+                )
+
+                visibility =
+                    View.GONE
+            }
+
+        channelBox.addView(
+            unreadBadge,
+            FrameLayout.LayoutParams(
+                dp(26),
+                dp(22)
+            ).apply {
+
+                gravity =
+                    Gravity.TOP or
+                    Gravity.END
+
+                topMargin = 0
+                rightMargin = dp(4)
+            }
+        )
+
+        /*
+         * NOTICE
+         */
+        val noticeButton =
+            bottomButton(
+                "🔔\nNotice"
+            ) {
+                startActivity(
+                    Intent(
+                        this,
+                        NoticeActivity::class.java
+                    )
+                )
+            }
+
+        /*
+         * IMPORTANT INFORMATION
+         */
+        val impButton =
+            bottomButton(
+                "📌\nImp Info"
+            ) {
+                openImportantInformation()
+            }
+
+        /*
+         * MORE
+         */
+        val moreButton =
+            bottomButton(
+                "☰\nMore"
+            ) {
+                openMore()
+            }
+
+        bottomBar.addView(
+            homeButton,
+            LinearLayout.LayoutParams(
+                0,
+                dp(68),
+                1f
+            )
+        )
+
+        bottomBar.addView(
+            channelBox,
+            LinearLayout.LayoutParams(
+                0,
+                dp(68),
+                1f
+            )
+        )
+
+        bottomBar.addView(
+            noticeButton,
+            LinearLayout.LayoutParams(
+                0,
+                dp(68),
+                1f
+            )
+        )
+
+        bottomBar.addView(
+            impButton,
+            LinearLayout.LayoutParams(
+                0,
+                dp(68),
+                1f
+            )
+        )
+
+        bottomBar.addView(
+            moreButton,
+            LinearLayout.LayoutParams(
+                0,
+                dp(68),
+                1f
+            )
+        )
+
+        root.addView(
+            bottomBar,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(72)
+            )
+        )
+
+        /*
+         * =====================================================
+         * ANDROID 15 NAVIGATION INSET
+         * =====================================================
+         */
+        ViewCompat.setOnApplyWindowInsetsListener(
+            bottomBar
+        ) { view, insets ->
+
+            val navigationBottom =
+                insets.getInsets(
+                    WindowInsetsCompat.Type.navigationBars()
+                ).bottom
+
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                navigationBottom + dp(4)
+            )
+
+            insets
+        }
+
+        return root
+    }
+
+    /*
+     * =========================================================
+     * BOTTOM BUTTON
+     * =========================================================
+     */
+    private fun bottomButton(
+        textValue: String,
+        action: () -> Unit
+    ): Button {
+
+        return Button(this).apply {
+
+            text = textValue
+
+            textSize = 10f
+
+            isAllCaps = false
+
+            setTextColor(
+                Color.rgb(30, 41, 59)
+            )
+
+            setBackgroundColor(
+                Color.TRANSPARENT
+            )
+
+            gravity =
+                Gravity.CENTER
+
+            setOnClickListener {
+                action()
+            }
+        }
+    }
+
+    /*
+     * =========================================================
+     * HOME
+     * =========================================================
+     */
+    private fun goHome() {
+
+        val intent =
+            Intent(
+                this,
+                MainActivity::class.java
+            ).apply {
+
+                flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+
+        startActivity(intent)
+
+        finish()
+    }
+
+    /*
+     * =========================================================
+     * IMPORTANT INFORMATION
+     * =========================================================
+     */
+    private fun openImportantInformation() {
+
+        startActivity(
+            Intent(
+                this,
+                ContentPageActivity::class.java
+            ).apply {
+
+                putExtra(
+                    "pageId",
+                    "important_information"
+                )
+
+                putExtra(
+                    "pageTitle",
+                    "📌 Important Information"
+                )
+            }
         )
     }
 
+    /*
+     * =========================================================
+     * MORE
+     * =========================================================
+     */
+    private fun openMore() {
+
+        Toast.makeText(
+            this,
+            "More",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    /*
+     * =========================================================
+     * UNREAD BADGE
+     * =========================================================
+     */
+    private fun updateUnreadBadge() {
+
+        val prefs =
+            getSharedPreferences(
+                "sr_notifications",
+                MODE_PRIVATE
+            )
+
+        val unread =
+            prefs.getInt(
+                "channel_unread",
+                0
+            )
+
+        if (unread > 0) {
+
+            unreadBadge.text =
+                if (unread > 99) {
+                    "99+"
+                } else {
+                    unread.toString()
+                }
+
+            unreadBadge.visibility =
+                View.VISIBLE
+
+        } else {
+
+            unreadBadge.visibility =
+                View.GONE
+        }
+    }
+
+    /*
+     * =========================================================
+     * LOAD SUB CATEGORIES
+     * =========================================================
+     */
     private fun loadSubCategories(
         categoryId: String
     ) {
@@ -219,12 +725,12 @@ class HomeCategoryActivity : AppCompatActivity() {
                 listLayout.removeAllViews()
 
                 val items =
-                    result.documents
-                        .sortedBy {
-                            it.getLong(
-                                "position"
-                            ) ?: 0L
-                        }
+                    result.documents.sortedBy {
+
+                        it.getLong(
+                            "position"
+                        ) ?: 0L
+                    }
 
                 if (items.isEmpty()) {
 
@@ -301,6 +807,11 @@ class HomeCategoryActivity : AppCompatActivity() {
             }
     }
 
+    /*
+     * =========================================================
+     * SUB CATEGORY BUTTON
+     * =========================================================
+     */
     private fun addSubCategoryButton(
         name: String,
         icon: String,
@@ -330,7 +841,7 @@ class HomeCategoryActivity : AppCompatActivity() {
 
                 setTypeface(
                     null,
-                    android.graphics.Typeface.BOLD
+                    Typeface.BOLD
                 )
 
                 setPadding(
@@ -344,10 +855,9 @@ class HomeCategoryActivity : AppCompatActivity() {
                     GradientDrawable().apply {
 
                         setColor(
-                            this@HomeCategoryActivity.colors[
-    index %
-        this@HomeCategoryActivity.colors.size
-]
+                            colors[
+                                index % colors.size
+                            ]
                         )
 
                         cornerRadius =
@@ -377,48 +887,57 @@ class HomeCategoryActivity : AppCompatActivity() {
         )
     }
 
+    /*
+     * =========================================================
+     * OPEN SUB CATEGORY
+     * =========================================================
+     */
     private fun openSubCategory(
-    url: String,
-    pageType: String,
-    name: String
-) {
-
-    if (url.isBlank()) {
-
-        Toast.makeText(
-            this,
-            "$name का URL अभी उपलब्ध नहीं है।",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        return
-    }
-
-    try {
-
-        startActivity(
-            Intent(
-                this,
-                WebViewActivity::class.java
-            ).putExtra(
-                "url",
-                url
-            )
-        )
-
-    } catch (
-        e: Exception
+        url: String,
+        pageType: String,
+        name: String
     ) {
 
-        Toast.makeText(
-            this,
-            "Page open नहीं हो सका।",
-            Toast.LENGTH_SHORT
-        ).show()
+        if (url.isBlank()) {
+
+            Toast.makeText(
+                this,
+                "$name का URL अभी उपलब्ध नहीं है।",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        try {
+
+            startActivity(
+                Intent(
+                    this,
+                    WebViewActivity::class.java
+                ).putExtra(
+                    "url",
+                    url
+                )
+            )
+
+        } catch (
+            e: Exception
+        ) {
+
+            Toast.makeText(
+                this,
+                "Page open नहीं हो सका।",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
-}
 
-
+    /*
+     * =========================================================
+     * DP
+     * =========================================================
+     */
     private fun dp(
         value: Int
     ): Int {
