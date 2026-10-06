@@ -443,15 +443,15 @@ class HomeCategoryActivity : AppCompatActivity() {
      * =========================================================
      */
     private fun bottomButton(
-        textValue: String,
-        action: () -> Unit
-    ): Button {
+    textValue: String,
+    action: () -> Unit
+): Button {
 
-        return Button(this).apply {
+    return Button(this).apply {
 
-            text = textValue
+        text = textValue
 
-            textSize = 10f
+        textSize = 12f
 
             isAllCaps = false
 
