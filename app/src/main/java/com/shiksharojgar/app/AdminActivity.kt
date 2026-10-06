@@ -2274,7 +2274,576 @@ fixed.addView(
             )
         )
     }
+// =========================================================
+// MORE MENU MANAGER
+// =========================================================
 
+private fun showMoreMenuManager() {
+
+    val dialog =
+        AlertDialog.Builder(this)
+            .setTitle(
+                "☰ More Menu Management"
+            )
+            .setMessage(
+                "More Menu items load हो रहे हैं…"
+            )
+            .setPositiveButton(
+                "CLOSE",
+                null
+            )
+            .create()
+
+    dialog.show()
+
+    db.collection(
+        "more_menu_items"
+    )
+        .orderBy(
+            "position"
+        )
+        .get()
+        .addOnSuccessListener { snap ->
+
+            dialog.dismiss()
+
+            val items =
+                snap.documents.toMutableList()
+
+            val names =
+                ArrayList<String>()
+
+            items.forEach { doc ->
+
+                val icon =
+                    doc.getString("icon")
+                        ?: "☰"
+
+                val label =
+                    doc.getString("label")
+                        ?: "Unnamed"
+
+                val enabled =
+                    doc.getBoolean("enabled")
+                        ?: true
+
+                val status =
+                    if (enabled) "✅" else "❌"
+
+                names.add(
+                    "$status $icon $label"
+                )
+            }
+
+            names.add(
+                "➕ Add New More Menu"
+            )
+
+            AlertDialog.Builder(this)
+                .setTitle(
+                    "☰ More Menu"
+                )
+                .setItems(
+                    names.toTypedArray()
+                ) { _, which ->
+
+                    if (which == items.size) {
+
+                        showMoreMenuEditor(
+                            null
+                        )
+
+                    } else {
+
+                        showMoreMenuActions(
+                            items[which]
+                        )
+                    }
+                }
+                .setNegativeButton(
+                    "CLOSE",
+                    null
+                )
+                .show()
+        }
+        .addOnFailureListener { e ->
+
+            dialog.dismiss()
+
+            Toast.makeText(
+                this,
+                "More Menu load नहीं हुआ: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
+
+
+// =========================================================
+// MORE MENU ACTIONS
+// =========================================================
+
+private fun showMoreMenuActions(
+    document:
+        com.google.firebase.firestore.DocumentSnapshot
+) {
+
+    val label =
+        document.getString("label")
+            ?: "More Menu"
+
+    val enabled =
+        document.getBoolean("enabled")
+            ?: true
+
+    val options =
+        arrayOf(
+            "✏️ Edit",
+            if (enabled)
+                "❌ Disable"
+            else
+                "✅ Enable",
+            "⬆️ Move Up",
+            "⬇️ Move Down",
+            "🗑 Delete"
+        )
+
+    AlertDialog.Builder(this)
+        .setTitle(
+            "☰ $label"
+        )
+        .setItems(
+            options
+        ) { _, which ->
+
+            when (which) {
+
+                0 -> {
+                    showMoreMenuEditor(
+                        document
+                    )
+                }
+
+                1 -> {
+
+                    document.reference
+                        .update(
+                            "enabled",
+                            !enabled
+                        )
+                        .addOnSuccessListener {
+
+                            Toast.makeText(
+                                this,
+                                "More Menu status बदल गया",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            showMoreMenuManager()
+                        }
+                }
+
+                2 -> {
+                    moveMoreMenuItem(
+                        document,
+                        -1
+                    )
+                }
+
+                3 -> {
+                    moveMoreMenuItem(
+                        document,
+                        1
+                    )
+                }
+
+                4 -> {
+
+                    AlertDialog.Builder(this)
+                        .setTitle(
+                            "Delete More Menu?"
+                        )
+                        .setMessage(
+                            "क्या \"$label\" को delete करना है?"
+                        )
+                        .setNegativeButton(
+                            "CANCEL",
+                            null
+                        )
+                        .setPositiveButton(
+                            "DELETE"
+                        ) { _, _ ->
+
+                            document.reference
+                                .delete()
+                                .addOnSuccessListener {
+
+                                    Toast.makeText(
+                                        this,
+                                        "More Menu delete हो गया",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    showMoreMenuManager()
+                                }
+                        }
+                        .show()
+                }
+            }
+        }
+        .setNegativeButton(
+            "BACK",
+            null
+        )
+        .show()
+}
+
+
+// =========================================================
+// MORE MENU EDITOR
+// =========================================================
+
+private fun showMoreMenuEditor(
+    document:
+        com.google.firebase.firestore.DocumentSnapshot?
+) {
+
+    val isNew =
+        document == null
+
+    val layout =
+        LinearLayout(this).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            setPadding(
+                dp(20),
+                dp(8),
+                dp(20),
+                dp(8)
+            )
+        }
+
+    fun field(
+        hint: String,
+        value: String
+    ): EditText {
+
+        return EditText(this).apply {
+
+            this.hint = hint
+
+            setText(value)
+
+            textSize = 14f
+
+            setPadding(
+                dp(4),
+                dp(6),
+                dp(4),
+                dp(6)
+            )
+
+            layout.addView(
+                this,
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(48)
+                )
+            )
+        }
+    }
+
+    val icon =
+        field(
+            "Icon जैसे ☰ / 📢 / 📚",
+            document?.getString("icon")
+                ?: "☰"
+        )
+
+    val label =
+        field(
+            "Menu Name",
+            document?.getString("label")
+                ?: ""
+        )
+
+    val position =
+        field(
+            "Position जैसे 1, 2, 3",
+            (
+                document
+                    ?.getLong("position")
+                    ?: 1L
+                ).toString()
+        )
+
+    val actionType =
+        field(
+            "Action Type: internal / external / phone / whatsapp / email / text",
+            document?.getString("actionType")
+                ?: "external"
+        )
+
+    val target =
+        field(
+            "Target / Page ID",
+            document?.getString("target")
+                ?: ""
+        )
+
+    val url =
+        field(
+            "URL",
+            document?.getString("url")
+                ?: ""
+        )
+
+    val phone =
+        field(
+            "Phone Number",
+            document?.getString("phone")
+                ?: ""
+        )
+
+    val whatsapp =
+        field(
+            "WhatsApp Number",
+            document?.getString("whatsapp")
+                ?: ""
+        )
+
+    val email =
+        field(
+            "Email",
+            document?.getString("email")
+                ?: ""
+        )
+
+    val content =
+        field(
+            "Text / About / Help Content",
+            document?.getString("content")
+                ?: ""
+        )
+
+    layout.addView(
+        CheckBox(this).apply {
+
+            text =
+                "Menu Enabled"
+
+            isChecked =
+                document?.getBoolean("enabled")
+                    ?: true
+
+            tag =
+                "enabled"
+        }
+    )
+
+    val enabledBox =
+        layout.getChildAt(
+            layout.childCount - 1
+        ) as CheckBox
+
+    AlertDialog.Builder(this)
+        .setTitle(
+            if (isNew)
+                "➕ Add More Menu"
+            else
+                "✏️ Edit More Menu"
+        )
+        .setView(layout)
+        .setNegativeButton(
+            "CANCEL",
+            null
+        )
+        .setPositiveButton(
+            "SAVE"
+        ) { _, _ ->
+
+            val data =
+                hashMapOf<String, Any>(
+
+                    "icon" to
+                        icon.text
+                            .toString()
+                            .trim(),
+
+                    "label" to
+                        label.text
+                            .toString()
+                            .trim(),
+
+                    "position" to
+                        (
+                            position.text
+                                .toString()
+                                .toLongOrNull()
+                                ?: 1L
+                            ),
+
+                    "actionType" to
+                        actionType.text
+                            .toString()
+                            .trim(),
+
+                    "target" to
+                        target.text
+                            .toString()
+                            .trim(),
+
+                    "url" to
+                        url.text
+                            .toString()
+                            .trim(),
+
+                    "phone" to
+                        phone.text
+                            .toString()
+                            .trim(),
+
+                    "whatsapp" to
+                        whatsapp.text
+                            .toString()
+                            .trim(),
+
+                    "email" to
+                        email.text
+                            .toString()
+                            .trim(),
+
+                    "content" to
+                        content.text
+                            .toString()
+                            .trim(),
+
+                    "enabled" to
+                        enabledBox.isChecked
+                )
+
+            val task =
+                if (isNew) {
+
+                    db.collection(
+                        "more_menu_items"
+                    )
+                        .add(data)
+
+                } else {
+
+                    document!!
+                        .reference
+                        .set(
+                            data
+                        )
+                }
+
+            task.addOnSuccessListener {
+
+                Toast.makeText(
+                    this,
+                    "More Menu सेव हो गया",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                showMoreMenuManager()
+
+            }.addOnFailureListener { e ->
+
+                Toast.makeText(
+                    this,
+                    "Save error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        .show()
+}
+
+
+// =========================================================
+// MORE MENU MOVE UP / DOWN
+// =========================================================
+
+private fun moveMoreMenuItem(
+    document:
+        com.google.firebase.firestore.DocumentSnapshot,
+    direction: Int
+) {
+
+    val current =
+        document.getLong(
+            "position"
+        ) ?: 1L
+
+    val newPosition =
+        current + direction
+
+    if (newPosition < 1L) {
+
+        Toast.makeText(
+            this,
+            "यह पहला item है",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        return
+    }
+
+    db.collection(
+        "more_menu_items"
+    )
+        .whereEqualTo(
+            "position",
+            newPosition
+        )
+        .limit(1)
+        .get()
+        .addOnSuccessListener { snap ->
+
+            if (snap.isEmpty) {
+
+                document.reference
+                    .update(
+                        "position",
+                        newPosition
+                    )
+                    .addOnSuccessListener {
+
+                        showMoreMenuManager()
+                    }
+
+                return@addOnSuccessListener
+            }
+
+            val other =
+                snap.documents[0]
+
+            val batch =
+                db.batch()
+
+            batch.update(
+                document.reference,
+                "position",
+                newPosition
+            )
+
+            batch.update(
+                other.reference,
+                "position",
+                current
+            )
+
+            batch.commit()
+                .addOnSuccessListener {
+
+                    showMoreMenuManager()
+                }
+        }
+}
     // =========================================================
     // HOME CATEGORY MANAGER
     // =========================================================
