@@ -19,6 +19,13 @@ class ContentPageActivity : AppCompatActivity() {
     private lateinit var bodyBox: LinearLayout
     private lateinit var titleView: TextView
     private lateinit var unreadBadge: TextView
+    
+private fun dp(value: Int): Int {
+    return (
+        value *
+            resources.displayMetrics.density
+        ).toInt()
+}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
