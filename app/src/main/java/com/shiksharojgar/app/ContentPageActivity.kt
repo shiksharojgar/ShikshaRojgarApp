@@ -126,9 +126,8 @@ class ContentPageActivity : AppCompatActivity() {
 
         val appName =
             TextView(this).apply {
-
-                text =
-                    "📱 Shiksha Rojgar App"
+text =
+    "Shiksha Rojgar App"
 
                 textSize = 17f
 
@@ -172,12 +171,12 @@ class ContentPageActivity : AppCompatActivity() {
          */
 
         root.addView(
-            header,
-            LinearLayout.LayoutParams(
-                -1,
-                60
-            )
-        )
+    header,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(68)
+    )
+)
 
         /*
          * =====================================================
@@ -325,11 +324,11 @@ class ContentPageActivity : AppCompatActivity() {
                     Gravity.CENTER
 
                 setPadding(
-                    2,
-                    4,
-                    2,
-                    4
-                )
+    dp(7),
+    dp(5),
+    dp(7),
+    dp(7)
+)
 
                 setBackgroundColor(
                     Color.WHITE
@@ -370,7 +369,7 @@ class ContentPageActivity : AppCompatActivity() {
             channelButton,
             FrameLayout.LayoutParams(
                 -1,
-                68
+                dp(60)
             )
         )
 
@@ -379,7 +378,7 @@ class ContentPageActivity : AppCompatActivity() {
 
                 text = ""
 
-                textSize = 10f
+                textSize = 12f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
@@ -456,7 +455,7 @@ class ContentPageActivity : AppCompatActivity() {
             homeButton,
             LinearLayout.LayoutParams(
                 0,
-                68,
+                dp(60),
                 1f
             )
         )
@@ -465,7 +464,7 @@ class ContentPageActivity : AppCompatActivity() {
             channelBox,
             LinearLayout.LayoutParams(
                 0,
-                68,
+                dp(60),
                 1f
             )
         )
@@ -474,7 +473,7 @@ class ContentPageActivity : AppCompatActivity() {
             noticeButton,
             LinearLayout.LayoutParams(
                 0,
-                68,
+                dp(60),
                 1f
             )
         )
@@ -483,7 +482,7 @@ class ContentPageActivity : AppCompatActivity() {
             impButton,
             LinearLayout.LayoutParams(
                 0,
-                68,
+                dp(60),
                 1f
             )
         )
@@ -492,18 +491,18 @@ class ContentPageActivity : AppCompatActivity() {
             moreButton,
             LinearLayout.LayoutParams(
                 0,
-                68,
+                dp(60),
                 1f
             )
         )
 
         root.addView(
-            bottomBar,
-            LinearLayout.LayoutParams(
-                -1,
-                72
-            )
-        )
+    bottomBar,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
 
         /*
          * =====================================================
