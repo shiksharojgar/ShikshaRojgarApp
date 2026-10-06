@@ -1814,7 +1814,13 @@ private data class HomeSubCategory(
 private fun openMainCategoryDirectly(
     category: HomeCategory
 ) {
-
+if (category.pageId == "tools") {
+    openManagedPage(
+        "important_information",
+        "📌 Important Information"
+    )
+    return
+}
     /*
      * Managed App Page
      */
