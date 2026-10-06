@@ -86,19 +86,20 @@ class ContentPageActivity : AppCompatActivity() {
          * APP LOGO
          */
         val logo =
-            TextView(this).apply {
+    ImageView(this).apply {
 
-                text = "📱"
+        setImageResource(
+            R.drawable.logo
+        )
 
-                textSize = 25f
+        contentDescription =
+            "Shiksha Rojgar"
 
-                gravity =
-                    Gravity.CENTER
+        scaleType =
+            ImageView.ScaleType.CENTER_CROP
 
-                setBackgroundColor(
-                    Color.WHITE
-                )
-            }
+        adjustViewBounds = true
+    }
 
         header.addView(
             logo,
