@@ -120,7 +120,7 @@
     <LinearLayout
         android:id="@+id/webBottomBar"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
         android:background="@android:color/white"
@@ -199,7 +199,7 @@
         <TextView
             android:id="@+id/bottomMoreButton"
             android:layout_width="0dp"
-            android:layout_height="68dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:gravity="center"
             android:text="☰\nMore"
