@@ -1685,260 +1685,207 @@ private fun adminActionButton(
                 topMargin = dp(3)
             }
         )
-        // =====================================================
-        // MANAGE HOME SUB-CATEGORIES
-        // =====================================================
-        fixed.addView(
-            Button(this).apply {
+        // =========================================================
+// HOME MANAGEMENT CARD
+// =========================================================
 
-                text = "🔽 MANAGE SUB-CATEGORIES"
+val homeManagement =
+    LinearLayout(this).apply {
 
-                textSize = 12f
-
-                setTypeface(
-                    Typeface.DEFAULT,
-                    Typeface.BOLD
-                )
-
-                setTextColor(
-                    Color.WHITE
-                )
-
-                setBackgroundColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
-                )
-
-                minHeight = 0
-
-                setPadding(
-                    dp(4),
-                    0,
-                    dp(4),
-                    0
-                )
-
-                setOnClickListener {
-
-                    showHomeSubCategoryManager(
-    ""
-)
-                }
-            },
-            LinearLayout.LayoutParams(
-                -1,
-                dp(42)
-            ).apply {
-
-                topMargin = dp(2)
-                bottomMargin = dp(3)
-            }
-        )
-        // =====================================================
-        // HOME CATEGORY MANAGEMENT
-        // =====================================================
-
-        fixed.addView(
-            TextView(this).apply {
-
-                text =
-                    "🏠 HOME CATEGORY MANAGEMENT"
-
-                textSize = 14f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
-                )
-
-                setPadding(
-                    0,
-                    dp(7),
-                    0,
-                    dp(2)
-                )
-            }
-        )
-
-        fixed.addView(
-            TextView(this).apply {
-
-                text =
-                    "Home के Teacher, Student, School, Vacancy आदि buttons यहाँ से बदलें"
-
-                textSize = 10f
-
-                setTextColor(
-                    Color.DKGRAY
-                )
-
-                setPadding(
-                    0,
-                    0,
-                    0,
-                    dp(3)
-                )
-            }
-        )
-
-        fixed.addView(
-            Button(this).apply {
-
-                text =
-                    "⚙️ MANAGE HOME CATEGORIES"
-
-                textSize = 12f
-
-                setTypeface(
-                    Typeface.DEFAULT,
-                    Typeface.BOLD
-                )
-
-                setTextColor(
-                    Color.WHITE
-                )
-
-                setBackgroundColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
-                )
-
-                minHeight = 0
-
-                setPadding(
-                    dp(4),
-                    0,
-                    dp(4),
-                    0
-                )
-
-                setOnClickListener {
-
-                    showHomeCategoryManager()
-                }
-            },
-            LinearLayout.LayoutParams(
-                -1,
-                dp(42)
-            ).apply {
-
-                topMargin = dp(2)
-                bottomMargin = dp(3)
-            }
-        )
-// =====================================================
-// MORE MENU MANAGEMENT
-// =====================================================
-
-fixed.addView(
-    TextView(this).apply {
-
-        text =
-            "☰ MORE MENU MANAGEMENT"
-
-        textSize = 14f
-
-        typeface =
-            Typeface.DEFAULT_BOLD
-
-        setTextColor(
-            Color.rgb(
-                7,
-                89,
-                133
-            )
-        )
+        orientation =
+            LinearLayout.VERTICAL
 
         setPadding(
-            0,
-            dp(7),
-            0,
-            dp(2)
-        )
-    }
-)
-
-fixed.addView(
-    TextView(this).apply {
-
-        text =
-            "More Menu के नाम, icon, क्रम, ON/OFF, link, phone, WhatsApp आदि यहाँ से नियंत्रित करें"
-
-        textSize = 10f
-
-        setTextColor(
-            Color.DKGRAY
-        )
-
-        setPadding(
-            0,
-            0,
-            0,
-            dp(3)
-        )
-    }
-)
-
-fixed.addView(
-    Button(this).apply {
-
-        text =
-            "☰ MANAGE MORE MENU"
-
-        textSize = 12f
-
-        setTypeface(
-            Typeface.DEFAULT,
-            Typeface.BOLD
-        )
-
-        setTextColor(
-            Color.WHITE
+            dp(10),
+            dp(8),
+            dp(10),
+            dp(10)
         )
 
         setBackgroundColor(
             Color.rgb(
-                7,
-                89,
-                133
+                239,
+                248,
+                255
             )
         )
 
-        minHeight = 0
+        elevation = 2f
+    }
 
-        setPadding(
-            dp(4),
-            0,
-            dp(4),
-            0
-        )
+fixed.addView(
+    homeManagement,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
 
-        setOnClickListener {
+        topMargin = dp(5)
+        bottomMargin = dp(5)
+    }
+)
 
-            showMoreMenuManager()
-        }
+homeManagement.addView(
+    adminSectionTitle(
+        "🏠",
+        "HOME MANAGEMENT"
+    )
+)
+
+homeManagement.addView(
+    adminSectionNote(
+        "Home के मुख्य buttons और उनके अंदर के sub-buttons यहाँ से manage करें।"
+    )
+)
+
+homeManagement.addView(
+    adminActionButton(
+        "🏠  MANAGE HOME CATEGORIES"
+    ) {
+        showHomeCategoryManager()
     },
     LinearLayout.LayoutParams(
         -1,
-        dp(42)
+        dp(46)
     ).apply {
 
-        topMargin = dp(2)
-        bottomMargin = dp(3)
+        bottomMargin = dp(7)
     }
 )
+
+homeManagement.addView(
+    adminActionButton(
+        "🔽  MANAGE SUB-CATEGORIES"
+    ) {
+        showHomeSubCategoryManager("")
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(46)
+    )
+)
+
+
+// =========================================================
+// MORE MENU CARD
+// =========================================================
+
+val moreManagement =
+    LinearLayout(this).apply {
+
+        orientation =
+            LinearLayout.VERTICAL
+
+        setPadding(
+            dp(10),
+            dp(8),
+            dp(10),
+            dp(10)
+        )
+
+        setBackgroundColor(
+            Color.rgb(
+                247,
+                244,
+                255
+            )
+        )
+
+        elevation = 2f
+    }
+
+fixed.addView(
+    moreManagement,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+
+        topMargin = dp(5)
+        bottomMargin = dp(5)
+    }
+)
+
+moreManagement.addView(
+    adminSectionTitle(
+        "☰",
+        "MORE MENU MANAGEMENT"
+    )
+)
+
+moreManagement.addView(
+    adminSectionNote(
+        "More में दिखने वाले menu को बिना APK update के बदलें।"
+    )
+)
+
+moreManagement.addView(
+    adminActionButton(
+        "☰  MANAGE MORE MENU"
+    ) {
+        showMoreMenuManager()
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(46)
+    )
+)
+
+
+// =========================================================
+// HOME CONTENT CARD
+// =========================================================
+
+val homeContent =
+    LinearLayout(this).apply {
+
+        orientation =
+            LinearLayout.VERTICAL
+
+        setPadding(
+            dp(10),
+            dp(8),
+            dp(10),
+            dp(10)
+        )
+
+        setBackgroundColor(
+            Color.rgb(
+                255,
+                250,
+                240
+            )
+        )
+
+        elevation = 2f
+    }
+
+fixed.addView(
+    homeContent,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+
+        topMargin = dp(5)
+        bottomMargin = dp(7)
+    }
+)
+
+homeContent.addView(
+    adminSectionTitle(
+        "📚",
+        "HOME PAGES / CONTENT"
+    )
+)
+
+homeContent.addView(
+    adminSectionNote(
+        "Study Material, Career Guide, Notice, Useful Tools आदि का content manage करें।"
+    )
+)
+
+
         // =====================================================
         // EXISTING HOME PAGES
         // =====================================================
