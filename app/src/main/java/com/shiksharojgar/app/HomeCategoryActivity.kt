@@ -85,119 +85,267 @@ class HomeCategoryActivity : AppCompatActivity() {
             }
 
         /*
-         * =====================================================
-         * COMMON HEADER
-         * =====================================================
-         */
-        val header =
-            LinearLayout(this).apply {
+ * ============================================================
+ * COMMON BOTTOM NAVIGATION
+ * ============================================================
+ */
 
-                orientation =
-                    LinearLayout.HORIZONTAL
+val bottomBar =
+    LinearLayout(this).apply {
 
-                gravity =
-                    Gravity.CENTER_VERTICAL
+        orientation =
+            LinearLayout.HORIZONTAL
 
-                setPadding(
-                    dp(10),
-                    dp(6),
-                    dp(10),
-                    dp(6)
-                )
+        gravity =
+            Gravity.CENTER
 
-                setBackgroundColor(
-                    Color.rgb(7, 89, 133)
-                )
-            }
+        setPadding(
+            dp(7),
+            dp(5),
+            dp(7),
+            dp(7)
+        )
 
-        val logo =
-            TextView(this).apply {
+        setBackgroundColor(
+            Color.WHITE
+        )
 
-                text = "📱"
+        elevation =
+            dp(16).toFloat()
+    }
 
-                textSize = 25f
+fun navButton(
+    label: String,
+    action: () -> Unit
+): TextView {
 
-                gravity =
-                    Gravity.CENTER
+    return TextView(this).apply {
 
-                setBackgroundColor(
-                    Color.WHITE
-                )
-            }
+        text = label
 
-        header.addView(
-            logo,
-            LinearLayout.LayoutParams(
-                dp(44),
-                dp(44)
+        textSize = 12f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        gravity =
+            Gravity.CENTER
+
+        setTextColor(
+            Color.rgb(
+                30,
+                41,
+                59
+            )
+        )
+
+        isClickable = true
+        isFocusable = true
+
+        setOnClickListener {
+            action()
+        }
+    }
+}
+
+val homeButton =
+    navButton(
+        "🏠\nHome"
+    ) {
+
+        startActivity(
+            Intent(
+                this@NoticeActivity,
+                MainActivity::class.java
             ).apply {
-                rightMargin = dp(8)
+
+                flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
         )
 
-        val headerText =
-            LinearLayout(this).apply {
+        finish()
+    }
 
-                orientation =
-                    LinearLayout.VERTICAL
+val channelBox =
+    FrameLayout(this)
 
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
+val channelButton =
+    navButton(
+        "📢\nChannel"
+    ) {
 
-        val appName =
-            TextView(this).apply {
-
-                text =
-                    "📱 Shiksha Rojgar App"
-
-                textSize = 17f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.WHITE
-                )
-            }
-
-        val tagline =
-            TextView(this).apply {
-
-                text =
-                    "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
-
-                textSize = 11f
-
-                setTextColor(
-                    Color.WHITE
-                )
-            }
-
-        headerText.addView(
-            appName
-        )
-
-        headerText.addView(
-            tagline
-        )
-
-        header.addView(
-            headerText,
-            LinearLayout.LayoutParams(
-                0,
-                -2,
-                1f
+        startActivity(
+            Intent(
+                this@NoticeActivity,
+                ChannelActivity::class.java
             )
         )
+    }
 
-        root.addView(
-            header,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(60)
-            )
+channelBox.addView(
+    channelButton,
+    FrameLayout.LayoutParams(
+        -1,
+        dp(60)
+    )
+)
+
+val unreadBadge =
+    TextView(this).apply {
+
+        textSize = 10f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        gravity =
+            Gravity.CENTER
+
+        setTextColor(
+            Color.WHITE
         )
+
+        setBackgroundColor(
+            Color.RED
+        )
+
+        visibility =
+            View.GONE
+    }
+
+channelBox.addView(
+    unreadBadge,
+    FrameLayout.LayoutParams(
+        dp(26),
+        dp(22)
+    ).apply {
+
+        gravity =
+            Gravity.TOP or
+            Gravity.END
+
+        rightMargin =
+            dp(4)
+    }
+)
+
+val noticeButton =
+    navButton(
+        "🔔\nNotice"
+    ) {
+        // वर्तमान Notice page पर ही रहें
+    }
+
+val impButton =
+    navButton(
+        "📌\nImp Info"
+    ) {
+
+        startActivity(
+            Intent(
+                this@NoticeActivity,
+                ContentPageActivity::class.java
+            ).apply {
+
+                putExtra(
+                    "pageId",
+                    "important_information"
+                )
+
+                putExtra(
+                    "pageTitle",
+                    "📌 Important Information"
+                )
+            }
+        )
+    }
+
+val moreButton =
+    navButton(
+        "☰\nMore"
+    ) {
+        Toast.makeText(
+            this@NoticeActivity,
+            "More",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+bottomBar.addView(
+    homeButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    channelBox,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    noticeButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    impButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+bottomBar.addView(
+    moreButton,
+    LinearLayout.LayoutParams(
+        0,
+        dp(60),
+        1f
+    )
+)
+
+root.addView(
+    bottomBar,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
+
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
+
+    val bottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        dp(5),
+        view.paddingRight,
+        dp(7) + bottom
+    )
+
+    insets
+}
+
+                
 
         /*
          * =====================================================
@@ -399,7 +547,7 @@ class HomeCategoryActivity : AppCompatActivity() {
 
                 text = ""
 
-                textSize = 10f
+                textSize = 12f
 
                 typeface =
                     Typeface.DEFAULT_BOLD
