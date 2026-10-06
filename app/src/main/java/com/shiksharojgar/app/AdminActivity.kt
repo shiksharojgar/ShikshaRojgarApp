@@ -1733,7 +1733,107 @@ private val pickNoticeImage =
                 bottomMargin = dp(3)
             }
         )
+// =====================================================
+// MORE MENU MANAGEMENT
+// =====================================================
 
+fixed.addView(
+    TextView(this).apply {
+
+        text =
+            "☰ MORE MENU MANAGEMENT"
+
+        textSize = 14f
+
+        typeface =
+            Typeface.DEFAULT_BOLD
+
+        setTextColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        setPadding(
+            0,
+            dp(7),
+            0,
+            dp(2)
+        )
+    }
+)
+
+fixed.addView(
+    TextView(this).apply {
+
+        text =
+            "More Menu के नाम, icon, क्रम, ON/OFF, link, phone, WhatsApp आदि यहाँ से नियंत्रित करें"
+
+        textSize = 10f
+
+        setTextColor(
+            Color.DKGRAY
+        )
+
+        setPadding(
+            0,
+            0,
+            0,
+            dp(3)
+        )
+    }
+)
+
+fixed.addView(
+    Button(this).apply {
+
+        text =
+            "☰ MANAGE MORE MENU"
+
+        textSize = 12f
+
+        setTypeface(
+            Typeface.DEFAULT,
+            Typeface.BOLD
+        )
+
+        setTextColor(
+            Color.WHITE
+        )
+
+        setBackgroundColor(
+            Color.rgb(
+                7,
+                89,
+                133
+            )
+        )
+
+        minHeight = 0
+
+        setPadding(
+            dp(4),
+            0,
+            dp(4),
+            0
+        )
+
+        setOnClickListener {
+
+            showMoreMenuManager()
+        }
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(42)
+    ).apply {
+
+        topMargin = dp(2)
+        bottomMargin = dp(3)
+    }
+)
         // =====================================================
         // EXISTING HOME PAGES
         // =====================================================
