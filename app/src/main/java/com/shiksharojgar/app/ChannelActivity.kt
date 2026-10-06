@@ -1545,7 +1545,8 @@ ViewCompat.setOnApplyWindowInsetsListener(
 
     insets
 }
-
+return root
+}
     private fun bottomButton(
         label: String,
         action: () -> Unit
