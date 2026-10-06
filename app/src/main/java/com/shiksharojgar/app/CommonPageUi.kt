@@ -1035,13 +1035,7 @@ object CommonPageUi {
      * =========================================================
      */
 
-    private fun Int.toDrawableCompat():
-        android.graphics.drawable.Drawable {
-
-        return android.graphics.drawable.ColorDrawable(
-            this
-        )
-    }
+    
         private fun Int.toDrawableCompat():
     android.graphics.drawable.Drawable {
 
