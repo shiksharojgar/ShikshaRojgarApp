@@ -293,12 +293,12 @@ class ContentPageActivity : AppCompatActivity() {
             }
 
         scroll.addView(
-            bodyBox,
-            ScrollView.LayoutParams(
-                -1,
-                -2
-            )
-        )
+    bodyBox,
+    FrameLayout.LayoutParams(
+        -1,
+        -2
+    )
+)
 
         root.addView(
             scroll,
