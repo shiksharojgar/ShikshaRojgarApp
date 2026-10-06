@@ -1,16 +1,5 @@
 package com.shiksharojgar.app
 
-import android.content.Context
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.Outline
-import android.graphics.Typeface
-import android.net.Uri
-import android.view.Gravity
-import android.view.View
-import android.view.ViewOutlineProvider
-import android.widget.*
-import com.google.firebase.firestore.FirebaseFirestore
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -24,7 +13,6 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.*
 import com.google.firebase.firestore.FirebaseFirestore
-
 object CommonPageUi {
 
     enum class Section {
