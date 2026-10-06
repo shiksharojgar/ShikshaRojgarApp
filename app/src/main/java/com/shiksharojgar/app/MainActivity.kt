@@ -2362,13 +2362,13 @@ private fun openHomeSubCategory(
                 ),
 
                 HomeCategory(
-                    "tools",
-                    "Useful Tools",
-                    "⚙️",
-                    "",
-                    "tools",
-                    10
-                )
+    "tools",
+    "Important Information",
+    "📌",
+    "",
+    "tools",
+    10
+)
             )
 
         renderHomeCategories(
