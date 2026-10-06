@@ -793,7 +793,7 @@ private fun updateLatestPostButtonVisibility() {
         val headerShare = TextView(this).apply {                // 94
 
             text =                                                // 95
-                "📤 ↗️"                                          // 96
+                "📤 Share ↗️"                                          // 96
 
             textSize = 16f                                      // 97
 
