@@ -1996,9 +1996,9 @@ pageRow2.addView(
         "📌  Implementation Information"
     ) {
         editHomePage(
-            "imp_info",
-            "Implementation Information"
-        )
+    "important_information",
+    "Implementation Information"
+)
     },
     LinearLayout.LayoutParams(
         0,
