@@ -40,7 +40,8 @@ private fun dp(value: Int): Int {
 val activeSection =
     intent.getStringExtra("activeSection")
         ?: "IMP_INFO"
-
+load(pageId, fallback)
+    }
 setContentView(
     buildUi(
         fallback,
