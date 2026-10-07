@@ -588,320 +588,36 @@ private fun updateLatestPostButtonVisibility() {
                     )
                 )
             }
-
-                /*
-         * =========================================================
-         * COMMON COMPACT HEADER — MASTER CHECKLIST
-         * =========================================================
-         *
-         * ROW 1:
-         * [Original Home Logo] | 📱 Shiksha Rojgar App | 📤 Share ↗️ | ⋮
-         *
-         * ROW 2:
-         * शिक्षा • रोजगार • महत्वपूर्ण अपडेट
-         *
-         * Channel का अपना channelStrip इसके नीचे जस का तस रहेगा।
-         * =========================================================
-         */
-
-        val toolbar = LinearLayout(this).apply {                 // 01
-            orientation = LinearLayout.HORIZONTAL              // 02
-            gravity = Gravity.CENTER_VERTICAL                  // 03
-            setPadding(                                         // 04
-                dp(8),                                         // 05
-                dp(4),                                         // 06
-                dp(6),                                         // 07
-                dp(4)                                          // 08
-            )
-
-            /*
-             * Home Header का existing original color:
-             * @color/navy
-             *
-             * यही common header background रहेगा।
-             */
-            setBackgroundColor(                                // 09
-                ContextCompat.getColor(                        // 10
-                    this@ChannelActivity,                       // 11
-                    R.color.navy                                // 12
-                )
-            )
-        }
 /*
  * =========================================================
- * HEADER / STATUS BAR FIX
+ * MASTER COMMON HEADER
  * =========================================================
  *
- * Android 15/16 + targetSdk 35 में edge-to-edge के कारण
- * status bar Toolbar के ऊपर overlap कर सकता है।
- *
- * इसलिए top inset ROOT पर लगाया जा रहा है,
- * Toolbar पर नहीं।
+ * ChannelActivity अब CommonPageUi का master Header उपयोग करेगा.
+ * Channel Strip इसके नीचे बिल्कुल जस का तस रहेगा.
  */
-ViewCompat.setOnApplyWindowInsetsListener(
-    root
-) { view, insets ->
 
-    val bars =
-        insets.getInsets(
-            WindowInsetsCompat.Type.systemBars()
-        )
-
-    view.setPadding(
-        bars.left,
-        bars.top,
-        bars.right,
-        view.paddingBottom
+val commonHeader =
+    CommonPageUi.createHeader(
+        this,
+        onBack = {
+            finish()
+        },
+        onShare = {
+            shareChannel()
+        },
+        onMenu = {
+            showChannelMenu()
+        }
     )
 
-    insets
-}
-
-        /*
-         * =========================================================
-         * ORIGINAL HOME LOGO
-         * =========================================================
-         *
-         * Home page में जो original logo है वही:
-         * R.drawable.logo
-         *
-         * केवल size छोटा किया गया है।
-         */
-        val headerLogo = ImageView(                             // 26
-            this                                                // 27
-        ).apply {
-
-            setImageResource(                                   // 28
-                R.drawable.logo                                 // 29
-            )
-
-            contentDescription =                               // 30
-                "Shiksha Rojgar"                               // 31
-
-            scaleType =                                         // 32
-                ImageView.ScaleType.CENTER_CROP                // 33
-
-            adjustViewBounds = true                            // 34
-
-            setPadding(                                         // 35
-                dp(2),                                         // 36
-                dp(2),                                         // 37
-                dp(2),                                         // 38
-                dp(2)                                          // 39
-            )
-        }
-
-        toolbar.addView(                                        // 40
-            headerLogo,                                          // 41
-            LinearLayout.LayoutParams(                           // 42
-                dp(36),                                          // 43
-                dp(36)                                           // 44
-            ).apply {
-                gravity = Gravity.CENTER_VERTICAL              // 45
-            }
-        )
-
-        /*
-         * =========================================================
-         * APP NAME + TAGLINE
-         * =========================================================
-         */
-        val headerTextBox = LinearLayout(this).apply {          // 46
-            orientation = LinearLayout.VERTICAL                // 47
-            gravity = Gravity.CENTER_VERTICAL                  // 48
-            setPadding(                                         // 49
-                dp(7),                                         // 50
-                0,                                               // 51
-                dp(4),                                         // 52
-                0                                                // 53
-            )
-        }
-
-        val appNameText = TextView(this).apply {                // 54
-
-            text =                                                // 55
-                "📱 Shiksha Rojgar App"                          // 56
-
-            textSize = 14f                                      // 57
-
-            typeface =                                           // 58
-                Typeface.DEFAULT_BOLD                           // 59
-
-            setTextColor(                                        // 60
-                Color.WHITE                                     // 61
-            )
-
-            gravity =                                             // 62
-                Gravity.CENTER_VERTICAL                         // 63
-
-            maxLines = 1                                        // 64
-
-            ellipsize =                                          // 65
-                android.text.TextUtils.TruncateAt.END           // 66
-        }
-
-        headerTextBox.addView(                                  // 67
-            appNameText,                                         // 68
-            LinearLayout.LayoutParams(                           // 69
-                -1,                                               // 70
-                dp(22)                                            // 71
-            )
-        )
-
-        val taglineText = TextView(this).apply {                // 72
-
-            text =                                                // 73
-                "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"             // 74
-
-            textSize = 8.5f                                     // 75
-
-            setTextColor(                                        // 76
-                Color.WHITE                                     // 77
-            )
-
-            gravity =                                             // 78
-                Gravity.CENTER_VERTICAL                         // 79
-
-            maxLines = 1                                        // 80
-
-            ellipsize =                                          // 81
-                android.text.TextUtils.TruncateAt.END           // 82
-        }
-
-        headerTextBox.addView(                                  // 83
-            taglineText,                                         // 84
-            LinearLayout.LayoutParams(                           // 85
-                -1,                                               // 86
-                dp(16)                                            // 87
-            )
-        )
-
-        toolbar.addView(                                        // 88
-            headerTextBox,                                        // 89
-            LinearLayout.LayoutParams(                           // 90
-                0,                                                // 91
-                dp(42),                                           // 92
-                1f                                                // 93
-            )
-        )
-
-        /*
-         * =========================================================
-         * HEADER SHARE
-         * =========================================================
-         *
-         * Master design:
-         * 📤 Share ↗️
-         *
-         * Channel का shareChannel() ही चलेगा।
-         */
-        val headerShare = TextView(this).apply {                // 94
-
-            text =                                                // 95
-                "📤 Share ↗️"                                          // 96
-
-            textSize = 16f                                      // 97
-
-            typeface =                                           // 98
-                Typeface.DEFAULT_BOLD                           // 99
-
-            setTextColor(                                        // 100
-                Color.WHITE                                     // 101
-            )
-
-            gravity =                                             // 102
-                Gravity.CENTER                                   // 103
-
-            isClickable = true                                   // 104
-            isFocusable = true                                   // 105
-
-            setPadding(                                          // 106
-                dp(5),                                          // 107
-                0,                                                // 108
-                dp(5),                                          // 109
-                0                                                 // 110
-            )
-
-            setOnClickListener {                                 // 111
-                shareChannel()                                   // 112
-            }
-        }
-
-        toolbar.addView(                                        // 113
-            headerShare,                                         // 114
-            LinearLayout.LayoutParams(                           // 115
-                dp(48),                                           // 116
-                dp(42)                                            // 117
-            )
-        )
-
-        /*
-         * =========================================================
-         * THREE-DOT MENU
-         * =========================================================
-         *
-         * Channel page के लिए:
-         *
-         * 🔕 Unfollow Channel  -> केवल Follow होने पर
-         * 🔔 Notification Settings
-         * 🔗 Share Channel
-         * ℹ️ Channel Info
-         */
-        val headerMenu = TextView(this).apply {                 // 118
-
-            text = "⋮"                                           // 119
-
-            textSize = 25f                                      // 120
-
-            typeface =                                           // 121
-                Typeface.DEFAULT_BOLD                           // 122
-
-            setTextColor(                                        // 123
-                Color.WHITE                                     // 124
-            )
-
-            gravity =                                             // 125
-                Gravity.CENTER                                   // 126
-
-            isClickable = true                                   // 127
-            isFocusable = true                                   // 128
-
-            setPadding(                                          // 129
-                dp(4),                                          // 130
-                0,                                                // 131
-                dp(2),                                          // 132
-                0                                                 // 133
-            )
-
-            setOnClickListener {                                 // 134
-
-                showChannelMenu()                                // 135
-            }
-        }
-
-        toolbar.addView(                                        // 136
-            headerMenu,                                           // 137
-            LinearLayout.LayoutParams(                           // 138
-                dp(34),                                           // 139
-                dp(42)                                            // 140
-            )
-        )
-
-        /*
-         * =========================================================
-         * ADD COMMON HEADER
-         * =========================================================
-         *
-         * Compact height.
-         * Channel strip इसके नीचे रहेगा।
-         */
-        root.addView(                                            // 141
-            toolbar,                                              // 142
-            LinearLayout.LayoutParams(                            // 143
-                -1,                                                // 144
-                dp(68)                                             // 145
-            )
-        )
+root.addView(
+    commonHeader,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(58)
+    )
+)
 
 /*
  * CHANNEL HOME-STYLE STRIP
