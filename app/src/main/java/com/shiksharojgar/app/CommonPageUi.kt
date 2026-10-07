@@ -567,47 +567,104 @@ object CommonPageUi {
     }
 
     private fun createBottomButton(
-        context: Context,
-        label: String,
-        active: Boolean,
-        action: () -> Unit
-    ): TextView {
+    context: Context,
+    label: String,
+    active: Boolean,
+    action: () -> Unit
+): TextView {
 
-        return TextView(context).apply {
+    return TextView(context).apply {
 
-            text = label
+        text = label
 
-            textSize = 12f
+        gravity =
+            Gravity.CENTER
 
-            typeface =
-                Typeface.DEFAULT_BOLD
+        textSize = 10.5f
 
-            gravity =
-                Gravity.CENTER
+        typeface =
+            Typeface.DEFAULT_BOLD
 
-            setTextColor(
-                if (active) {
-                    Color.parseColor(
-                        ACTIVE_BLUE
-                    )
-                } else {
-                    Color.parseColor(
-                        TEXT_COLOR
-                    )
-                }
+        setTextColor(
+            Color.rgb(
+                30,
+                41,
+                59
             )
+        )
 
-            background =
-                Color.TRANSPARENT.toDrawableCompat()
+        /*
+         * Home के secondary 4 cards
+         * जैसा rounded gradient design
+         */
+        background =
+            GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    Color.parseColor(
+                        when {
+                            label.contains("Home") ->
+                                "#DBEAFE"
 
-            isClickable = true
-            isFocusable = true
+                            label.contains("Channel") ->
+                                "#DCFCE7"
 
-            setOnClickListener {
-                action()
+                            label.contains("Notice") ->
+                                "#FEF3C7"
+
+                            label.contains("Imp Info") ->
+                                "#FCE7F3"
+
+                            else ->
+                                "#E0E7FF"
+                        }
+                    ),
+                    Color.parseColor(
+                        when {
+                            label.contains("Home") ->
+                                "#93C5FD"
+
+                            label.contains("Channel") ->
+                                "#86EFAC"
+
+                            label.contains("Notice") ->
+                                "#FCD34D"
+
+                            label.contains("Imp Info") ->
+                                "#F9A8D4"
+
+                            else ->
+                                "#C7D2FE"
+                        }
+                    )
+                )
+            ).apply {
+
+                cornerRadius =
+                    dp(
+                        context,
+                        20
+                    ).toFloat()
             }
+
+        /*
+         * Active section हल्का elevation
+         */
+        elevation =
+            if (active) {
+                dp(context, 4).toFloat()
+            } else {
+                0f
+            }
+
+        isClickable = true
+        isFocusable = true
+
+        setOnClickListener {
+            action()
         }
     }
+}
 
     private fun weightParams(
         context: Context
