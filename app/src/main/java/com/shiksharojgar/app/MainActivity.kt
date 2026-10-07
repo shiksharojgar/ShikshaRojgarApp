@@ -2333,40 +2333,39 @@ private fun openHomeSubCategory(
                     "",
                     6
                 ),
+HomeCategory(
+    "study_material",
+    "Study Material / Syllabus",
+    "📖",
+    "",
+    "study_material",
+    7
+),
 
-                                HomeCategory(
-                    "study_material",
-                    "Study Material",
-                    "📖",
-                    "",
-                    "study_material",
-                    7
-                ),
+HomeCategory(
+    "career",
+    "Career Guide / Useful Tools",
+    "📚",
+    "",
+    "career",
+    8
+),
 
-                HomeCategory(
-                    "career",
-                    "Career Guide",
-                    "📚",
-                    "",
-                    "career",
-                    8
-                ),
+HomeCategory(
+    "notices",
+    "Notice / Update",
+    "📢",
+    "",
+    "notices",
+    9
+),
 
-                HomeCategory(
-                    "notices",
-                    "Notice/Update",
-                    "📢",
-                    "",
-                    "notices",
-                    9
-                ),
-
-                HomeCategory(
-    "tools",
-    "Important Information",
+HomeCategory(
+    "important_information",
+    "Implementation Information",
     "📌",
     "",
-    "tools",
+    "important_information",
     10
 )
             )
