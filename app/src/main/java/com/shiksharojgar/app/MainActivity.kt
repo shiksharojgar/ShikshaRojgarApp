@@ -1365,28 +1365,52 @@ private fun loadFloatingNoticePhoto() {
     // ============================================================
 
     private fun openManagedPage(
-        pageId: String,
-        title: String
-    ) {
+    pageId: String,
+    title: String
+) {
 
-        startActivity(
-            Intent(
-                this,
-                ContentPageActivity::class.java
-            ).apply {
+    val activeSection =
+        when (pageId) {
 
-                putExtra(
-                    "pageId",
-                    pageId
-                )
+            "notices" ->
+                "NOTICE"
 
-                putExtra(
-                    "pageTitle",
-                    title
-                )
-            }
-        )
-    }
+            "important_information" ->
+                "IMP_INFO"
+
+            "study_material" ->
+                "MORE"
+
+            "career" ->
+                "MORE"
+
+            else ->
+                "MORE"
+        }
+
+    startActivity(
+        Intent(
+            this,
+            ContentPageActivity::class.java
+        ).apply {
+
+            putExtra(
+                "pageId",
+                pageId
+            )
+
+            putExtra(
+                "pageTitle",
+                title
+            )
+
+            putExtra(
+                "activeSection",
+                activeSection
+            )
+        }
+    )
+}
 
     // ============================================================
     // DYNAMIC HOME CATEGORY DATA
