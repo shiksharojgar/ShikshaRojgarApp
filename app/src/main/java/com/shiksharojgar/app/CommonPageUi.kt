@@ -682,6 +682,42 @@ fun createHeader(
     action: () -> Unit
 ): TextView {
 
+    val normalStart =
+        when {
+            label.contains("Home") ->
+                "#DBEAFE"
+
+            label.contains("Channel") ->
+                "#DCFCE7"
+
+            label.contains("Notice") ->
+                "#FEF3C7"
+
+            label.contains("Imp Info") ->
+                "#FCE7F3"
+
+            else ->
+                "#E0E7FF"
+        }
+
+    val normalEnd =
+        when {
+            label.contains("Home") ->
+                "#93C5FD"
+
+            label.contains("Channel") ->
+                "#86EFAC"
+
+            label.contains("Notice") ->
+                "#FCD34D"
+
+            label.contains("Imp Info") ->
+                "#F9A8D4"
+
+            else ->
+                "#C7D2FE"
+        }
+
     return TextView(context).apply {
 
         text = label
@@ -694,76 +730,69 @@ fun createHeader(
         typeface =
             Typeface.DEFAULT_BOLD
 
+        /*
+         * ACTIVE BUTTON
+         *
+         * जिस page पर हैं,
+         * वही button हल्का Blue रहेगा।
+         */
         setTextColor(
-            Color.rgb(
-                30,
-                41,
-                59
-            )
+            if (active) {
+                Color.parseColor("#075985")
+            } else {
+                Color.rgb(
+                    30,
+                    41,
+                    59
+                )
+            }
         )
 
-        /*
-         * Home के secondary 4 cards
-         * जैसा rounded gradient design
-         */
         background =
             GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(
-                    Color.parseColor(
-                        when {
-                            label.contains("Home") ->
-                                "#DBEAFE"
+                if (active) {
 
-                            label.contains("Channel") ->
-                                "#DCFCE7"
-
-                            label.contains("Notice") ->
-                                "#FEF3C7"
-
-                            label.contains("Imp Info") ->
-                                "#FCE7F3"
-
-                            else ->
-                                "#E0E7FF"
-                        }
-                    ),
-                    Color.parseColor(
-                        when {
-                            label.contains("Home") ->
-                                "#93C5FD"
-
-                            label.contains("Channel") ->
-                                "#86EFAC"
-
-                            label.contains("Notice") ->
-                                "#FCD34D"
-
-                            label.contains("Imp Info") ->
-                                "#F9A8D4"
-
-                            else ->
-                                "#C7D2FE"
-                        }
+                    intArrayOf(
+                        Color.parseColor("#BFDBFE"),
+                        Color.parseColor("#60A5FA")
                     )
-                )
+
+                } else {
+
+                    intArrayOf(
+                        Color.parseColor(normalStart),
+                        Color.parseColor(normalEnd)
+                    )
+                }
+
             ).apply {
 
                 cornerRadius =
                     dp(
                         context,
-                        20
+                        18
                     ).toFloat()
+
+                /*
+                 * Active button पर
+                 * थोड़ा साफ Blue border.
+                 */
+                setStroke(
+                    dp(context, 1),
+                    if (active) {
+                        Color.parseColor("#2563EB")
+                    } else {
+                        Color.parseColor("#D9E3F0")
+                    }
+                )
             }
 
-        /*
-         * Active section हल्का elevation
-         */
         elevation =
             if (active) {
-                dp(context, 4).toFloat()
+                dp(context, 3).toFloat()
             } else {
-                0f
+                dp(context, 1).toFloat()
             }
 
         isClickable = true
@@ -774,6 +803,7 @@ fun createHeader(
         }
     }
 }
+    
 
     private fun weightParams(
         context: Context
