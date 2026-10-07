@@ -1055,185 +1055,17 @@ feedScroll.post {
         )
 /*
  * =========================================================
- * COMMON BOTTOM NAVIGATION
+ * MASTER COMMON BOTTOM BAR
  * =========================================================
+ *
+ * ChannelActivity अब CommonPageUi का
+ * same 5-button Bottom Bar उपयोग करेगा.
  */
-
 val bottomBar =
-    LinearLayout(this).apply {
-
-        orientation =
-            LinearLayout.HORIZONTAL
-
-        gravity =
-            Gravity.CENTER
-
-        setPadding(
-            dp(7),
-            dp(5),
-            dp(7),
-            dp(7)
-        )
-
-        background =
-            Color.WHITE.toDrawable()
-
-        elevation =
-            dp(16).toFloat()
-    }
-
-val homeButton =
-    bottomButton(
-        "🏠\nHome"
-    ) {
-        goHome()
-    }
-
-val channelBox =
-    FrameLayout(this)
-
-val channelButton =
-    bottomButton(
-        "📢\nChannel"
-    ) {
-        // पहले से Channel पर हैं
-    }
-
-channelBox.addView(
-    channelButton,
-    FrameLayout.LayoutParams(
-        -1,
-        dp(60)
+    CommonPageUi.createBottomBar(
+        this,
+        CommonPageUi.Section.CHANNEL
     )
-)
-
-val unreadBadge =
-    TextView(this).apply {
-
-        textSize = 10f
-
-        typeface =
-            Typeface.DEFAULT_BOLD
-
-        gravity =
-            Gravity.CENTER
-
-        setTextColor(
-            Color.WHITE
-        )
-
-        setBackgroundColor(
-            Color.RED
-        )
-
-        visibility =
-            View.GONE
-    }
-
-channelBox.addView(
-    unreadBadge,
-    FrameLayout.LayoutParams(
-        dp(26),
-        dp(22)
-    ).apply {
-
-        gravity =
-            Gravity.TOP or
-            Gravity.END
-
-        rightMargin =
-            dp(4)
-    }
-)
-
-val noticeButton =
-    bottomButton(
-        "🔔\nNotice"
-    ) {
-
-        startActivity(
-            Intent(
-                this,
-                NoticeActivity::class.java
-            )
-        )
-    }
-
-val impButton =
-    bottomButton(
-        "📌\nImp Info"
-    ) {
-
-        startActivity(
-            Intent(
-                this,
-                ContentPageActivity::class.java
-            ).apply {
-
-                putExtra(
-                    "pageId",
-                    "important_information"
-                )
-
-                putExtra(
-                    "pageTitle",
-                    "📌 Important Information"
-                )
-            }
-        )
-    }
-
-val moreButton =
-    bottomButton(
-        "☰\nMore"
-    ) {
-        showChannelMenu()
-    }
-
-bottomBar.addView(
-    homeButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(60),
-        1f
-    )
-)
-
-bottomBar.addView(
-    channelBox,
-    LinearLayout.LayoutParams(
-        0,
-        dp(60),
-        1f
-    )
-)
-
-bottomBar.addView(
-    noticeButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(60),
-        1f
-    )
-)
-
-bottomBar.addView(
-    impButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(60),
-        1f
-    )
-)
-
-bottomBar.addView(
-    moreButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(60),
-        1f
-    )
-)
 
 root.addView(
     bottomBar,
@@ -1243,24 +1075,8 @@ root.addView(
     )
 )
 
-ViewCompat.setOnApplyWindowInsetsListener(
-    bottomBar
-) { view, insets ->
 
-    val bottomInset =
-        insets.getInsets(
-            WindowInsetsCompat.Type.navigationBars()
-        ).bottom
-
-    view.setPadding(
-        view.paddingLeft,
-        dp(5),
-        view.paddingRight,
-        dp(7) + bottomInset
-    )
-
-    insets
-}
+    
 return root
 }
     private fun bottomButton(
