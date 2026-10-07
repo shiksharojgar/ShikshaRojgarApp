@@ -34,15 +34,19 @@ private fun dp(value: Int): Int {
             intent.getStringExtra("pageId") ?: "important_information"
 
         val fallback =
-            intent.getStringExtra("pageTitle")
-                ?: "📌 Important Information"
+    intent.getStringExtra("pageTitle")
+        ?: "📌 Important Information"
 
-        setContentView(buildUi(fallback))
+val activeSection =
+    intent.getStringExtra("activeSection")
+        ?: "IMP_INFO"
 
-        load(pageId, fallback)
-
-        
-    }
+setContentView(
+    buildUi(
+        fallback,
+        activeSection
+    )
+)
 
     /*
      * =========================================================
@@ -53,7 +57,10 @@ private fun dp(value: Int): Int {
      * Bottom Navigation
      * =========================================================
      */
-    private fun buildUi(pageTitle: String): LinearLayout {
+    private fun buildUi(
+    pageTitle: String,
+    activeSection: String
+): LinearLayout {
 
         val root =
             LinearLayout(this).apply {
@@ -209,10 +216,28 @@ root.addView(
  * MASTER COMMON BOTTOM BAR
  * =====================================================
  */
+val section =
+    when (activeSection) {
+        "HOME" ->
+            CommonPageUi.Section.HOME
+
+        "CHANNEL" ->
+            CommonPageUi.Section.CHANNEL
+
+        "NOTICE" ->
+            CommonPageUi.Section.NOTICE
+
+        "MORE" ->
+            CommonPageUi.Section.MORE
+
+        else ->
+            CommonPageUi.Section.IMP_INFO
+    }
+
 val bottomBar =
     CommonPageUi.createBottomBar(
         this,
-        CommonPageUi.Section.IMP_INFO
+        section
     )
 
 root.addView(
