@@ -1944,12 +1944,12 @@ homeContent.addView(
             )
         }
 
-        fixed.addView(pageManager)
+        homeContent.addView(pageManager)
 // =====================================================
 // NOTICE MANAGEMENT
 // =====================================================
 
-fixed.addView(
+homeContent.addView(
     Button(this).apply {
 
         text =
