@@ -64,124 +64,38 @@ private fun dp(value: Int): Int {
             }
 
         /*
-         * =====================================================
-         * COMMON HEADER
-         * =====================================================
-         */
-        val header =
-            LinearLayout(this).apply {
+ * =====================================================
+ * MASTER COMMON HEADER
+ * =====================================================
+ *
+ * सभी सामान्य pages के लिए वही Header जो
+ * ChannelActivity में लगाया गया है।
+ */
+val header =
+    CommonPageUi.createHeader(
+        this,
+        onBack = {
+            finish()
+        },
+        onShare = {
+            // इस Content Page के लिए अलग share action
+            Toast.makeText(
+                this,
+                "Share",
+                Toast.LENGTH_SHORT
+            ).show()
+        },
+        onMenu = {
+            // Master More Menu
+            openMore()
+        }
+    )
 
-                orientation =
-                    LinearLayout.HORIZONTAL
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-
-                setPadding(
-                    10,
-                    6,
-                    10,
-                    6
-                )
-
-                setBackgroundColor(
-                    Color.rgb(7, 89, 133)
-                )
-            }
-
-        /*
-         * APP LOGO
-         */
-        val logo =
-    ImageView(this).apply {
-
-        setImageResource(
-            R.drawable.logo
-        )
-
-        contentDescription =
-            "Shiksha Rojgar"
-
-        scaleType =
-            ImageView.ScaleType.CENTER_CROP
-
-        adjustViewBounds = true
-    }
-
-        header.addView(
-            logo,
-            LinearLayout.LayoutParams(
-                44,
-                44
-            ).apply {
-                rightMargin = 8
-            }
-        )
-
-        /*
-         * APP NAME + TAGLINE
-         */
-        val headerText =
-            LinearLayout(this).apply {
-
-                orientation =
-                    LinearLayout.VERTICAL
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
-
-        val appName =
-            TextView(this).apply {
-text =
-    "Shiksha Rojgar App"
-
-                textSize = 17f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.WHITE
-                )
-            }
-
-        val tagline =
-            TextView(this).apply {
-
-                text =
-                    "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
-
-                textSize = 11f
-
-                setTextColor(
-                    Color.WHITE
-                )
-            }
-
-        headerText.addView(appName)
-
-        headerText.addView(tagline)
-
-        header.addView(
-            headerText,
-            LinearLayout.LayoutParams(
-                0,
-                -2,
-                1f
-            )
-        )
-
-        /*
-         * बाकी pages पर Bell नहीं होगा।
-         * Bell केवल Home Header में रहेगा।
-         */
-
-        root.addView(
+root.addView(
     header,
     LinearLayout.LayoutParams(
         -1,
-        dp(68)
+        dp(58)
     )
 )
 
