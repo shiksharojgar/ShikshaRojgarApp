@@ -506,27 +506,37 @@ fun createHeader(
         )
 
         val badge =
-            TextView(context).apply {
+    TextView(context).apply {
 
-                textSize = 11f
+        textSize = 10f
 
-                typeface =
-                    Typeface.DEFAULT_BOLD
+        typeface =
+            Typeface.DEFAULT_BOLD
 
-                gravity =
-                    Gravity.CENTER
+        gravity =
+            Gravity.CENTER
 
-                setTextColor(
-                    Color.WHITE
-                )
+        setTextColor(
+            Color.WHITE
+        )
 
-                setBackgroundColor(
+        /*
+         * 🔴 गोल Channel unread badge
+         */
+        background =
+            GradientDrawable().apply {
+
+                shape =
+                    GradientDrawable.OVAL
+
+                setColor(
                     Color.RED
                 )
-
-                visibility =
-                    View.GONE
             }
+
+        visibility =
+            View.GONE
+    }
 
         /*
          * Channel page पर badge नहीं।
@@ -567,20 +577,23 @@ fun createHeader(
         }
 
         channelBox.addView(
-            badge,
-            FrameLayout.LayoutParams(
-                dp(context, 26),
-                dp(context, 22)
-            ).apply {
+    badge,
+    FrameLayout.LayoutParams(
+        dp(context, 24),
+        dp(context, 24)
+    ).apply {
 
-                gravity =
-                    Gravity.TOP or
-                        Gravity.END
+        gravity =
+            Gravity.TOP or
+                Gravity.END
 
-                rightMargin =
-                    dp(context, 4)
-            }
-        )
+        rightMargin =
+            dp(context, 3)
+
+        topMargin =
+            dp(context, 1)
+    }
+)
 
         /*
          * NOTICE
