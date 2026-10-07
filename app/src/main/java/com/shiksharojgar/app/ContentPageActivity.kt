@@ -71,12 +71,10 @@ setContentView(
             }
 
         /*
+/*
  * =====================================================
  * MASTER COMMON HEADER
  * =====================================================
- *
- * सभी सामान्य pages के लिए वही Header जो
- * ChannelActivity में लगाया गया है।
  */
 val header =
     CommonPageUi.createHeader(
@@ -85,46 +83,10 @@ val header =
             finish()
         },
         onShare = {
-    shareContentPage(pageTitle)
-},
+            shareContentPage(pageTitle)
+        },
         onMenu = {
-            // Master More Menu
             openMore()
-            private fun shareContentPage(
-    pageTitle: String
-) {
-
-    val shareText =
-        """
-        📱 Shiksha Rojgar App 📌 Imp Info
-
-        $pageTitle
-
-        Shiksha Rojgar App
-        https://shiksha-rojgar.web.app/
-
-        ऐप में देखें:
-        shiksharojgar://channel
-        """.trimIndent()
-
-    val intent =
-        Intent(Intent.ACTION_SEND).apply {
-
-            type = "text/plain"
-
-            putExtra(
-                Intent.EXTRA_TEXT,
-                shareText
-            )
-        }
-
-    startActivity(
-        Intent.createChooser(
-            intent,
-            "Share"
-        )
-    )
-            }
         }
     )
 
@@ -304,7 +266,46 @@ root.addView(
 
         return root
     }
+/*
+ * =========================================================
+ * CONTENT PAGE SHARE
+ * =========================================================
+ */
+private fun shareContentPage(
+    pageTitle: String
+) {
 
+    val shareText =
+        """
+        📱 Shiksha Rojgar App 📌 Imp Info
+
+        $pageTitle
+
+        Shiksha Rojgar App
+        https://shiksha-rojgar.web.app/
+
+        ऐप में देखें:
+        shiksharojgar://channel
+        """.trimIndent()
+
+    val intent =
+        Intent(Intent.ACTION_SEND).apply {
+
+            type = "text/plain"
+
+            putExtra(
+                Intent.EXTRA_TEXT,
+                shareText
+            )
+        }
+
+    startActivity(
+        Intent.createChooser(
+            intent,
+            "Share"
+        )
+    )
+}
     /*
      * =========================================================
      * BOTTOM BUTTON
