@@ -125,32 +125,7 @@ root.addView(
                 )
             }
 
-        val backButton =
-            TextView(this).apply {
-
-                text = "←"
-
-                textSize = 25f
-
-                gravity =
-                    Gravity.CENTER
-
-                setTextColor(
-                    Color.rgb(7, 89, 133)
-                )
-
-                setOnClickListener {
-                    finish()
-                }
-            }
-
-        titleStrip.addView(
-            backButton,
-            LinearLayout.LayoutParams(
-                44,
-                48
-            )
-        )
+        
 
         titleView =
             TextView(this).apply {
