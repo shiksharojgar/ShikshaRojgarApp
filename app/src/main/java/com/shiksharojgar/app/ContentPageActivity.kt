@@ -28,28 +28,29 @@ private fun dp(value: Int): Int {
 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-        val pageId =
-            intent.getStringExtra("pageId") ?: "important_information"
+    val pageId =
+        intent.getStringExtra("pageId")
+            ?: "important_information"
 
-        val fallback =
-    intent.getStringExtra("pageTitle")
-        ?: "📌 Important Information"
+    val fallback =
+        intent.getStringExtra("pageTitle")
+            ?: "📌 Important Information"
 
-val activeSection =
-    intent.getStringExtra("activeSection")
-        ?: "IMP_INFO"
-load(pageId, fallback)
-    }
-    
-setContentView(
-    buildUi(
-        fallback,
-        activeSection
+    val activeSection =
+        intent.getStringExtra("activeSection")
+            ?: "IMP_INFO"
+
+    setContentView(
+        buildUi(
+            fallback,
+            activeSection
+        )
     )
-)
-load(pageId, fallback)
+
+    load(pageId, fallback)
 }
     /*
      * =========================================================
