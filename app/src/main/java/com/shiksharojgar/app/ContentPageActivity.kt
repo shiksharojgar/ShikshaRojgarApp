@@ -18,7 +18,7 @@ class ContentPageActivity : AppCompatActivity() {
 
     private lateinit var bodyBox: LinearLayout
     private lateinit var titleView: TextView
-    private lateinit var unreadBadge: TextView
+    
     
 private fun dp(value: Int): Int {
     return (
@@ -41,7 +41,7 @@ private fun dp(value: Int): Int {
 
         load(pageId, fallback)
 
-        updateUnreadBadge()
+        
     }
 
     /*
@@ -380,43 +380,7 @@ root.addView(
         ).show()
     }
 
-    /*
-     * =========================================================
-     * CHANNEL UNREAD BADGE
-     * =========================================================
-     */
-    private fun updateUnreadBadge() {
-
-        val prefs =
-            getSharedPreferences(
-                "sr_notifications",
-                MODE_PRIVATE
-            )
-
-        val unread =
-            prefs.getInt(
-                "channel_unread",
-                0
-            )
-
-        if (unread > 0) {
-
-            unreadBadge.text =
-                if (unread > 99) {
-                    "99+"
-                } else {
-                    unread.toString()
-                }
-
-            unreadBadge.visibility =
-                View.VISIBLE
-
-        } else {
-
-            unreadBadge.visibility =
-                View.GONE
-        }
-    }
+    
 
     /*
      * =========================================================
