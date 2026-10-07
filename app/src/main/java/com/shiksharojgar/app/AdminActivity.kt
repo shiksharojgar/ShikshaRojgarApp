@@ -1888,63 +1888,128 @@ homeContent.addView(
 
     
 
-        val pageManager =
-            LinearLayout(this).apply {
+        // =========================================================
+// HOME PAGE CONTENT — 4 FIXED MANAGEMENT BUTTONS
+// =========================================================
 
-                orientation =
-                    LinearLayout.HORIZONTAL
-            }
+val pageManager =
+    LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+    }
 
-        val pageDefs =
-            listOf(
-                "syllabus" to "Syllabus",
-                "notices" to "Notice",
-                "career" to "Career",
-                "tools" to "Tools",
-                "study_material" to "Study Material"
-            )
+// -------------------------
+// ROW 1
+// -------------------------
 
-        pageDefs.forEach {
-                (id, label) ->
+val pageRow1 =
+    LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+    }
 
-            pageManager.addView(
-                Button(this).apply {
+pageManager.addView(
+    pageRow1,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    ).apply {
+        bottomMargin = dp(6)
+    }
+)
 
-                    text = label
+// 1. Study Material / Syllabus
+pageRow1.addView(
+    adminActionButton(
+        "📖  Study Material / Syllabus"
+    ) {
+        editHomePage(
+            "study_material",
+            "Study Material / Syllabus"
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        -1,
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
+)
 
-                    textSize = 8f
+// 2. Career Guide / Useful Tools
+pageRow1.addView(
+    adminActionButton(
+        "📚  Career Guide / Useful Tools"
+    ) {
+        editHomePage(
+            "career",
+            "Career Guide / Useful Tools"
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        -1,
+        1f
+    ).apply {
+        leftMargin = dp(3)
+    }
+)
 
-                    minHeight = 0
+// -------------------------
+// ROW 2
+// -------------------------
 
-                    setPadding(
-                        dp(1),
-                        0,
-                        dp(1),
-                        0
-                    )
+val pageRow2 =
+    LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+    }
 
-                    setOnClickListener {
+pageManager.addView(
+    pageRow2,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
 
-                        editHomePage(
-                            id,
-                            label
-                        )
-                    }
-                },
-                LinearLayout.LayoutParams(
-                    0,
-                    dp(34),
-                    1f
-                ).apply {
+// 3. Notice / Update
+pageRow2.addView(
+    adminActionButton(
+        "📢  Notice / Update"
+    ) {
+        editHomePage(
+            "notices",
+            "Notice / Update"
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        -1,
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
+)
 
-                    leftMargin = dp(1)
+// 4. Implementation Information
+pageRow2.addView(
+    adminActionButton(
+        "📌  Implementation Information"
+    ) {
+        editHomePage(
+            "imp_info",
+            "Implementation Information"
+        )
+    },
+    LinearLayout.LayoutParams(
+        0,
+        -1,
+        1f
+    ).apply {
+        leftMargin = dp(3)
+    }
+)
 
-                    rightMargin = dp(1)
-                }
-            )
-        }
-
-        homeContent.addView(pageManager)
+homeContent.addView(pageManager)
 // =====================================================
 // NOTICE MANAGEMENT
 // =====================================================
