@@ -28,7 +28,6 @@ private fun dp(value: Int): Int {
 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-    override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     val pageId =
