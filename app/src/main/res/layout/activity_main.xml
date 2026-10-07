@@ -210,23 +210,104 @@
         android:focusable="true" />
 
 </LinearLayout>
-    <LinearLayout android:id="@+id/bottomNav" android:layout_width="match_parent" android:layout_height="78dp" android:background="@android:color/white"
-        android:elevation="16dp" android:gravity="center" android:paddingStart="7dp" android:paddingEnd="7dp" android:paddingTop="5dp" android:paddingBottom="7dp">
-        <TextView android:id="@+id/homeNav" android:layout_width="0dp" android:layout_height="60dp" android:layout_weight="1"
-            android:gravity="center" android:text="🏠
-Home" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/blue"
-            android:background="@drawable/nav_item_bg" android:clickable="true"/>
-        <TextView android:id="@+id/jobsNav" android:layout_width="0dp" android:layout_height="60dp" android:layout_weight="1"
-            android:gravity="center" android:text="💼
-Jobs" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/text"
-            android:background="@drawable/nav_item_bg" android:clickable="true"/>
-        <TextView android:id="@+id/updatesNav" android:layout_width="0dp" android:layout_height="60dp" android:layout_weight="1"
-            android:gravity="center" android:text="🔔
-Updates" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/text"
-            android:background="@drawable/nav_item_bg" android:clickable="true"/>
-        <TextView android:id="@+id/menuNav" android:layout_width="0dp" android:layout_height="60dp" android:layout_weight="1"
-            android:gravity="center" android:text="☰
-More" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/text"
-            android:background="@drawable/nav_item_bg" android:clickable="true"/>
-    </LinearLayout>
+    <!-- FINAL 5-BUTTON BOTTOM BAR -->
+<LinearLayout
+    android:id="@+id/bottomNav"
+    android:layout_width="match_parent"
+    android:layout_height="78dp"
+    android:background="@android:color/white"
+    android:elevation="16dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="7dp">
+
+    <!-- HOME -->
+    <TextView
+        android:id="@+id/homeNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:text="🏠&#10;Home"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#1E293B"
+        android:background="@drawable/nav_item_bg"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- CHANNEL -->
+    <TextView
+        android:id="@+id/channelNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:text="📢&#10;Channel"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#1E293B"
+        android:background="@drawable/nav_item_bg"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- NOTICE -->
+    <TextView
+        android:id="@+id/noticeNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:text="🔔&#10;Notice"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#1E293B"
+        android:background="@drawable/nav_item_bg"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- IMPORTANT INFORMATION -->
+    <TextView
+        android:id="@+id/impInfoNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:text="📌&#10;Imp Info"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#1E293B"
+        android:background="@drawable/nav_item_bg"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- MORE -->
+    <TextView
+        android:id="@+id/menuNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="1"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:text="☰&#10;More"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#1E293B"
+        android:background="@drawable/nav_item_bg"
+        android:clickable="true"
+        android:focusable="true"/>
+
+</LinearLayout>
 </LinearLayout>
