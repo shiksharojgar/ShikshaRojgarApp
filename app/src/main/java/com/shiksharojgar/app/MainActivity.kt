@@ -396,54 +396,68 @@ private val floatingNoticeRunnable =
         ).setOnClickListener {
             shareApp()
         }
+// ============================================================
+// FINAL 5-BUTTON BOTTOM NAVIGATION
+// ============================================================
 
-        findViewById<TextView>(
-            R.id.homeNav
-        ).setOnClickListener {
+// 🏠 HOME
+findViewById<TextView>(
+    R.id.homeNav
+).setOnClickListener {
 
-            window.decorView
-                .findViewById<View>(
-                    android.R.id.content
-                )
-                .scrollTo(0, 0)
-        }
+    findViewById<android.widget.ScrollView>(
+        R.id.contentScroll
+    ).smoothScrollTo(
+        0,
+        0
+    )
+}
 
-        findViewById<TextView>(
-            R.id.jobsNav
-        ).setOnClickListener {
-            openInApp(vacancy)
-        }
+// 📢 CHANNEL
+findViewById<TextView>(
+    R.id.channelNav
+).setOnClickListener {
 
-        findViewById<TextView>(
-            R.id.updatesNav
-        ).setOnClickListener {
+    startActivity(
+        Intent(
+            this,
+            ChannelActivity::class.java
+        )
+    )
+}
 
-            loadPosts()
+// 🔔 NOTICE
+findViewById<TextView>(
+    R.id.noticeNav
+).setOnClickListener {
 
-            findViewById<android.widget.ScrollView>(
-                R.id.contentScroll
-            ).post {
+    startActivity(
+        Intent(
+            this,
+            NoticeActivity::class.java
+        )
+    )
+}
 
-                findViewById<View>(
-                    R.id.postsRecycler
-                ).requestFocus()
+// 📌 IMPORTANT INFORMATION
+findViewById<TextView>(
+    R.id.impInfoNav
+).setOnClickListener {
 
-                findViewById<android.widget.ScrollView>(
-                    R.id.contentScroll
-                ).smoothScrollTo(
-                    0,
-                    findViewById<View>(
-                        R.id.postsRecycler
-                    ).top
-                )
-            }
-        }
+    openManagedPage(
+        "important_information",
+        "📌 Implementation Information"
+    )
+}
 
-        findViewById<TextView>(
-            R.id.menuNav
-        ).setOnClickListener {
-            showMenu()
-        }
+// ☰ MORE
+findViewById<TextView>(
+    R.id.menuNav
+).setOnClickListener {
+
+    showMenu()
+}
+        
 // ============================================================
 // LATEST POSTS NAVIGATION
 // ============================================================
