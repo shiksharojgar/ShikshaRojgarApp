@@ -56,243 +56,351 @@ object CommonPageUi {
      * =========================================================
      */
 
-    fun createHeader(
-        context: Context,
-        onBack: () -> Unit,
-        onShare: () -> Unit
-    ): LinearLayout {
+    /*
+ * =========================================================
+ * FINAL MASTER CHANNEL-STYLE HEADER
+ * =========================================================
+ *
+ * सभी सामान्य pages पर:
+ *
+ * [←] [Logo] [📱 Shiksha Rojgar App] [↗️] [⋮]
+ *                              Share
+ *
+ * नीचे:
+ * शिक्षा • रोजगार • महत्वपूर्ण अपडेट
+ *
+ * Channel जैसा navy header.
+ * Extra white circle/ring नहीं।
+ * =========================================================
+ */
 
-        val header =
-            LinearLayout(context).apply {
+fun createHeader(
+    context: Context,
+    onBack: () -> Unit,
+    onShare: () -> Unit,
+    onMenu: () -> Unit
+): LinearLayout {
 
-                orientation =
-                    LinearLayout.HORIZONTAL
+    val header =
+        LinearLayout(context).apply {
 
-                gravity =
-                    Gravity.CENTER_VERTICAL
+            orientation =
+                LinearLayout.HORIZONTAL
 
-                setPadding(
-                    dp(context, 7),
-                    dp(context, 5),
-                    dp(context, 6),
-                    dp(context, 5)
-                )
+            gravity =
+                Gravity.CENTER_VERTICAL
 
-                setBackgroundColor(
-                    Color.parseColor(SKY_BLUE)
-                )
-            }
-
-        /*
-         * BACK
-         */
-        val back =
-            TextView(context).apply {
-
-                text = "←"
-
-                textSize = 27f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                gravity =
-                    Gravity.CENTER
-
-                setTextColor(
-                    Color.parseColor(
-                        ACTIVE_BLUE
-                    )
-                )
-
-                isClickable = true
-                isFocusable = true
-
-                setOnClickListener {
-                    onBack()
-                }
-            }
-
-        header.addView(
-            back,
-            LinearLayout.LayoutParams(
-                dp(context, 42),
-                dp(context, 48)
+            setPadding(
+                dp(context, 7),
+                dp(context, 4),
+                dp(context, 4),
+                dp(context, 4)
             )
+
+            setBackgroundColor(
+                Color.parseColor("#0B2A4A")
+            )
+        }
+
+    /*
+     * =====================================================
+     * BACK
+     * =====================================================
+     */
+
+    val back =
+        TextView(context).apply {
+
+            text = "←"
+
+            textSize = 27f
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            gravity =
+                Gravity.CENTER
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                onBack()
+            }
+        }
+
+    header.addView(
+        back,
+        LinearLayout.LayoutParams(
+            dp(context, 38),
+            dp(context, 52)
         )
+    )
 
-        /*
-         * LOGO
-         */
-        val logo =
-            ImageView(context).apply {
+    /*
+     * =====================================================
+     * LOGO
+     * =====================================================
+     */
 
-                setImageResource(
-                    R.drawable.logo
-                )
+    val logo =
+        ImageView(context).apply {
 
-                contentDescription =
-                    "Shiksha Rojgar"
+            setImageResource(
+                R.drawable.logo
+            )
 
-                scaleType =
-                    ImageView.ScaleType.CENTER_CROP
+            contentDescription =
+                "Shiksha Rojgar"
 
-                /*
-                 * Extra white background/ring नहीं।
-                 */
-                background =
-                    null
+            scaleType =
+                ImageView.ScaleType.CENTER_CROP
 
-                /*
-                 * Logo circular
-                 */
-                clipToOutline = true
+            /*
+             * कोई extra white background/ring नहीं।
+             */
+            background = null
 
-                outlineProvider =
-                    object : ViewOutlineProvider() {
+            clipToOutline = true
 
-                        override fun getOutline(
-                            view: View,
-                            outline: Outline
-                        ) {
+            outlineProvider =
+                object : ViewOutlineProvider() {
 
-                            outline.setOval(
-                                0,
-                                0,
-                                view.width,
-                                view.height
-                            )
-                        }
+                    override fun getOutline(
+                        view: View,
+                        outline: Outline
+                    ) {
+
+                        outline.setOval(
+                            0,
+                            0,
+                            view.width,
+                            view.height
+                        )
                     }
-            }
-
-        header.addView(
-            logo,
-            LinearLayout.LayoutParams(
-                dp(context, 38),
-                dp(context, 38)
-            ).apply {
-
-                rightMargin =
-                    dp(context, 7)
-            }
-        )
-
-        /*
-         * APP NAME + TAGLINE
-         */
-        val titleBox =
-            LinearLayout(context).apply {
-
-                orientation =
-                    LinearLayout.VERTICAL
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
-
-        val appName =
-            TextView(context).apply {
-
-                text =
-                    "📱 Shiksha Rojgar App"
-
-                textSize = 16f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                maxLines = 1
-
-                setTextColor(
-                    Color.parseColor(
-                        ACTIVE_BLUE
-                    )
-                )
-            }
-
-        val tagline =
-            TextView(context).apply {
-
-                text =
-                    "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
-
-                textSize = 10.5f
-
-                maxLines = 1
-
-                setTextColor(
-                    Color.parseColor(
-                        ACTIVE_BLUE
-                    )
-                )
-            }
-
-        titleBox.addView(
-            appName
-        )
-
-        titleBox.addView(
-            tagline
-        )
-
-        header.addView(
-            titleBox,
-            LinearLayout.LayoutParams(
-                0,
-                dp(context, 48),
-                1f
-            )
-        )
-
-        /*
-         * SHARE
-         */
-        val share =
-            TextView(context).apply {
-
-                text =
-                    "📤 Share ↗️"
-
-                textSize = 14f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                gravity =
-                    Gravity.CENTER
-
-                setTextColor(
-                    Color.parseColor(
-                        ACTIVE_BLUE
-                    )
-                )
-
-                isClickable = true
-                isFocusable = true
-
-                setPadding(
-                    dp(context, 3),
-                    0,
-                    dp(context, 3),
-                    0
-                )
-
-                setOnClickListener {
-                    onShare()
                 }
-            }
+        }
 
-        header.addView(
-            share,
-            LinearLayout.LayoutParams(
-                dp(context, 91),
-                dp(context, 48)
+    header.addView(
+        logo,
+        LinearLayout.LayoutParams(
+            dp(context, 38),
+            dp(context, 38)
+        ).apply {
+
+            rightMargin =
+                dp(context, 6)
+        }
+    )
+
+    /*
+     * =====================================================
+     * APP NAME + TAGLINE
+     * =====================================================
+     */
+
+    val titleBox =
+        LinearLayout(context).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            gravity =
+                Gravity.CENTER_VERTICAL
+        }
+
+    val appName =
+        TextView(context).apply {
+
+            text =
+                "📱 Shiksha Rojgar App"
+
+            textSize = 14f
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            maxLines = 1
+
+            setTextColor(
+                Color.WHITE
             )
-        )
+        }
 
-        return header
-    }
+    val tagline =
+        TextView(context).apply {
+
+            text =
+                "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
+
+            textSize = 8.5f
+
+            maxLines = 1
+
+            setTextColor(
+                Color.WHITE
+            )
+        }
+
+    titleBox.addView(
+        appName,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(context, 22)
+        )
+    )
+
+    titleBox.addView(
+        tagline,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(context, 18)
+        )
+    )
+
+    header.addView(
+        titleBox,
+        LinearLayout.LayoutParams(
+            0,
+            dp(context, 52),
+            1f
+        )
+    )
+
+    /*
+     * =====================================================
+     * SHARE
+     *
+     * ऊपर केवल ↗️
+     * नीचे Share
+     * =====================================================
+     */
+
+    val shareBox =
+        LinearLayout(context).apply {
+
+            orientation =
+                LinearLayout.VERTICAL
+
+            gravity =
+                Gravity.CENTER
+
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                onShare()
+            }
+        }
+
+    val shareIcon =
+        TextView(context).apply {
+
+            text =
+                "↗️"
+
+            textSize = 19f
+
+            gravity =
+                Gravity.CENTER
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+        }
+
+    val shareText =
+        TextView(context).apply {
+
+            text =
+                "Share"
+
+            textSize = 9f
+
+            gravity =
+                Gravity.CENTER
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+        }
+
+    shareBox.addView(
+        shareIcon,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(context, 25)
+        )
+    )
+
+    shareBox.addView(
+        shareText,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(context, 17)
+        )
+    )
+
+    header.addView(
+        shareBox,
+        LinearLayout.LayoutParams(
+            dp(context, 52),
+            dp(context, 52)
+        )
+    )
+
+    /*
+     * =====================================================
+     * THREE DOT MENU
+     * =====================================================
+     */
+
+    val menu =
+        TextView(context).apply {
+
+            text =
+                "⋮"
+
+            textSize = 28f
+
+            gravity =
+                Gravity.CENTER
+
+            typeface =
+                Typeface.DEFAULT_BOLD
+
+            setTextColor(
+                Color.WHITE
+            )
+
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                onMenu()
+            }
+        }
+
+    header.addView(
+        menu,
+        LinearLayout.LayoutParams(
+            dp(context, 38),
+            dp(context, 52)
+        )
+    )
+
+    return header
+}
 
     /*
      * =========================================================
