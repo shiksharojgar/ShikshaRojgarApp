@@ -2147,10 +2147,20 @@ homeContent.addView(
         )
 
         // =====================================================
-        // ADD FIXED PANEL
+        // UPPER ADMIN AREA — 60%
         // =====================================================
 
-        root.addView(
+        val upperScroll =
+            ScrollView(this).apply {
+
+                isFillViewport = true
+
+                isVerticalScrollBarEnabled = true
+
+                clipToPadding = false
+            }
+
+        upperScroll.addView(
             fixed,
             LinearLayout.LayoutParams(
                 -1,
@@ -2158,8 +2168,17 @@ homeContent.addView(
             )
         )
 
+        root.addView(
+            upperScroll,
+            LinearLayout.LayoutParams(
+                -1,
+                0,
+                0.60f
+            )
+        )
+
         // =====================================================
-        // POSTS HEADER
+        // LOWER CHANNEL POSTS AREA — 40%
         // =====================================================
 
         root.addView(
@@ -2235,12 +2254,12 @@ homeContent.addView(
             postsContainer
         )
 
-        root.addView(
+                root.addView(
             postScroll,
             LinearLayout.LayoutParams(
                 -1,
                 0,
-                1f
+                0.40f
             )
         )
 
