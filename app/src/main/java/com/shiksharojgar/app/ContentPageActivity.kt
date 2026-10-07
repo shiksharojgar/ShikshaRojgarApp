@@ -42,13 +42,15 @@ val activeSection =
         ?: "IMP_INFO"
 load(pageId, fallback)
     }
+    
 setContentView(
     buildUi(
         fallback,
         activeSection
     )
 )
-
+load(pageId, fallback)
+}
     /*
      * =========================================================
      * COMMON PAGE UI
@@ -71,7 +73,6 @@ setContentView(
                 )
             }
 
-        /*
 /*
  * =====================================================
  * MASTER COMMON HEADER
