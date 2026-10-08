@@ -273,7 +273,7 @@ context.startActivity(
         val intent =
             Intent(Intent.ACTION_SEND).apply {
 
-                type = "text/plain"
+                type = "text/html"
 
                 val styledText =
                     if (htmlText.isNotBlank()) {
