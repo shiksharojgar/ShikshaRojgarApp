@@ -182,7 +182,15 @@ object CommonShareBuilder {
             append(
                 "\n\n"
             )
+/**
+ * --------------------------------------------------------
+ * APP DOWNLOAD LINK
+ * --------------------------------------------------------
+ */
+fun appDownloadUrl(): String {
 
+    return "https://shiksha-rojgar.web.app/"
+}
             append(
                 "शिक्षा रोजगार की Official Website 🌐 " +
                     "WWW.ShikshaRojgar.Com 👈 " +
@@ -211,6 +219,105 @@ object CommonShareBuilder {
      *
      * सभी shared posts में एक common format.
      */
+     /**
+ * ============================================================
+ * SHARE HTML
+ * ============================================================
+ *
+ * Central clickable links:
+ * 1. App Download
+ * 2. Current Section / Post
+ *
+ * Long URLs दिखाई नहीं देंगे।
+ */
+fun buildShareHtml(
+    post: ChannelPost,
+    section: Section
+): String {
+
+    val postUrl =
+        directPostUrl(post.id)
+
+    val appUrl =
+        appDownloadUrl()
+
+    return buildString {
+
+        append(
+            sectionHeader(section)
+        )
+
+        if (post.title.isNotBlank()) {
+
+            append("<br><br>")
+
+            append(
+                android.text.Html.escapeHtml(
+                    post.title.trim()
+                )
+            )
+        }
+
+        if (post.createdAt > 0L) {
+
+            append("<br><br>")
+
+            append(
+                android.text.Html.escapeHtml(
+                    formatDateTime(post.createdAt)
+                )
+            )
+        }
+
+        if (post.body.isNotBlank()) {
+
+            append("<br><br>")
+
+            append(
+                android.text.Html.escapeHtml(
+                    post.body.trim()
+                ).replace(
+                    "\n",
+                    "<br>"
+                )
+            )
+        }
+
+        if (post.fileUrl.isNotBlank()) {
+
+            append("<br><br>📄 ")
+
+            append(
+                android.text.Html.escapeHtml(
+                    post.fileName.ifBlank {
+                        "PDF / Document"
+                    }
+                )
+            )
+        }
+
+        append("<br><br>")
+
+        append(
+            "<a href=\"$appUrl\">" +
+                "शिक्षा रोजगार की Official Website 🌐 " +
+                "WWW.ShikshaRojgar.Com 👈 " +
+                "यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                "डाउनलोड इंस्टॉल करें !" +
+                "</a>"
+        )
+
+        append("<br><br>")
+
+        append(
+            "<a href=\"$postUrl\">" +
+                android.text.Html.escapeHtml(
+                    section.viewText
+                ) +
+                "</a>"
+        )
+    }
+}
     private fun formatDateTime(
         timestamp: Long
     ): String {
