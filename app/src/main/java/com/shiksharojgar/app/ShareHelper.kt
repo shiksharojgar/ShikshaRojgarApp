@@ -337,3 +337,4 @@ if (htmlText.isNotBlank()) {
         // Share fail होने पर app crash नहीं होगी।
     }
 }
+}
