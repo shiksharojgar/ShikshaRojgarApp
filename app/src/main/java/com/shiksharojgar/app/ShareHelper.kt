@@ -18,6 +18,7 @@ object ShareHelper {
     imageRef: String = "",
     chooserTitle: String = "Share",
     directPostUrl: String = ""
+        htmlText: String = ""
 ) {
 
         if (imageRef.isBlank()) {
@@ -295,12 +296,11 @@ bitmap.recycle()
 if (directPostUrl.isNotBlank()) {
 
     putExtra(
-        Intent.EXTRA_HTML_TEXT,
-        text +
-            "<br><br><a href=\"" +
-            directPostUrl +
-            "\">View Channel 👈</a>"
-    )
+    Intent.EXTRA_HTML_TEXT,
+    htmlText.ifBlank {
+        text
+    }
+)
 }
 
 putExtra(
