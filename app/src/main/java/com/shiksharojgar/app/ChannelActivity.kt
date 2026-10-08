@@ -1280,11 +1280,7 @@ return root
         }
     }
 
-    /*
-     * FOLLOWED = WHITE/LIGHT BUTTON
-     * NOT gray translucent.
-     */
-    private fun updateFollow(
+    
     /*
  * =========================================================
  * FOLLOW STATE
