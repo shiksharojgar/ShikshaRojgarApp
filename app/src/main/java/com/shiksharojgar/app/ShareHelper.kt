@@ -38,11 +38,12 @@ htmlText: String = ""
             if (bitmap == null) {
 
                 shareText(
-                    context,
-                    title,
-                    text,
-                    chooserTitle
-                )
+    context,
+    title,
+    text,
+    chooserTitle,
+    htmlText
+)
 
                 return@loadImage
             }
@@ -232,11 +233,12 @@ bitmap.recycle()
                         } catch (_: Exception) {
 
                             shareText(
-                                context,
-                                title,
-                                text,
-                                chooserTitle
-                            )
+    context,
+    title,
+    text,
+    chooserTitle,
+    htmlText
+)
                         }
                     }
 
@@ -247,11 +249,12 @@ bitmap.recycle()
                     ).post {
 
                         shareText(
-                            context,
-                            title,
-                            text,
-                            chooserTitle
-                        )
+    context,
+    title,
+    text,
+    chooserTitle,
+    htmlText
+)
                     }
                 }
             }.start()
@@ -259,51 +262,43 @@ bitmap.recycle()
     }
 
     private fun shareText(
-        context: Context,
-        title: String,
-        text: String,
-        chooserTitle: String
-    ) {
+    context: Context,
+    title: String,
+    text: String,
+    chooserTitle: String,
+    htmlText: String = ""
+) {
 
-        try {
+    try {
 
-            context.startActivity(
-                Intent.createChooser(
-                    Intent(
-                        Intent.ACTION_SEND
-                    ).apply {
+        val intent =
+            Intent(
+                Intent.ACTION_SEND
+            ).apply {
 
-                        type =
-                            "text/plain"
+                type =
+                    "text/plain"
 
-                        putExtra(
-    Intent.EXTRA_TEXT,
-    if (directPostUrl.isBlank()) {
-        text
-    } else {
-        android.text.SpannedString(
-            android.text.Html.fromHtml(
-                text +
-                    "\n\n<a href=\"" +
-                    directPostUrl +
-                    "\">View Channel 👈</a>",
-                android.text.Html.FROM_HTML_MODE_LEGACY
-            )
-        )
-    }
-)
+                if (htmlText.isNotBlank()) {
 
-if (directPostUrl.isNotBlank()) {
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        android.text.SpannedString(
+                            android.text.Html.fromHtml(
+                                htmlText,
+                                android.text.Html.FROM_HTML_MODE_LEGACY
+                            )
+                        )
+                    )
 
-    putExtra(
-    Intent.EXTRA_HTML_TEXT,
-    htmlText.ifBlank {
-        text
-    }
-)
-}
+                    putExtra(
+                        Intent.EXTRA_HTML_TEXT,
+                        htmlText
+                    )
 
-putExtra(
+                } else {
+
+                    putExtra(
     Intent.EXTRA_TEXT,
     if (htmlText.isNotBlank()) {
         android.text.SpannedString(
@@ -318,18 +313,29 @@ putExtra(
 )
 
 if (htmlText.isNotBlank()) {
+
     putExtra(
         Intent.EXTRA_HTML_TEXT,
         htmlText
     )
 }
-                    },
-                    chooserTitle
-                )
-            )
+                }
 
-        } catch (_: Exception) {
-            // No share target available.
-        }
+                putExtra(
+                    Intent.EXTRA_TITLE,
+                    title
+                )
+            }
+
+        context.startActivity(
+            Intent.createChooser(
+                intent,
+                chooserTitle
+            )
+        )
+
+    } catch (_: Exception) {
+
+        // Share fail होने पर app crash नहीं होगी।
     }
 }
