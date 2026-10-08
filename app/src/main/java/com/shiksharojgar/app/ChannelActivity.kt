@@ -2842,14 +2842,15 @@ private fun sharePost(
         )
 
     ShareHelper.shareImageOrText(
-        this,
-        CommonShareBuilder.sectionHeader(
-            CommonShareBuilder.Section.CHANNEL
-        ),
-        text,
-        p.imageUrl,
-        "Share Channel Post"
-    )
+    this,
+    CommonShareBuilder.sectionHeader(
+        CommonShareBuilder.Section.CHANNEL
+    ),
+    text,
+    p.imageUrl,
+    "Share Channel Post",
+    CommonShareBuilder.directPostUrl(p.id)
+)
 }
     /*
      * COMMENTS
