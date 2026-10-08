@@ -12,12 +12,13 @@ import java.io.File
 object ShareHelper {
 
     fun shareImageOrText(
-        context: Context,
-        title: String,
-        text: String,
-        imageRef: String = "",
-        chooserTitle: String = "Share"
-    ) {
+    context: Context,
+    title: String,
+    text: String,
+    imageRef: String = "",
+    chooserTitle: String = "Share",
+    directPostUrl: String = ""
+) {
 
         if (imageRef.isBlank()) {
             shareText(
@@ -275,14 +276,37 @@ bitmap.recycle()
                             "text/plain"
 
                         putExtra(
-                            Intent.EXTRA_TEXT,
-                            text
-                        )
+    Intent.EXTRA_TEXT,
+    if (directPostUrl.isBlank()) {
+        text
+    } else {
+        android.text.SpannedString(
+            android.text.Html.fromHtml(
+                text +
+                    "\n\n<a href=\"" +
+                    directPostUrl +
+                    "\">View Channel 👈</a>",
+                android.text.Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+    }
+)
 
-                        putExtra(
-                            Intent.EXTRA_TITLE,
-                            title
-                        )
+if (directPostUrl.isNotBlank()) {
+
+    putExtra(
+        Intent.EXTRA_HTML_TEXT,
+        text +
+            "<br><br><a href=\"" +
+            directPostUrl +
+            "\">View Channel 👈</a>"
+    )
+}
+
+putExtra(
+    Intent.EXTRA_TITLE,
+    title
+)
                     },
                     chooserTitle
                 )
