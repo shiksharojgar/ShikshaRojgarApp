@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.FileProvider
+import android.text.Html
 import java.io.File
 
 object ShareHelper {
@@ -274,9 +275,19 @@ context.startActivity(
 
                 type = "text/plain"
 
+                val styledText =
+                    if (htmlText.isNotBlank()) {
+                        Html.fromHtml(
+                            htmlText,
+                            Html.FROM_HTML_MODE_LEGACY
+                        )
+                    } else {
+                        text
+                    }
+
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    text
+                    styledText
                 )
 
                 putExtra(
