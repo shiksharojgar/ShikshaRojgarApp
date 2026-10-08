@@ -2861,7 +2861,6 @@ ShareHelper.shareImageOrText(
     text,
     p.imageUrl,
     "Share Channel Post",
-    CommonShareBuilder.directPostUrl(p.id),
     htmlText
 )
 }
