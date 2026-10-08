@@ -17,8 +17,8 @@ object ShareHelper {
     text: String,
     imageRef: String = "",
     chooserTitle: String = "Share",
-    directPostUrl: String = ""
-        htmlText: String = ""
+    directPostUrl: String = "",
+htmlText: String = ""
 ) {
 
         if (imageRef.isBlank()) {
@@ -304,9 +304,25 @@ if (directPostUrl.isNotBlank()) {
 }
 
 putExtra(
-    Intent.EXTRA_TITLE,
-    title
+    Intent.EXTRA_TEXT,
+    if (htmlText.isNotBlank()) {
+        android.text.SpannedString(
+            android.text.Html.fromHtml(
+                htmlText,
+                android.text.Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+    } else {
+        text
+    }
 )
+
+if (htmlText.isNotBlank()) {
+    putExtra(
+        Intent.EXTRA_HTML_TEXT,
+        htmlText
+    )
+}
                     },
                     chooserTitle
                 )
