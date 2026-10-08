@@ -17,7 +17,6 @@ object ShareHelper {
     text: String,
     imageRef: String = "",
     chooserTitle: String = "Share",
-    directPostUrl: String = "",
 htmlText: String = ""
 ) {
 
