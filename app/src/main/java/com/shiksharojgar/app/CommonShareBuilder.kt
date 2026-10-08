@@ -1,6 +1,5 @@
 package com.shiksharojgar.app
 
-import android.content.Context
 import android.net.Uri
 
 /**
@@ -10,18 +9,16 @@ import android.net.Uri
  *
  * सभी sections के लिए Central Share System.
  *
- * अभी Channel से शुरू किया जा रहा है।
- * बाद में यही builder:
- * Channel
- * Notice
- * Important Information
- * Study Material / Syllabus
- * Career Guide / Useful Tools
- * आदि के लिए उपयोग होगा।
+ * एक ही जगह से:
+ * • Section Header
+ * • Direct Post Link
+ * • App Download Link
+ * • Date + Time
+ * • Description
+ * • Inline Clickable Links
+ * • View Section / Post
  *
- * IMPORTANT:
- * Share Text में https:// दिखाई नहीं जाएगा।
- * Internal Direct Post URL app के अंदर use होगा।
+ * नियंत्रित होंगे।
  */
 object CommonShareBuilder {
 
@@ -57,12 +54,9 @@ object CommonShareBuilder {
     }
 
     /**
-     * --------------------------------------------------------
-     * DIRECT POST LINK
-     * --------------------------------------------------------
-     *
-     * Share के अंदर long URL दिखाने के बजाय
-     * app/browser खोलने के लिए यही canonical link रहेगा।
+     * ============================================================
+     * DIRECT POST URL
+     * ============================================================
      */
     fun directPostUrl(
         postId: String
@@ -77,9 +71,9 @@ object CommonShareBuilder {
     }
 
     /**
-     * --------------------------------------------------------
+     * ============================================================
      * SECTION HEADER
-     * --------------------------------------------------------
+     * ============================================================
      */
     fun sectionHeader(
         section: Section
@@ -89,82 +83,83 @@ object CommonShareBuilder {
     }
 
     /**
-     * --------------------------------------------------------
+     * ============================================================
+     * APP DOWNLOAD URL
+     * ============================================================
+     */
+    fun appDownloadUrl(): String {
+
+        return "https://shiksha-rojgar.web.app/"
+    }
+
+    /**
+     * ============================================================
      * SHARE TEXT
-     * --------------------------------------------------------
+     * ============================================================
      *
-     * अभी text structure central बनाया जा रहा है।
-     * Image share होने पर ShareHelper इसे image के साथ भेजेगा।
+     * Plain text fallback.
+     *
+     * इसमें long URL दिखाई नहीं जाएगी।
      */
     fun buildText(
-    post: ChannelPost,
-    section: Section
-): String {
+        post: ChannelPost,
+        section: Section
+    ): String {
 
-    return buildString {
+        return buildString {
 
-        // SECTION HEADER
-        append(sectionHeader(section))
-
-        // TITLE
-        if (post.title.isNotBlank()) {
-            append("\n\n")
-            append(post.title.trim())
-        }
-
-        // DATE + TIME
-        if (post.createdAt > 0L) {
-            append("\n\n")
-            append(formatDateTime(post.createdAt))
-        }
-
-        // DESCRIPTION
-        if (post.body.isNotBlank()) {
-            append("\n\n")
-            append(post.body.trim())
-        }
-
-        // PDF / DOCUMENT
-        if (post.fileUrl.isNotBlank()) {
-            append("\n\n📄 ")
+            // SECTION HEADER
             append(
-                post.fileName.ifBlank {
-                    "PDF / Document"
-                }
+                sectionHeader(section)
             )
-        }
 
-        // APP DOWNLOAD TEXT
-        append("\n\n")
-        append(
-            "शिक्षा रोजगार की Official Website 🌐 " +
-                "WWW.ShikshaRojgar.Com 👈 " +
-                "यहां क्लिक करके 📱 Shiksha Rojgar App " +
-                "डाउनलोड इंस्टॉल करें !"
-        )
+            // TITLE
+            if (post.title.isNotBlank()) {
 
-        // VIEW SECTION / POST
-        append("\n\n")
-        append(section.viewText)
-    }
-}
+                append("\n\n")
 
-            // -------------------------------------------------
-            // APP DOWNLOAD TEXT
-            // -------------------------------------------------
+                append(
+                    post.title.trim()
+                )
+            }
 
-            append(
-                "\n\n"
-            )
-/**
- * --------------------------------------------------------
- * APP DOWNLOAD LINK
- * --------------------------------------------------------
- */
-fun appDownloadUrl(): String {
+            // DATE + TIME
+            if (post.createdAt > 0L) {
 
-    return "https://shiksha-rojgar.web.app/"
-}
+                append("\n\n")
+
+                append(
+                    formatDateTime(
+                        post.createdAt
+                    )
+                )
+            }
+
+            // DESCRIPTION
+            if (post.body.isNotBlank()) {
+
+                append("\n\n")
+
+                append(
+                    post.body.trim()
+                )
+            }
+
+            // PDF / DOCUMENT
+            if (post.fileUrl.isNotBlank()) {
+
+                append("\n\n📄 ")
+
+                append(
+                    post.fileName.ifBlank {
+                        "PDF / Document"
+                    }
+                )
+            }
+
+            // APP DOWNLOAD
+            append("\n\n")
+
             append(
                 "शिक्षा रोजगार की Official Website 🌐 " +
                     "WWW.ShikshaRojgar.Com 👈 " +
@@ -172,13 +167,8 @@ fun appDownloadUrl(): String {
                     "डाउनलोड इंस्टॉल करें !"
             )
 
-                        // -------------------------------------------------
-            // VIEW SECTION
-            // -------------------------------------------------
-
-            append(
-                "\n\n"
-            )
+            // VIEW SECTION / POST
+            append("\n\n")
 
             append(
                 section.viewText
@@ -187,111 +177,308 @@ fun appDownloadUrl(): String {
     }
 
     /**
-     * --------------------------------------------------------
-     * DATE + TIME
-     * --------------------------------------------------------
+     * ============================================================
+     * SHARE HTML
+     * ============================================================
      *
-     * सभी shared posts में एक common format.
+     * HTML share में:
+     *
+     * 1. पूरा Section Header clickable
+     * 2. Direct Post URL hidden
+     * 3. App Download text clickable
+     * 4. Description के अंदर links clickable
+     * 5. https:// visible नहीं होगा
+     * 6. View Section / Post clickable
      */
-     /**
- * ============================================================
- * SHARE HTML
- * ============================================================
- *
- * Central clickable links:
- * 1. App Download
- * 2. Current Section / Post
- *
- * Long URLs दिखाई नहीं देंगे।
- */
-fun buildShareHtml(
-    post: ChannelPost,
-    section: Section
-): String {
+    fun buildShareHtml(
+        post: ChannelPost,
+        section: Section
+    ): String {
 
-    val postUrl =
-        directPostUrl(post.id)
+        val postUrl =
+            directPostUrl(
+                post.id
+            )
 
-    val appUrl =
-        appDownloadUrl()
+        val appUrl =
+            appDownloadUrl()
 
-    return buildString {
+        return buildString {
 
-        append(
-            sectionHeader(section)
-        )
+            // =================================================
+            // CLICKABLE SECTION HEADER
+            // =================================================
 
-        if (post.title.isNotBlank()) {
+            append(
+                "<a href=\""
+            )
 
-            append("<br><br>")
+            append(
+                postUrl
+            )
+
+            append(
+                "\">"
+            )
 
             append(
                 android.text.Html.escapeHtml(
-                    post.title.trim()
+                    sectionHeader(section)
                 )
             )
-        }
-
-        if (post.createdAt > 0L) {
-
-            append("<br><br>")
 
             append(
-                android.text.Html.escapeHtml(
-                    formatDateTime(post.createdAt)
-                )
-            )
-        }
-
-        if (post.body.isNotBlank()) {
-
-            append("<br><br>")
-
-            append(
-                android.text.Html.escapeHtml(
-                    post.body.trim()
-                ).replace(
-                    "\n",
-                    "<br>"
-                )
-            )
-        }
-
-        if (post.fileUrl.isNotBlank()) {
-
-            append("<br><br>📄 ")
-
-            append(
-                android.text.Html.escapeHtml(
-                    post.fileName.ifBlank {
-                        "PDF / Document"
-                    }
-                )
-            )
-        }
-
-        append("<br><br>")
-
-        append(
-            "<a href=\"$appUrl\">" +
-                "शिक्षा रोजगार की Official Website 🌐 " +
-                "WWW.ShikshaRojgar.Com 👈 " +
-                "यहां क्लिक करके 📱 Shiksha Rojgar App " +
-                "डाउनलोड इंस्टॉल करें !" +
                 "</a>"
-        )
+            )
 
-        append("<br><br>")
+            // =================================================
+            // TITLE
+            // =================================================
 
-        append(
-            "<a href=\"$postUrl\">" +
+            if (post.title.isNotBlank()) {
+
+                append("<br><br>")
+
+                append(
+                    android.text.Html.escapeHtml(
+                        post.title.trim()
+                    )
+                )
+            }
+
+            // =================================================
+            // DATE + TIME
+            // =================================================
+
+            if (post.createdAt > 0L) {
+
+                append("<br><br>")
+
+                append(
+                    android.text.Html.escapeHtml(
+                        formatDateTime(
+                            post.createdAt
+                        )
+                    )
+                )
+            }
+
+            // =================================================
+            // DESCRIPTION + INLINE LINKS
+            // =================================================
+
+            if (post.body.isNotBlank()) {
+
+                append("<br><br>")
+
+                append(
+                    descriptionToHtml(
+                        post.body.trim()
+                    )
+                )
+            }
+
+            // =================================================
+            // PDF / DOCUMENT
+            // =================================================
+
+            if (post.fileUrl.isNotBlank()) {
+
+                append("<br><br>📄 ")
+
+                append(
+                    android.text.Html.escapeHtml(
+                        post.fileName.ifBlank {
+                            "PDF / Document"
+                        }
+                    )
+                )
+            }
+
+            // =================================================
+            // APP DOWNLOAD
+            // =================================================
+
+            append("<br><br>")
+
+            append(
+                "<a href=\""
+            )
+
+            append(
+                appUrl
+            )
+
+            append(
+                "\">"
+            )
+
+            append(
+                "शिक्षा रोजगार की Official Website 🌐 " +
+                    "WWW.ShikshaRojgar.Com 👈 " +
+                    "यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                    "डाउनलोड इंस्टॉल करें !"
+            )
+
+            append(
+                "</a>"
+            )
+
+            // =================================================
+            // VIEW SECTION / POST
+            // =================================================
+
+            append("<br><br>")
+
+            append(
+                "<a href=\""
+            )
+
+            append(
+                postUrl
+            )
+
+            append(
+                "\">"
+            )
+
+            append(
                 android.text.Html.escapeHtml(
                     section.viewText
-                ) +
+                )
+            )
+
+            append(
                 "</a>"
-        )
+            )
+        }
     }
-}
+
+    /**
+     * ============================================================
+     * DESCRIPTION → HTML
+     * ============================================================
+     *
+     * उदाहरण:
+     *
+     * MP Board की पूरी जानकारी
+     * www.shiksharojgar.com पर देखें।
+     *
+     * केवल URL clickable होगा।
+     *
+     * https:// visible नहीं होगा।
+     */
+    private fun descriptionToHtml(
+        text: String
+    ): String {
+
+        val escaped =
+            android.text.Html.escapeHtml(
+                text
+            ).replace(
+                "\n",
+                "<br>"
+            )
+
+        val pattern =
+            java.util.regex.Pattern.compile(
+                "(?i)(https?://|www\\.)[^\\s<]+"
+            )
+
+        val matcher =
+            pattern.matcher(
+                escaped
+            )
+
+        val result =
+            StringBuffer()
+
+        while (matcher.find()) {
+
+            var visibleUrl =
+                matcher.group()
+
+            var trailing =
+                ""
+
+            while (
+                visibleUrl.isNotEmpty() &&
+                visibleUrl.last() in
+                charArrayOf(
+                    '.',
+                    ',',
+                    '!',
+                    '?',
+                    ')',
+                    ']',
+                    '}'
+                )
+            ) {
+
+                trailing =
+                    visibleUrl.last() +
+                        trailing
+
+                visibleUrl =
+                    visibleUrl.dropLast(1)
+            }
+
+            val href =
+                if (
+                    visibleUrl.startsWith(
+                        "http://",
+                        ignoreCase = true
+                    ) ||
+                    visibleUrl.startsWith(
+                        "https://",
+                        ignoreCase = true
+                    )
+                ) {
+
+                    visibleUrl
+
+                } else {
+
+                    "https://$visibleUrl"
+                }
+
+            val displayUrl =
+                visibleUrl
+                    .replaceFirst(
+                        Regex(
+                            "^https?://"
+                        ),
+                        ""
+                    )
+
+            val replacement =
+                "<a href=\"" +
+                    href +
+                    "\">" +
+                    displayUrl +
+                    "</a>" +
+                    trailing
+
+            matcher.appendReplacement(
+                result,
+                java.util.regex.Matcher.quoteReplacement(
+                    replacement
+                )
+            )
+        }
+
+        matcher.appendTail(
+            result
+        )
+
+        return result.toString()
+    }
+
+    /**
+     * ============================================================
+     * DATE + TIME
+     * ============================================================
+     */
     private fun formatDateTime(
         timestamp: Long
     ): String {
