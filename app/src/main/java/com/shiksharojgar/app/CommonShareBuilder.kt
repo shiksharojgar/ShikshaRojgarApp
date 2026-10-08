@@ -97,83 +97,57 @@ object CommonShareBuilder {
      * Image share होने पर ShareHelper इसे image के साथ भेजेगा।
      */
     fun buildText(
-        post: ChannelPost,
-        section: Section
-    ): String {
+    post: ChannelPost,
+    section: Section
+): String {
 
-        return buildString {
+    return buildString {
 
-            // -------------------------------------------------
-            // HEADER
-            // -------------------------------------------------
+        // SECTION HEADER
+        append(sectionHeader(section))
 
+        // TITLE
+        if (post.title.isNotBlank()) {
+            append("\n\n")
+            append(post.title.trim())
+        }
+
+        // DATE + TIME
+        if (post.createdAt > 0L) {
+            append("\n\n")
+            append(formatDateTime(post.createdAt))
+        }
+
+        // DESCRIPTION
+        if (post.body.isNotBlank()) {
+            append("\n\n")
+            append(post.body.trim())
+        }
+
+        // PDF / DOCUMENT
+        if (post.fileUrl.isNotBlank()) {
+            append("\n\n📄 ")
             append(
-                sectionHeader(section)
+                post.fileName.ifBlank {
+                    "PDF / Document"
+                }
             )
+        }
 
-            // -------------------------------------------------
-            // TITLE
-            // -------------------------------------------------
+        // APP DOWNLOAD TEXT
+        append("\n\n")
+        append(
+            "शिक्षा रोजगार की Official Website 🌐 " +
+                "WWW.ShikshaRojgar.Com 👈 " +
+                "यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                "डाउनलोड इंस्टॉल करें !"
+        )
 
-            if (post.title.isNotBlank()) {
-
-                append(
-                    "\n\n"
-                )
-
-                append(
-                    post.title.trim()
-                )
-            }
-
-            // -------------------------------------------------
-            // DATE + TIME
-            // -------------------------------------------------
-
-            if (post.createdAt > 0L) {
-
-                append(
-                    "\n\n"
-                )
-
-                append(
-                    formatDateTime(
-                        post.createdAt
-                    )
-                )
-            }
-
-            // -------------------------------------------------
-            // DESCRIPTION
-            // -------------------------------------------------
-
-            if (post.body.isNotBlank()) {
-
-                append(
-                    "\n\n"
-                )
-
-                append(
-                    post.body.trim()
-                )
-            }
-
-            // -------------------------------------------------
-            // PDF
-            // -------------------------------------------------
-
-            if (post.fileUrl.isNotBlank()) {
-
-                append(
-                    "\n\n📄 "
-                )
-
-                append(
-                    post.fileName.ifBlank {
-                        "PDF / Document"
-                    }
-                )
-            }
+        // VIEW SECTION / POST
+        append("\n\n")
+        append(section.viewText)
+    }
+}
 
             // -------------------------------------------------
             // APP DOWNLOAD TEXT
