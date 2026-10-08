@@ -190,7 +190,7 @@ object CommonShareBuilder {
                     "डाउनलोड इंस्टॉल करें !"
             )
 
-            // -------------------------------------------------
+                        // -------------------------------------------------
             // VIEW SECTION
             // -------------------------------------------------
 
@@ -201,16 +201,6 @@ object CommonShareBuilder {
             append(
                 section.viewText
             )
-
-            /*
-             * IMPORTANT:
-             *
-             * Direct Post URL अभी text में intentionally
-             * अलग long URL की तरह नहीं दिखाया जा रहा।
-             *
-             * अगला चरण Android sharing target के अनुसार
-             * clickable/preview handling के लिए होगा।
-             */
         }
     }
 
