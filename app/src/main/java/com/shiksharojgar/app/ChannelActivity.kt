@@ -2827,27 +2827,25 @@ private fun sharePost(
  * ============================================================
  */
 
-val text =
-    CommonShareBuilder.buildText(
-        p,
-        CommonShareBuilder.Section.CHANNEL
-    )
+val testUrl =
+    CommonShareBuilder.directPostUrl(p.id)
 
-val htmlText =
-    CommonShareBuilder.buildShareHtml(
-        p,
-        CommonShareBuilder.Section.CHANNEL
-    )
+val testText =
+    """
+📱 Shiksha Rojgar App 📢 शिक्षा रोजगार चैनल
+
+${p.title}
+
+View Channel 👈
+$testUrl
+    """.trimIndent()
 
 ShareHelper.shareImageOrText(
     this,
-    CommonShareBuilder.sectionHeader(
-        CommonShareBuilder.Section.CHANNEL
-    ),
-    text,
-    p.imageUrl,
-    "Share Channel Post",
-    htmlText
+    "Test Channel Share",
+    testText,
+    "",
+    "Test Channel Share"
 )
 }
     /*
