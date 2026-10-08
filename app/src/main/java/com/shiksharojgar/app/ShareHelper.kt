@@ -275,19 +275,18 @@ context.startActivity(
 
                 type = "text/html"
 
-                val styledText =
+                putExtra(
+                    Intent.EXTRA_TEXT,
                     if (htmlText.isNotBlank()) {
-                        Html.fromHtml(
-                            htmlText,
-                            Html.FROM_HTML_MODE_LEGACY
+                        android.text.SpannedString(
+                            Html.fromHtml(
+                                htmlText,
+                                Html.FROM_HTML_MODE_LEGACY
+                            )
                         )
                     } else {
                         text
                     }
-
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    styledText
                 )
 
                 putExtra(
