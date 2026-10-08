@@ -23,11 +23,12 @@ htmlText: String = ""
 
         if (imageRef.isBlank()) {
             shareText(
-                context,
-                title,
-                text,
-                chooserTitle
-            )
+    context,
+    title,
+    text,
+    chooserTitle,
+    htmlText
+)
             return
         }
 
@@ -203,9 +204,25 @@ bitmap.recycle()
                                     )
 
                                     putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        text
-                                    )
+    Intent.EXTRA_TEXT,
+    if (htmlText.isNotBlank()) {
+        android.text.SpannedString(
+            android.text.Html.fromHtml(
+                htmlText,
+                android.text.Html.FROM_HTML_MODE_LEGACY
+            )
+        )
+    } else {
+        text
+    }
+)
+
+if (htmlText.isNotBlank()) {
+    putExtra(
+        Intent.EXTRA_HTML_TEXT,
+        htmlText
+    )
+}
 
                                     putExtra(
                                         Intent.EXTRA_TITLE,
@@ -276,8 +293,7 @@ bitmap.recycle()
                 Intent.ACTION_SEND
             ).apply {
 
-                type =
-                    "text/plain"
+                type = "text/plain"
 
                 if (htmlText.isNotBlank()) {
 
@@ -299,26 +315,9 @@ bitmap.recycle()
                 } else {
 
                     putExtra(
-    Intent.EXTRA_TEXT,
-    if (htmlText.isNotBlank()) {
-        android.text.SpannedString(
-            android.text.Html.fromHtml(
-                htmlText,
-                android.text.Html.FROM_HTML_MODE_LEGACY
-            )
-        )
-    } else {
-        text
-    }
-)
-
-if (htmlText.isNotBlank()) {
-
-    putExtra(
-        Intent.EXTRA_HTML_TEXT,
-        htmlText
-    )
-}
+                        Intent.EXTRA_TEXT,
+                        text
+                    )
                 }
 
                 putExtra(
