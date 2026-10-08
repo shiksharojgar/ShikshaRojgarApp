@@ -68,23 +68,110 @@ object ShareHelper {
                         ?.forEach {
                             it.delete()
                         }
+val out =
+    File(
+        dir,
+        "share_$now.jpg"
+    )
 
-                    val out =
-                        File(
-                            dir,
-                            "share_$now.jpg"
-                        )
+/*
+ * ============================================================
+ * SHARE WATERMARK
+ * ============================================================
+ *
+ * Shared image पर हल्का watermark।
+ * Original image crop नहीं होगी।
+ */
+val watermarkedBitmap =
+    bitmap.copy(
+        Bitmap.Config.ARGB_8888,
+        true
+    )
 
-                    out.outputStream().use { stream ->
+val canvas =
+    android.graphics.Canvas(
+        watermarkedBitmap
+    )
 
-                        bitmap.compress(
-                            Bitmap.CompressFormat.JPEG,
-                            92,
-                            stream
-                        )
-                    }
+val density =
+    context.resources.displayMetrics.density
 
-                    bitmap.recycle()
+val padding =
+    (12f * density)
+
+val textSize =
+    (12f * density)
+
+val paint =
+    android.graphics.Paint(
+        android.graphics.Paint.ANTI_ALIAS_FLAG
+    ).apply {
+
+        color =
+            android.graphics.Color.WHITE
+
+        alpha =
+            185
+
+        this.textSize =
+            textSize
+
+        typeface =
+            android.graphics.Typeface.create(
+                android.graphics.Typeface.DEFAULT,
+                android.graphics.Typeface.BOLD
+            )
+
+        setShadowLayer(
+            3f * density,
+            1f * density,
+            1f * density,
+            android.graphics.Color.BLACK
+        )
+    }
+
+val line1 =
+    "🌐 ShikshaRojgar.com"
+
+val line2 =
+    "📱 Shiksha Rojgar App"
+
+val x =
+    padding
+
+val y2 =
+    watermarkedBitmap.height -
+        padding
+
+val y1 =
+    y2 -
+        (textSize + 4f * density)
+
+canvas.drawText(
+    line1,
+    x,
+    y1,
+    paint
+)
+
+canvas.drawText(
+    line2,
+    x,
+    y2,
+    paint
+)
+
+out.outputStream().use { stream ->
+
+    watermarkedBitmap.compress(
+        Bitmap.CompressFormat.JPEG,
+        92,
+        stream
+    )
+}
+
+watermarkedBitmap.recycle()
+bitmap.recycle()
 
                     val uri =
                         FileProvider.getUriForFile(
