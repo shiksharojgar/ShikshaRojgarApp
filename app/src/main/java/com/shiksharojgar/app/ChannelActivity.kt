@@ -155,7 +155,7 @@ unreadCountAtOpen =
 
                 if (::followerCountView.isInitialized) {
                     followerCountView.text =
-                        "👥 $followerCount"
+                      "👥 Followers $followerCount"
                 }
 
 
@@ -686,7 +686,7 @@ root.addView(
                     ).apply {
 
                         text =
-                            "👥 Followers: $followerCount"
+                            "👥 Followers $followerCount"
 
                         textSize =
                             14f
@@ -1236,7 +1236,7 @@ return root
                             ).coerceAtLeast(0L)
 
                         followerCountView.text =
-                            "👥 $followerCount"
+                           "👥 Followers $followerCount"
 
                         AnalyticsTracker.channelFollow(
                             this,
@@ -1285,68 +1285,58 @@ return root
      * NOT gray translucent.
      */
     private fun updateFollow(
-        value: Boolean
-    ) {
+    /*
+ * =========================================================
+ * FOLLOW STATE
+ * =========================================================
+ *
+ * Follow होने पर:
+ * • Follow button गायब
+ * • उसके साथ वाला Comment icon भी गायब
+ *
+ * Unfollow होने पर:
+ * • Follow + Comment bar वापस दिखाई देगा
+ */
+private fun updateFollow(
+    value: Boolean
+) {
 
-        followingState =
-            value
+    followingState =
+        value
 
-        if (!::followBtn.isInitialized) {
-            return
-        }
+    if (!::followBtn.isInitialized) {
+        return
+    }
+
+    val followCommentBar =
+        followBtn.parent as? View
+
+    if (value) {
+
+        // Follow होने के बाद पूरा Follow + Comment bar हटाएँ
+        followCommentBar?.visibility =
+            View.GONE
+
+    } else {
+
+        // Unfollow होने पर वापस दिखाएँ
+        followCommentBar?.visibility =
+            View.VISIBLE
 
         followBtn.text =
-            if (value) {
-                "✓  Followed"
-            } else {
-                "➕ Follow करें"
-            }
+            "➕ Follow करें"
 
-        if (value) {
+        followBtn.setTextColor(
+            Color.WHITE
+        )
 
-            followBtn.setTextColor(
-                Color.rgb(
-                    14,
-                    91,
-                    215
-                )
+        followBtn.background =
+            GradientFactory.gradient(
+                "#16A34A",
+                "#06B6D4"
             )
-
-            followBtn.background =
-                android.graphics.drawable
-                    .GradientDrawable()
-                    .apply {
-
-                        setColor(
-                            Color.WHITE
-                        )
-
-                        cornerRadius =
-                            dp(26).toFloat()
-
-                        setStroke(
-                            dp(1),
-                            Color.rgb(
-                                14,
-                                91,
-                                215
-                            )
-                        )
-                    }
-
-        } else {
-
-            followBtn.setTextColor(
-                Color.WHITE
-            )
-
-            followBtn.background =
-                GradientFactory.gradient(
-                    "#16A34A",
-                    "#06B6D4"
-                )
-        }
     }
+}
     /*
      * =========================================================
      * CHANNEL THREE-DOT MENU
