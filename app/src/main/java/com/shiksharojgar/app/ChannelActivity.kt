@@ -2835,13 +2835,25 @@ private fun sharePost(
     /*
      * Central Share Builder
      */
-    val text =
-        CommonShareBuilder.buildText(
-            p,
-            CommonShareBuilder.Section.CHANNEL
-        )
+    /*
+ * ============================================================
+ * CENTRAL SHARE BUILDER
+ * ============================================================
+ */
 
-    ShareHelper.shareImageOrText(
+val text =
+    CommonShareBuilder.buildText(
+        p,
+        CommonShareBuilder.Section.CHANNEL
+    )
+
+val htmlText =
+    CommonShareBuilder.buildShareHtml(
+        p,
+        CommonShareBuilder.Section.CHANNEL
+    )
+
+ShareHelper.shareImageOrText(
     this,
     CommonShareBuilder.sectionHeader(
         CommonShareBuilder.Section.CHANNEL
@@ -2849,7 +2861,8 @@ private fun sharePost(
     text,
     p.imageUrl,
     "Share Channel Post",
-    CommonShareBuilder.directPostUrl(p.id)
+    CommonShareBuilder.directPostUrl(p.id),
+    htmlText
 )
 }
     /*
