@@ -190,61 +190,43 @@ bitmap.recycle()
                         try {
 
                             val intent =
-                                Intent(
-                                    Intent.ACTION_SEND
-                                ).apply {
+    Intent(Intent.ACTION_SEND).apply {
 
-                                    type =
-                                        "image/jpeg"
+        type = "image/jpeg"
 
-                                    putExtra(
-                                        Intent.EXTRA_STREAM,
-                                        uri
-                                    )
-
-                                    putExtra(
-    Intent.EXTRA_TEXT,
-    if (htmlText.isNotBlank()) {
-        android.text.SpannedString(
-            android.text.Html.fromHtml(
-                htmlText,
-                android.text.Html.FROM_HTML_MODE_LEGACY
-            )
+        putExtra(
+            Intent.EXTRA_STREAM,
+            uri
         )
-    } else {
-        text
+
+        // WhatsApp और अन्य apps के लिए plain caption
+        putExtra(
+            Intent.EXTRA_TEXT,
+            text
+        )
+
+        putExtra(
+            Intent.EXTRA_TITLE,
+            title
+        )
+
+        addFlags(
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+
+        clipData =
+            ClipData.newRawUri(
+                "Shiksha Rojgar image",
+                uri
+            )
     }
-)
 
-if (htmlText.isNotBlank()) {
-    putExtra(
-        Intent.EXTRA_HTML_TEXT,
-        htmlText
+context.startActivity(
+    Intent.createChooser(
+        intent,
+        chooserTitle
     )
-}
-
-                                    putExtra(
-                                        Intent.EXTRA_TITLE,
-                                        title
-                                    )
-
-                                    addFlags(
-                                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    )
-
-                                    clipData =
-                                        ClipData.newRawUri(
-                                            "Shiksha Rojgar image",
-                                            uri
-                                        )
-                                }
-
-                            context.startActivity(
-                                Intent.createChooser(
-                                    intent,
-                                    chooserTitle
-                                )
-                            )
+)
 
                         } catch (_: Exception) {
 
