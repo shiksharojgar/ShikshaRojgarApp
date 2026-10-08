@@ -2803,7 +2803,14 @@ if (
     /*
      * POST SHARE
      */
-    private fun sharePost(
+    /*
+ * ============================================================
+ * POST SHARE
+ * ============================================================
+ *
+ * Channel अब Central Share Builder का उपयोग करता है।
+ */
+private fun sharePost(
     p: ChannelPost,
     shareButton: TextView
 ) {
@@ -2815,6 +2822,7 @@ if (
         ) + 1L
 
     runOnUiThread {
+
         shareButton.text =
             "↗ Share ${shareOverrides[p.id]}"
     }
@@ -2824,49 +2832,25 @@ if (
         p.id
     )
 
-    val web =
-        "https://shiksha-rojgar.web.app/channel" +
-            "?post=${Uri.encode(p.id)}"
-
+    /*
+     * Central Share Builder
+     */
     val text =
-        buildString {
-
-            append(
-                "📢 शिक्षा रोजगार चैनल\n"
-            )
-
-            if (p.title.isNotBlank()) {
-                append(p.title)
-            }
-
-            if (p.body.isNotBlank()) {
-                append(
-                    "\n\n${p.body}"
-                )
-            }
-
-            if (p.fileUrl.isNotBlank()) {
-                append(
-                    "\n\n📄 PDF/Document: " +
-                        p.fileUrl
-                )
-            }
-
-            append(
-                "\n\n🌐 पोस्ट खोलें:\n$web"
-            )
-        }
+        CommonShareBuilder.buildText(
+            p,
+            CommonShareBuilder.Section.CHANNEL
+        )
 
     ShareHelper.shareImageOrText(
         this,
-        "Shiksha Rojgar Channel",
+        CommonShareBuilder.sectionHeader(
+            CommonShareBuilder.Section.CHANNEL
+        ),
         text,
         p.imageUrl,
         "Share Channel Post"
     )
 }
-                            
-
     /*
      * COMMENTS
      */
