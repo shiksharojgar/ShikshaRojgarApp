@@ -288,41 +288,27 @@ if (htmlText.isNotBlank()) {
     try {
 
         val intent =
-            Intent(
-                Intent.ACTION_SEND
-            ).apply {
+            Intent(Intent.ACTION_SEND).apply {
 
                 type = "text/plain"
 
-                if (htmlText.isNotBlank()) {
-
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        android.text.SpannedString(
-                            android.text.Html.fromHtml(
-                                htmlText,
-                                android.text.Html.FROM_HTML_MODE_LEGACY
-                            )
-                        )
-                    )
-
-                    putExtra(
-                        Intent.EXTRA_HTML_TEXT,
-                        htmlText
-                    )
-
-                } else {
-
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        text
-                    )
-                }
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    text
+                )
 
                 putExtra(
                     Intent.EXTRA_TITLE,
                     title
                 )
+
+                if (htmlText.isNotBlank()) {
+
+                    putExtra(
+                        Intent.EXTRA_HTML_TEXT,
+                        htmlText
+                    )
+                }
             }
 
         context.startActivity(
@@ -336,5 +322,4 @@ if (htmlText.isNotBlank()) {
 
         // Share fail होने पर app crash नहीं होगी।
     }
-}
 }
