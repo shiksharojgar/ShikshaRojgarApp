@@ -260,59 +260,38 @@ context.startActivity(
         }
     }
 
+    
     private fun shareText(
-    context: Context,
-    title: String,
-    text: String,
-    chooserTitle: String,
-    htmlText: String = ""
-) {
-
-    try {
-
-        val intent =
-            Intent(Intent.ACTION_SEND).apply {
-
-                type = "text/html"
+        context: Context,
+        title: String,
+        text: String,
+        chooserTitle: String,
+        htmlText: String = ""
+    ) {
+        try {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
 
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    if (htmlText.isNotBlank()) {
-                        android.text.SpannedString(
-                            Html.fromHtml(
-                                htmlText,
-                                Html.FROM_HTML_MODE_LEGACY
-                            )
-                        )
-                    } else {
-                        text
-                    }
+                    text
                 )
 
                 putExtra(
                     Intent.EXTRA_TITLE,
                     title
                 )
-
-                if (htmlText.isNotBlank()) {
-
-                    putExtra(
-                        Intent.EXTRA_HTML_TEXT,
-                        htmlText
-                    )
-                }
             }
 
-        context.startActivity(
-            Intent.createChooser(
-                intent,
-                chooserTitle
+            context.startActivity(
+                Intent.createChooser(
+                    intent,
+                    chooserTitle
+                )
             )
-        )
-
-    } catch (_: Exception) {
-
-        // Share fail होने पर app crash नहीं होगी।
+        } catch (_: Exception) {
+            // Share fail होने पर app crash नहीं होगी।
+        }
     }
-}
+
 }
