@@ -121,13 +121,6 @@ object CommonShareBuilder {
             append("\n")
             append(postUrl)
 
-            // DATE + TIME — BOLD
-            if (post.createdAt > 0L) {
-                append("\n\n*")
-                append(formatDateTime(post.createdAt))
-                append("*")
-            }
-
             // TITLE — BOLD
             if (post.title.isNotBlank()) {
                 append("\n\n*")
