@@ -103,6 +103,8 @@ object CommonShareBuilder {
      */
     
     fun buildText(
+    
+    fun buildText(
         post: ChannelPost,
         section: Section
     ): String {
@@ -111,54 +113,64 @@ object CommonShareBuilder {
 
         return buildString {
 
-            // SECTION HEADER
+            // SECTION HEADER — BOLD
+            append("*")
             append(sectionHeader(section))
+            append("*")
 
             // DIRECT POST LINK — TOP
-            append("\n\nपोस्ट देखें 👇")
+            append("\n\n*पोस्ट देखें 👇*")
             append("\n")
             append(postUrl)
 
-            // DATE + TIME
+            // DATE + TIME — BOLD
             if (post.createdAt > 0L) {
-                append("\n\n")
+                append("\n\n*")
                 append(formatDateTime(post.createdAt))
+                append("*")
             }
 
-            // TITLE
+            // TITLE — BOLD
             if (post.title.isNotBlank()) {
-                append("\n\n")
+                append("\n\n*")
                 append(post.title.trim())
+                append("*")
             }
 
-            // DESCRIPTION
+            // DESCRIPTION — BOLD
             if (post.body.isNotBlank()) {
-                append("\n\n")
+                append("\n\n*")
                 append(post.body.trim())
+                append("*")
             }
 
             // PDF / DOCUMENT
             if (post.fileUrl.isNotBlank()) {
-                append("\n\n📄 ")
+                append("\n\n*📄 ")
                 append(
                     post.fileName.ifBlank {
                         "PDF / Document"
                     }
                 )
-                append("\n")
+                append("*\n")
                 append(post.fileUrl)
             }
 
-            // OFFICIAL WEBSITE + APP DOWNLOAD MESSAGE
+            // OFFICIAL WEBSITE HEADING
             append("\n\n")
-            append("✅ शिक्षा रोजगार की Official Website 🌐")
+            append("*✅ शिक्षा रोजगार की Official Website 🌐*")
+
+            // URL — KEEP PLAIN FOR CLICKABILITY
             append("\nhttps://www.shiksharojgar.com/")
+
+            // APP DOWNLOAD MESSAGE — BOLD
             append(
-                "\n👈 यहां क्लिक करके 📱 Shiksha Rojgar App " +
-                    "डाउनलोड इंस्टॉल करें !"
+                "\n*👈 यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                    "डाउनलोड इंस्टॉल करें !*"
             )
         }
     }
+
 
 
     /**
