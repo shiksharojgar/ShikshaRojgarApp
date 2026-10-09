@@ -767,7 +767,97 @@ private fun addNoticeCard(
         )
     }
 
-    // --------------------------------------------------------
+// --------------------------------------------------------
+// SHARE THIS NOTICE
+// --------------------------------------------------------
+
+val noticeShareText =
+    buildString {
+
+        append(
+            "📱 Shiksha Rojgar App 🔔 Notice / Update"
+        )
+
+        append("\n\n")
+        append(title)
+
+        if (body.isNotBlank()) {
+            append("\n\n")
+            append(body)
+        }
+
+        if (linkUrl.isNotBlank()) {
+            append("\n\n")
+            append(linkLabel)
+            append("\n")
+            append(linkUrl)
+        }
+
+        append("\n\n🌐 Official Website")
+        append("\nhttps://www.shiksharojgar.com/")
+
+        append("\n\n📱 Download Shiksha Rojgar App")
+        append(
+            "\nhttps://www.shiksharojgar.com/2026/09/" +
+                "shiksha-rojgar-android-app-latest.html"
+        )
+    }
+
+card.addView(
+    TextView(this).apply {
+
+        text = "📤 Share ↗️"
+
+        textSize = 15f
+
+        typeface = Typeface.DEFAULT_BOLD
+
+        gravity = Gravity.CENTER
+
+        setTextColor(
+            Color.rgb(7, 89, 133)
+        )
+
+        setPadding(
+            dp(12),
+            dp(12),
+            dp(12),
+            dp(12)
+        )
+
+        setOnClickListener {
+
+            try {
+
+                val shareIntent =
+                    Intent(Intent.ACTION_SEND).apply {
+
+                        type = "text/plain"
+
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            noticeShareText
+                        )
+                    }
+
+                startActivity(
+                    Intent.createChooser(
+                        shareIntent,
+                        "Share Notice"
+                    )
+                )
+
+            } catch (_: Exception) {
+
+                Toast.makeText(
+                    this@NoticeActivity,
+                    "Notice शेयर नहीं हो सका।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+)    // --------------------------------------------------------
     // ADD CARD
     // --------------------------------------------------------
 
