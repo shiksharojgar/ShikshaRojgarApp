@@ -283,6 +283,92 @@ private fun adminActionButton(
         }
     }
 }
+
+private fun addFormattingToolbar(
+    box: LinearLayout,
+    bodyField: EditText
+) {
+    val toolbar = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    fun formatSelection(
+        prefix: String,
+        suffix: String = prefix
+    ) {
+        val start = bodyField.selectionStart
+        val end = bodyField.selectionEnd
+
+        if (start < 0 || end <= start) {
+            toast("पहले विवरण में टेक्स्ट चुनें")
+            return
+        }
+
+        val selected = bodyField.text
+            .subSequence(start, end)
+            .toString()
+
+        bodyField.text.replace(
+            start,
+            end,
+            prefix + selected + suffix
+        )
+
+        bodyField.setSelection(
+            start + prefix.length,
+            start + prefix.length + selected.length
+        )
+    }
+
+    toolbar.addView(
+        adminActionButton("B  बोल्ड") {
+            formatSelection("*")
+        }
+    )
+
+    toolbar.addView(
+        adminActionButton("H  हाइलाइट") {
+            formatSelection("`")
+        }
+    )
+
+    toolbar.addView(
+        adminActionButton("> हल्का") {
+            val start = bodyField.selectionStart
+            val end = bodyField.selectionEnd
+
+            if (start < 0 || end <= start) {
+                toast("पहले विवरण में टेक्स्ट चुनें")
+            } else {
+                val selected = bodyField.text
+                    .subSequence(start, end)
+                    .toString()
+
+                val quoted = selected
+                    .lines()
+                    .joinToString("\n") { "> $it" }
+
+                bodyField.text.replace(
+                    start,
+                    end,
+                    quoted
+                )
+            }
+        }
+    )
+
+    box.addView(
+        TextView(this).apply {
+            text = "टेक्स्ट चुनें, फिर फ़ॉर्मेटिंग बटन दबाएँ"
+            textSize = 11f
+            setTextColor(Color.DKGRAY)
+        }
+    )
+
+    box.addView(toolbar)
+}
+
     // =========================================================
     // LOGIN UI
     // =========================================================
