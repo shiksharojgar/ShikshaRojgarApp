@@ -101,66 +101,65 @@ object CommonShareBuilder {
      *
      * इसमें long URL दिखाई नहीं जाएगी।
      */
+    
     fun buildText(
-    post: ChannelPost,
-    section: Section
-): String {
+        post: ChannelPost,
+        section: Section
+    ): String {
 
-    val postUrl = directPostUrl(post.id)
+        val postUrl = directPostUrl(post.id)
 
-    return buildString {
+        return buildString {
 
-        // SECTION HEADER
-        append(sectionHeader(section))
+            // SECTION HEADER
+            append(sectionHeader(section))
 
-        // TITLE
-        if (post.title.isNotBlank()) {
-            append("\n\n")
-            append(post.title.trim())
-        }
-
-        // DATE + TIME
-        if (post.createdAt > 0L) {
-            append("\n\n")
-            append(formatDateTime(post.createdAt))
-        }
-
-        // DESCRIPTION
-        if (post.body.isNotBlank()) {
-            append("\n\n")
-            append(post.body.trim())
-        }
-
-        // PDF / DOCUMENT
-        if (post.fileUrl.isNotBlank()) {
-            append("\n\n📄 ")
-            append(
-                post.fileName.ifBlank {
-                    "PDF / Document"
-                }
-            )
+            // DIRECT POST LINK — TOP
+            append("\n\nपोस्ट देखें 👇")
             append("\n")
-            append(post.fileUrl)
+            append(postUrl)
+
+            // DATE + TIME
+            if (post.createdAt > 0L) {
+                append("\n\n")
+                append(formatDateTime(post.createdAt))
+            }
+
+            // TITLE
+            if (post.title.isNotBlank()) {
+                append("\n\n")
+                append(post.title.trim())
+            }
+
+            // DESCRIPTION
+            if (post.body.isNotBlank()) {
+                append("\n\n")
+                append(post.body.trim())
+            }
+
+            // PDF / DOCUMENT
+            if (post.fileUrl.isNotBlank()) {
+                append("\n\n📄 ")
+                append(
+                    post.fileName.ifBlank {
+                        "PDF / Document"
+                    }
+                )
+                append("\n")
+                append(post.fileUrl)
+            }
+
+            // OFFICIAL WEBSITE + APP DOWNLOAD MESSAGE
+            append("\n\n")
+            append("✅ शिक्षा रोजगार की Official Website 🌐")
+            append("\nhttps://www.shiksharojgar.com/")
+            append(
+                "\n👈 यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                    "डाउनलोड इंस्टॉल करें !"
+            )
         }
-
-        // OFFICIAL WEBSITE
-        append("\n\n🌐 Official Website")
-        append("\nhttps://www.shiksharojgar.com/")
-
-        // DOWNLOAD APP
-        append("\n\n📱 Download Shiksha Rojgar App")
-        append(
-            "\nhttps://www.shiksharojgar.com/2026/09/" +
-                "shiksha-rojgar-android-app-latest.html"
-        )
-
-        // VIEW SECTION / POST
-        append("\n\n")
-        append(section.viewText)
-        append("\n")
-        append(postUrl)
     }
-}
+
 
     /**
      * ============================================================
