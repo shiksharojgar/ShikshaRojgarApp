@@ -103,8 +103,6 @@ object CommonShareBuilder {
      */
     
     fun buildText(
-    
-    fun buildText(
         post: ChannelPost,
         section: Section
     ): String {
