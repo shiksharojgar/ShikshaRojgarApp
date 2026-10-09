@@ -6610,11 +6610,16 @@ if (selectedNoticeImage != null) {
                     "Category: आदेश/निर्देश"
             }
 
-        box.addView(
+                box.addView(
             title
         )
 
         box.addView(
+            body
+        )
+
+        addFormattingToolbar(
+            box,
             body
         )
 
@@ -8432,11 +8437,16 @@ private fun showAdminPostPreview(
                     p.commentsEnabled
             }
 
-        box.addView(
+                box.addView(
             title
         )
 
         box.addView(
+            body
+        )
+
+        addFormattingToolbar(
+            box,
             body
         )
 
