@@ -60,7 +60,7 @@ class HomeCategoryActivity : AppCompatActivity() {
             categoryId
         )
 
-        updateUnreadBadge()
+        
     }
 
     /*
@@ -217,192 +217,19 @@ class HomeCategoryActivity : AppCompatActivity() {
             )
         )
 
-        /*
-         * =====================================================
-         * COMMON BOTTOM BAR
-         * =====================================================
-         */
-        val bottomBar =
-            LinearLayout(this).apply {
+        
+/*
+ * =====================================================
+ * SHARED BOTTOM BAR
+ * =====================================================
+ */
+val bottomBar =
+    CommonPageUi.createBottomBar(
+        this,
+        CommonPageUi.Section.MORE
+    )
 
-                orientation =
-                    LinearLayout.HORIZONTAL
-
-                gravity =
-                    Gravity.CENTER
-
-                setPadding(
-                    dp(2),
-                    dp(4),
-                    dp(2),
-                    dp(4)
-                )
-
-                setBackgroundColor(
-                    Color.WHITE
-                )
-
-                elevation = 12f
-            }
-
-        /*
-         * HOME
-         */
-        val homeButton =
-            bottomButton(
-                "🏠\nHome"
-            ) {
-                goHome()
-            }
-
-        /*
-         * CHANNEL + BADGE
-         */
-        val channelBox =
-            FrameLayout(this)
-
-        val channelButton =
-            bottomButton(
-                "📢\nChannel"
-            ) {
-                startActivity(
-                    Intent(
-                        this,
-                        ChannelActivity::class.java
-                    )
-                )
-            }
-
-        channelBox.addView(
-            channelButton,
-            FrameLayout.LayoutParams(
-                -1,
-                dp(60)
-            )
-        )
-
-        unreadBadge =
-            TextView(this).apply {
-
-                text = ""
-
-                textSize = 12f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                gravity =
-                    Gravity.CENTER
-
-                setTextColor(
-                    Color.WHITE
-                )
-
-                setBackgroundColor(
-                    Color.RED
-                )
-
-                visibility =
-                    View.GONE
-            }
-
-        channelBox.addView(
-            unreadBadge,
-            FrameLayout.LayoutParams(
-                dp(26),
-                dp(22)
-            ).apply {
-
-                gravity =
-                    Gravity.TOP or
-                    Gravity.END
-
-                topMargin = 0
-                rightMargin = dp(4)
-            }
-        )
-
-        /*
-         * NOTICE
-         */
-        val noticeButton =
-            bottomButton(
-                "🔔\nNotice"
-            ) {
-                startActivity(
-                    Intent(
-                        this,
-                        NoticeActivity::class.java
-                    )
-                )
-            }
-
-        /*
-         * IMPORTANT INFORMATION
-         */
-        val impButton =
-            bottomButton(
-                "📌\nImp Info"
-            ) {
-                openImportantInformation()
-            }
-
-        /*
-         * MORE
-         */
-        val moreButton =
-            bottomButton(
-                "☰\nMore"
-            ) {
-                openMore()
-            }
-
-        bottomBar.addView(
-            homeButton,
-            LinearLayout.LayoutParams(
-                0,
-                dp(60),
-                1f
-            )
-        )
-
-        bottomBar.addView(
-            channelBox,
-            LinearLayout.LayoutParams(
-                0,
-                dp(60),
-                1f
-            )
-        )
-
-        bottomBar.addView(
-            noticeButton,
-            LinearLayout.LayoutParams(
-                0,
-                dp(60),
-                1f
-            )
-        )
-
-        bottomBar.addView(
-            impButton,
-            LinearLayout.LayoutParams(
-                0,
-                dp(60),
-                1f
-            )
-        )
-
-        bottomBar.addView(
-            moreButton,
-            LinearLayout.LayoutParams(
-                0,
-                dp(60),
-                1f
-            )
-        )
-
-        root.addView(
+root.addView(
     bottomBar,
     LinearLayout.LayoutParams(
         -1,
@@ -410,29 +237,26 @@ class HomeCategoryActivity : AppCompatActivity() {
     )
 )
 
-        /*
-         * =====================================================
-         * ANDROID 15 NAVIGATION INSET
-         * =====================================================
-         */
-        ViewCompat.setOnApplyWindowInsetsListener(
-            bottomBar
-        ) { view, insets ->
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
 
-            val navigationBottom =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.navigationBars()
-                ).bottom
+    val navigationBottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
 
-            view.setPadding(
-                view.paddingLeft,
-                view.paddingTop,
-                view.paddingRight,
-                navigationBottom + dp(4)
-            )
+    view.setPadding(
+        view.paddingLeft,
+        dp(4),
+        view.paddingRight,
+        navigationBottom + dp(4)
+    )
 
-            insets
-        }
+    insets
+}
+
+
 
         return root
     }
