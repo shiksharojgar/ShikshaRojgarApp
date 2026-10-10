@@ -2337,6 +2337,51 @@ homeContent.addView(
         bottomMargin = dp(3)
     }
 )
+
+        // =====================================================
+        // COMMON POST CREATOR
+        // =====================================================
+
+        homeContent.addView(
+            Button(this).apply {
+
+                text = "📝 COMMON POST CREATOR"
+
+                textSize = 12f
+
+                setTypeface(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+                )
+
+                setTextColor(Color.WHITE)
+
+                setBackgroundColor(
+                    Color.rgb(22, 125, 75)
+                )
+
+                minHeight = 0
+
+                setPadding(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+                )
+
+                setOnClickListener {
+                    showCommonPostCreator()
+                }
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(36)
+            ).apply {
+                topMargin = dp(3)
+                bottomMargin = dp(3)
+            }
+        )
+
         // =====================================================
         // MEDIA STORAGE + ANALYTICS
         // =====================================================
