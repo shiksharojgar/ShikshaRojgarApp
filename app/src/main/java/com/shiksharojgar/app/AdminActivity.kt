@@ -46,7 +46,7 @@ class AdminActivity : AppCompatActivity() {
     private val selectedPostIds = mutableSetOf<String>()
 
 private var adminSessionId: String? = null
-    
+    private var adminSessionListener: com.google.firebase.firestore.ListenerRegistration? = null
     private var phoneVerificationId: String? = null
     
 // =========================================================
@@ -1436,26 +1436,165 @@ showPanel()
     }
 
 private fun registerAdminSession(uid: String) {
-    val sessionRef = db.collection("admin_sessions").document()
+    val sessionRef =
+        db.collection("admin_sessions").document()
 
     val sessionData = hashMapOf<String, Any>(
         "uid" to uid,
         "email" to (auth.currentUser?.email ?: ""),
-        "deviceLabel" to "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}",
+        "deviceLabel" to
+            "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}",
         "appVersion" to "unknown",
-        "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
-        "lastSeenAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+        "createdAt" to
+            com.google.firebase.firestore.FieldValue.serverTimestamp(),
+        "lastSeenAt" to
+            com.google.firebase.firestore.FieldValue.serverTimestamp(),
         "revoked" to false
     )
 
     sessionRef.set(sessionData)
         .addOnSuccessListener {
             adminSessionId = sessionRef.id
+
+            adminSessionListener?.remove()
+            adminSessionListener =
+                sessionRef.addSnapshotListener { snapshot, error ->
+
+                    if (
+                        snapshot?.exists() == true &&
+                        snapshot.getBoolean("revoked") == true &&
+                        adminSessionId == sessionRef.id
+                    ) {
+                        adminSessionId = null
+                        adminSessionListener?.remove()
+                        adminSessionListener = null
+
+                        auth.signOut()
+                        setContentView(loginUi())
+
+                        Toast.makeText(
+                            this@AdminActivity,
+                            "यह Admin Session बंद कर दिया गया है।",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
         }
         .addOnFailureListener { error ->
             Toast.makeText(
                 this,
                 "Admin session दर्ज नहीं हुआ: ${error.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
+
+private fun showAdminSessionsDialog() {
+    db.collection("admin_sessions")
+        .get()
+        .addOnSuccessListener { result ->
+
+            val sessions = result.documents.sortedByDescending {
+                it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+            }
+
+            if (sessions.isEmpty()) {
+                Toast.makeText(
+                    this,
+                    "कोई Admin Session नहीं मिला।",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@addOnSuccessListener
+            }
+
+            val activeCount = sessions.count {
+                it.getBoolean("revoked") != true
+            }
+
+            val labels = sessions.mapIndexed { index, session ->
+                val device =
+                    session.getString("deviceLabel") ?: "Unknown device"
+                val email =
+                    session.getString("email") ?: "Email उपलब्ध नहीं"
+                val uid =
+                    session.getString("uid") ?: ""
+                val status =
+                    if (session.getBoolean("revoked") == true) {
+                        "बंद"
+                    } else {
+                        "चालू"
+                    }
+
+                "${index + 1}. $device\n$email\nUID: ${uid.take(8)}… | $status"
+            }
+
+            AlertDialog.Builder(this)
+                .setTitle(
+                    "🔐 Admin Sessions — चालू: $activeCount"
+                )
+                .setItems(labels.toTypedArray()) { _, which ->
+
+                    val selected = sessions[which]
+                    val sessionId = selected.id
+                    val isRevoked =
+                        selected.getBoolean("revoked") == true
+                    val device =
+                        selected.getString("deviceLabel")
+                            ?: "Unknown device"
+                    val email =
+                        selected.getString("email") ?: ""
+
+                    if (isRevoked) {
+                        Toast.makeText(
+                            this,
+                            "यह Session पहले से बंद है।",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        AlertDialog.Builder(this)
+                            .setTitle("Session बंद करें?")
+                            .setMessage(
+                                "डिवाइस: $device\n$email\n\n" +
+                                    "इस डिवाइस का Admin Session बंद किया जाएगा।"
+                            )
+                            .setNegativeButton("रद्द करें", null)
+                            .setPositiveButton("बंद करें") { _, _ ->
+
+                                db.collection("admin_sessions")
+                                    .document(sessionId)
+                                    .update(
+                                        mapOf(
+                                            "revoked" to true,
+                                            "revokedAt" to
+                                                com.google.firebase.firestore
+                                                    .FieldValue.serverTimestamp()
+                                        )
+                                    )
+                                    .addOnSuccessListener {
+                                        Toast.makeText(
+                                            this,
+                                            "Session बंद कर दिया गया।",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    .addOnFailureListener { error ->
+                                        Toast.makeText(
+                                            this,
+                                            "Session बंद नहीं हुआ: ${error.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                            }
+                            .show()
+                    }
+                }
+                .setNegativeButton("बंद", null)
+                .show()
+        }
+        .addOnFailureListener { error ->
+            Toast.makeText(
+                this,
+                "Sessions लोड नहीं हुए: ${error.message}",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -1580,7 +1719,30 @@ private fun registerAdminSession(uid: String) {
                 rightMargin = dp(5)
             }
         )
+topRow.addView(
+            Button(this).apply {
+                text = "🔐 Sessions"
+                textSize = 10f
+                minHeight = 0
 
+                setPadding(
+                    dp(3),
+                    0,
+                    dp(3),
+                    0
+                )
+
+                setOnClickListener {
+                    showAdminSessionsDialog()
+                }
+            },
+            LinearLayout.LayoutParams(
+                dp(105),
+                dp(38)
+            ).apply {
+                rightMargin = dp(5)
+            }
+        )
         globalSwitch =
             Switch(this).apply {
 
