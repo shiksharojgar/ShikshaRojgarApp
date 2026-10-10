@@ -171,18 +171,26 @@ object CategoryPostRepository {
             }
     }
 
-    // केवल चुनी हुई पोस्ट हटाएँ।
+
+    // केवल चुनी हुई पोस्ट हटाएँ और अप्रयुक्त मीडिया साफ करें।
     fun deletePost(
         postId: String,
         onResult: (Boolean, String?) -> Unit
     ) {
-        postsRef.document(postId)
-            .delete()
-            .addOnSuccessListener {
+        if (postId.isBlank()) {
+            onResult(false, "पोस्ट ID खाली है")
+            return
+        }
+
+        ChannelRepository.deleteCategoryPost(postId) { success ->
+            if (success) {
                 onResult(true, null)
+            } else {
+                onResult(
+                    false,
+                    "पोस्ट डिलीट नहीं हुई या मीडिया साफ नहीं हो पाया"
+                )
             }
-            .addOnFailureListener { error ->
-                onResult(false, error.message)
-            }
+        }
     }
-}
+
