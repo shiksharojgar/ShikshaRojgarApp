@@ -39,23 +39,44 @@ object CategoryPostRepository {
                         return@mapNotNull null
                     }
 
+                    
                     CategoryPost(
                         id = doc.id,
                         category = postCategory,
                         title = doc.getString("title").orEmpty(),
                         body = doc.getString("body").orEmpty(),
+                        description = doc.getString("description").orEmpty(),
+                        bodyBold = doc.getBoolean("bodyBold") ?: false,
+                        bodyHighlight = doc.getBoolean("bodyHighlight") ?: false,
+                        bodyColor = doc.getString("bodyColor") ?: "#222222",
+                        buttons = (doc.get("buttons") as? List<*>)
+                            .orEmpty()
+                            .mapNotNull { item ->
+                                val button = item as? Map<*, *>
+                                    ?: return@mapNotNull null
+
+                                CategoryPostButton(
+                                    label = button["label"] as? String ?: "",
+                                    url = button["url"] as? String ?: "",
+                                    backgroundColor = button["backgroundColor"] as? String
+                                        ?: "#1976D2",
+                                    textColor = button["textColor"] as? String
+                                        ?: "#FFFFFF",
+                                    enabled = button["enabled"] as? Boolean
+                                        ?: true
+                                )
+                            },
                         imageUrl = doc.getString("imageUrl").orEmpty(),
                         fileUrl = doc.getString("fileUrl").orEmpty(),
                         fileName = doc.getString("fileName").orEmpty(),
-                        imageMime = doc.getString("imageMime")
-                            ?: "image/jpeg",
-                        fileMime = doc.getString("fileMime")
-                            ?: "application/pdf",
+                        imageMime = doc.getString("imageMime") ?: "image/jpeg",
+                        fileMime = doc.getString("fileMime") ?: "application/pdf",
                         createdAt = doc.getLong("createdAt") ?: 0L,
                         pinned = doc.getBoolean("pinned") ?: false,
                         pinOrder = doc.getLong("pinOrder") ?: 0L,
                         enabled = doc.getBoolean("enabled") ?: true
                     )
+
                 }
                 .filter { it.enabled }
                 .sortedWith(
@@ -89,10 +110,24 @@ object CategoryPostRepository {
         )
 
         document.set(
+            
             mapOf(
                 "category" to savedPost.category,
                 "title" to savedPost.title,
                 "body" to savedPost.body,
+                "description" to savedPost.description,
+                "bodyBold" to savedPost.bodyBold,
+                "bodyHighlight" to savedPost.bodyHighlight,
+                "bodyColor" to savedPost.bodyColor,
+                "buttons" to savedPost.buttons.map { button ->
+                    mapOf(
+                        "label" to button.label,
+                        "url" to button.url,
+                        "backgroundColor" to button.backgroundColor,
+                        "textColor" to button.textColor,
+                        "enabled" to button.enabled
+                    )
+                },
                 "imageUrl" to savedPost.imageUrl,
                 "fileUrl" to savedPost.fileUrl,
                 "fileName" to savedPost.fileName,
@@ -103,6 +138,7 @@ object CategoryPostRepository {
                 "pinOrder" to savedPost.pinOrder,
                 "enabled" to savedPost.enabled
             )
+
         ).addOnSuccessListener {
             onResult(true, document.id)
         }.addOnFailureListener { error ->
