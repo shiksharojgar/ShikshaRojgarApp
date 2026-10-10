@@ -1241,79 +1241,64 @@ object ChannelRepository {
     // ---------------------------------------------------------
 
     private fun deleteMediaIfUnused(
+    
+    private fun deleteMediaIfUnused(
         mediaUrl: String,
         done: (Boolean) -> Unit
     ) {
-
-        if (
-            !mediaUrl.startsWith(
-                "firestore-media://"
-            )
-        ) {
-
+        if (!mediaUrl.startsWith("firestore-media://")) {
             done(true)
             return
         }
 
-        val mediaId =
-            mediaUrl.removePrefix(
-                "firestore-media://"
-            )
-
+        val mediaId = mediaUrl.removePrefix("firestore-media://")
         if (mediaId.isBlank()) {
-
             done(true)
             return
         }
 
-        val imageQuery =
-            db.collection("channel_posts")
-                .whereEqualTo(
-                    "imageUrl",
-                    mediaUrl
-                )
-                .get()
+        val channelImage = db.collection("channel_posts")
+            .whereEqualTo("imageUrl", mediaUrl)
+            .get()
 
-        val fileQuery =
-            db.collection("channel_posts")
-                .whereEqualTo(
-                    "fileUrl",
-                    mediaUrl
-                )
-                .get()
+        val channelFile = db.collection("channel_posts")
+            .whereEqualTo("fileUrl", mediaUrl)
+            .get()
 
-        imageQuery
-            .addOnSuccessListener { imageSnap ->
+        val categoryImage = db.collection("category_posts")
+            .whereEqualTo("imageUrl", mediaUrl)
+            .get()
 
-                fileQuery
-                    .addOnSuccessListener { fileSnap ->
+        val categoryFile = db.collection("category_posts")
+            .whereEqualTo("fileUrl", mediaUrl)
+            .get()
 
-                        val stillReferenced =
-                            imageSnap.documents.isNotEmpty() ||
-                                    fileSnap.documents.isNotEmpty()
+        Tasks.whenAll(
+            channelImage,
+            channelFile,
+            categoryImage,
+            categoryFile
+        )
+            .addOnSuccessListener {
+                val stillReferenced =
+                    !channelImage.result.isEmpty ||
+                    !channelFile.result.isEmpty ||
+                    !categoryImage.result.isEmpty ||
+                    !categoryFile.result.isEmpty
 
-                        if (stillReferenced) {
+                if (stillReferenced) {
+                    done(true)
+                    return@addOnSuccessListener
+                }
 
-                            // Another post still uses it.
-                            done(true)
-                            return@addOnSuccessListener
-                        }
-
-                        deleteMediaDocumentAndChunks(
-                            mediaId,
-                            done
-                        )
-                    }
-                    .addOnFailureListener {
-
-                        done(false)
-                    }
+                deleteMediaDocumentAndChunks(mediaId, done)
             }
             .addOnFailureListener {
-
+                // जाँच असफल हो तो मीडिया सुरक्षित रखें।
                 done(false)
             }
     }
+
 
     // ---------------------------------------------------------
     // DELETE MEDIA DOCUMENT + CHUNKS
