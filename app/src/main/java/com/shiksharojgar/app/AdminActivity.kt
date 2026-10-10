@@ -4991,11 +4991,29 @@ private fun moveSubCategory(
         }
         box.addView(descriptionField)
 
+        
+        val imageButton = Button(this).apply {
+            text = "🖼️ फोटो चुनें"
+            setOnClickListener {
+                pickCommonPostImage.launch("image/*")
+            }
+        }
+        box.addView(imageButton)
+
+        val fileButton = Button(this).apply {
+            text = "📄 PDF / File चुनें"
+            setOnClickListener {
+                pickCommonPostFile.launch("*/*")
+            }
+        }
+        box.addView(fileButton)
+
         box.addView(
             adminSectionNote(
-                "अभी शीर्षक, मुख्य टेक्स्ट और विवरण सेव होंगे। फोटो, PDF, रंगीन लिंक बटन और पोस्ट की पूरी सूची अगले चरणों में जोड़ेंगे।"
+                "फोटो और PDF चुनने के विकल्प तैयार हैं। अगला चरण इन्हें पोस्ट सेव करते समय अपलोड करना है।"
             )
         )
+
 
         AlertDialog.Builder(this)
             .setTitle("📝 Common Post Creator")
