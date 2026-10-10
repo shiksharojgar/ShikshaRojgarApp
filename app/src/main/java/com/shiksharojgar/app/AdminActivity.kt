@@ -2105,43 +2105,22 @@ pageManager.addView(
     )
 )
 
-// 3. Notice / Update
+ // 4. Implementation Information — Full Width
 pageRow2.addView(
     adminActionButton(
-        "📢  Notice / Update"
+        "📌  Important Information / Imp Info"
     ) {
         editHomePage(
-            "notices",
-            "Notice / Update"
+            "important_information",
+            "Implementation Information"
         )
     },
     LinearLayout.LayoutParams(
-        0,
         -1,
-        1f
-    ).apply {
-        rightMargin = dp(3)
-    }
+        -1
+    )
 )
 
-// 4. Implementation Information
-pageRow2.addView(
-    adminActionButton(
-        "📌  Implementation Information"
-    ) {
-        editHomePage(
-    "important_information",
-    "Implementation Information"
-)
-    },
-    LinearLayout.LayoutParams(
-        0,
-        -1,
-        1f
-    ).apply {
-        leftMargin = dp(3)
-    }
-)
 
 homeContent.addView(pageManager)
 // =====================================================
