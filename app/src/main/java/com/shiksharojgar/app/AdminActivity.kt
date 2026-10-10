@@ -5050,37 +5050,132 @@ private fun moveSubCategory(
                             categorySpinner.selectedItemPosition
                         ].second
 
+                         
                         dialog.getButton(
                             AlertDialog.BUTTON_POSITIVE
                         ).isEnabled = false
 
-                        CategoryPostRepository.savePost(
-                            CategoryPost(
-                                category = category,
-                                title = title,
-                                body = body,
-                                description = description
-                            )
-                        ) { success, message ->
+                        val selectedImage = commonPostImageUri
+                        val selectedFile = commonPostFileUri
 
-                            runOnUiThread {
+                        fun savePostWithMedia(
+                            imageUrl: String = "",
+                            fileUrl: String = ""
+                        ) {
+                            val fileMime = selectedFile
+                                ?.let { contentResolver.getType(it) }
+                                ?: "application/pdf"
 
-                                if (success) {
-                                    dialog.dismiss()
-                                    toast("पोस्ट सेव हो गई")
-                                } else {
-                                    dialog.getButton(
-                                        AlertDialog.BUTTON_POSITIVE
-                                    ).isEnabled = true
+                            val fileName = selectedFile?.let { uri ->
+                                contentResolver.query(
+                                    uri,
+                                    arrayOf(OpenableColumns.DISPLAY_NAME),
+                                    null,
+                                    null,
+                                    null
+                                )?.use { cursor ->
+                                    if (cursor.moveToFirst()) {
+                                        cursor.getString(0).orEmpty()
+                                    } else {
+                                        ""
+                                    }
+                                }.orEmpty()
+                            }.orEmpty()
 
-                                    toast(
-                                        "पोस्ट सेव नहीं हुई: ${
-                                            message ?: "Firestore error"
-                                        }"
-                                    )
+                            CategoryPostRepository.savePost(
+                                CategoryPost(
+                                    category = category,
+                                    title = title,
+                                    body = body,
+                                    description = description,
+                                    imageUrl = imageUrl,
+                                    imageMime = selectedImage
+                                        ?.let { contentResolver.getType(it) }
+                                        ?: "image/jpeg",
+                                    fileUrl = fileUrl,
+                                    fileName = fileName,
+                                    fileMime = fileMime
+                                )
+                            ) { success, message ->
+                                runOnUiThread {
+                                    if (success) {
+                                        commonPostImageUri = null
+                                        commonPostFileUri = null
+                                        dialog.dismiss()
+                                        toast("पोस्ट सेव हो गई")
+                                    } else {
+                                        dialog.getButton(
+                                            AlertDialog.BUTTON_POSITIVE
+                                        ).isEnabled = true
+                                        toast(
+                                            "पोस्ट सेव नहीं हुई: ${
+                                                message ?: "Firestore error"
+                                            }"
+                                        )
+                                    }
                                 }
                             }
                         }
+
+                        fun uploadSelectedFile(
+                            imageUrl: String
+                        ) {
+                            if (selectedFile == null) {
+                                savePostWithMedia(imageUrl)
+                                return
+                            }
+
+                            ChannelRepository.upload(
+                                selectedFile,
+                                "category_documents"
+                            ) { uploadedUrl, error ->
+                                if (uploadedUrl != null) {
+                                    savePostWithMedia(
+                                        imageUrl,
+                                        uploadedUrl
+                                    )
+                                } else {
+                                    runOnUiThread {
+                                        dialog.getButton(
+                                            AlertDialog.BUTTON_POSITIVE
+                                        ).isEnabled = true
+                                        toast(
+                                            "PDF/File अपलोड नहीं हुई: ${
+                                                error ?: "Upload error"
+                                            }"
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        if (selectedImage != null) {
+                            ChannelRepository.upload(
+                                selectedImage,
+                                "category_images"
+                            ) { uploadedUrl, error ->
+                                if (uploadedUrl != null) {
+                                    uploadSelectedFile(uploadedUrl)
+                                } else {
+                                    runOnUiThread {
+                                        dialog.getButton(
+                                            AlertDialog.BUTTON_POSITIVE
+                                        ).isEnabled = true
+                                        toast(
+                                            "फोटो अपलोड नहीं हुई: ${
+                                                error ?: "Upload error"
+                                            }"
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            uploadSelectedFile("")
+                        }
+           
+                                
+                            
+                        
                     }
                 }
 
