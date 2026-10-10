@@ -7,6 +7,7 @@ data class CategoryPost(
     val title: String = "",
     val body: String = "",
     val description: String = "",
+    val websiteUrl: String = "",
     val bodyBold: Boolean = false,
     val bodyHighlight: Boolean = false,
     val bodyColor: String = "#222222",
