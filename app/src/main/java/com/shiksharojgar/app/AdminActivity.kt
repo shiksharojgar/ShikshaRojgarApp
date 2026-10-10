@@ -45,6 +45,8 @@ class AdminActivity : AppCompatActivity() {
 
     private val selectedPostIds = mutableSetOf<String>()
 
+private var adminSessionId: String? = null
+    
     private var phoneVerificationId: String? = null
     
 // =========================================================
@@ -239,9 +241,6 @@ private fun adminSectionNote(
         )
     }
 }
-
-
-private fun adminActionButton(
 
 private fun adminActionButton(
     textValue: String,
@@ -1294,14 +1293,17 @@ private fun addFormattingToolbar(
                         roleValue ?: "null"
                     }"
 
-            if (isAdmin) {
+            
+if (isAdmin) {
 
-                if (autoContinue) {
+    if (autoContinue) {
 
-                    showPanel()
+        registerAdminSession(uid)
+        showPanel()
 
-                    return
-                }
+        return
+    }
+
 
                 val verificationSource =
                     if (firestoreAdmin) {
@@ -1323,7 +1325,8 @@ private fun addFormattingToolbar(
                         "CONTINUE"
                     ) { _, _ ->
 
-                        showPanel()
+                        registerAdminSession(uid)
+showPanel()
                     }
                     .setOnCancelListener {
 
@@ -1431,6 +1434,32 @@ private fun addFormattingToolbar(
                     .show()
             }
     }
+
+private fun registerAdminSession(uid: String) {
+    val sessionRef = db.collection("admin_sessions").document()
+
+    val sessionData = hashMapOf<String, Any>(
+        "uid" to uid,
+        "email" to (auth.currentUser?.email ?: ""),
+        "deviceLabel" to "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}",
+        "appVersion" to "unknown",
+        "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+        "lastSeenAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+        "revoked" to false
+    )
+
+    sessionRef.set(sessionData)
+        .addOnSuccessListener {
+            adminSessionId = sessionRef.id
+        }
+        .addOnFailureListener { error ->
+            Toast.makeText(
+                this,
+                "Admin session दर्ज नहीं हुआ: ${error.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
 
         // =========================================================
     // ADMIN PANEL
