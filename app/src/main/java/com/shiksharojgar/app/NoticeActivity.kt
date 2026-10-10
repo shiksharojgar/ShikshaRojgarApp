@@ -301,7 +301,7 @@ private fun loadNotices() {
                         )
                     }
                 )
-
+                loadCommonNoticePosts()
                 return@addOnSuccessListener
             }
 
@@ -754,6 +754,177 @@ card.addView(
                 dp(8)
         }
     )
+}
+
+private fun loadCommonNoticePosts() {
+
+    db.collection("category_posts")
+        .get()
+        .addOnSuccessListener { snapshot ->
+
+            val posts = snapshot.documents
+                .filter { doc ->
+                    doc.getString("category") == "notice" &&
+                    (doc.getBoolean("enabled") ?: true)
+                }
+                .sortedWith(
+                    compareByDescending<com.google.firebase.firestore.DocumentSnapshot> {
+                        it.getBoolean("pinned") ?: false
+                    }.thenByDescending {
+                        it.getLong("pinOrder") ?: 0L
+                    }.thenByDescending {
+                        it.getLong("createdAt") ?: 0L
+                    }
+                )
+
+            if (posts.isNotEmpty()) {
+                if (
+                    listBox.childCount == 1 &&
+                    (listBox.getChildAt(0) as? TextView)
+                        ?.text?.toString() ==
+                    "अभी कोई नया Notice / Update उपलब्ध नहीं है।"
+                ) {
+                    listBox.removeAllViews()
+                }
+            }
+
+            posts.forEach { doc ->
+
+                val title = doc.getString("title")
+                    .orEmpty()
+                    .ifBlank { "Notice / Update" }
+
+                val body = doc.getString("body").orEmpty()
+                val description =
+                    doc.getString("description").orEmpty()
+                val imageUrl =
+                    doc.getString("imageUrl").orEmpty()
+                val websiteUrl =
+                    doc.getString("websiteUrl").orEmpty().trim()
+
+                val card = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(14), dp(14), dp(14), dp(14))
+                    setBackgroundColor(Color.WHITE)
+                }
+
+                card.addView(
+                    TextView(this).apply {
+                        text = title
+                        textSize = 20f
+                        typeface = Typeface.DEFAULT_BOLD
+                        setTextColor(Color.rgb(7, 89, 133))
+                        setPadding(0, 0, 0, dp(8))
+                    }
+                )
+
+                if (imageUrl.isNotBlank()) {
+                    val image = ImageView(this).apply {
+                        adjustViewBounds = true
+                        scaleType = ImageView.ScaleType.FIT_CENTER
+                    }
+
+                    card.addView(
+                        image,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            dp(220)
+                        ).apply {
+                            bottomMargin = dp(10)
+                        }
+                    )
+
+                    ChannelRepository.loadImage(imageUrl) { bitmap, _ ->
+                        runOnUiThread {
+                            if (bitmap != null) {
+                                image.setImageBitmap(bitmap)
+                            }
+                        }
+                    }
+                }
+
+                if (body.isNotBlank()) {
+                    card.addView(
+                        TextView(this).apply {
+                            text = body
+                            textSize = 16f
+                            setTextColor(Color.rgb(30, 41, 59))
+                            setPadding(0, dp(4), 0, dp(8))
+                        }
+                    )
+                }
+
+                if (description.isNotBlank()) {
+                    card.addView(
+                        TextView(this).apply {
+                            text = description
+                            textSize = 15f
+                            setTextColor(Color.rgb(71, 85, 105))
+                            setPadding(0, 0, 0, dp(8))
+                        }
+                    )
+                }
+
+                if (websiteUrl.isNotBlank()) {
+                    card.addView(
+                        TextView(this).apply {
+                            text = "🌐 वेबसाइट खोलें"
+                            textSize = 16f
+                            typeface = Typeface.DEFAULT_BOLD
+                            setTextColor(Color.rgb(25, 118, 210))
+                            setPadding(0, dp(8), 0, dp(8))
+
+                            setOnClickListener {
+                                try {
+                                    val url = if (
+                                        websiteUrl.startsWith("https://",
+                                            ignoreCase = true
+                                        ) ||
+                                        websiteUrl.startsWith("http://",
+                                            ignoreCase = true
+                                        )
+                                    ) {
+                                        websiteUrl
+                                    } else {
+                                        "https://$websiteUrl"
+                                    }
+
+                                    startActivity(
+                                        Intent(
+                                            this@NoticeActivity,
+                                            WebViewActivity::class.java
+                                        ).putExtra("url", url)
+                                    )
+                                } catch (_: Exception) {
+                                    Toast.makeText(
+                                        this@NoticeActivity,
+                                        "वेबसाइट लिंक नहीं खुल सका।",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    )
+                }
+
+                listBox.addView(
+                    card,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = dp(12)
+                    }
+                )
+            }
+        }
+        .addOnFailureListener { error ->
+            Toast.makeText(
+                this,
+                "नई पोस्ट लोड नहीं हुई: ${error.message ?: "Firestore error"}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 }
 
 // ============================================================
