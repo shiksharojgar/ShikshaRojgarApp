@@ -647,26 +647,18 @@ fun createHeader(
         /*
          * MORE
          */
-        
-val more =
-    createBottomButton(
-        context,
-        "☰\nMore ▼",
-        
-activeSection != Section.HOME &&
-    activeSection != Section.CHANNEL &&
-    activeSection != Section.NOTICE &&
-    activeSection != Section.IMP_INFO
-
-    ) {
-        showMoreMenu(context)
-    }
-
-
-                showMoreMenu(
-                    context
-                )
+        val more =
+            createBottomButton(
+                context,
+                "☰\nMore ▼",
+                activeSection != Section.HOME &&
+                    activeSection != Section.CHANNEL &&
+                    activeSection != Section.NOTICE &&
+                    activeSection != Section.IMP_INFO
+            ) {
+                showMoreMenu(context)
             }
+
 
         bottom.addView(
             home,
