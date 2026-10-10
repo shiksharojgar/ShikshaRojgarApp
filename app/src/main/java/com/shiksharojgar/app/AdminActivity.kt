@@ -5126,6 +5126,7 @@ if (publishToChannel.isChecked) {
         "title" to title,
         "body" to body,
         "description" to description,
+        "websiteUrl" to websiteUrl,
         "published" to true,
         "postType" to if (
             imageUrl.isNotBlank() || fileUrl.isNotBlank()
