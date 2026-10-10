@@ -82,9 +82,9 @@ ViewCompat.setOnApplyWindowInsetsListener(
 
     view.setPadding(
         view.paddingLeft,
-        dp(4),
+        dp 4,
         view.paddingRight,
-        bottom + dp(4)
+        bottom + dp 4
     )
 
     insets
@@ -92,22 +92,7 @@ ViewCompat.setOnApplyWindowInsetsListener(
 
 
         ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.webBottomBar)
-        ) { view, insets ->
-
-            val bottom = insets.getInsets(
-                WindowInsetsCompat.Type.navigationBars()
-            ).bottom
-
-            view.setPadding(
-                view.paddingLeft,
-                5,
-                view.paddingRight,
-                bottom + 8
-            )
-
-            insets
-        }
+        
 
         /*
          * =========================================================
@@ -247,12 +232,8 @@ ViewCompat.setOnApplyWindowInsetsListener(
      * =========================================================
      */
 
-    override fun onResume() {
+        override fun onResume() {
         super.onResume()
-
-        if (::unreadBadge.isInitialized) {
-            updateUnreadBadge()
-        }
     }
 
     /*
@@ -276,42 +257,8 @@ ViewCompat.setOnApplyWindowInsetsListener(
         loadingOverlay.visibility = View.GONE
     }
 
-    /*
-     * =========================================================
-     * CHANNEL UNREAD BADGE
-     * =========================================================
-     */
 
-    private fun updateUnreadBadge() {
 
-        if (!::unreadBadge.isInitialized) return
-
-        val prefs = getSharedPreferences(
-            "sr_notifications",
-            Context.MODE_PRIVATE
-        )
-
-        val unread = prefs.getInt(
-            "channel_unread",
-            0
-        )
-
-        if (unread > 0) {
-
-            unreadBadge.text =
-                if (unread > 99) {
-                    "99+"
-                } else {
-                    unread.toString()
-                }
-
-            unreadBadge.visibility = View.VISIBLE
-
-        } else {
-
-            unreadBadge.visibility = View.GONE
-        }
-    }
 
     /*
      * =========================================================
