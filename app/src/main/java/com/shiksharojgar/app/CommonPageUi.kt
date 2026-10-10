@@ -516,7 +516,7 @@ fun createHeader(
             channel,
             FrameLayout.LayoutParams(
                 -1,
-                dp(context, 60)
+                dp(context, 50)
             )
         )
 
