@@ -196,3 +196,4 @@ bodyBold = doc.getBoolean("bodyBold") ?: false,
         }
     }
 
+}
