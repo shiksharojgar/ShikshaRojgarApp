@@ -612,6 +612,93 @@ fun createHeader(
     }
 )
 
+        // =====================================================
+        // CHANNEL UNREAD BADGE: OTHER PAGES AUTO-REFRESH
+        // =====================================================
+        val unreadReceiver =
+            object : android.content.BroadcastReceiver() {
+
+                override fun onReceive(
+                    receiverContext: Context?,
+                    intent: Intent?
+                ) {
+                    if (
+                        intent?.action !=
+                        "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+                    ) {
+                        return
+                    }
+
+                    if (
+                        activeSection ==
+                        Section.CHANNEL
+                    ) {
+                        badge.visibility = View.GONE
+                        return
+                    }
+
+                    val unread =
+                        receiverContext
+                            ?.getSharedPreferences(
+                                "sr_notifications",
+                                Context.MODE_PRIVATE
+                            )
+                            ?.getInt(
+                                "channel_unread",
+                                0
+                            ) ?: 0
+
+                    if (unread > 0) {
+                        badge.text =
+                            if (unread > 99) {
+                                "99+"
+                            } else {
+                                unread.toString()
+                            }
+
+                        badge.visibility = View.VISIBLE
+                    } else {
+                        badge.visibility = View.GONE
+                    }
+                }
+            }
+
+        var unreadReceiverRegistered = false
+
+        channelBox.addOnAttachStateChangeListener(
+            object : View.OnAttachStateChangeListener {
+
+                override fun onViewAttachedToWindow(
+                    view: View
+                ) {
+                    if (!unreadReceiverRegistered) {
+                        androidx.core.content.ContextCompat.registerReceiver(
+                            context,
+                            unreadReceiver,
+                            android.content.IntentFilter(
+                                "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+                            ),
+                            androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+                        )
+
+                        unreadReceiverRegistered = true
+                    }
+                }
+
+                override fun onViewDetachedFromWindow(
+                    view: View
+                ) {
+                    if (unreadReceiverRegistered) {
+                        context.unregisterReceiver(
+                            unreadReceiver
+                        )
+
+                        unreadReceiverRegistered = false
+                    }
+                }
+            }
+        )
+
         /*
          * NOTICE
          */
