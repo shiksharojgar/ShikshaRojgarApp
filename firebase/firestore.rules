@@ -177,7 +177,14 @@ service cloud.firestore {
         );
     }
 
+    // =====================================================
+    // COMMON CATEGORY POSTS
+    // =====================================================
 
+    match /category_posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
     // =====================================================
     // CHANNEL POSTS
     // =====================================================
