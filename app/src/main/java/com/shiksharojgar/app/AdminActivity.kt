@@ -242,39 +242,70 @@ private fun adminSectionNote(
 
 
 private fun adminActionButton(
+
+private fun adminActionButton(
     textValue: String,
     click: () -> Unit
 ): Button {
+
+    val buttonColor = when {
+        textValue.contains("DELETE", ignoreCase = true) ||
+        textValue.contains("🗑") ->
+            Color.rgb(185, 35, 35)
+
+        textValue.contains("SAVE", ignoreCase = true) ||
+        textValue.contains("PUBLISH", ignoreCase = true) ||
+        textValue.contains("💾") ->
+            Color.rgb(22, 125, 75)
+
+        textValue.contains("EDIT", ignoreCase = true) ||
+        textValue.contains("✏") ->
+            Color.rgb(124, 58, 237)
+
+        textValue.contains("HOME", ignoreCase = true) ||
+        textValue.contains("🏠") ->
+            Color.rgb(2, 132, 199)
+
+        textValue.contains("NOTICE", ignoreCase = true) ||
+        textValue.contains("📢") ->
+            Color.rgb(217, 119, 6)
+
+        textValue.contains("MEDIA", ignoreCase = true) ||
+        textValue.contains("📷") ||
+        textValue.contains("🎥") ->
+            Color.rgb(13, 148, 136)
+
+        textValue.contains("ANALYTICS", ignoreCase = true) ||
+        textValue.contains("📊") ->
+            Color.rgb(71, 85, 105)
+
+        else ->
+            Color.rgb(7, 89, 133)
+    }
 
     return Button(this).apply {
 
         text = textValue
 
-        textSize = 12f
+        textSize = 11f
 
-        typeface =
-            Typeface.DEFAULT_BOLD
+        typeface = Typeface.DEFAULT_BOLD
 
-        setTextColor(
-            Color.WHITE
-        )
+        setTextColor(Color.WHITE)
 
-        setBackgroundColor(
-            Color.rgb(
-                7,
-                89,
-                133
+        setBackgroundTintList(
+            android.content.res.ColorStateList.valueOf(
+                buttonColor
             )
         )
 
         minHeight = 0
-
         minimumHeight = 0
 
         setPadding(
-            dp(8),
+            dp(5),
             0,
-            dp(8),
+            dp(5),
             0
         )
 
@@ -283,6 +314,7 @@ private fun adminActionButton(
         }
     }
 }
+
 
 private fun addFormattingToolbar(
     box: LinearLayout,
