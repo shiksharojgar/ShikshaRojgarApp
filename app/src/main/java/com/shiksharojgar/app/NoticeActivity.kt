@@ -178,167 +178,23 @@ private fun buildUi(): LinearLayout {
     )
 )
 
+
 /*
- * BOTTOM NAVIGATION
+ * ============================================================
+ * SHARED FIVE-BUTTON BOTTOM BAR
+ * ============================================================
  */
 val bottomBar =
-    LinearLayout(this).apply {
-
-        orientation =
-            LinearLayout.HORIZONTAL
-
-        gravity =
-            Gravity.CENTER
-
-        setPadding(
-            dp(6),
-            dp(6),
-            dp(6),
-            dp(6)
-        )
-
-        setBackgroundColor(
-            Color.WHITE
-        )
-
-        elevation = 10f
-    }
-
-val homeButton =
-    TextView(this).apply {
-
-        text = "⌂\nHome"
-
-        textSize = 12f
-
-        gravity =
-            Gravity.CENTER
-
-        setTextColor(
-            Color.rgb(
-                7,
-                89,
-                133
-            )
-        )
-
-        setOnClickListener {
-
-            val intent =
-                Intent(
-                    this@NoticeActivity,
-                    MainActivity::class.java
-                ).apply {
-
-                    flags =
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-
-            startActivity(intent)
-
-            finish()
-        }
-    }
-
-val shareButton =
-    TextView(this).apply {
-
-        text = "↗\nShare"
-
-        textSize = 12f
-
-        gravity =
-            Gravity.CENTER
-
-        setTextColor(
-            Color.rgb(
-                7,
-                89,
-                133
-            )
-        )
-
-        setOnClickListener {
-
-            val shareText =
-                "📢 Notice / Update\n\nShiksha Rojgar App"
-
-            startActivity(
-                Intent.createChooser(
-                    Intent(
-                        Intent.ACTION_SEND
-                    ).apply {
-
-                        type =
-                            "text/plain"
-
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            shareText
-                        )
-                    },
-                    "Share"
-                )
-            )
-        }
-    }
-
-val backButton =
-    TextView(this).apply {
-
-        text = "‹\nBack"
-
-        textSize = 12f
-
-        gravity =
-            Gravity.CENTER
-
-        setTextColor(
-            Color.rgb(
-                7,
-                89,
-                133
-            )
-        )
-
-        setOnClickListener {
-            finish()
-        }
-    }
-
-bottomBar.addView(
-    homeButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(58),
-        1f
+    CommonPageUi.createBottomBar(
+        this,
+        CommonPageUi.Section.NOTICE
     )
-)
-
-bottomBar.addView(
-    shareButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(58),
-        1f
-    )
-)
-
-bottomBar.addView(
-    backButton,
-    LinearLayout.LayoutParams(
-        0,
-        dp(58),
-        1f
-    )
-)
 
 root.addView(
     bottomBar,
     LinearLayout.LayoutParams(
         -1,
-        dp(70)
+        LinearLayout.LayoutParams.WRAP_CONTENT
     )
 )
 
@@ -353,13 +209,14 @@ ViewCompat.setOnApplyWindowInsetsListener(
 
     view.setPadding(
         view.paddingLeft,
-        view.paddingTop,
+        dp(4),
         view.paddingRight,
-        navigationBottom + dp(6)
+        navigationBottom + dp(4)
     )
 
     insets
 }
+
 
 return root
 }
