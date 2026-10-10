@@ -329,6 +329,7 @@ getSharedPreferences(
     newestNoticeTime
 )
 .apply()
+                   loadCommonNoticePosts()
         }
         .addOnFailureListener { e ->
 
@@ -361,6 +362,7 @@ getSharedPreferences(
                     ?: "Firestore error",
                 Toast.LENGTH_SHORT
             ).show()
+                        loadCommonNoticePosts()
         }
 }
 
