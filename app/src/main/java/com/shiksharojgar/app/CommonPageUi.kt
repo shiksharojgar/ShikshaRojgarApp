@@ -652,7 +652,12 @@ val more =
     createBottomButton(
         context,
         "☰\nMore ▼",
-        activeSection == Section.MORE
+        
+activeSection != Section.HOME &&
+    activeSection != Section.CHANNEL &&
+    activeSection != Section.NOTICE &&
+    activeSection != Section.IMP_INFO
+
     ) {
         showMoreMenu(context)
     }
