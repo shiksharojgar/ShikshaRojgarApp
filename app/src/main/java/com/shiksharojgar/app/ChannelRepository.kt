@@ -1240,8 +1240,7 @@ object ChannelRepository {
     // DELETE MEDIA ONLY WHEN UNUSED
     // ---------------------------------------------------------
 
-    private fun deleteMediaIfUnused(
-    
+
     private fun deleteMediaIfUnused(
         mediaUrl: String,
         done: (Boolean) -> Unit
