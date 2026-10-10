@@ -29,7 +29,7 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var web: WebView
     private lateinit var loadingOverlay: LinearLayout
     private lateinit var loadingText: TextView
-    private lateinit var unreadBadge: TextView
+
 
     private val downloadHandler = Handler(Looper.getMainLooper())
 
@@ -44,23 +44,52 @@ class WebViewActivity : AppCompatActivity() {
          * =========================================================
          */
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.webTopBar)
-        ) { view, insets ->
+        
+val oldBottomBar =
+    findViewById<LinearLayout>(R.id.webBottomBar)
 
-            val top = insets.getInsets(
-                WindowInsetsCompat.Type.statusBars()
-            ).top
+val rootLayout =
+    oldBottomBar.parent as LinearLayout
 
-            view.setPadding(
-                view.paddingLeft,
-                top + 4,
-                view.paddingRight,
-                view.paddingBottom
-            )
+val bottomIndex =
+    rootLayout.indexOfChild(oldBottomBar)
 
-            insets
-        }
+rootLayout.removeView(oldBottomBar)
+
+val commonBottomBar =
+    CommonPageUi.createBottomBar(
+        this,
+        CommonPageUi.Section.MORE
+    )
+
+rootLayout.addView(
+    commonBottomBar,
+    bottomIndex,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
+
+ViewCompat.setOnApplyWindowInsetsListener(
+    commonBottomBar
+) { view, insets ->
+
+    val bottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        dp(4),
+        view.paddingRight,
+        bottom + dp(4)
+    )
+
+    insets
+}
+
 
         ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.webBottomBar)
@@ -89,7 +118,7 @@ class WebViewActivity : AppCompatActivity() {
         web = findViewById(R.id.web)
         loadingOverlay = findViewById(R.id.pageLoadingOverlay)
         loadingText = findViewById(R.id.loadingText)
-        unreadBadge = findViewById(R.id.webUnreadBadge)
+        
 
         /*
          * =========================================================
@@ -179,41 +208,8 @@ class WebViewActivity : AppCompatActivity() {
             goBackOrClose()
         }
 
-        /*
-         * =========================================================
-         * BOTTOM BAR
-         * =========================================================
-         */
-
-        findViewById<TextView>(
-            R.id.bottomHomeButton
-        ).setOnClickListener {
-            goHome()
-        }
-
-        findViewById<TextView>(
-            R.id.bottomChannelButton
-        ).setOnClickListener {
-            openChannel()
-        }
-
-        findViewById<TextView>(
-            R.id.bottomNoticeButton
-        ).setOnClickListener {
-            openNotice()
-        }
-
-        findViewById<TextView>(
-            R.id.bottomImpButton
-        ).setOnClickListener {
-            openImportantInformation()
-        }
-
-        findViewById<TextView>(
-            R.id.bottomMoreButton
-        ).setOnClickListener {
-            openMore()
-        }
+        
+         
 
         /*
          * =========================================================
