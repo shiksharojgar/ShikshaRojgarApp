@@ -928,7 +928,7 @@ fun createHeader(
 
         return LinearLayout.LayoutParams(
             0,
-            dp(context, 60),
+            dp(context, 50),
             1f
         )
     }
