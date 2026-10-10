@@ -62,6 +62,34 @@ private val pickNoticeImage =
 
         noticeImageUri = uri
     }
+    
+    // =========================================================
+    // COMMON POST PHOTO / PDF PICKER
+    // =========================================================
+
+    private var commonPostImageUri: Uri? = null
+    private var commonPostFileUri: Uri? = null
+
+    private val pickCommonPostImage =
+        registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            commonPostImageUri = uri
+            if (uri != null) {
+                toast("पोस्ट की फोटो चुन ली गई")
+            }
+        }
+
+    private val pickCommonPostFile =
+        registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            commonPostFileUri = uri
+            if (uri != null) {
+                toast("पोस्ट की PDF/File चुन ली गई")
+            }
+        }
+        
     // =========================================================
     // IMAGE PICKER
     // =========================================================
