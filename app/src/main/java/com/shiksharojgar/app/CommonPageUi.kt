@@ -508,6 +508,8 @@ fun createHeader(
         val badge =
     TextView(context).apply {
 
+        id = R.id.channelBadge
+
         textSize = 10f
 
         typeface =
