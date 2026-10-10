@@ -448,6 +448,7 @@ fun createHeader(
                     dp(context, 12).toFloat()
             }
 
+        
         /*
          * HOME
          */
@@ -459,21 +460,35 @@ fun createHeader(
                     Section.HOME
             ) {
 
-                val intent =
-                    Intent(
-                        context,
-                        MainActivity::class.java
-                    ).apply {
+                if (context is MainActivity) {
 
-                        flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
+                    context.findViewById<android.widget.ScrollView>(
+                        R.id.contentScroll
+                    ).smoothScrollTo(
+                        0,
+                        0
+                    )
 
-                context.startActivity(
-                    intent
-                )
+                } else {
+
+                    val intent =
+                        Intent(
+                            context,
+                            MainActivity::class.java
+                        ).apply {
+
+                            flags =
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+
+                    context.startActivity(
+                        intent
+                    )
+                }
             }
+
+
 
         /*
          * CHANNEL + BADGE
