@@ -71,28 +71,7 @@ rootLayout.addView(
     )
 )
 
-ViewCompat.setOnApplyWindowInsetsListener(
-    commonBottomBar
-) { view, insets ->
 
-    val bottom =
-        insets.getInsets(
-            WindowInsetsCompat.Type.navigationBars()
-        ).bottom
-
-    view.setPadding(
-        view.paddingLeft,
-        dp 4,
-        view.paddingRight,
-        bottom + dp 4
-    )
-
-    insets
-}
-
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-        
 
         /*
          * =========================================================
