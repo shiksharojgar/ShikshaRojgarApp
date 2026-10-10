@@ -853,94 +853,159 @@ fun createHeader(
      * =========================================================
      */
 
+    
     private fun showMoreMenu(
         context: Context
     ) {
 
-        val loading =
-            ProgressBar(context)
+        val loading = ProgressBar(context)
 
-        val dialog =
-            AlertDialogCompat(
-                context,
-                "☰ More",
-                loading
-            )
+        val dialog = AlertDialogCompat(
+            context,
+            "☰ More",
+            loading
+        )
 
         dialog.show()
 
         FirebaseFirestore
             .getInstance()
-            .collection(
-                "more_menu_items"
-            )
-            .whereEqualTo(
-                "enabled",
-                true
-            )
+            .collection("more_menu_items")
+            .whereEqualTo("enabled", true)
             .get()
             .addOnSuccessListener { snap ->
 
                 dialog.dismiss()
 
-                val items =
-                    snap.documents
-                        .sortedBy {
-
-                            it.getLong(
-                                "position"
-                            ) ?: 0L
-                        }
+                val items = snap.documents.sortedBy {
+                    it.getLong("position") ?: 0L
+                }
 
                 if (items.isEmpty()) {
-
                     Toast.makeText(
                         context,
                         "More Menu अभी Admin द्वारा सेट नहीं किया गया है।",
                         Toast.LENGTH_SHORT
                     ).show()
-
                     return@addOnSuccessListener
                 }
 
-                val labels =
-                    items.map { doc ->
+                fun showMenuList(
+                    menuItems: List<com.google.firebase.firestore.DocumentSnapshot>,
+                    title: String
+                ) {
+
+                    if (menuItems.isEmpty()) {
+                        Toast.makeText(
+                            context,
+                            "इस Section में अभी कोई Sub-menu नहीं है।",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return
+                    }
+
+                    val labels = menuItems.map { doc ->
 
                         val icon =
-                            doc.getString(
-                                "icon"
-                            ) ?: ""
+                            doc.getString("icon") ?: ""
 
                         val label =
-                            doc.getString(
-                                "label"
-                            ) ?: "Menu"
+                            doc.getString("label") ?: "Menu"
 
-                        if (
-                            icon.isNotBlank()
-                        ) {
-                            "$icon  $label"
+                        val menuType =
+                            doc.getString("menuType")
+                                ?.lowercase()
+                                .orEmpty()
+
+                        val prefix =
+                            if (menuType == "section") {
+                                "📂 "
+                            } else {
+                                ""
+                            }
+
+                        if (icon.isNotBlank()) {
+                            "$prefix$icon  $label"
                         } else {
-                            label
+                            "$prefix$label"
                         }
                     }.toTypedArray()
 
-                AlertDialog.Builder(context)
-                    .setTitle(
-                        "☰ More"
-                    )
-                    .setItems(
-                        labels
-                    ) { _, which ->
+                    AlertDialog.Builder(context)
+                        .setTitle(title)
+                        .setItems(labels) { _, which ->
 
-                        openMoreItem(
-                            context,
-                            items[which]
-                        )
-                    }
-                    .show()
+                            val selected = menuItems[which]
+
+                            val menuType =
+                                selected.getString("menuType")
+                                    ?.lowercase()
+                                    .orEmpty()
+
+                            if (menuType == "section") {
+
+                                val sectionId =
+                                    selected.getString("menuId")
+                                        ?.trim()
+                                        .orEmpty()
+
+                                if (sectionId.isBlank()) {
+                                    Toast.makeText(
+                                        context,
+                                        "इस Section का Menu ID सेट नहीं है।",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@setItems
+                                }
+
+                                val children = items.filter { child ->
+
+                                    child.getString("parentId")
+                                        ?.trim() == sectionId &&
+                                        child.getString("menuType")
+                                            ?.lowercase() != "section"
+                                }
+
+                                showMenuList(
+                                    children,
+                                    selected.getString("label")
+                                        ?: "Sub-menu"
+                                )
+
+                            } else {
+
+                                openMoreItem(
+                                    context,
+                                    selected
+                                )
+                            }
+                        }
+                        .setNegativeButton("CLOSE", null)
+                        .show()
+                }
+
+                val rootItems = items.filter { doc ->
+
+                    val menuType =
+                        doc.getString("menuType")
+                            ?.lowercase()
+                            .orEmpty()
+
+                    val parentId =
+                        doc.getString("parentId")
+                            ?.trim()
+                            .orEmpty()
+
+                    menuType == "section" ||
+                        parentId.isBlank()
+                }
+
+                showMenuList(
+                    rootItems,
+                    "☰ More"
+                )
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener {
 
                 dialog.dismiss()
 
@@ -951,6 +1016,7 @@ fun createHeader(
                 ).show()
             }
     }
+
 
     private fun openMoreItem(
         context: Context,
