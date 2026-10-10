@@ -647,13 +647,16 @@ fun createHeader(
         /*
          * MORE
          */
-        val more =
-            createBottomButton(
-                context,
-                "☰\nMore",
-                activeSection ==
-                    Section.MORE
-            ) {
+        
+val more =
+    createBottomButton(
+        context,
+        "☰\nMore ▼",
+        activeSection == Section.MORE
+    ) {
+        showMoreMenu(context)
+    }
+
 
                 showMoreMenu(
                     context
@@ -862,7 +865,7 @@ fun createHeader(
 
         val dialog = AlertDialogCompat(
             context,
-            "☰ More",
+             "☰ More ▼",
             loading
         )
 
@@ -917,12 +920,14 @@ fun createHeader(
                                 ?.lowercase()
                                 .orEmpty()
 
-                        val prefix =
-                            if (menuType == "section") {
-                                "📂 "
-                            } else {
-                                ""
-                            }
+                        
+val prefix =
+    if (menuType == "section") {
+        "⌄ "
+    } else {
+        ""
+    }
+
 
                         if (icon.isNotBlank()) {
                             "$prefix$icon  $label"
@@ -967,10 +972,12 @@ fun createHeader(
                                 }
 
                                 showMenuList(
-                                    children,
-                                    selected.getString("label")
-                                        ?: "Sub-menu"
-                                )
+    children,
+    "⌃ " + (
+        selected.getString("label")
+            ?: "Sub-menu"
+    )
+)
 
                             } else {
 
@@ -1001,9 +1008,9 @@ fun createHeader(
                 }
 
                 showMenuList(
-                    rootItems,
-                    "☰ More"
-                )
+    rootItems,
+    "☰ More ▼"
+)
             }
             .addOnFailureListener {
 
