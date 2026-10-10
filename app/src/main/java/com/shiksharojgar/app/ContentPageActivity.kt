@@ -216,7 +216,6 @@ root.addView(
  * MASTER COMMON BOTTOM BAR
  * =====================================================
  */
-val section =
 
 val section =
     when (activeSection) {
