@@ -5032,20 +5032,7 @@ box.addView(
         }
         box.addView(fileButton)
 
-        
-val publishToChannel = CheckBox(this).apply {
-    text = "✅ साथ में Channel पर भी प्रकाशित करें"
-    isChecked = true
-    textSize = 14f
-}
 
-box.addView(publishToChannel)
-
-box.addView(
-    adminSectionNote(
-        "टिक रहने पर पोस्ट चुनी गई कैटेगरी और Channel दोनों पर प्रकाशित होगी। टिक हटाने पर केवल चुनी गई कैटेगरी में जाएगी।"
-    )
-)
 
 
 
@@ -5082,10 +5069,14 @@ val websiteUrl = websiteUrlField.text
                             return@setOnClickListener
                         }
 
-                        val category = categories[
-                            categorySpinner.selectedItemPosition
-                        ].second
+                        val selectedCategories = categoryChecks
+    .filter { it.isChecked }
+    .map { it.tag as String }
 
+if (!publishToChannel.isChecked && selectedCategories.isEmpty()) {
+    toast("कम से कम एक कैटेगरी या Channel चुनें")
+    return@setOnClickListener
+}
                          
                         dialog.getButton(
                             AlertDialog.BUTTON_POSITIVE
@@ -5094,117 +5085,133 @@ val websiteUrl = websiteUrlField.text
                         val selectedImage = commonPostImageUri
                         val selectedFile = commonPostFileUri
 
-                        fun savePostWithMedia(
-                            imageUrl: String = "",
-                            fileUrl: String = ""
-                        ) {
-                            val fileMime = selectedFile
-                                ?.let { contentResolver.getType(it) }
-                                ?: "application/pdf"
+                        
+fun savePostWithMedia(
+    imageUrl: String = "",
+    fileUrl: String = ""
+) {
+    val fileMime = selectedFile
+        ?.let { contentResolver.getType(it) }
+        ?: "application/pdf"
 
-                            val fileName = selectedFile?.let { uri ->
-                                contentResolver.query(
-                                    uri,
-                                    arrayOf(OpenableColumns.DISPLAY_NAME),
-                                    null,
-                                    null,
-                                    null
-                                )?.use { cursor ->
-                                    if (cursor.moveToFirst()) {
-                                        cursor.getString(0).orEmpty()
-                                    } else {
-                                        ""
-                                    }
-                                }.orEmpty()
-                            }.orEmpty()
+    val fileName = selectedFile?.let { uri ->
+        contentResolver.query(
+            uri,
+            arrayOf(OpenableColumns.DISPLAY_NAME),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                cursor.getString(0).orEmpty()
+            } else {
+                ""
+            }
+        }.orEmpty()
+    }.orEmpty()
 
-                            CategoryPostRepository.savePost(
-                                CategoryPost(
-                                    category = category,
-                                    title = title,
-                                    body = body,
-                                    description = description,
-                                    websiteUrl = websiteUrl,
-                                    imageUrl = imageUrl,
-                                    imageMime = selectedImage
-                                        ?.let { contentResolver.getType(it) }
-                                        ?: "image/jpeg",
-                                    fileUrl = fileUrl,
-                                    fileName = fileName,
-                                    fileMime = fileMime
-                                )
-                            ) { success, message ->
-                                runOnUiThread {
-                                    if (success) {
-                                        
-if (publishToChannel.isChecked) {
-    val channelData = hashMapOf<String, Any>(
-        "title" to title,
-        "body" to body,
-        "description" to description,
-        "websiteUrl" to websiteUrl,
-        "published" to true,
-        "postType" to if (
-            imageUrl.isNotBlank() || fileUrl.isNotBlank()
-        ) "media" else "text",
-        "category" to categories.first {
-            it.second == category
-        }.first,
-        "imageUrl" to imageUrl,
-        "fileUrl" to fileUrl,
-        "fileName" to fileName,
-        "imageMime" to (
-            selectedImage?.let {
-                contentResolver.getType(it)
-            } ?: "image/jpeg"
-        ),
-        "fileMime" to fileMime,
-        "createdAt" to System.currentTimeMillis(),
-        "commentsEnabled" to true,
-        "likeCount" to 0L,
-        "commentCount" to 0L,
-        "viewCount" to 0L,
-        "shareCount" to 0L
-    )
-
-    ChannelRepository.createPost(channelData) {
-            channelSuccess, channelMessage ->
-        runOnUiThread {
+    fun finishPublishing() {
+        if (!publishToChannel.isChecked) {
             commonPostImageUri = null
             commonPostFileUri = null
             dialog.dismiss()
+            toast("चुनी गई कैटेगरी में पोस्ट प्रकाशित हो गई")
+            return
+        }
 
-            if (channelSuccess) {
-                toast("कैटेगरी और Channel दोनों पर पोस्ट प्रकाशित हो गई")
-            } else {
-                toast(
-                    "कैटेगरी में सेव हुई, लेकिन Channel पर प्रकाशित नहीं हुई: ${
-                        channelMessage ?: "Channel error"
-                    }"
-                )
+        val channelData = hashMapOf<String, Any>(
+            "title" to title,
+            "body" to body,
+            "description" to description,
+            "websiteUrl" to websiteUrl,
+            "published" to true,
+            "postType" to if (
+                imageUrl.isNotBlank() || fileUrl.isNotBlank()
+            ) "media" else "text",
+            "category" to "शिक्षा रोजगार चैनल",
+            "imageUrl" to imageUrl,
+            "fileUrl" to fileUrl,
+            "fileName" to fileName,
+            "imageMime" to (
+                selectedImage?.let {
+                    contentResolver.getType(it)
+                } ?: "image/jpeg"
+            ),
+            "fileMime" to fileMime,
+            "createdAt" to System.currentTimeMillis(),
+            "commentsEnabled" to true,
+            "likeCount" to 0L,
+            "commentCount" to 0L,
+            "viewCount" to 0L,
+            "shareCount" to 0L
+        )
+
+        ChannelRepository.createPost(channelData) {
+            channelSuccess, channelMessage ->
+            runOnUiThread {
+                if (channelSuccess) {
+                    commonPostImageUri = null
+                    commonPostFileUri = null
+                    dialog.dismiss()
+                    toast("चुनी गई कैटेगरी और Channel पर पोस्ट प्रकाशित हो गई")
+                } else {
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = true
+                    toast(
+                        "कैटेगरी में पोस्ट सेव हुई, लेकिन Channel पर नहीं: ${
+                            channelMessage ?: "Channel error"
+                        }"
+                    )
+                }
             }
         }
     }
-} else {
-    commonPostImageUri = null
-    commonPostFileUri = null
-    dialog.dismiss()
-    toast("पोस्ट केवल चुनी गई कैटेगरी में सेव हो गई")
+
+    fun saveCategoryAt(index: Int) {
+        if (index >= selectedCategories.size) {
+            finishPublishing()
+            return
+        }
+
+        val category = selectedCategories[index]
+
+        CategoryPostRepository.savePost(
+            CategoryPost(
+                category = category,
+                title = title,
+                body = body,
+                description = description,
+                websiteUrl = websiteUrl,
+                imageUrl = imageUrl,
+                imageMime = selectedImage
+                    ?.let { contentResolver.getType(it) }
+                    ?: "image/jpeg",
+                fileUrl = fileUrl,
+                fileName = fileName,
+                fileMime = fileMime
+            )
+        ) { success, message ->
+            runOnUiThread {
+                if (success) {
+                    saveCategoryAt(index + 1)
+                } else {
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = true
+                    toast(
+                        "कैटेगरी में पोस्ट सेव नहीं हुई: ${
+                            message ?: "Firestore error"
+                        }"
+                    )
+                }
+            }
+        }
+    }
+
+    saveCategoryAt(0)
 }
 
-                                    } else {
-                                        dialog.getButton(
-                                            AlertDialog.BUTTON_POSITIVE
-                                        ).isEnabled = true
-                                        toast(
-                                            "पोस्ट सेव नहीं हुई: ${
-                                                message ?: "Firestore error"
-                                            }"
-                                        )
-                                    }
-                                }
-                            }
-                        }
 
                         fun uploadSelectedFile(
                             imageUrl: String
