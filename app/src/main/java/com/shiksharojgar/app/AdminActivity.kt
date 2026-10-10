@@ -5001,6 +5001,58 @@ box.addView(
         box.addView(bodyField)
 
         
+val formatRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
+
+fun applyBodyFormat(prefix: String, suffix: String) {
+    val start = bodyField.selectionStart.coerceAtLeast(0)
+    val end = bodyField.selectionEnd.coerceAtLeast(0)
+    val from = minOf(start, end)
+    val to = maxOf(start, end)
+
+    if (from != to) {
+        val selectedText = bodyField.text
+            .substring(from, to)
+        bodyField.text.replace(
+            from,
+            to,
+            "$prefix$selectedText$suffix"
+        )
+        bodyField.setSelection(
+            from,
+            from + prefix.length + selectedText.length + suffix.length
+        )
+    } else {
+        bodyField.text.insert(start, "$prefix$suffix")
+        bodyField.setSelection(start + prefix.length)
+    }
+}
+
+formatRow.addView(Button(this).apply {
+    text = "B बोल्ड"
+    setOnClickListener {
+        applyBodyFormat("*", "*")
+    }
+})
+
+formatRow.addView(Button(this).apply {
+    text = "> हल्का"
+    setOnClickListener {
+        applyBodyFormat("> ", "")
+    }
+})
+
+formatRow.addView(Button(this).apply {
+    text = "` हाइलाइट"
+    setOnClickListener {
+        applyBodyFormat("`", "`")
+    }
+})
+
+box.addView(formatRow)
+
                 val descriptionField = EditText(this).apply {
             hint = "अतिरिक्त विवरण (वैकल्पिक)"
             minLines = 2
