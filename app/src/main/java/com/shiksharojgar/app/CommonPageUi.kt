@@ -837,71 +837,8 @@ fun createHeader(
 
     return TextView(context).apply {
 
-        private fun formatPostBody(value: String): CharSequence {
-    val result = android.text.SpannableStringBuilder()
-
-    value.lines().forEachIndexed { lineIndex, line ->
-        if (lineIndex > 0) result.append("\n")
-
-        val isQuote = line.trimStart().startsWith("> ")
-        val content = if (isQuote) {
-            line.trimStart().removePrefix("> ")
-        } else {
-            line
-        }
-
-        val lineStart = result.length
-        var i = 0
-
-        while (i < content.length) {
-            val marker = content[i]
-
-            if (marker == '*' || marker == '`') {
-                val end = content.indexOf(marker, i + 1)
-
-                if (end > i + 1) {
-                    val startIndex = result.length
-                    result.append(content.substring(i + 1, end))
-                    val endIndex = result.length
-
-                    if (marker == '*') {
-                        result.setSpan(
-                            android.text.style.StyleSpan(
-                                android.graphics.Typeface.BOLD
-                            ),
-                            startIndex,
-                            endIndex,
-                            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    } else {
-                        result.setSpan(
-                            android.text.style.BackgroundColorSpan(
-                                Color.rgb(255, 243, 176)
-                            ),
-                            startIndex,
-                            endIndex,
-                            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-
-                    i = end + 1
-                    continue
-                }
-            }
-
-            result.append(marker)
-            i++
-        }
-
-        if (isQuote && result.length > lineStart) {
-            result.setSpan(
-                android.text.style.QuoteSpan(Color.rgb(100, 116, 139)),
-                lineStart,
-                result.length,
-                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-    }
+        text = formatPostBody(body)
+    
 
     return result
 }
