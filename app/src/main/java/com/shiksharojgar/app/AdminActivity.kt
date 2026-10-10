@@ -5008,11 +5008,21 @@ private fun moveSubCategory(
         }
         box.addView(fileButton)
 
-        box.addView(
-            adminSectionNote(
-                "फोटो और PDF चुनने के विकल्प तैयार हैं। अगला चरण इन्हें पोस्ट सेव करते समय अपलोड करना है।"
-            )
-        )
+        
+val publishToChannel = CheckBox(this).apply {
+    text = "✅ साथ में Channel पर भी प्रकाशित करें"
+    isChecked = true
+    textSize = 14f
+}
+
+box.addView(publishToChannel)
+
+box.addView(
+    adminSectionNote(
+        "टिक रहने पर पोस्ट चुनी गई कैटेगरी और Channel दोनों पर प्रकाशित होगी। टिक हटाने पर केवल चुनी गई कैटेगरी में जाएगी।"
+    )
+)
+
 
 
         AlertDialog.Builder(this)
