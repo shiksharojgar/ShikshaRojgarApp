@@ -836,14 +836,7 @@ fun createHeader(
         }
 
     return TextView(context).apply {
-
-        text = formatPostBody(body)
-    
-
-    return result
-}
-
-        typeface =
+    typeface =
             Typeface.DEFAULT_BOLD
 
         /*
