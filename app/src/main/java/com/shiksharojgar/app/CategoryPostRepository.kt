@@ -46,7 +46,8 @@ object CategoryPostRepository {
                         title = doc.getString("title").orEmpty(),
                         body = doc.getString("body").orEmpty(),
                         description = doc.getString("description").orEmpty(),
-                        bodyBold = doc.getBoolean("bodyBold") ?: false,
+websiteUrl = doc.getString("websiteUrl").orEmpty(),
+bodyBold = doc.getBoolean("bodyBold") ?: false,
                         bodyHighlight = doc.getBoolean("bodyHighlight") ?: false,
                         bodyColor = doc.getString("bodyColor") ?: "#222222",
                         buttons = (doc.get("buttons") as? List<*>)
@@ -116,6 +117,7 @@ object CategoryPostRepository {
                 "title" to savedPost.title,
                 "body" to savedPost.body,
                 "description" to savedPost.description,
+                "websiteUrl" to savedPost.websiteUrl,
                 "bodyBold" to savedPost.bodyBold,
                 "bodyHighlight" to savedPost.bodyHighlight,
                 "bodyColor" to savedPost.bodyColor,
