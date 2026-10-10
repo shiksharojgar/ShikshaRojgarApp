@@ -139,6 +139,59 @@ private val floatingNoticeRunnable =
         )
 
         setContentView(R.layout.activity_main)
+        
+        /*
+         * ============================================================
+         * SHARED FIVE-BUTTON BOTTOM BAR
+         * ============================================================
+         */
+        val oldBottomBar =
+            findViewById<android.widget.LinearLayout>(
+                R.id.bottomNav
+            )
+
+        val rootLayout =
+            oldBottomBar.parent as android.widget.LinearLayout
+
+        val bottomIndex =
+            rootLayout.indexOfChild(oldBottomBar)
+
+        rootLayout.removeView(oldBottomBar)
+
+        val commonBottomBar =
+            CommonPageUi.createBottomBar(
+                this,
+                CommonPageUi.Section.HOME
+            )
+
+        rootLayout.addView(
+            commonBottomBar,
+            bottomIndex,
+            android.widget.LinearLayout.LayoutParams(
+                -1,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+            commonBottomBar
+        ) { view, insets ->
+
+            val bottom =
+                insets.getInsets(
+                    WindowInsetsCompat.Type.navigationBars()
+                ).bottom
+
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                bottom + 4
+            )
+
+            insets
+        }
+        
         if (
             android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.TIRAMISU
@@ -180,24 +233,7 @@ private val floatingNoticeRunnable =
             insets
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.bottomNav)
-        ) { view, insets ->
-
-            val bottom =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.navigationBars()
-                ).bottom
-
-            view.setPadding(
-                view.paddingLeft,
-                5,
-                view.paddingRight,
-                bottom + 8
-            )
-
-            insets
-        }
+        
 
         adapter = PostAdapter(emptyList()) {
             openInApp(it.url)
@@ -396,67 +432,7 @@ private val floatingNoticeRunnable =
         ).setOnClickListener {
             shareApp()
         }
-// ============================================================
-// FINAL 5-BUTTON BOTTOM NAVIGATION
-// ============================================================
 
-// 🏠 HOME
-findViewById<TextView>(
-    R.id.homeNav
-).setOnClickListener {
-
-    findViewById<android.widget.ScrollView>(
-        R.id.contentScroll
-    ).smoothScrollTo(
-        0,
-        0
-    )
-}
-
-// 📢 CHANNEL
-findViewById<TextView>(
-    R.id.channelNav
-).setOnClickListener {
-
-    startActivity(
-        Intent(
-            this,
-            ChannelActivity::class.java
-        )
-    )
-}
-
-// 🔔 NOTICE
-findViewById<TextView>(
-    R.id.noticeNav
-).setOnClickListener {
-
-    startActivity(
-        Intent(
-            this,
-            NoticeActivity::class.java
-        )
-    )
-}
-
-// 📌 IMPORTANT INFORMATION
-findViewById<TextView>(
-    R.id.impInfoNav
-).setOnClickListener {
-
-    openManagedPage(
-        "important_information",
-        "📌 Implementation Information"
-    )
-}
-
-// ☰ MORE
-findViewById<TextView>(
-    R.id.menuNav
-).setOnClickListener {
-
-    showMenu()
-}
         
 // ============================================================
 // LATEST POSTS NAVIGATION
