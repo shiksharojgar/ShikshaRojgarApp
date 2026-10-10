@@ -91,8 +91,8 @@ object ChannelRepository {
 
         db.collection("channel_posts")
             .orderBy(
-                "createdAt",
-                Query.Direction.ASCENDING
+    "createdAt",
+    Query.Direction.DESCENDING
             )
             .limit(100)
             .addSnapshotListener { snap, err ->
