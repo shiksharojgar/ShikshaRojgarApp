@@ -51,9 +51,9 @@ object CategoryPostRepository {
                         bodyColor = doc.getString("bodyColor") ?: "#222222",
                         buttons = (doc.get("buttons") as? List<*>)
                             .orEmpty()
-                            .mapNotNull { item ->
+                            .mapNotNull buttonMap@ { item ->
                                 val button = item as? Map<*, *>
-                                    ?: return@mapNotNull null
+                                    ?: return@buttonMap null
 
                                 CategoryPostButton(
                                     label = button["label"] as? String ?: "",
