@@ -1864,7 +1864,7 @@ homeManagement.addView(
     },
     LinearLayout.LayoutParams(
         -1,
-        dp(46)
+        dp(38)
     ).apply {
 
         bottomMargin = dp(7)
@@ -1879,7 +1879,7 @@ homeManagement.addView(
     },
     LinearLayout.LayoutParams(
         -1,
-        dp(46)
+        dp(38)
     )
 )
 
@@ -1945,7 +1945,7 @@ moreManagement.addView(
     },
     LinearLayout.LayoutParams(
         -1,
-        dp(46)
+        dp(38)
     )
 )
 
@@ -2028,7 +2028,7 @@ pageManager.addView(
     pageRow1,
     LinearLayout.LayoutParams(
         -1,
-        dp(48)
+        dp(40)
     ).apply {
         bottomMargin = dp(6)
     }
@@ -2085,7 +2085,7 @@ pageManager.addView(
     pageRow2,
     LinearLayout.LayoutParams(
         -1,
-        dp(48)
+        dp(40)
     )
 )
 
@@ -2173,7 +2173,7 @@ homeContent.addView(
     },
     LinearLayout.LayoutParams(
         -1,
-        dp(42)
+        dp(36)
     ).apply {
 
         topMargin = dp(3)
