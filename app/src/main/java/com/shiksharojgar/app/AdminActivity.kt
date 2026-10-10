@@ -2705,26 +2705,7 @@ private fun showMoreMenuManager() {
                     doc.getString("label")
                         ?: "Unnamed"
 
-    val menuType =
-        field(
-            "Menu Type: section / item",
-            document?.getString("menuType")
-                ?: "item"
-        )
-
-    val menuId =
-        field(
-            "Menu ID (Section के लिए): जैसे explore_sections",
-            document?.getString("menuId")
-                ?: ""
-        )
-
-    val parentId =
-        field(
-            "Parent Menu ID: जैसे explore_sections",
-            document?.getString("parentId")
-                ?: ""
-        )
+    
         
                 val enabled =
                     doc.getBoolean("enabled")
@@ -2971,7 +2952,26 @@ private fun showMoreMenuEditor(
             document?.getString("label")
                 ?: ""
         )
+val menuType =
+        field(
+            "Menu Type: section / item",
+            document?.getString("menuType")
+                ?: "item"
+        )
 
+    val menuId =
+        field(
+            "Menu ID (Section के लिए): जैसे explore_sections",
+            document?.getString("menuId")
+                ?: ""
+        )
+
+    val parentId =
+        field(
+            "Parent Menu ID: जैसे explore_sections",
+            document?.getString("parentId")
+                ?: ""
+        )
     val position =
         field(
             "Position जैसे 1, 2, 3",
