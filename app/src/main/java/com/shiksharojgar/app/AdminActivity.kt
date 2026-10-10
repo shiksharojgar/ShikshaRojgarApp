@@ -1856,20 +1856,7 @@ homeManagement.addView(
     )
 )
 
-homeManagement.addView(
-    adminActionButton(
-        "🏠  MANAGE HOME CATEGORIES"
-    ) {
-        showHomeCategoryManager()
-    },
-    LinearLayout.LayoutParams(
-        -1,
-        dp(38)
-    ).apply {
 
-        bottomMargin = dp(7)
-    }
-)
 
 homeManagement.addView(
     adminActionButton(
