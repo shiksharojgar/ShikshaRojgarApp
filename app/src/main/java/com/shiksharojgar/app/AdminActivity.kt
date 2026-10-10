@@ -4960,15 +4960,31 @@ private fun moveSubCategory(
             addView(box)
         }
 
-        box.addView(adminSectionTitle("📂", "पोस्ट कैटेगरी"))
+    
 
-        val categorySpinner = Spinner(this)
-        categorySpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            categories.map { it.first }
-        )
-        box.addView(categorySpinner)
+        box.addView(adminSectionTitle("📂", "पोस्ट कहाँ प्रकाशित करें?"))
+
+val publishToChannel = CheckBox(this).apply {
+    text = "📱 शिक्षा रोजगार चैनल"
+    isChecked = true
+    textSize = 14f
+}
+box.addView(publishToChannel)
+
+val categoryChecks = categories.map { (label, key) ->
+    CheckBox(this).apply {
+        text = label
+        tag = key
+        isChecked = false
+        textSize = 14f
+    }.also { box.addView(it) }
+}
+
+box.addView(
+    adminSectionNote(
+        "एक या एक से अधिक विकल्प चुनें। टिक किए गए प्रत्येक स्थान पर पोस्ट अलग से सेव होगी।"
+    )
+)
 
         val titleField = EditText(this).apply {
             hint = "पोस्ट का शीर्षक"
