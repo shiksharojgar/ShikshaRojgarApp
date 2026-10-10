@@ -848,7 +848,59 @@ private fun loadCommonNoticePosts() {
                 if (body.isNotBlank()) {
                     card.addView(
                         TextView(this).apply {
-                            text = body
+                            
+val formatRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
+
+fun applyBodyFormat(prefix: String, suffix: String) {
+    val start = bodyField.selectionStart.coerceAtLeast(0)
+    val end = bodyField.selectionEnd.coerceAtLeast(0)
+    val from = minOf(start, end)
+    val to = maxOf(start, end)
+
+    if (from != to) {
+        val selectedText = bodyField.text
+            .substring(from, to)
+        bodyField.text.replace(
+            from,
+            to,
+            "$prefix$selectedText$suffix"
+        )
+        bodyField.setSelection(
+            from,
+            from + prefix.length + selectedText.length + suffix.length
+        )
+    } else {
+        bodyField.text.insert(start, "$prefix$suffix")
+        bodyField.setSelection(start + prefix.length)
+    }
+}
+
+formatRow.addView(Button(this).apply {
+    text = "B बोल्ड"
+    setOnClickListener {
+        applyBodyFormat("*", "*")
+    }
+})
+
+formatRow.addView(Button(this).apply {
+    text = "> हल्का"
+    setOnClickListener {
+        applyBodyFormat("> ", "")
+    }
+})
+
+formatRow.addView(Button(this).apply {
+    text = "` हाइलाइट"
+    setOnClickListener {
+        applyBodyFormat("`", "`")
+    }
+})
+
+box.addView(formatRow)
+
                             textSize = 16f
                             setTextColor(Color.rgb(30, 41, 59))
                             setPadding(0, dp(4), 0, dp(8))
@@ -928,7 +980,74 @@ private fun loadCommonNoticePosts() {
             ).show()
         }
 }
+private fun formatPostBody(value: String): CharSequence {
+    val result = android.text.SpannableStringBuilder()
 
+    value.lines().forEachIndexed { lineIndex, line ->
+        if (lineIndex > 0) result.append("\n")
+
+        val isQuote = line.trimStart().startsWith("> ")
+        val content = if (isQuote) {
+            line.trimStart().removePrefix("> ")
+        } else {
+            line
+        }
+
+        val lineStart = result.length
+        var i = 0
+
+        while (i < content.length) {
+            val marker = content[i]
+
+            if (marker == '*' || marker == '`') {
+                val end = content.indexOf(marker, i + 1)
+
+                if (end > i + 1) {
+                    val startIndex = result.length
+                    result.append(content.substring(i + 1, end))
+                    val endIndex = result.length
+
+                    if (marker == '*') {
+                        result.setSpan(
+                            android.text.style.StyleSpan(
+                                android.graphics.Typeface.BOLD
+                            ),
+                            startIndex,
+                            endIndex,
+                            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    } else {
+                        result.setSpan(
+                            android.text.style.BackgroundColorSpan(
+                                Color.rgb(255, 243, 176)
+                            ),
+                            startIndex,
+                            endIndex,
+                            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+
+                    i = end + 1
+                    continue
+                }
+            }
+
+            result.append(marker)
+            i++
+        }
+
+        if (isQuote && result.length > lineStart) {
+            result.setSpan(
+                android.text.style.QuoteSpan(Color.rgb(100, 116, 139)),
+                lineStart,
+                result.length,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
+
+    return result
+}
 // ============================================================
 // DP
 // ============================================================
