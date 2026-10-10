@@ -38,9 +38,15 @@ private fun dp(value: Int): Int {
         intent.getStringExtra("pageTitle")
             ?: "📌 Important Information"
 
-    val activeSection =
-        intent.getStringExtra("activeSection")
-            ?: "IMP_INFO"
+    
+val activeSection =
+    intent.getStringExtra("activeSection")
+        ?: if (pageId == "important_information") {
+            "IMP_INFO"
+        } else {
+            "MORE"
+        }
+
 
     setContentView(
         buildUi(
@@ -211,6 +217,8 @@ root.addView(
  * =====================================================
  */
 val section =
+
+val section =
     when (activeSection) {
         "HOME" ->
             CommonPageUi.Section.HOME
@@ -221,12 +229,13 @@ val section =
         "NOTICE" ->
             CommonPageUi.Section.NOTICE
 
-        "MORE" ->
-            CommonPageUi.Section.MORE
+        "IMP_INFO" ->
+            CommonPageUi.Section.IMP_INFO
 
         else ->
-            CommonPageUi.Section.IMP_INFO
+            CommonPageUi.Section.MORE
     }
+
 
 val bottomBar =
     CommonPageUi.createBottomBar(
