@@ -5109,10 +5109,61 @@ box.addView(
                             ) { success, message ->
                                 runOnUiThread {
                                     if (success) {
-                                        commonPostImageUri = null
-                                        commonPostFileUri = null
-                                        dialog.dismiss()
-                                        toast("पोस्ट सेव हो गई")
+                                        
+if (publishToChannel.isChecked) {
+    val channelData = hashMapOf<String, Any>(
+        "title" to title,
+        "body" to body,
+        "description" to description,
+        "published" to true,
+        "postType" to if (
+            imageUrl.isNotBlank() || fileUrl.isNotBlank()
+        ) "media" else "text",
+        "category" to categories.first {
+            it.second == category
+        }.first,
+        "imageUrl" to imageUrl,
+        "fileUrl" to fileUrl,
+        "fileName" to fileName,
+        "imageMime" to (
+            selectedImage?.let {
+                contentResolver.getType(it)
+            } ?: "image/jpeg"
+        ),
+        "fileMime" to fileMime,
+        "createdAt" to System.currentTimeMillis(),
+        "commentsEnabled" to true,
+        "likeCount" to 0L,
+        "commentCount" to 0L,
+        "viewCount" to 0L,
+        "shareCount" to 0L
+    )
+
+    ChannelRepository.createPost(channelData) {
+            channelSuccess, channelMessage ->
+        runOnUiThread {
+            commonPostImageUri = null
+            commonPostFileUri = null
+            dialog.dismiss()
+
+            if (channelSuccess) {
+                toast("कैटेगरी और Channel दोनों पर पोस्ट प्रकाशित हो गई")
+            } else {
+                toast(
+                    "कैटेगरी में सेव हुई, लेकिन Channel पर प्रकाशित नहीं हुई: ${
+                        channelMessage ?: "Channel error"
+                    }"
+                )
+            }
+        }
+    }
+} else {
+    commonPostImageUri = null
+    commonPostFileUri = null
+    dialog.dismiss()
+    toast("पोस्ट केवल चुनी गई कैटेगरी में सेव हो गई")
+}
+
                                     } else {
                                         dialog.getButton(
                                             AlertDialog.BUTTON_POSITIVE
