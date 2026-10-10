@@ -576,7 +576,11 @@ morePostsButton.visibility =
                                 0
                             )
                             .apply()
-
+                        sendBroadcast(
+                            Intent(
+                                "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+                            ).setPackage(packageName)
+                        )
                         channelBaselineReady = true
 
                         updateChannelBadge()
@@ -603,7 +607,11 @@ morePostsButton.visibility =
                                 newest
                             )
                             .apply()
-
+                        sendBroadcast(
+                            Intent(
+                                "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+                            ).setPackage(packageName)
+                        )
                         updateChannelBadge()
 
                         return@addSnapshotListener
@@ -630,7 +638,11 @@ morePostsButton.visibility =
                                 unread
                             )
                             .apply()
-
+                        sendBroadcast(
+                            Intent(
+                                "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+                            ).setPackage(packageName)
+                        )
                         updateChannelBadge()
                     }
                 }
