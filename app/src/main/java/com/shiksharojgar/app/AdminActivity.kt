@@ -4984,13 +4984,15 @@ private fun moveSubCategory(
         }
         box.addView(bodyField)
 
-        val descriptionField = EditText(this).apply {
-            hint = "अतिरिक्त विवरण (वैकल्पिक)"
-            minLines = 2
-            gravity = Gravity.TOP
-        }
+        
         box.addView(descriptionField)
-
+val websiteUrlField = EditText(this).apply {
+    hint = "🌐 वेबसाइट लिंक (वैकल्पिक)"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+        android.text.InputType.TYPE_TEXT_VARIATION_URI
+}
+box.addView(websiteUrlField)
         
         val imageButton = Button(this).apply {
             text = "🖼️ फोटो चुनें"
@@ -5050,7 +5052,9 @@ box.addView(
                         val description = descriptionField.text
                             .toString()
                             .trim()
-
+val websiteUrl = websiteUrlField.text
+    .toString()
+    .trim()
                         if (title.isBlank() && body.isBlank()) {
                             toast("शीर्षक या मुख्य टेक्स्ट भरें")
                             return@setOnClickListener
@@ -5098,6 +5102,7 @@ box.addView(
                                     title = title,
                                     body = body,
                                     description = description,
+                                    websiteUrl = websiteUrl,
                                     imageUrl = imageUrl,
                                     imageMime = selectedImage
                                         ?.let { contentResolver.getType(it) }
