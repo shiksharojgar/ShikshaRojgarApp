@@ -4908,6 +4908,140 @@ private fun moveSubCategory(
             )
         }
 }
+
+    // =========================================================
+    // COMMON POST CREATOR
+    // =========================================================
+
+    private fun showCommonPostCreator() {
+
+        val categories = listOf(
+            "नोटिस और अपडेट" to "notice",
+            "महत्वपूर्ण जानकारी" to "important_information",
+            "अध्ययन सामग्री" to "study_material",
+            "करियर गाइड और उपयोगी टूल्स" to "career_guide"
+        )
+
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+        }
+
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+            addView(box)
+        }
+
+        box.addView(adminSectionTitle("📂", "पोस्ट कैटेगरी"))
+
+        val categorySpinner = Spinner(this)
+        categorySpinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            categories.map { it.first }
+        )
+        box.addView(categorySpinner)
+
+        val titleField = EditText(this).apply {
+            hint = "पोस्ट का शीर्षक"
+            setSingleLine(false)
+            minLines = 1
+        }
+        box.addView(titleField)
+
+        val bodyField = EditText(this).apply {
+            hint = "पोस्ट का मुख्य टेक्स्ट"
+            minLines = 4
+            gravity = Gravity.TOP
+        }
+        box.addView(bodyField)
+
+        val descriptionField = EditText(this).apply {
+            hint = "अतिरिक्त विवरण (वैकल्पिक)"
+            minLines = 2
+            gravity = Gravity.TOP
+        }
+        box.addView(descriptionField)
+
+        box.addView(
+            adminSectionNote(
+                "अभी शीर्षक, मुख्य टेक्स्ट और विवरण सेव होंगे। फोटो, PDF, रंगीन लिंक बटन और पोस्ट की पूरी सूची अगले चरणों में जोड़ेंगे।"
+            )
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle("📝 Common Post Creator")
+            .setView(scroll)
+            .setNegativeButton("रद्द करें", null)
+            .setPositiveButton("पोस्ट सेव करें", null)
+            .create()
+            .also { dialog ->
+
+                dialog.setOnShowListener {
+
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).setOnClickListener {
+
+                        val title = titleField.text
+                            .toString()
+                            .trim()
+
+                        val body = bodyField.text
+                            .toString()
+                            .trim()
+
+                        val description = descriptionField.text
+                            .toString()
+                            .trim()
+
+                        if (title.isBlank() && body.isBlank()) {
+                            toast("शीर्षक या मुख्य टेक्स्ट भरें")
+                            return@setOnClickListener
+                        }
+
+                        val category = categories[
+                            categorySpinner.selectedItemPosition
+                        ].second
+
+                        dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled = false
+
+                        CategoryPostRepository.savePost(
+                            CategoryPost(
+                                category = category,
+                                title = title,
+                                body = body,
+                                description = description
+                            )
+                        ) { success, message ->
+
+                            runOnUiThread {
+
+                                if (success) {
+                                    dialog.dismiss()
+                                    toast("पोस्ट सेव हो गई")
+                                } else {
+                                    dialog.getButton(
+                                        AlertDialog.BUTTON_POSITIVE
+                                    ).isEnabled = true
+
+                                    toast(
+                                        "पोस्ट सेव नहीं हुई: ${
+                                            message ?: "Firestore error"
+                                        }"
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                dialog.show()
+            }
+    }
+
 // =========================================================
 // NOTICE MANAGER
 // =========================================================
