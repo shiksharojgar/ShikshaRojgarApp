@@ -837,11 +837,35 @@ fun createHeader(
 
     return TextView(context).apply {
         
-        text = label
+        
+        val iconEnd = label.indexOf('\n').let {
+            if (it >= 0) it else label.length
+        }
+
+        text = android.text.SpannableString(label).apply {
+            setSpan(
+                android.text.style.RelativeSizeSpan(1.25f),
+                0,
+                iconEnd,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            if (iconEnd < label.length) {
+                setSpan(
+                    android.text.style.RelativeSizeSpan(0.85f),
+                    iconEnd + 1,
+                    label.length,
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+        }
+
         gravity = Gravity.CENTER
         textSize = 13f
         maxLines = 2
         includeFontPadding = false
+        typeface = Typeface.DEFAULT_BOLD
+
         
     typeface =
             Typeface.DEFAULT_BOLD
