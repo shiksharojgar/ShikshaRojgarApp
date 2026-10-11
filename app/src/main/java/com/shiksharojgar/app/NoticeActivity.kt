@@ -926,6 +926,76 @@ text = formatPostBody(body)
                         }
                     )
                 }
+                customButtons
+                    .filter {
+                        it.enabled &&
+                        it.label.isNotBlank() &&
+                        it.url.isNotBlank()
+                    }
+                    .forEach { postButton ->
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = postButton.label
+                                gravity = Gravity.CENTER
+                                textSize = 14f
+                                typeface = Typeface.DEFAULT_BOLD
+
+                                val textColor = try {
+                                    Color.parseColor(postButton.textColor)
+                                } catch (_: Exception) {
+                                    Color.WHITE
+                                }
+
+                                setTextColor(textColor)
+
+                                background = GradientFactory.gradient(
+                                    postButton.backgroundColor,
+                                    postButton.backgroundColor
+                                )
+
+                                setPadding(
+                                    dp(12),
+                                    dp(8),
+                                    dp(12),
+                                    dp(8)
+                                )
+
+                                setOnClickListener {
+                                    val rawUrl = postButton.url.trim()
+                                    val url = if (
+                                        rawUrl.startsWith("https://", true) ||
+                                        rawUrl.startsWith("http://", true)
+                                    ) {
+                                        rawUrl
+                                    } else {
+                                        "https://$rawUrl"
+                                    }
+
+                                    try {
+                                        startActivity(
+                                            Intent(
+                                                this@NoticeActivity,
+                                                WebViewActivity::class.java
+                                            ).putExtra("url", url)
+                                        )
+                                    } catch (_: Exception) {
+                                        Toast.makeText(
+                                            this@NoticeActivity,
+                                            "बटन का लिंक नहीं खुल सका।",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            },
+                            LinearLayout.LayoutParams(
+                                -1,
+                                dp(42)
+                            ).apply {
+                                bottomMargin = dp(8)
+                            }
+                        )
+                    }
 
                 listBox.addView(
                     card,
