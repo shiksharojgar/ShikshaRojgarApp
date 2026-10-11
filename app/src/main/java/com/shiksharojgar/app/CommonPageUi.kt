@@ -836,6 +836,13 @@ fun createHeader(
         }
 
     return TextView(context).apply {
+        
+        text = label
+        gravity = Gravity.CENTER
+        textSize = 13f
+        maxLines = 2
+        includeFontPadding = false
+        
     typeface =
             Typeface.DEFAULT_BOLD
 
