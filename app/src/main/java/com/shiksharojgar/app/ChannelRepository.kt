@@ -81,8 +81,20 @@ object ChannelRepository {
 
                     d.getLong("viewCount") ?: 0L,
 
-                    d.getLong("shareCount") ?: 0L
-                )
+                    d.getLong("shareCount") ?: 0L,
+
+buttons = (d.get("buttons") as? List<*>)?.mapNotNull { raw ->
+    val button = raw as? Map<*, *> ?: return@mapNotNull null
+
+    CategoryPostButton(
+        label = button["label"] as? String ?: "",
+        url = button["url"] as? String ?: "",
+        backgroundColor = button["backgroundColor"] as? String ?: "#1976D2",
+        textColor = button["textColor"] as? String ?: "#FFFFFF",
+        enabled = button["enabled"] as? Boolean ?: true
+    )
+} ?: emptyList()
+)
 
             }.sortedBy {
                 it.createdAt
