@@ -779,6 +779,23 @@ private fun loadCommonNoticePosts() {
                     }
                 )
 
+            val newestCategoryNoticeTime =
+                posts.mapNotNull {
+                    it.getLong("createdAt")
+                }.maxOrNull()
+
+            if (newestCategoryNoticeTime != null) {
+                getSharedPreferences(
+                    "sr_notifications",
+                    MODE_PRIVATE
+                ).edit()
+                    .putLong(
+                        "category_notice_last_seen_at",
+                        newestCategoryNoticeTime
+                    )
+                    .apply()
+            }
+            
             if (posts.isNotEmpty()) {
                 if (
                     listBox.childCount == 1 &&
