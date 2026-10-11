@@ -2330,9 +2330,6 @@ homeContent.addView(
     )
 )
 
-
-listOf(
-
 listOf(
     "📢 Notice / Update" to "notice",
     "📌 Important Information" to "important_information",
