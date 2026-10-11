@@ -9178,11 +9178,12 @@ if (selectedNoticeImage != null) {
 
             setOnClickListener {
 
+                
                 confirmDeletePosts(
-                    listOf(
-                        p.id
-                    )
+                    listOf(p.id),
+                    previewPost = p
                 )
+
             }
         },
         LinearLayout.LayoutParams(
@@ -9484,9 +9485,12 @@ private fun showAdminPostPreview(
     // DELETE CONFIRM
     // =========================================================
 
+    
     private fun confirmDeletePosts(
-        ids: List<String>
+        ids: List<String>,
+        previewPost: ChannelPost? = null
     ) {
+
 
         val clean =
             ids
@@ -9691,25 +9695,47 @@ private fun showAdminPostPreview(
             comments
         )
 
-        if (
-            p.imageUrl.isNotBlank()
-        ) {
+        
+        if (p.imageUrl.isNotBlank()) {
+            val existingPhoto = ImageView(this).apply {
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(Color.WHITE)
+            }
 
             box.addView(
-                TextView(this).apply {
-
-                    text =
-                        "🖼️ Existing photo सुरक्षित रहेगी"
-
-                    setPadding(
-                        0,
-                        dp(6),
-                        0,
-                        dp(2)
-                    )
+                existingPhoto,
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(220)
+                ).apply {
+                    topMargin = dp(6)
+                    bottomMargin = dp(6)
                 }
             )
+
+            ChannelRepository.loadImage(p.imageUrl) { bitmap, _ ->
+                runOnUiThread {
+                    if (bitmap != null) {
+                        existingPhoto.setImageBitmap(bitmap)
+                        existingPhoto.setOnClickListener {
+                            val largePhoto = ImageView(this).apply {
+                                setImageBitmap(bitmap)
+                                adjustViewBounds = true
+                                scaleType = ImageView.ScaleType.FIT_CENTER
+                            }
+
+                            AlertDialog.Builder(this)
+                                .setTitle("🖼️ Channel Post Photo")
+                                .setView(largePhoto)
+                                .setPositiveButton("बंद करें", null)
+                                .show()
+                        }
+                    }
+                }
+            }
         }
+
 
         if (
             p.fileUrl.isNotBlank()
