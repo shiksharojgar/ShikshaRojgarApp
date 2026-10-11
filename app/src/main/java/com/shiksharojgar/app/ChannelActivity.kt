@@ -1075,6 +1075,25 @@ root.addView(
     )
 )
 
+ViewCompat.setOnApplyWindowInsetsListener(
+    bottomBar
+) { view, insets ->
+
+    val bottom =
+        insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars()
+        ).bottom
+
+    view.setPadding(
+        view.paddingLeft,
+        view.paddingTop,
+        view.paddingRight,
+        bottom + dp(4)
+    )
+
+    insets
+}
+
 
     
 return root
