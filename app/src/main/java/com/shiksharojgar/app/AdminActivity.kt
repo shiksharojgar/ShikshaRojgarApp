@@ -2380,11 +2380,16 @@ listOf(
 
     categoryRow.addView(
         categoryButton(
-            "🗑 Delete Post",
+                        "🗑 Delete Post",
             Color.rgb(123, 31, 162)
         ) {
-            showCategoryPostManager(categoryKey, label)
+            showCategoryPostManager(
+                categoryKey,
+                label,
+                deleteOnly = true
+            )
         },
+        
         LinearLayout.LayoutParams(
             0, dp(42), 1f
         ).apply {
@@ -5574,7 +5579,8 @@ fun savePostWithMedia(
 
 private fun showCategoryPostManager(
     category: String,
-    categoryLabel: String
+    categoryLabel: String,
+    deleteOnly: Boolean = false
 ) {
     val listBox = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
@@ -5708,18 +5714,20 @@ private fun showCategoryPostManager(
                         )
                     }
                     
-                    val editButton = Button(this).apply {
-                        text = "✏️ पोस्ट एडिट करें"
-                        setOnClickListener {
-                            dialog.dismiss()
-                            showCommonPostCreator(
-                                initialCategory = category,
-                                existingPost = post
-                            )
+                                        if (!deleteOnly) {
+                        val editButton = Button(this).apply {
+                            text = "✏️ पोस्ट एडिट करें"
+                            setOnClickListener {
+                                dialog.dismiss()
+                                showCommonPostCreator(
+                                    initialCategory = category,
+                                    existingPost = post
+                                )
+                            }
                         }
-                    }
 
-                    itemBox.addView(editButton)
+                        itemBox.addView(editButton)
+                    }
 
 
                     val deleteButton = Button(this).apply {
