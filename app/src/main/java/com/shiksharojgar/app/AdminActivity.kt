@@ -7843,6 +7843,32 @@ if (selectedNoticeImage != null) {
                     "Category: आदेश/निर्देश"
             }
 
+        val websiteUrlField = EditText(this).apply {
+            hint = "🌐 वेबसाइट लिंक (वैकल्पिक)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+
+        val customButtonLabelField = EditText(this).apply {
+            hint = "🔘 कस्टम बटन का नाम (वैकल्पिक)"
+            setSingleLine(true)
+        }
+
+        val customButtonUrlField = EditText(this).apply {
+            hint = "🔗 कस्टम बटन का URL (वैकल्पिक)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+
+        val extraUrlField = EditText(this).apply {
+            hint = "🔗 अतिरिक्त URL / लिंक (वैकल्पिक)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+        
                 box.addView(
             title
         )
@@ -7856,9 +7882,13 @@ if (selectedNoticeImage != null) {
             body
         )
 
-        box.addView(
-            cat
-        )
+        
+        box.addView(cat)
+        box.addView(websiteUrlField)
+        box.addView(customButtonLabelField)
+        box.addView(customButtonUrlField)
+        box.addView(extraUrlField)
+
 
         // -----------------------------------------------------
         // IMAGE BUTTON
