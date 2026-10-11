@@ -5345,33 +5345,56 @@ fun savePostWithMedia(
         val category = selectedCategories[index]
 
         CategoryPostRepository.savePost(
+            
             CategoryPost(
+                id = existingPost?.id.orEmpty(),
                 category = category,
                 title = title,
                 body = body,
                 description = description,
                 websiteUrl = websiteUrl,
+                createdAt = existingPost?.createdAt ?: 0L,
                 buttons = if (
-    customButtonLabel.isNotBlank() &&
-    customButtonUrl.isNotBlank()
-) {
-    listOf(
-        CategoryPostButton(
-            label = customButtonLabel,
-            url = customButtonUrl
-        )
-    )
-} else {
-    emptyList()
-},
-                imageUrl = imageUrl,
+                    customButtonLabel.isNotBlank() &&
+                    customButtonUrl.isNotBlank()
+                ) {
+                    listOf(
+                        CategoryPostButton(
+                            label = customButtonLabel,
+                            url = customButtonUrl,
+                            backgroundColor = existingButton?.backgroundColor
+                                ?: "#1976D2",
+                            textColor = existingButton?.textColor
+                                ?: "#FFFFFF",
+                            enabled = existingButton?.enabled ?: true
+                        )
+                    )
+                } else {
+                    emptyList()
+                },
+                imageUrl = imageUrl.ifBlank {
+                    existingPost?.imageUrl.orEmpty()
+                },
                 imageMime = selectedImage
                     ?.let { contentResolver.getType(it) }
+                    ?: existingPost?.imageMime
                     ?: "image/jpeg",
-                fileUrl = fileUrl,
-                fileName = fileName,
-                fileMime = fileMime
+                fileUrl = fileUrl.ifBlank {
+                    existingPost?.fileUrl.orEmpty()
+                },
+                fileName = fileName.ifBlank {
+                    existingPost?.fileName.orEmpty()
+                },
+                fileMime = if (selectedFile != null) {
+                    fileMime
+                } else {
+                    existingPost?.fileMime ?: fileMime
+                },
+                pinned = existingPost?.pinned ?: false,
+                pinOrder = existingPost?.pinOrder ?: 0L,
+                enabled = existingPost?.enabled ?: true
             )
+
         ) { success, message ->
             runOnUiThread {
                 if (success) {
