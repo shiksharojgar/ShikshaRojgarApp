@@ -9870,11 +9870,44 @@ private fun showAdminPostPreview(
                         ).isEnabled =
                             false
 
-        box.addView(websiteUrlField)
-        box.addView(customButtonLabelField)
-        box.addView(customButtonUrlField)
-        box.addView(extraUrlField)
 
+                        val buttonLabel =
+                            customButtonLabelField.text.toString().trim()
+
+                        val buttonUrl =
+                            customButtonUrlField.text.toString().trim()
+
+                        val updatedButtons: List<Map<String, Any>> =
+                            if (buttonUrl.isBlank()) {
+                                emptyList()
+                            } else {
+                                listOf(
+                                    mapOf(
+                                        "label" to buttonLabel.ifBlank {
+                                            "लिंक खोलें"
+                                        },
+                                        "url" to buttonUrl,
+                                        "enabled" to true,
+                                        "backgroundColor" to
+                                            (firstButton?.backgroundColor ?: "#1976D2"),
+                                        "textColor" to
+                                            (firstButton?.textColor ?: "#FFFFFF")
+                                    )
+                                )
+                            }
+
+                        val data: Map<String, Any> =
+                            mapOf(
+                                "title" to title.text.toString().trim(),
+                                "body" to body.text.toString(),
+                                "category" to cat.text.toString().trim(),
+                                "commentsEnabled" to comments.isChecked,
+                                "websiteUrl" to websiteUrlField.text.toString().trim(),
+                                "extraUrl" to extraUrlField.text.toString().trim(),
+                                "buttons" to updatedButtons,
+                                "updatedAt" to System.currentTimeMillis()
+                            )
+                            
 
                         ChannelRepository
                             .updatePost(
