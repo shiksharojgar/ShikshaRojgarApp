@@ -4973,11 +4973,13 @@ private fun moveSubCategory(
 
         box.addView(adminSectionTitle("📂", "पोस्ट कहाँ प्रकाशित करें?"))
 
+
 val publishToChannel = CheckBox(this).apply {
     text = "📱 शिक्षा रोजगार चैनल"
-    isChecked = true
+    isChecked = false
     textSize = 14f
 }
+
 box.addView(publishToChannel)
 
 val categoryChecks = categories.map { (label, key) ->
