@@ -4949,8 +4949,9 @@ private fun moveSubCategory(
     // =========================================================
     // COMMON POST CREATOR
     // =========================================================
-
-    private fun showCommonPostCreator() {
+private fun showCommonPostCreator(
+    initialCategory: String? = null
+) {
 
         val categories = listOf(
             "नोटिस और अपडेट" to "notice",
@@ -4981,12 +4982,11 @@ val publishToChannel = CheckBox(this).apply {
 }
 
 box.addView(publishToChannel)
-
 val categoryChecks = categories.map { (label, key) ->
     CheckBox(this).apply {
         text = label
         tag = key
-        isChecked = false
+        isChecked = initialCategory == key
         textSize = 14f
     }.also { box.addView(it) }
 }
