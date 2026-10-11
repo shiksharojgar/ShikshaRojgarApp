@@ -9310,25 +9310,52 @@ private fun showAdminPostPreview(
         }
     )
 
+    
     if (p.imageUrl.isNotBlank()) {
+        val previewImage = ImageView(this).apply {
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(Color.WHITE)
+        }
 
         box.addView(
-            TextView(this).apply {
-
-                text =
-                    "🖼️ इस post में photo attached है"
-
-                textSize = 12f
-
-                setPadding(
-                    0,
-                    dp(5),
-                    0,
-                    dp(5)
-                )
+            previewImage,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(240)
+            ).apply {
+                topMargin = dp(6)
+                bottomMargin = dp(6)
             }
         )
+
+        ChannelRepository.loadImage(p.imageUrl) { bitmap, _ ->
+            runOnUiThread {
+                if (bitmap != null) {
+                    previewImage.setImageBitmap(bitmap)
+
+                    previewImage.setOnClickListener {
+                        val largeImage = ImageView(this).apply {
+                            setImageBitmap(bitmap)
+                            adjustViewBounds = true
+                            scaleType = ImageView.ScaleType.FIT_CENTER
+                        }
+
+                        AlertDialog.Builder(this)
+                            .setTitle("🖼️ Post Photo")
+                            .setView(largeImage)
+                            .setPositiveButton("बंद करें", null)
+                            .show()
+                    }
+                } else {
+                    previewImage.setImageDrawable(null)
+                    previewImage.contentDescription =
+                        "फोटो लोड नहीं हो सकी"
+                }
+            }
+        }
     }
+
 
     if (p.fileUrl.isNotBlank()) {
 
@@ -9505,17 +9532,68 @@ private fun showAdminPostPreview(
             return
         }
 
+        
+        val deleteContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(8), dp(16), dp(8))
+        }
+
+        deleteContent.addView(
+            TextView(this).apply {
+                text = "${clean.size} post delete की जाएंगी। यह action वापस नहीं होगा।"
+                textSize = 16f
+            }
+        )
+
+        val imageUrl = previewPost?.imageUrl.orEmpty()
+
+        if (imageUrl.isNotBlank()) {
+            val deletePreviewImage = ImageView(this).apply {
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(Color.WHITE)
+            }
+
+            deleteContent.addView(
+                deletePreviewImage,
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(220)
+                ).apply {
+                    topMargin = dp(8)
+                }
+            )
+
+            ChannelRepository.loadImage(imageUrl) { bitmap, _ ->
+                runOnUiThread {
+                    if (bitmap != null) {
+                        deletePreviewImage.setImageBitmap(bitmap)
+                        deletePreviewImage.setOnClickListener {
+                            val largePhoto = ImageView(this).apply {
+                                setImageBitmap(bitmap)
+                                adjustViewBounds = true
+                                scaleType = ImageView.ScaleType.FIT_CENTER
+                            }
+
+                            AlertDialog.Builder(this)
+                                .setTitle("🖼️ Post Photo")
+                                .setView(largePhoto)
+                                .setPositiveButton("बंद करें", null)
+                                .show()
+                        }
+                    }
+                }
+            }
+        }
+
         AlertDialog.Builder(this)
-            .setTitle(
-                "🗑 Delete Posts"
-            )
-            .setMessage(
-                "${clean.size} post delete की जाएंगी। यह action वापस नहीं होगा।"
-            )
-            .setNegativeButton(
-                "Cancel",
-                null
-            )
+            .setTitle("🗑 Delete Posts")
+            .setView(deleteContent)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("DELETE", null)
+            .create()
+            .also { dlg ->
+
             .setPositiveButton(
                 "DELETE",
                 null
