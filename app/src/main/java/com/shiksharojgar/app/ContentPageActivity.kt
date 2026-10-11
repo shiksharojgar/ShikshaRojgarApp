@@ -620,10 +620,13 @@ private fun shareContentPage(
                         doc.getString("fileUrl").orEmpty()
                     val fileName =
                         doc.getString("fileName").orEmpty()
+                    
                     val websiteUrl =
-                    val extraUrl =
-    doc.getString("extraUrl").orEmpty()
                         doc.getString("websiteUrl").orEmpty()
+
+                    val extraUrl =
+                        doc.getString("extraUrl").orEmpty()
+
 
                     if (title.isNotBlank()) {
                         card.addView(
