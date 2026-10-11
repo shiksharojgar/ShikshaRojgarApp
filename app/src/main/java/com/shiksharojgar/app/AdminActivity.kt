@@ -5043,10 +5043,12 @@ box.addView(
     )
 )
 
+        
         val titleField = EditText(this).apply {
             hint = "पोस्ट का शीर्षक"
             setSingleLine(false)
             minLines = 1
+            setText(existingPost?.title.orEmpty())
         }
         box.addView(titleField)
 
@@ -5054,8 +5056,10 @@ box.addView(
             hint = "पोस्ट का मुख्य टेक्स्ट"
             minLines = 4
             gravity = Gravity.TOP
+            setText(existingPost?.body.orEmpty())
         }
         box.addView(bodyField)
+
 
         
 val formatRow = LinearLayout(this).apply {
@@ -5114,6 +5118,7 @@ box.addView(formatRow)
             hint = "अतिरिक्त विवरण (वैकल्पिक)"
             minLines = 2
             gravity = Gravity.TOP
+                                setText(existingPost?.description.orEmpty())
         }
         box.addView(descriptionField)
 
@@ -5122,6 +5127,7 @@ box.addView(formatRow)
             setSingleLine(true)
             inputType = android.text.InputType.TYPE_CLASS_TEXT or
                 android.text.InputType.TYPE_TEXT_VARIATION_URI
+                        setText(existingPost?.websiteUrl.orEmpty())
         }
         box.addView(websiteUrlField)
         val customButtonLabelField = EditText(this).apply {
