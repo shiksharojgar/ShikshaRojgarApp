@@ -1996,7 +1996,83 @@ if (
                 )
             }
         }
+/*
+ * CUSTOM POST BUTTONS
+ */
+p.buttons
+    .filter {
+        it.enabled &&
+        it.label.isNotBlank() &&
+        it.url.isNotBlank()
+    }
+    .forEach { postButton ->
 
+        val buttonBackground =
+            try {
+                Color.parseColor(
+                    postButton.backgroundColor
+                )
+            } catch (_: Exception) {
+                Color.rgb(25, 118, 210)
+            }
+
+        val buttonTextColor =
+            try {
+                Color.parseColor(
+                    postButton.textColor
+                )
+            } catch (_: Exception) {
+                Color.WHITE
+            }
+
+        box.addView(
+            TextView(this).apply {
+
+                text = postButton.label
+
+                gravity = Gravity.CENTER
+
+                textSize = 14f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    buttonTextColor
+                )
+
+                background =
+                    GradientFactory.gradient(
+                        postButton.backgroundColor,
+                        postButton.backgroundColor
+                    )
+
+                setPadding(
+                    dp(12),
+                    dp(8),
+                    dp(12),
+                    dp(8)
+                )
+
+                setOnClickListener {
+                    safeOpenUrl(
+                        postButton.url
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(
+                -1,
+                dp(42)
+            ).apply {
+                setMargins(
+                    0,
+                    0,
+                    0,
+                    dp(8)
+                )
+            }
+        )
+    }
         /*
          * IMAGE
          *
