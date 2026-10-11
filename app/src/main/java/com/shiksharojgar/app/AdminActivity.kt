@@ -9662,6 +9662,7 @@ private fun showAdminPostPreview(
             }
         }
 
+        
         AlertDialog.Builder(this)
             .setTitle("🗑 Delete Posts")
             .setView(deleteContent)
@@ -9670,12 +9671,6 @@ private fun showAdminPostPreview(
             .create()
             .also { dlg ->
 
-            .setPositiveButton(
-                "DELETE",
-                null
-            )
-            .create()
-            .also { dlg ->
 
                 dlg.setOnShowListener {
 
