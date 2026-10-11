@@ -5243,25 +5243,21 @@ commonPostImagePreview = ImageView(this).apply {
 }
 box.addView(commonPostImagePreview)
 
+        
         existingPost?.imageUrl
             ?.takeIf { it.isNotBlank() }
             ?.let { savedImageUrl ->
                 commonPostImagePreview?.visibility = View.VISIBLE
 
-                Thread {
-                    val bitmap = runCatching {
-                        java.net.URL(savedImageUrl).openStream().use {
-                            android.graphics.BitmapFactory.decodeStream(it)
-                        }
-                    }.getOrNull()
-
+                ChannelRepository.loadImage(savedImageUrl) { bitmap, _ ->
                     runOnUiThread {
                         if (bitmap != null) {
                             commonPostImagePreview?.setImageBitmap(bitmap)
                         }
                     }
-                }.start()
+                }
             }
+
             
         val fileButton = Button(this).apply {
             text = "📄 PDF / File चुनें"
