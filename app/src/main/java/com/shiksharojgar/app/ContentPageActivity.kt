@@ -551,7 +551,7 @@ private fun shareContentPage(
                         )
                     }
                 )
-
+                loadCategoryPosts(pageId)
             }
             .addOnFailureListener {
 
@@ -566,4 +566,178 @@ private fun shareContentPage(
                 )
             }
     }
+        private fun loadCategoryPosts(pageId: String) {
+
+        val categoryKey = when (pageId) {
+            "notices", "notice" -> "notice"
+            "important_information" -> "important_information"
+            "study_material" -> "study_material"
+            "career", "career_guide" -> "career_guide"
+            else -> return
+        }
+
+        db.collection("category_posts")
+            .whereEqualTo("category", categoryKey)
+            .get()
+            .addOnSuccessListener { snapshot ->
+
+                val posts = snapshot.documents.filter {
+                    it.getBoolean("enabled") ?: true
+                }.sortedByDescending {
+                    it.getLong("createdAt") ?: 0L
+                }
+
+                if (posts.isEmpty()) return@addOnSuccessListener
+
+                bodyBox.addView(
+                    TextView(this).apply {
+                        text = "📢 नई पोस्ट और अपडेट"
+                        textSize = 21f
+                        typeface = Typeface.DEFAULT_BOLD
+                        setTextColor(Color.rgb(7, 89, 133))
+                        setPadding(0, dp(20), 0, dp(10))
+                    }
+                )
+
+                posts.forEach { doc ->
+
+                    val card = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(
+                            dp(12), dp(12), dp(12), dp(12)
+                        )
+                        setBackgroundColor(Color.WHITE)
+                    }
+
+                    val title = doc.getString("title").orEmpty()
+                    val body = doc.getString("body").orEmpty()
+                    val description =
+                        doc.getString("description").orEmpty()
+                    val imageUrl =
+                        doc.getString("imageUrl").orEmpty()
+                    val fileUrl =
+                        doc.getString("fileUrl").orEmpty()
+                    val fileName =
+                        doc.getString("fileName").orEmpty()
+                    val websiteUrl =
+                        doc.getString("websiteUrl").orEmpty()
+
+                    if (title.isNotBlank()) {
+                        card.addView(
+                            TextView(this).apply {
+                                text = title
+                                textSize = 19f
+                                typeface = Typeface.DEFAULT_BOLD
+                                setTextColor(Color.rgb(15, 76, 129))
+                            }
+                        )
+                    }
+
+                    if (imageUrl.isNotBlank()) {
+                        val imageView = ImageView(this).apply {
+                            adjustViewBounds = true
+                            scaleType = ImageView.ScaleType.FIT_CENTER
+                        }
+
+                        card.addView(
+                            imageView,
+                            LinearLayout.LayoutParams(
+                                -1, dp(220)
+                            ).apply {
+                                topMargin = dp(8)
+                                bottomMargin = dp(8)
+                            }
+                        )
+
+                        ChannelRepository.loadImage(imageUrl) {
+                                bitmap, _ ->
+                            runOnUiThread {
+                                if (bitmap != null) {
+                                    imageView.setImageBitmap(bitmap)
+                                }
+                            }
+                        }
+                    }
+
+                    if (body.isNotBlank()) {
+                        card.addView(
+                            TextView(this).apply {
+                                text = body
+                                textSize = 16f
+                                setTextColor(Color.rgb(30, 41, 59))
+                                setPadding(0, dp(6), 0, dp(6))
+                            }
+                        )
+                    }
+
+                    if (description.isNotBlank()) {
+                        card.addView(
+                            TextView(this).apply {
+                                text = description
+                                textSize = 15f
+                                setTextColor(Color.DKGRAY)
+                                setPadding(0, dp(4), 0, dp(4))
+                            }
+                        )
+                    }
+
+                    if (websiteUrl.isNotBlank()) {
+                        val websiteButton = Button(this).apply {
+                            text = "🌐 वेबसाइट खोलें"
+                            setOnClickListener {
+                                val url = if (
+                                    websiteUrl.startsWith("http://") ||
+                                    websiteUrl.startsWith("https://")
+                                ) websiteUrl else "https://$websiteUrl"
+
+                                runCatching {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            android.net.Uri.parse(url)
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        card.addView(websiteButton)
+                    }
+
+                    if (fileUrl.isNotBlank()) {
+                        val pdfButton = Button(this).apply {
+                            text = "📄 " + fileName.ifBlank {
+                                "PDF / अध्ययन सामग्री खोलें"
+                            }
+                            setOnClickListener {
+                                runCatching {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            android.net.Uri.parse(fileUrl)
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        card.addView(pdfButton)
+                    }
+
+                    bodyBox.addView(
+                        card,
+                        LinearLayout.LayoutParams(
+                            -1, -2
+                        ).apply {
+                            bottomMargin = dp(12)
+                        }
+                    )
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    this,
+                    "कैटेगरी पोस्ट लोड नहीं हो सकीं।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 }
