@@ -743,6 +743,7 @@ morePostsButton.visibility =
             notificationManager.cancel(9001)
         }
     }
+
 private fun updateNoticeUnreadCount() {
 
     val noticeBadge =
@@ -752,85 +753,75 @@ private fun updateNoticeUnreadCount() {
                 "id",
                 packageName
             )
-        )
+        ) ?: return
 
-    if (noticeBadge == null) {
-        return
-    }
+    val prefs = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    )
 
-    val prefs =
-        getSharedPreferences(
-            "sr_notifications",
-            MODE_PRIVATE
-        )
+    val homeLastSeen =
+        prefs.getLong("notice_last_seen_at", 0L)
 
-    val lastSeen =
-        prefs.getLong(
-            "notice_last_seen_at",
-            0L
-        )
+    val categoryLastSeen =
+        prefs.getLong("category_notice_last_seen_at", 0L)
 
-    FirebaseFirestore.getInstance()
-        .collection("home_notices")
-        .whereEqualTo(
-            "enabled",
-            true
-        )
+    val firestore = FirebaseFirestore.getInstance()
+    val now = System.currentTimeMillis()
+
+    firestore.collection("home_notices")
+        .whereEqualTo("enabled", true)
         .get()
-        .addOnSuccessListener { snapshot ->
+        .addOnSuccessListener { homeSnapshot ->
 
-            val now =
-                System.currentTimeMillis()
+            val homeCount =
+                homeSnapshot.documents.count { doc ->
+                    val startAt = doc.getLong("startAt") ?: 0L
+                    val endAt = doc.getLong("endAt") ?: 0L
+                    val createdAt = doc.getLong("createdAt") ?: 0L
 
-            val count =
-                snapshot.documents.count { doc ->
-
-                    val startAt =
-                        doc.getLong(
-                            "startAt"
-                        ) ?: 0L
-
-                    val endAt =
-                        doc.getLong(
-                            "endAt"
-                        ) ?: 0L
-
-                    val createdAt =
-                        doc.getLong(
-                            "createdAt"
-                        ) ?: 0L
-
-                    (
-                        startAt == 0L ||
-                        now >= startAt
-                    ) &&
-                    (
-                        endAt == 0L ||
-                        now <= endAt
-                    ) &&
-                    createdAt > lastSeen
+                    (startAt == 0L || now >= startAt) &&
+                    (endAt == 0L || now <= endAt) &&
+                    createdAt > homeLastSeen
                 }
 
-            noticeBadge.text =
-                if (count > 99) {
-                    "99+"
-                } else {
-                    count.toString()
-                }
+            firestore.collection("category_posts")
+                .whereEqualTo("category", "notice")
+                .get()
+                .addOnSuccessListener { categorySnapshot ->
 
-            noticeBadge.visibility =
-                if (count > 0) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
+                    val categoryCount =
+                        categorySnapshot.documents.count { doc ->
+                            (doc.getBoolean("enabled") ?: true) &&
+                            (doc.getLong("createdAt") ?: 0L) >
+                                categoryLastSeen
+                        }
+
+                    val totalCount = homeCount + categoryCount
+
+                    noticeBadge.text =
+                        if (totalCount > 99) {
+                            "99+"
+                        } else {
+                            totalCount.toString()
+                        }
+
+                    noticeBadge.visibility =
+                        if (totalCount > 0) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                }
+                .addOnFailureListener {
+                    noticeBadge.visibility = View.GONE
                 }
         }
         .addOnFailureListener {
-
-            noticeBadge.visibility =
-                View.GONE
+            noticeBadge.visibility = View.GONE
         }
 }
+
 
     // ============================================================
     // LIFECYCLE
