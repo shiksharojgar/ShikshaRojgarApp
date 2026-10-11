@@ -5592,8 +5592,14 @@ private fun showCategoryPostManager(
         addView(listBox)
     }
 
-    val dialog = AlertDialog.Builder(this)
-        .setTitle("📋 $categoryLabel — पोस्ट मैनेजमेंट")
+        val dialog = AlertDialog.Builder(this)
+        .setTitle(
+            if (deleteOnly) {
+                "🗑️ $categoryLabel — पोस्ट डिलीट करें"
+            } else {
+                "📋 $categoryLabel — पोस्ट मैनेजमेंट"
+            }
+        )
         .setView(scroll)
         .setNegativeButton("बंद करें", null)
         .create()
