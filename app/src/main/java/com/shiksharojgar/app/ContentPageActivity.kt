@@ -621,6 +621,8 @@ private fun shareContentPage(
                     val fileName =
                         doc.getString("fileName").orEmpty()
                     val websiteUrl =
+                    val extraUrl =
+    doc.getString("extraUrl").orEmpty()
                         doc.getString("websiteUrl").orEmpty()
 
                     if (title.isNotBlank()) {
@@ -742,6 +744,147 @@ private fun shareContentPage(
                         card.addView(pdfButton)
                     }
 
+                    // अतिरिक्त URL बटन
+                    if (extraUrl.isNotBlank()) {
+                        card.addView(
+                            Button(this).apply {
+                                text = "🔗 अतिरिक्त लिंक खोलें"
+                                setOnClickListener {
+                                    val url = if (
+                                        extraUrl.startsWith("http://") ||
+                                        extraUrl.startsWith("https://")
+                                    ) extraUrl else "https://$extraUrl"
+
+                                    runCatching {
+                                        startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                android.net.Uri.parse(url)
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    // Admin द्वारा बनाए गए कस्टम बटन
+                    val customButtons =
+                        (doc.get("buttons") as? List<*>)
+                            ?.mapNotNull { raw ->
+                                val item = raw as? Map<*, *>
+                                    ?: return@mapNotNull null
+
+                                val label =
+                                    item["label"] as? String ?: ""
+                                val url =
+                                    item["url"] as? String ?: ""
+                                val enabled =
+                                    item["enabled"] as? Boolean ?: true
+
+                                if (enabled && url.isNotBlank()) {
+                                    label.ifBlank { "लिंक खोलें" } to url
+                                } else {
+                                    null
+                                }
+                            } ?: emptyList()
+
+                    customButtons.forEach { (label, rawUrl) ->
+                        card.addView(
+                            Button(this).apply {
+                                text = "🔗 $label"
+                                setOnClickListener {
+                                    val url = if (
+                                        rawUrl.startsWith("http://") ||
+                                        rawUrl.startsWith("https://")
+                                    ) rawUrl else "https://$rawUrl"
+
+                                    runCatching {
+                                        startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                android.net.Uri.parse(url)
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    // पोस्ट को टेक्स्ट और क्लिक करने योग्य URL के साथ शेयर करें
+                    card.addView(
+                        Button(this).apply {
+                            text = "📤 Share ↗️"
+
+                            setOnClickListener {
+                                val shareText = buildString {
+                                    appendLine("📱 Shiksha Rojgar App")
+                                    appendLine(title)
+
+                                    if (body.isNotBlank()) {
+                                        appendLine(body)
+                                    }
+
+                                    if (description.isNotBlank()) {
+                                        appendLine(description)
+                                    }
+
+                                    if (websiteUrl.isNotBlank()) {
+                                        val url = if (
+                                            websiteUrl.startsWith("http://") ||
+                                            websiteUrl.startsWith("https://")
+                                        ) websiteUrl else "https://$websiteUrl"
+
+                                        appendLine("🌐 वेबसाइट: $url")
+                                    }
+
+                                    if (extraUrl.isNotBlank()) {
+                                        val url = if (
+                                            extraUrl.startsWith("http://") ||
+                                            extraUrl.startsWith("https://")
+                                        ) extraUrl else "https://$extraUrl"
+
+                                        appendLine("🔗 अतिरिक्त लिंक: $url")
+                                    }
+
+                                    customButtons.forEach { (label, rawUrl) ->
+                                        val url = if (
+                                            rawUrl.startsWith("http://") ||
+                                            rawUrl.startsWith("https://")
+                                        ) rawUrl else "https://$rawUrl"
+
+                                        appendLine("$label: $url")
+                                    }
+
+                                    if (fileUrl.isNotBlank()) {
+                                        appendLine("📄 ${fileName.ifBlank { "फाइल / PDF" }}: $fileUrl")
+                                    }
+
+                                    if (imageUrl.isNotBlank()) {
+                                        appendLine("🖼️ फोटो: $imageUrl")
+                                    }
+
+                                    appendLine()
+                                    appendLine("Official Website: https://www.shiksharojgar.com/")
+                                    appendLine("App Download: https://www.shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
+                                }
+
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, shareText)
+                                }
+
+                                startActivity(
+                                    Intent.createChooser(
+                                        shareIntent,
+                                        "पोस्ट शेयर करें"
+                                    )
+                                )
+                            }
+                        }
+                    )
+                    
                     bodyBox.addView(
                         card,
                         LinearLayout.LayoutParams(
