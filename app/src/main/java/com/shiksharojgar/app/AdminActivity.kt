@@ -69,15 +69,24 @@ private val pickNoticeImage =
 
     private var commonPostImageUri: Uri? = null
     private var commonPostFileUri: Uri? = null
-
+private var commonPostImagePreview: ImageView? = null
     private val pickCommonPostImage =
         registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
             commonPostImageUri = uri
-            if (uri != null) {
-                toast("पोस्ट की फोटो चुन ली गई")
-            }
+commonPostImagePreview?.apply {
+    if (uri != null) {
+        setImageURI(uri)
+        visibility = View.VISIBLE
+    } else {
+        setImageDrawable(null)
+        visibility = View.GONE
+    }
+}
+if (uri != null) {
+    toast("पोस्ट की फोटो चुन ली गई")
+}
         }
 
     private val pickCommonPostFile =
@@ -5075,7 +5084,19 @@ box.addView(formatRow)
             }
         }
         box.addView(imageButton)
-
+commonPostImagePreview = ImageView(this).apply {
+    layoutParams = LinearLayout.LayoutParams(
+        -1,
+        dp(220)
+    ).apply {
+        topMargin = dp(8)
+        bottomMargin = dp(8)
+    }
+    scaleType = ImageView.ScaleType.FIT_CENTER
+    adjustViewBounds = true
+    visibility = View.GONE
+}
+box.addView(commonPostImagePreview)
         val fileButton = Button(this).apply {
             text = "📄 PDF / File चुनें"
             setOnClickListener {
