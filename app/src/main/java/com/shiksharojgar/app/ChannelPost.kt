@@ -15,5 +15,6 @@ data class ChannelPost(
     val likeCount: Long = 0L,
     val commentCount: Long = 0L,
     val viewCount: Long = 0L,
-    val shareCount: Long = 0L
+        val shareCount: Long = 0L,
+    val buttons: List<CategoryPostButton> = emptyList()
 )
