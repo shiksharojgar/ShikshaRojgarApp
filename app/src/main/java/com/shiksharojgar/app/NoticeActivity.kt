@@ -803,6 +803,21 @@ private fun loadCommonNoticePosts() {
                     doc.getString("imageUrl").orEmpty()
                 val websiteUrl =
                     doc.getString("websiteUrl").orEmpty().trim()
+                    val customButtons =
+    (doc.get("buttons") as? List<*>)?.mapNotNull { item ->
+        val button = item as? Map<*, *>
+            ?: return@mapNotNull null
+
+        CategoryPostButton(
+            label = button["label"] as? String ?: "",
+            url = button["url"] as? String ?: "",
+            backgroundColor =
+                button["backgroundColor"] as? String ?: "#1976D2",
+            textColor =
+                button["textColor"] as? String ?: "#FFFFFF",
+            enabled = button["enabled"] as? Boolean ?: true
+        )
+    } ?: emptyList()
 
                 val card = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
