@@ -2322,6 +2322,35 @@ pageRow2.addView(
 
 
 homeContent.addView(pageManager)
+
+homeContent.addView(
+    adminSectionTitle(
+        "📝",
+        "CATEGORY POST MANAGEMENT"
+    )
+)
+
+listOf(
+    "📢 Notice / Update" to "notice",
+    "📌 Important Information" to "important_information",
+    "📖 Study Material / Syllabus" to "study_material",
+    "📚 Career Guide / Useful Tools" to "career_guide"
+).forEach { (label, categoryKey) ->
+
+    homeContent.addView(
+        adminActionButton("➕ $label — पोस्ट बनाएँ") {
+            showCommonPostCreator(categoryKey)
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(40)
+        ).apply {
+            topMargin = dp(3)
+            bottomMargin = dp(3)
+        }
+    )
+}
+
 // =====================================================
 // NOTICE MANAGEMENT
 // =====================================================
