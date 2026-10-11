@@ -93,7 +93,9 @@ buttons = (d.get("buttons") as? List<*>)?.mapNotNull { raw ->
         textColor = button["textColor"] as? String ?: "#FFFFFF",
         enabled = button["enabled"] as? Boolean ?: true
     )
-} ?: emptyList()
+} ?: emptyList(),
+websiteUrl = d.getString("websiteUrl").orEmpty(),
+extraUrl = d.getString("extraUrl").orEmpty()
 )
 
             }.sortedBy {
