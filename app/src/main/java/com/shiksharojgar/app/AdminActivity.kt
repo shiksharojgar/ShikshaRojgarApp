@@ -5028,14 +5028,17 @@ val publishToChannel = CheckBox(this).apply {
 }
 
 box.addView(publishToChannel)
+
 val categoryChecks = categories.map { (label, key) ->
     CheckBox(this).apply {
         text = label
         tag = key
         isChecked = (existingPost?.category ?: initialCategory) == key
+        isEnabled = existingPost == null
         textSize = 14f
     }.also { box.addView(it) }
 }
+
 
 box.addView(
     adminSectionNote(
