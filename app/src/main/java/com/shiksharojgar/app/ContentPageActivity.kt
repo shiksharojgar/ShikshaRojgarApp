@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.appcompat.app.AlertDialog
 
 class ContentPageActivity : AppCompatActivity() {
 
@@ -649,14 +650,33 @@ private fun shareContentPage(
                             }
                         )
 
+                        
                         ChannelRepository.loadImage(imageUrl) {
-                                bitmap, _ ->
+                            bitmap, _ ->
                             runOnUiThread {
                                 if (bitmap != null) {
                                     imageView.setImageBitmap(bitmap)
+
+                                    imageView.setOnClickListener {
+                                        val largeImage =
+                                            ImageView(this).apply {
+                                                setImageBitmap(bitmap)
+                                                adjustViewBounds = true
+                                                scaleType =
+                                                    ImageView.ScaleType.FIT_CENTER
+                                                setBackgroundColor(Color.BLACK)
+                                            }
+
+                                        AlertDialog.Builder(this)
+                                            .setTitle("🖼️ पोस्ट की फोटो")
+                                            .setView(largeImage)
+                                            .setPositiveButton("बंद करें", null)
+                                            .show()
+                                    }
                                 }
                             }
                         }
+
                     }
 
                     if (body.isNotBlank()) {
