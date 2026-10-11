@@ -8283,20 +8283,21 @@ if (selectedNoticeImage != null) {
     // =========================================================
 
     
-                            uploadBoth(
-                                finalTitle,
-                                rawBody,
-                                category,
-                                commentsEnabled,
-                                websiteUrl,
-                                postButtons,
-                                extraUrl
-                            ) { ok, msg ->
-
+                            
+    private fun uploadBoth(
+        title: String,
+        body: String,
+        cat: String,
+        comments: Boolean,
+        websiteUrl: String,
+        postButtons: List<Map<String, Any>>,
+        extraUrl: String,
+        done: (
             Boolean,
             String?
         ) -> Unit
     ) {
+
 
         val images =
             selectedImageUris.toList()
