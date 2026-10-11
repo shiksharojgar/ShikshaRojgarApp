@@ -4994,7 +4994,8 @@ private fun moveSubCategory(
     // COMMON POST CREATOR
     // =========================================================
 private fun showCommonPostCreator(
-    initialCategory: String? = null
+    initialCategory: String? = null,
+    existingPost: CategoryPost? = null
 ) {
 
         val categories = listOf(
@@ -5022,6 +5023,7 @@ private fun showCommonPostCreator(
 val publishToChannel = CheckBox(this).apply {
     text = "📱 शिक्षा रोजगार चैनल"
     isChecked = false
+    isEnabled = existingPost == null
     textSize = 14f
 }
 
@@ -5030,7 +5032,7 @@ val categoryChecks = categories.map { (label, key) ->
     CheckBox(this).apply {
         text = label
         tag = key
-        isChecked = initialCategory == key
+        isChecked = (existingPost?.category ?: initialCategory) == key
         textSize = 14f
     }.also { box.addView(it) }
 }
