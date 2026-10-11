@@ -1823,8 +1823,7 @@ if (
                 TextView(this).apply {
 
                     text =
-                        p.body
-
+    formatPostBody(p.body)
                     textSize = 14f
 
                     setTextColor(
