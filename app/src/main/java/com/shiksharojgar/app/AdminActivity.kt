@@ -2330,6 +2330,7 @@ homeContent.addView(
     )
 )
 
+
 listOf(
     "📢 Notice / Update" to "notice",
     "📌 Important Information" to "important_information",
@@ -2349,7 +2350,21 @@ listOf(
             bottomMargin = dp(3)
         }
     )
+
+    homeContent.addView(
+        adminActionButton("📋 $label — पोस्ट मैनेज करें") {
+            showCategoryPostManager(categoryKey, label)
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(40)
+        ).apply {
+            topMargin = dp(3)
+            bottomMargin = dp(8)
+        }
+    )
 }
+
 
 // =====================================================
 // NOTICE MANAGEMENT
