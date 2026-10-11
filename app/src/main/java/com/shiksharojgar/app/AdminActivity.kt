@@ -9695,54 +9695,63 @@ private fun showAdminPostPreview(
                 )
             }
 
-        val title =
-            EditText(this).apply {
+        val title = EditText(this).apply {
+            hint = "Post title"
+            setText(p.title)
+        }
 
-                hint =
-                    "Post title"
+        val body = EditText(this).apply {
+            hint = "Post text / details"
+            setText(p.body)
+            minLines = 6
+            gravity = Gravity.TOP
+        }
 
-                setText(
-                    p.title
-                )
-            }
+        val cat = EditText(this).apply {
+            hint = "Category"
+            setText(p.category)
+        }
 
-        val body =
-            EditText(this).apply {
+        val websiteUrlField = EditText(this).apply {
+            hint = "🌐 वेबसाइट लिंक"
+            setSingleLine(true)
+            setText(p.websiteUrl)
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
 
-                hint =
-                    "Post text / details"
+        val firstButton = p.buttons.firstOrNull()
 
-                setText(
-                    p.body
-                )
+        val customButtonLabelField = EditText(this).apply {
+            hint = "🔘 कस्टम बटन का नाम"
+            setSingleLine(true)
+            setText(firstButton?.label.orEmpty())
+        }
 
-                minLines =
-                    6
+        val customButtonUrlField = EditText(this).apply {
+            hint = "🔗 कस्टम बटन URL"
+            setSingleLine(true)
+            setText(firstButton?.url.orEmpty())
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
 
-                gravity =
-                    Gravity.TOP
-            }
+        val extraUrlField = EditText(this).apply {
+            hint = "🔗 अतिरिक्त URL"
+            setSingleLine(true)
+            setText(p.extraUrl)
+            inputType =
+                android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
 
-        val cat =
-            EditText(this).apply {
+        val comments = Switch(this).apply {
+            text = "Comments ON"
+            isChecked = p.commentsEnabled
+        }
 
-                hint =
-                    "Category"
-
-                setText(
-                    p.category
-                )
-            }
-
-        val comments =
-            Switch(this).apply {
-
-                text =
-                    "Comments ON"
-
-                isChecked =
-                    p.commentsEnabled
-            }
 
                 box.addView(
             title
@@ -9761,6 +9770,11 @@ private fun showAdminPostPreview(
             cat
         )
 
+        box.addView(websiteUrlField)
+        box.addView(customButtonLabelField)
+        box.addView(customButtonUrlField)
+        box.addView(extraUrlField)
+        
         box.addView(
             comments
         )
@@ -9856,34 +9870,11 @@ private fun showAdminPostPreview(
                         ).isEnabled =
                             false
 
-                        val data =
-                            mapOf(
-                                "title" to
-                                    title.text
-                                        .toString()
-                                        .trim()
-                                        .ifBlank {
-                                            p.title
-                                        },
+        box.addView(websiteUrlField)
+        box.addView(customButtonLabelField)
+        box.addView(customButtonUrlField)
+        box.addView(extraUrlField)
 
-                                "body" to
-                                    body.text
-                                        .toString(),
-
-                                "category" to
-                                    cat.text
-                                        .toString()
-                                        .trim()
-                                        .ifBlank {
-                                            p.category
-                                        },
-
-                                "commentsEnabled" to
-                                    comments.isChecked,
-
-                                "updatedAt" to
-                                    System.currentTimeMillis()
-                            )
 
                         ChannelRepository
                             .updatePost(
