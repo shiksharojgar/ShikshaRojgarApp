@@ -8087,6 +8087,30 @@ if (selectedNoticeImage != null) {
                             globalCommentsEnabled &&
                                 comments.isChecked
 
+                        val websiteUrl = websiteUrlField.text.toString().trim()
+                        val customButtonLabel =
+                            customButtonLabelField.text.toString().trim()
+                        val customButtonUrl =
+                            customButtonUrlField.text.toString().trim()
+                        val extraUrl = extraUrlField.text.toString().trim()
+
+                        val postButtons = if (
+                            customButtonLabel.isNotBlank() &&
+                            customButtonUrl.isNotBlank()
+                        ) {
+                            listOf(
+                                mapOf(
+                                    "label" to customButtonLabel,
+                                    "url" to customButtonUrl,
+                                    "backgroundColor" to "#1976D2",
+                                    "textColor" to "#FFFFFF",
+                                    "enabled" to true
+                                )
+                            )
+                        } else {
+                            emptyList<Map<String, Any>>()
+                        }
+
                         // -------------------------------------------------
                         // TEXT ONLY
                         // -------------------------------------------------
@@ -8105,6 +8129,12 @@ if (selectedNoticeImage != null) {
                                         "published" to true,
                                         "postType" to "text",
                                         "category" to category,
+                                        
+                                        "websiteUrl" to websiteUrl,
+                                        "buttons" to postButtons,
+                                        "extraUrl" to extraUrl,
+                                        "extraUrls" to if (extraUrl.isNotBlank()) listOf(extraUrl) else emptyList<String>(),
+
                                         "imageUrl" to "",
                                         "fileUrl" to "",
                                         "fileName" to "",
@@ -8152,12 +8182,17 @@ if (selectedNoticeImage != null) {
 
                         } else {
 
+                            
                             uploadBoth(
                                 finalTitle,
                                 rawBody,
                                 category,
-                                commentsEnabled
+                                commentsEnabled,
+                                websiteUrl,
+                                postButtons,
+                                extraUrl
                             ) { ok, msg ->
+
 
                                 runOnUiThread {
 
@@ -8247,12 +8282,17 @@ if (selectedNoticeImage != null) {
     // UPLOAD BOTH
     // =========================================================
 
-    private fun uploadBoth(
-        title: String,
-        body: String,
-        cat: String,
-        comments: Boolean,
-        done: (
+    
+                            uploadBoth(
+                                finalTitle,
+                                rawBody,
+                                category,
+                                commentsEnabled,
+                                websiteUrl,
+                                postButtons,
+                                extraUrl
+                            ) { ok, msg ->
+
             Boolean,
             String?
         ) -> Unit
@@ -8303,6 +8343,11 @@ if (selectedNoticeImage != null) {
                                 "media"
                             },
                         "category" to cat,
+                        "websiteUrl" to websiteUrl,
+                        "buttons" to postButtons,
+                        "extraUrl" to extraUrl,
+                        "extraUrls" to if (extraUrl.isNotBlank()) listOf(extraUrl) else emptyList<String>(),
+                        
                         "imageUrl" to image,
                         "fileUrl" to fileUrl,
                         "fileName" to
