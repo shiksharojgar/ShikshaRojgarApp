@@ -5603,14 +5603,36 @@ private fun showCategoryPostManager(
                         )
                     }
 
+                    
                     if (post.imageUrl.isNotBlank()) {
+                        val postImagePreview = ImageView(this).apply {
+                            adjustViewBounds = true
+                            scaleType = ImageView.ScaleType.FIT_CENTER
+                            setBackgroundColor(Color.WHITE)
+                        }
+
                         itemBox.addView(
-                            TextView(this).apply {
-                                text = "🖼️ फोटो उपलब्ध है"
-                                textSize = 13f
+                            postImagePreview,
+                            LinearLayout.LayoutParams(
+                                -1,
+                                dp(200)
+                            ).apply {
+                                topMargin = dp(8)
+                                bottomMargin = dp(8)
                             }
                         )
+
+                        ChannelRepository.loadImage(
+                            post.imageUrl
+                        ) { bitmap, _ ->
+                            runOnUiThread {
+                                if (bitmap != null) {
+                                    postImagePreview.setImageBitmap(bitmap)
+                                }
+                            }
+                        }
                     }
+
 
                     if (post.fileUrl.isNotBlank()) {
                         itemBox.addView(
