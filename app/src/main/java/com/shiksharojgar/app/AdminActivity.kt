@@ -5076,7 +5076,19 @@ box.addView(formatRow)
                 android.text.InputType.TYPE_TEXT_VARIATION_URI
         }
         box.addView(websiteUrlField)
-        
+        val customButtonLabelField = EditText(this).apply {
+    hint = "🔘 कस्टम बटन का नाम (वैकल्पिक)"
+    setSingleLine(true)
+}
+box.addView(customButtonLabelField)
+
+val customButtonUrlField = EditText(this).apply {
+    hint = "🔗 कस्टम बटन का URL (वैकल्पिक)"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+        android.text.InputType.TYPE_TEXT_VARIATION_URI
+}
+box.addView(customButtonUrlField)
         val imageButton = Button(this).apply {
             text = "🖼️ फोटो चुनें"
             setOnClickListener {
@@ -5135,6 +5147,13 @@ box.addView(commonPostImagePreview)
                             .toString()
                             .trim()
 val websiteUrl = websiteUrlField.text
+                        val customButtonLabel = customButtonLabelField.text
+    .toString()
+    .trim()
+
+val customButtonUrl = customButtonUrlField.text
+    .toString()
+    .trim()
     .toString()
     .trim()
                         if (title.isBlank() && body.isBlank()) {
@@ -5197,6 +5216,22 @@ fun savePostWithMedia(
             "body" to body,
             "description" to description,
             "websiteUrl" to websiteUrl,
+            "buttons" to if (
+    customButtonLabel.isNotBlank() &&
+    customButtonUrl.isNotBlank()
+) {
+    listOf(
+        mapOf(
+            "label" to customButtonLabel,
+            "url" to customButtonUrl,
+            "backgroundColor" to "#1976D2",
+            "textColor" to "#FFFFFF",
+            "enabled" to true
+        )
+    )
+} else {
+    emptyList<Map<String, Any>>()
+},
             "published" to true,
             "postType" to if (
                 imageUrl.isNotBlank() || fileUrl.isNotBlank()
@@ -5256,6 +5291,19 @@ fun savePostWithMedia(
                 body = body,
                 description = description,
                 websiteUrl = websiteUrl,
+                buttons = if (
+    customButtonLabel.isNotBlank() &&
+    customButtonUrl.isNotBlank()
+) {
+    listOf(
+        CategoryPostButton(
+            label = customButtonLabel,
+            url = customButtonUrl
+        )
+    )
+} else {
+    emptyList()
+},
                 imageUrl = imageUrl,
                 imageMime = selectedImage
                     ?.let { contentResolver.getType(it) }
