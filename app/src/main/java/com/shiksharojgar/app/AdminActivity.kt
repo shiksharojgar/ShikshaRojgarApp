@@ -5596,6 +5596,20 @@ private fun showCategoryPostManager(
                             }
                         )
                     }
+                    
+                    val editButton = Button(this).apply {
+                        text = "✏️ पोस्ट एडिट करें"
+                        setOnClickListener {
+                            dialog.dismiss()
+                            showCommonPostCreator(
+                                initialCategory = category,
+                                existingPost = post
+                            )
+                        }
+                    }
+
+                    itemBox.addView(editButton)
+
 
                     val deleteButton = Button(this).apply {
                         text = "🗑️ पोस्ट डिलीट करें"
