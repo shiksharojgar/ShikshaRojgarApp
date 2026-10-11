@@ -5151,11 +5151,11 @@ val websiteUrl = websiteUrlField.text.toString().trim()
     .toString()
     .trim()
 
+
 val customButtonUrl = customButtonUrlField.text
     .toString()
     .trim()
-    .toString()
-    .trim()
+
                         if (title.isBlank() && body.isBlank()) {
                             toast("शीर्षक या मुख्य टेक्स्ट भरें")
                             return@setOnClickListener
