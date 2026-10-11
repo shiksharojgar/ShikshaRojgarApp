@@ -5146,7 +5146,7 @@ box.addView(commonPostImagePreview)
                         val description = descriptionField.text
                             .toString()
                             .trim()
-val websiteUrl = websiteUrlField.text
+val websiteUrl = websiteUrlField.text.toString().trim()
                         val customButtonLabel = customButtonLabelField.text
     .toString()
     .trim()
