@@ -5446,6 +5446,181 @@ fun savePostWithMedia(
             }
     }
 
+private fun showCategoryPostManager(
+    category: String,
+    categoryLabel: String
+) {
+    val listBox = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(10), dp(8), dp(10), dp(8))
+    }
+
+    val scroll = ScrollView(this).apply {
+        isFillViewport = true
+        addView(listBox)
+    }
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("📋 $categoryLabel — पोस्ट मैनेजमेंट")
+        .setView(scroll)
+        .setNegativeButton("बंद करें", null)
+        .create()
+
+    var registration:
+        com.google.firebase.firestore.ListenerRegistration? = null
+
+    dialog.setOnDismissListener {
+        registration?.remove()
+        registration = null
+    }
+
+    listBox.addView(
+        TextView(this).apply {
+            text = "पोस्ट लोड हो रही हैं…"
+            textSize = 15f
+            setPadding(0, dp(8), 0, dp(8))
+        }
+    )
+
+    dialog.show()
+
+    registration = CategoryPostRepository.observePosts(
+        category,
+        { posts ->
+            runOnUiThread {
+                if (!dialog.isShowing) return@runOnUiThread
+
+                listBox.removeAllViews()
+
+                if (posts.isEmpty()) {
+                    listBox.addView(
+                        TextView(this).apply {
+                            text = "इस कैटेगरी में अभी कोई पोस्ट नहीं है।"
+                            textSize = 15f
+                            setPadding(0, dp(12), 0, dp(12))
+                        }
+                    )
+                    return@runOnUiThread
+                }
+
+                listBox.addView(
+                    TextView(this).apply {
+                        text = "कुल पोस्ट: ${posts.size}"
+                        textSize = 16f
+                        setTypeface(null, Typeface.BOLD)
+                    }
+                )
+
+                posts.forEach { post ->
+                    val itemBox = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(
+                            dp(8), dp(10), dp(8), dp(10)
+                        )
+                        setBackgroundColor(
+                            Color.rgb(245, 248, 250)
+                        )
+                    }
+
+                    itemBox.addView(
+                        TextView(this).apply {
+                            text = post.title.ifBlank {
+                                "बिना शीर्षक वाली पोस्ट"
+                            }
+                            textSize = 16f
+                            setTypeface(null, Typeface.BOLD)
+                        }
+                    )
+
+                    if (post.body.isNotBlank()) {
+                        itemBox.addView(
+                            TextView(this).apply {
+                                text = post.body
+                                textSize = 14f
+                                maxLines = 5
+                            }
+                        )
+                    }
+
+                    if (post.imageUrl.isNotBlank()) {
+                        itemBox.addView(
+                            TextView(this).apply {
+                                text = "🖼️ फोटो उपलब्ध है"
+                                textSize = 13f
+                            }
+                        )
+                    }
+
+                    if (post.fileUrl.isNotBlank()) {
+                        itemBox.addView(
+                            TextView(this).apply {
+                                text = "📄 ${post.fileName.ifBlank { "PDF / File उपलब्ध है" }}"
+                                textSize = 13f
+                            }
+                        )
+                    }
+
+                    val deleteButton = Button(this).apply {
+                        text = "🗑️ पोस्ट डिलीट करें"
+                        setOnClickListener {
+                            AlertDialog.Builder(this@AdminActivity)
+                                .setTitle("पोस्ट डिलीट करें?")
+                                .setMessage(
+                                    "“${post.title}” पोस्ट और उससे जुड़ी मीडिया हटाने की पुष्टि करें।"
+                                )
+                                .setNegativeButton("रद्द करें", null)
+                                .setPositiveButton("डिलीट करें") { _, _ ->
+                                    CategoryPostRepository.deletePost(
+                                        post.id
+                                    ) { success, error ->
+                                        runOnUiThread {
+                                            if (success) {
+                                                toast("पोस्ट और उसकी मीडिया हटाने का अनुरोध सफल हुआ")
+                                            } else {
+                                                toast(
+                                                    "पोस्ट डिलीट नहीं हुई: ${
+                                                        error ?: "त्रुटि"
+                                                    }"
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                .show()
+                        }
+                    }
+
+                    itemBox.addView(deleteButton)
+
+                    listBox.addView(
+                        itemBox,
+                        LinearLayout.LayoutParams(
+                            -1,
+                            -2
+                        ).apply {
+                            topMargin = dp(6)
+                            bottomMargin = dp(6)
+                        }
+                    )
+                }
+            }
+        },
+        { error ->
+            runOnUiThread {
+                if (dialog.isShowing) {
+                    listBox.removeAllViews()
+                    listBox.addView(
+                        TextView(this).apply {
+                            text = "पोस्ट लोड नहीं हुई: ${error.message}"
+                            textSize = 14f
+                        }
+                    )
+                }
+            }
+        }
+    )
+}
+
 // =========================================================
 // NOTICE MANAGER
 // =========================================================
