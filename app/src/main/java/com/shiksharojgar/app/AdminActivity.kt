@@ -2332,38 +2332,106 @@ homeContent.addView(
 
 
 listOf(
+
+listOf(
     "📢 Notice / Update" to "notice",
     "📌 Important Information" to "important_information",
     "📖 Study Material / Syllabus" to "study_material",
     "📚 Career Guide / Useful Tools" to "career_guide"
 ).forEach { (label, categoryKey) ->
 
-    homeContent.addView(
-        adminActionButton("➕ $label — पोस्ट बनाएँ") {
-            showCommonPostCreator(categoryKey)
-        },
-        LinearLayout.LayoutParams(
-            -1,
-            dp(40)
-        ).apply {
-            topMargin = dp(3)
-            bottomMargin = dp(3)
-        }
-    )
+    val borderColor = when (categoryKey) {
+        "notice" -> Color.rgb(25, 118, 210)
+        "important_information" -> Color.rgb(0, 150, 136)
+        "study_material" -> Color.rgb(123, 104, 238)
+        else -> Color.rgb(230, 126, 34)
+    }
 
-    homeContent.addView(
-        adminActionButton("📋 $label — पोस्ट मैनेज करें") {
+    val categoryRow = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(4), dp(4), dp(4), dp(4))
+
+        background = android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = dp(8).toFloat()
+            setStroke(dp(2), borderColor)
+        }
+    }
+
+    fun categoryButton(
+        buttonText: String,
+        buttonColor: Int,
+        action: () -> Unit
+    ): Button {
+        return Button(this).apply {
+            text = buttonText
+            textSize = 11f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList =
+                android.content.res.ColorStateList.valueOf(buttonColor)
+            minHeight = dp(38)
+            minimumHeight = dp(38)
+            setPadding(dp(2), 0, dp(2), 0)
+
+            setOnClickListener {
+                action()
+            }
+        }
+    }
+
+    categoryRow.addView(
+        categoryButton(
+            "🗑 Delete Post",
+            Color.rgb(123, 31, 162)
+        ) {
             showCategoryPostManager(categoryKey, label)
         },
         LinearLayout.LayoutParams(
-            -1,
-            dp(40)
+            0, dp(42), 1f
         ).apply {
-            topMargin = dp(3)
-            bottomMargin = dp(8)
+            marginEnd = dp(3)
+        }
+    )
+
+    categoryRow.addView(
+        categoryButton(
+            "📋 Manage Post",
+            Color.rgb(25, 118, 210)
+        ) {
+            showCategoryPostManager(categoryKey, label)
+        },
+        LinearLayout.LayoutParams(
+            0, dp(42), 1f
+        ).apply {
+            marginEnd = dp(3)
+        }
+    )
+
+    categoryRow.addView(
+        categoryButton(
+            "➕ Create Post",
+            Color.rgb(46, 125, 50)
+        ) {
+            showCommonPostCreator(categoryKey)
+        },
+        LinearLayout.LayoutParams(
+            0, dp(42), 1f
+        )
+    )
+
+    homeContent.addView(
+        categoryRow,
+        LinearLayout.LayoutParams(
+            -1, -2
+        ).apply {
+            topMargin = dp(4)
+            bottomMargin = dp(4)
         }
     )
 }
+
 
 
 // =====================================================
