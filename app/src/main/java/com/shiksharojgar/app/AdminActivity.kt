@@ -5130,19 +5130,25 @@ box.addView(formatRow)
                         setText(existingPost?.websiteUrl.orEmpty())
         }
         box.addView(websiteUrlField)
-        val customButtonLabelField = EditText(this).apply {
-    hint = "🔘 कस्टम बटन का नाम (वैकल्पिक)"
-    setSingleLine(true)
-}
-box.addView(customButtonLabelField)
+        
+        val existingButton = existingPost?.buttons?.firstOrNull()
 
-val customButtonUrlField = EditText(this).apply {
-    hint = "🔗 कस्टम बटन का URL (वैकल्पिक)"
-    setSingleLine(true)
-    inputType = android.text.InputType.TYPE_CLASS_TEXT or
-        android.text.InputType.TYPE_TEXT_VARIATION_URI
-}
-box.addView(customButtonUrlField)
+        val customButtonLabelField = EditText(this).apply {
+            hint = "🔘 कस्टम बटन का नाम (वैकल्पिक)"
+            setSingleLine(true)
+            setText(existingButton?.label.orEmpty())
+        }
+        box.addView(customButtonLabelField)
+
+        val customButtonUrlField = EditText(this).apply {
+            hint = "🔗 कस्टम बटन का URL (वैकल्पिक)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+            setText(existingButton?.url.orEmpty())
+        }
+        box.addView(customButtonUrlField)
+
         val imageButton = Button(this).apply {
             text = "🖼️ फोटो चुनें"
             setOnClickListener {
