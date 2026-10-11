@@ -2073,6 +2073,47 @@ p.buttons
             }
         )
     }
+    
+        /*
+         * WEBSITE LINK
+         */
+        if (p.websiteUrl.isNotBlank()) {
+            box.addView(
+                TextView(this).apply {
+                    text = "🌐 वेबसाइट खोलें"
+                    textSize = 14f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(Color.rgb(25, 118, 210))
+                    setPadding(0, dp(8), 0, dp(8))
+                    paintFlags = paintFlags or
+                        android.graphics.Paint.UNDERLINE_TEXT_FLAG
+                    setOnClickListener {
+                        safeOpenUrl(p.websiteUrl)
+                    }
+                }
+            )
+        }
+
+        /*
+         * EXTRA URL
+         */
+        if (p.extraUrl.isNotBlank()) {
+            box.addView(
+                TextView(this).apply {
+                    text = "🔗 अतिरिक्त लिंक खोलें"
+                    textSize = 14f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(Color.rgb(25, 118, 210))
+                    setPadding(0, dp(8), 0, dp(8))
+                    paintFlags = paintFlags or
+                        android.graphics.Paint.UNDERLINE_TEXT_FLAG
+                    setOnClickListener {
+                        safeOpenUrl(p.extraUrl)
+                    }
+                }
+            )
+        }
+        
         /*
          * IMAGE
          *
