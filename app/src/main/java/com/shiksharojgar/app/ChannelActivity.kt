@@ -71,7 +71,7 @@ private var unreadCountAtOpen = 0
     private var followingState = false
 
     private var pendingPostId: String? = null
-
+private var notificationTargetPostId: String? = null
     private val fmt =
         SimpleDateFormat(
             "dd MMM yyyy, hh:mm a",
@@ -182,6 +182,7 @@ private fun samePostContent(
                         uri.path?.contains("/post") == true
                     }
             }
+            notificationTargetPostId = pendingPostId
 unreadCountAtOpen =
     getSharedPreferences(
         "sr_notifications",
@@ -286,7 +287,11 @@ unreadCountAtOpen =
                     !shouldGoToNewest
             )
 
-            if (shouldGoToNewest && pendingPostId == null) {
+            if (
+    shouldGoToNewest &&
+    pendingPostId == null &&
+    notificationTargetPostId == null
+) {
 
     feedScroll.post {
 
@@ -403,7 +408,7 @@ unreadCountAtOpen =
                     }
             }
 
-        
+        notificationTargetPostId = pendingPostId
         pendingPostId?.let { id ->
 
             val index =
