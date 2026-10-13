@@ -326,6 +326,7 @@ unreadCountAtOpen =
     }
 }
 
+            
             pendingPostId?.let { id ->
 
                 val index =
@@ -335,10 +336,12 @@ unreadCountAtOpen =
 
                 if (index >= 0) {
                     scrollToPost(index)
+                    pendingPostId = null
                 }
-
-                pendingPostId = null
+                // पोस्ट अभी लोड नहीं हुई हो तो ID सुरक्षित रखें।
+                // अगली बार पोस्ट सूची अपडेट होने पर फिर प्रयास होगा।
             }
+
 
             firstFeedRender = false
         }
