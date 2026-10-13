@@ -286,7 +286,7 @@ unreadCountAtOpen =
                     !shouldGoToNewest
             )
 
-            if (shouldGoToNewest) {
+            if (shouldGoToNewest && pendingPostId == null) {
 
     feedScroll.post {
 
