@@ -506,10 +506,50 @@ morePostsButton.visibility =
         View.VISIBLE
     }
 }
+        
         loadPosts()
 
         startLocalChannelUnreadTracker()
+
+        handleNotificationIntent(intent)
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent) {
+        if (!intent.getBooleanExtra(
+                "open_channel_from_notification",
+                false
+            )
+        ) {
+            return
+        }
+
+        intent.removeExtra("open_channel_from_notification")
+
+        val postId = intent.getStringExtra("notification_post_id").orEmpty()
+
+        val channelIntent = Intent(
+            this,
+            ChannelActivity::class.java
+        )
+
+        if (postId.isNotBlank()) {
+            channelIntent.data = Uri.parse(
+                "shiksharojgar://channel/post/${Uri.encode(postId)}"
+            )
+        } else {
+            channelIntent.data = Uri.parse("shiksharojgar://channel")
+        }
+
+        startActivity(channelIntent)
+    }
+```
+
 
     // ============================================================
     // CHANNEL UNREAD
