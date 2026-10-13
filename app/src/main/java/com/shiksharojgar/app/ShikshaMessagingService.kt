@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import androidx.core.app.TaskStackBuilder
 
 class ShikshaMessagingService : FirebaseMessagingService() {
 
@@ -71,12 +72,15 @@ class ShikshaMessagingService : FirebaseMessagingService() {
             22
         }
 
-        val pending = PendingIntent.getActivity(
-            this,
-            requestCode,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        
+        val pending = TaskStackBuilder.create(this)
+            .addNextIntentWithParentStack(intent)
+            .getPendingIntent(
+                requestCode,
+                PendingIntent.FLAG_UPDATE_CURRENT or
+                    PendingIntent.FLAG_IMMUTABLE
+            )
+
 
         val manager = getSystemService(NotificationManager::class.java)
         val channelId = if (isChannel) "shiksha_channel" else "shiksha_updates"
