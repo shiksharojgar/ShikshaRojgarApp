@@ -419,7 +419,7 @@ unreadCountAtOpen =
             // पोस्ट सूची अपडेट होने पर फिर प्रयास होगा।
         }
 
-        }
+        
     }
 
     private fun updateTopicSubscription(
