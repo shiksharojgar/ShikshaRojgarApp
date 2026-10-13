@@ -548,7 +548,6 @@ morePostsButton.visibility =
 
         startActivity(channelIntent)
     }
-```
 
 
     // ============================================================
