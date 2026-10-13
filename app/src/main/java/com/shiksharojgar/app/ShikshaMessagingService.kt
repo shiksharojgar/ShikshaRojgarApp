@@ -36,32 +36,23 @@ class ShikshaMessagingService : FirebaseMessagingService() {
 
         val postId = message.data["postId"].orEmpty()
 
+        
         val intent = Intent(
             this,
-            if (isChannel) ChannelActivity::class.java else MainActivity::class.java
+            MainActivity::class.java
         ).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-            if (isChannel) {
-                action = if (postId.isNotBlank()) {
-                    "com.shiksharojgar.app.OPEN_CHANNEL_POST_$postId"
-                } else {
-                    "com.shiksharojgar.app.OPEN_CHANNEL"
-                }
-
-                data = if (postId.isNotBlank()) {
-                    android.net.Uri.parse(
-                        "shiksharojgar://channel/post/${android.net.Uri.encode(postId)}"
-                    )
-                } else {
-                    android.net.Uri.parse("shiksharojgar://channel")
-                }
-            } else {
-                action = "com.shiksharojgar.app.OPEN_UPDATE"
-            }
+            action = "com.shiksharojgar.app.OPEN_CHANNEL_FROM_NOTIFICATION"
+            putExtra("open_channel_from_notification", isChannel)
+            putExtra("notification_post_id", postId)
+            data = android.net.Uri.parse(
+                "shiksharojgar://notification/${if (postId.isNotBlank()) android.net.Uri.encode(postId) else "channel"}"
+            )
         }
+
 
         // हर पोस्ट का PendingIntent अलग रखें
         val requestCode = if (isChannel && postId.isNotBlank()) {
@@ -73,13 +64,15 @@ class ShikshaMessagingService : FirebaseMessagingService() {
         }
 
         
-        val pending = TaskStackBuilder.create(this)
-            .addNextIntentWithParentStack(intent)
-            .getPendingIntent(
-                requestCode,
-                PendingIntent.FLAG_UPDATE_CURRENT or
+        
+        val pending = PendingIntent.getActivity(
+            this,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or
                     PendingIntent.FLAG_IMMUTABLE
-            )
+        )
+
 
 
         val manager = getSystemService(NotificationManager::class.java)
