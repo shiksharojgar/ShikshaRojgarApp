@@ -403,19 +403,22 @@ unreadCountAtOpen =
                     }
             }
 
+        
         pendingPostId?.let { id ->
 
-            if (posts.isNotEmpty()) {
-
-                val index =
-                    posts.indexOfFirst {
-                        it.id == id
-                    }
-
-                if (index >= 0) {
-                    scrollToPost(index)
+            val index =
+                posts.indexOfFirst {
+                    it.id == id
                 }
+
+            if (index >= 0) {
+                scrollToPost(index)
+                pendingPostId = null
             }
+            // पोस्ट नहीं मिली तो ID सुरक्षित रहेगी।
+            // पोस्ट सूची अपडेट होने पर फिर प्रयास होगा।
+        }
+
         }
     }
 
