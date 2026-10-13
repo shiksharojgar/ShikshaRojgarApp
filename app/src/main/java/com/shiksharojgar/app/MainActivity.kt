@@ -750,27 +750,44 @@ morePostsButton.visibility =
                 }
             }
 
+            
+            val channelIntent = Intent(
+                this,
+                ChannelActivity::class.java
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+                data = Uri.parse("shiksharojgar://channel")
+            }
+
+            val channelPendingIntent =
+                android.app.PendingIntent.getActivity(
+                    this,
+                    9001,
+                    channelIntent,
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT or
+                            android.app.PendingIntent.FLAG_IMMUTABLE
+                )
+
             val notification =
                 androidx.core.app.NotificationCompat.Builder(
                     this,
                     "channel_unread_badge"
                 )
-                    .setSmallIcon(
-                        R.mipmap.ic_launcher
-                    )
-                    .setContentTitle(
-                        "Shiksha Rojgar Channel"
-                    )
-                    .setContentText(
-                        "$count नई Channel पोस्ट"
-                    )
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("Shiksha Rojgar Channel")
+                    .setContentText("$count नई Channel पोस्ट")
                     .setNumber(count)
-.setAutoCancel(false)
-.setOnlyAlertOnce(true)
-.setPriority(
-    androidx.core.app.NotificationCompat.PRIORITY_LOW
-)
+                    .setContentIntent(channelPendingIntent)
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true)
+                    .setPriority(
+                        androidx.core.app.NotificationCompat.PRIORITY_LOW
+                    )
                     .build()
+
 
             notificationManager.notify(
                 9001,
