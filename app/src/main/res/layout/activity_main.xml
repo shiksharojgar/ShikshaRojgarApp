@@ -131,7 +131,26 @@ android:background="@drawable/rounded_breaking_bg"
     </LinearLayout>
 
 </FrameLayout>
+        <!-- Home Photo Auto Slider -->
+        <FrameLayout
+            android:id="@+id/homePhotoCarousel"
+            android:layout_width="match_parent"
+            android:layout_height="190dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/rounded_search_bg"
+            android:clipToOutline="true"
+            android:elevation="3dp">
 
+            <ImageView
+                android:id="@+id/homeCarouselImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/home_teacher"
+                android:scaleType="centerCrop"
+                android:contentDescription="शिक्षा रोजगार: शिक्षक, विद्यार्थी और परीक्षा तैयारी" />
+
+        </FrameLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quick Access"
             android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text" android:layout_marginTop="14dp" android:layout_marginBottom="8dp"/>
         <GridLayout android:id="@+id/quickGrid" android:layout_width="match_parent" android:layout_height="wrap_content"
