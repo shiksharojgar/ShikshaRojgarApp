@@ -189,10 +189,88 @@ ViewCompat.setOnApplyWindowInsetsListener(
             goBackOrClose()
         }
 
-        
-         
+        // Share the currently opened website page
+        findViewById<TextView>(
+            R.id.webShareButton
+        ).setOnClickListener {
 
-        
+            val pageUrl = web.url.orEmpty()
+
+            if (pageUrl.isBlank()) {
+                Toast.makeText(
+                    this,
+                    "वेबसाइट पेज अभी लोड नहीं हुआ है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val fallbackTitle =
+                web.title?.takeIf { it.isNotBlank() }
+                    ?: "Shiksha Rojgar"
+
+            val safeUrl = pageUrl.replace("\\", "\\\\")
+                .replace("'", "\\'")
+
+            web.evaluateJavascript(
+                "(function() {" +
+                    "var m = document.querySelector('meta[name=\"description\"]');" +
+                    "return m ? m.content : '';" +
+                "})()"
+            ) { result ->
+
+                val description = try {
+                    org.json.JSONTokener(result)
+                        .nextValue()
+                        ?.toString()
+                        .orEmpty()
+                } catch (_: Exception) {
+                    ""
+                }
+
+                val shareText = buildString {
+                    append(fallbackTitle)
+                    append("\n\n")
+
+                    if (description.isNotBlank()) {
+                        append(description)
+                        append("\n\n")
+                    }
+
+                    append("पूरी जानकारी यहाँ पढ़ें:\n")
+                    append(pageUrl)
+                    append("\n\n")
+                    append("📱 Shiksha Rojgar App")
+                    append("\n")
+                    append("शिक्षा से सफलता तक, हर कदम आपके साथ!")
+                }
+
+                val shareIntent = Intent(
+                    Intent.ACTION_SEND
+                ).apply {
+                    type = "text/plain"
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        fallbackTitle
+                    )
+                    putExtra(
+                        Intent.EXTRA_TITLE,
+                        fallbackTitle
+                    )
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        shareText
+                    )
+                }
+
+                startActivity(
+                    Intent.createChooser(
+                        shareIntent,
+                        "वेबसाइट पेज शेयर करें"
+                    )
+                )
+            }
+        }
 
         /*
          * =========================================================
