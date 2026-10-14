@@ -383,7 +383,103 @@ fun createHeader(
             dp(context, 52)
         )
     )
+    val contactIcon =
+        TextView(context).apply {
+            text = "🤝"
+            textSize = 17f
+            gravity = Gravity.CENTER
+        }
 
+    val contactText =
+        TextView(context).apply {
+            text = "हमसे जुड़ें"
+            textSize = 8f
+            gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.parseColor("#0D47A1"))
+        }
+
+    val contactBox =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                FirebaseFirestore.getInstance()
+                    .collection("header_social_links")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        val links = snapshot.documents
+                            .filter { it.getBoolean("enabled") ?: true }
+                            .sortedBy {
+                                it.getLong("position") ?: Long.MAX_VALUE
+                            }
+
+                        if (links.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                "अभी कोई Social Media लिंक उपलब्ध नहीं है।",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            val options = links.map { doc ->
+                                "${doc.getString("icon") ?: "🔗"} ${
+                                    doc.getString("label") ?: "Social Media"
+                                }"
+                            }.toTypedArray()
+
+                            AlertDialog.Builder(context)
+                                .setTitle("🤝 हमसे जुड़ें")
+                                .setItems(options) { _, which ->
+                                    val url = links[which]
+                                        .getString("url")
+                                        .orEmpty()
+
+                                    if (
+                                        url.startsWith("https://") ||
+                                        url.startsWith("http://")
+                                    ) {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(url)
+                                            )
+                                        )
+                                    }
+                                }
+                                .setNegativeButton("बंद करें", null)
+                                .show()
+                        }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            context,
+                            "Social Media लिंक लोड नहीं हुए।",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
+
+            addView(
+                contactIcon,
+                LinearLayout.LayoutParams(-1, dp(context, 25))
+            )
+
+            addView(
+                contactText,
+                LinearLayout.LayoutParams(-1, dp(context, 17))
+            )
+        }
+
+    header.addView(
+        contactBox,
+        LinearLayout.LayoutParams(
+            dp(context, 58),
+            dp(context, 52)
+        )
+    )
     /*
      * =====================================================
      * THREE DOT MENU
