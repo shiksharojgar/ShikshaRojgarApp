@@ -64,7 +64,17 @@
                 android:textColor="@android:color/white"
                 android:textSize="11sp"/>
         </LinearLayout>
-
+        <TextView
+           android:id="@+id/webShareButton"
+             android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+           android:text="📤"
+            android:textColor="@android:color/white"
+             android:textSize="24sp"
+            android:contentDescription="Share this page"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
 
