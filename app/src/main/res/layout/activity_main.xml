@@ -54,7 +54,7 @@ android:background="@drawable/rounded_breaking_bg"
     android:clickable="true"
     android:focusable="true"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="76dp"
     android:layout_marginTop="12dp"
     android:background="@drawable/channel_card_bg"
     android:elevation="8dp">
@@ -84,7 +84,7 @@ android:background="@drawable/rounded_breaking_bg"
             android:layout_marginTop="2dp"
             android:text="👥 Join / Follow  •  सरकारी आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी •"
             android:textColor="@android:color/white"
-            android:textSize="13sp"
+            android:textSize="11sp"
             android:textStyle="bold"/>
 
     </LinearLayout>
