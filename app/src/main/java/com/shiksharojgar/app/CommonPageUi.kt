@@ -253,91 +253,127 @@ fun createHeader(
             1f
         )
     )
-
-    /*
-     * =====================================================
-     * SHARE
-     *
-     * ऊपर केवल ↗️
-     * नीचे Share
-     * =====================================================
-     */
-
-    val shareBox =
+    val websiteBox =
         LinearLayout(context).apply {
-
-            orientation =
-                LinearLayout.VERTICAL
-
-            gravity =
-                Gravity.CENTER
-
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
             isClickable = true
             isFocusable = true
 
             setOnClickListener {
-                onShare()
+                context.startActivity(
+                    Intent(
+                        context,
+                        WebViewActivity::class.java
+                    ).putExtra(
+                        "url",
+                        "https://www.shiksharojgar.com/"
+                    )
+                )
             }
         }
 
-    val shareIcon =
+    val websiteIcon =
         TextView(context).apply {
-
-            text =
-                "↗️"
-
-            textSize = 19f
-
-            gravity =
-                Gravity.CENTER
-
-            
-           setTextColor(Color.parseColor("#1E88E5"))
-
-
-            typeface =
-                Typeface.DEFAULT_BOLD
+            text = "🌐"
+            textSize = 17f
+            gravity = Gravity.CENTER
         }
 
-    val shareText =
+    val websiteText =
         TextView(context).apply {
-
-            text =
-                "Share"
-
-            textSize = 9f
-
-            gravity =
-                Gravity.CENTER
-
-            setTextColor(
-                Color.WHITE
-            )
-
-            typeface =
-                Typeface.DEFAULT_BOLD
+            text = "Website"
+            textSize = 8f
+            gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.parseColor("#0D47A1"))
         }
 
-    shareBox.addView(
-        shareIcon,
-        LinearLayout.LayoutParams(
-            -1,
-            dp(context, 25)
-        )
+    websiteBox.addView(
+        websiteIcon,
+        LinearLayout.LayoutParams(-1, dp(context, 25))
     )
 
-    shareBox.addView(
-        shareText,
-        LinearLayout.LayoutParams(
-            -1,
-            dp(context, 17)
-        )
+    websiteBox.addView(
+        websiteText,
+        LinearLayout.LayoutParams(-1, dp(context, 17))
     )
 
     header.addView(
-        shareBox,
+        websiteBox,
         LinearLayout.LayoutParams(
-            dp(context, 52),
+            dp(context, 48),
+            dp(context, 52)
+        )
+    )
+
+    val contactBox =
+        LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            isClickable = true
+            isFocusable = true
+
+            setOnClickListener {
+                val contactOptions = arrayOf(
+                    "Telegram",
+                    "YouTube",
+                    "Instagram",
+                    "X (Twitter)"
+                )
+
+                val contactUrls = arrayOf(
+                    "https://t.me/Shiksha_Rojgar",
+                    "https://www.youtube.com/@mp_education_jobs_news",
+                    "https://www.instagram.com/shiksha_rojgar/",
+                    "https://x.com/EducationNewsMP"
+                )
+
+                AlertDialog.Builder(context)
+                    .setTitle("🤝 हमसे जुड़ें")
+                    .setItems(contactOptions) { _, which ->
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(contactUrls[which])
+                            )
+                        )
+                    }
+                    .setNegativeButton("बंद करें", null)
+                    .show()
+            }
+        }
+
+    val contactIcon =
+        TextView(context).apply {
+            text = "🤝"
+            textSize = 17f
+            gravity = Gravity.CENTER
+        }
+
+    val contactText =
+        TextView(context).apply {
+            text = "हमसे जुड़ें"
+            textSize = 8f
+            gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.parseColor("#0D47A1"))
+        }
+
+    contactBox.addView(
+        contactIcon,
+        LinearLayout.LayoutParams(-1, dp(context, 25))
+    )
+
+    contactBox.addView(
+        contactText,
+        LinearLayout.LayoutParams(-1, dp(context, 17))
+    )
+
+    header.addView(
+        contactBox,
+        LinearLayout.LayoutParams(
+            dp(context, 58),
             dp(context, 52)
         )
     )
