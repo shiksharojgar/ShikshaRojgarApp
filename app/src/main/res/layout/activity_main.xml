@@ -80,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="👥 Join / Follow  •  सरकारी आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी • नौकरी • परीक्षा • रिजल्ट • महत्वपूर्ण अपडेट"
+            android:text="👥 Join / Follow  •  सरकारी आदेश • निर्देश • शिक्षा • शिक्षक • विद्यार्थी •"
             android:textColor="@android:color/white"
             android:textSize="13sp"
             android:textStyle="bold"/>
