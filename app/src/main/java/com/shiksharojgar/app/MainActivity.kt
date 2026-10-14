@@ -32,7 +32,47 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 
 class MainActivity : AppCompatActivity() {
+    // Home Photo Auto Slider
+    private var homeCarouselIndex = 0
 
+    private val homeCarouselImages = intArrayOf(
+        R.drawable.home_teacher,
+        R.drawable.home_student,
+        R.drawable.home_exam
+    )
+
+    private val homeCarouselHandler =
+        Handler(Looper.getMainLooper())
+
+    private val homeCarouselRunnable =
+        object : Runnable {
+
+            override fun run() {
+
+                val carouselImage =
+                    findViewById<ImageView?>(
+                        R.id.homeCarouselImage
+                    )
+
+                if (
+                    carouselImage != null &&
+                    homeCarouselImages.isNotEmpty()
+                ) {
+                    homeCarouselIndex =
+                        (homeCarouselIndex + 1) %
+                            homeCarouselImages.size
+
+                    carouselImage.setImageResource(
+                        homeCarouselImages[homeCarouselIndex]
+                    )
+                }
+
+                homeCarouselHandler.postDelayed(
+                    this,
+                    4500L
+                )
+            }
+        }
     private val liveHandler = Handler(Looper.getMainLooper())
     private var floatingNoticeImage: ImageView? = null
    private var noticeCardView: View? = null
@@ -886,7 +926,14 @@ private fun updateNoticeUnreadCount() {
     override fun onResume() {
 
         super.onResume()
+        homeCarouselHandler.removeCallbacks(
+            homeCarouselRunnable
+        )
 
+        homeCarouselHandler.postDelayed(
+            homeCarouselRunnable,
+            4500L
+        )
         if (::adapter.isInitialized) {
             updateChannelBadge()
         }
@@ -916,7 +963,9 @@ floatingNoticeHandler.removeCallbacks(
     floatingNoticeRunnable
 )
     floatingNoticeImage?.clearAnimation()
-
+        homeCarouselHandler.removeCallbacks(
+            homeCarouselRunnable
+        )
     super.onPause()
 }
 
