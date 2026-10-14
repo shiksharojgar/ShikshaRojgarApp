@@ -860,7 +860,7 @@ root.addView(
     channelStrip,
     LinearLayout.LayoutParams(
         -1,
-        dp(100)
+        dp(72)
     ).apply {
         setMargins(
             dp(10),
