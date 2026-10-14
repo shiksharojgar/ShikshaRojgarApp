@@ -341,49 +341,7 @@ fun createHeader(
         )
     )
 
-    val contactBox =
-        LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            isClickable = true
-            isFocusable = true
-
-            
-
-    val contactIcon =
-        TextView(context).apply {
-            text = "🤝"
-            textSize = 17f
-            gravity = Gravity.CENTER
-        }
-
-    val contactText =
-        TextView(context).apply {
-            text = "हमसे जुड़ें"
-            textSize = 8f
-            gravity = Gravity.CENTER
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#0D47A1"))
-        }
-
-    contactBox.addView(
-        contactIcon,
-        LinearLayout.LayoutParams(-1, dp(context, 25))
-    )
-
-    contactBox.addView(
-        contactText,
-        LinearLayout.LayoutParams(-1, dp(context, 17))
-    )
-
-    header.addView(
-        contactBox,
-        LinearLayout.LayoutParams(
-            dp(context, 58),
-            dp(context, 52)
-        )
-    )
-    val contactIcon =
+        val contactIcon =
         TextView(context).apply {
             text = "🤝"
             textSize = 17f
