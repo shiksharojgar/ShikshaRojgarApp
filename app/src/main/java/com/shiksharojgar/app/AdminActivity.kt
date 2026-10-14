@@ -2163,7 +2163,39 @@ moreManagement.addView(
         dp(38)
     )
 )
+moreManagement.addView(
+    adminActionButton("🌐  MANAGE WEBSITE LINKS") {
+        showHeaderLinkManager(
+            "header_website_links",
+            "Website Links",
+            listOf(
+                mapOf("icon" to "🌐", "label" to "Shiksha Rojgar", "url" to "https://www.shiksharojgar.com/"),
+                mapOf("icon" to "🌐", "label" to "Vacancy Bazaar", "url" to "https://www.vacancybazaar.in/")
+            )
+        )
+    },
+    LinearLayout.LayoutParams(-1, dp(38))
+)
 
+moreManagement.addView(
+    adminActionButton("🤝  MANAGE SOCIAL MEDIA LINKS") {
+        showHeaderLinkManager(
+            "header_social_links",
+            "Social Media Links",
+            listOf(
+                mapOf("icon" to "📱", "label" to "WhatsApp Channel", "url" to "https://www.whatsapp.com/channel/0029Vb6GEDZKLaHxODkeHP1a"),
+                mapOf("icon" to "✈️", "label" to "Telegram", "url" to "https://t.me/Shiksha_Rojgar"),
+                mapOf("icon" to "▶️", "label" to "YouTube", "url" to "https://youtube.com/@mp_education_jobs_news"),
+                mapOf("icon" to "📘", "label" to "Facebook", "url" to "https://www.facebook.com/share/1EGdKsY3zL/"),
+                mapOf("icon" to "📸", "label" to "Instagram", "url" to "https://www.instagram.com/shiksha_rojgar?igsh=MX"),
+                mapOf("icon" to "𝕏", "label" to "X / Twitter", "url" to "https://x.com/EducationNewsMP?t=pgn4MwOAqY7-WIaoJgX5_A&s=09"),
+                mapOf("icon" to "💬", "label" to "ShareChat", "url" to "https://sharechat.com/profile/4200901361?d=n"),
+                mapOf("icon" to "💬", "label" to "Arattai", "url" to "https://aratt.ai/@a_s_chouhan")
+            )
+        )
+    },
+    LinearLayout.LayoutParams(-1, dp(38))
+)
 
 // =========================================================
 // HOME CONTENT CARD
@@ -2956,7 +2988,294 @@ private fun showMoreMenuManager() {
         }
 }
 
+// =========================================================
+// HEADER WEBSITE / SOCIAL LINKS MANAGEMENT
+// =========================================================
 
+private fun showHeaderLinkManager(
+    collectionName: String,
+    screenTitle: String,
+    defaults: List<Map<String, String>>
+) {
+    db.collection(collectionName)
+        .orderBy("position")
+        .get()
+        .addOnSuccessListener { snap ->
+            if (snap.isEmpty && defaults.isNotEmpty()) {
+                val batch = db.batch()
+
+                defaults.forEachIndexed { index, item ->
+                    val ref = db.collection(collectionName).document()
+                    val data = hashMapOf<String, Any>(
+                        "icon" to (item["icon"] ?: "🔗"),
+                        "label" to (item["label"] ?: "New Link"),
+                        "url" to (item["url"] ?: ""),
+                        "enabled" to true,
+                        "position" to index
+                    )
+                    batch.set(ref, data)
+                }
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        showHeaderLinkManager(
+                            collectionName,
+                            screenTitle,
+                            emptyList()
+                        )
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(
+                            this,
+                            "Links save नहीं हुए: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                return@addOnSuccessListener
+            }
+
+            val documents = snap.documents
+            val labels = documents.map { doc ->
+                val icon = doc.getString("icon") ?: "🔗"
+                val label = doc.getString("label") ?: "Unnamed"
+                val enabled = doc.getBoolean("enabled") ?: true
+                "${if (enabled) "✅" else "❌"} $icon $label"
+            }.toMutableList()
+
+            labels.add("➕ नया लिंक जोड़ें")
+
+            AlertDialog.Builder(this)
+                .setTitle("🔗 $screenTitle")
+                .setItems(labels.toTypedArray()) { _, which ->
+                    if (which == documents.size) {
+                        showHeaderLinkEditor(
+                            collectionName,
+                            screenTitle,
+                            null,
+                            documents.size
+                        )
+                    } else {
+                        showHeaderLinkActions(
+                            collectionName,
+                            screenTitle,
+                            documents,
+                            which
+                        )
+                    }
+                }
+                .setNegativeButton("बंद करें", null)
+                .show()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(
+                this,
+                "Links load नहीं हुए: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
+
+private fun showHeaderLinkActions(
+    collectionName: String,
+    screenTitle: String,
+    documents: List<com.google.firebase.firestore.DocumentSnapshot>,
+    index: Int
+) {
+    val document = documents[index]
+    val enabled = document.getBoolean("enabled") ?: true
+
+    val actions = arrayOf(
+        "✏️ नाम / आइकन / URL बदलें",
+        if (enabled) "❌ लिंक बंद करें" else "✅ लिंक चालू करें",
+        "⬆️ क्रम ऊपर करें",
+        "⬇️ क्रम नीचे करें",
+        "🗑️ लिंक हटाएँ"
+    )
+
+    AlertDialog.Builder(this)
+        .setTitle(document.getString("label") ?: screenTitle)
+        .setItems(actions) { _, choice ->
+            when (choice) {
+                0 -> showHeaderLinkEditor(
+                    collectionName,
+                    screenTitle,
+                    document,
+                    index
+                )
+
+                1 -> document.reference
+                    .update("enabled", !enabled)
+                    .addOnSuccessListener {
+                        showHeaderLinkManager(
+                            collectionName,
+                            screenTitle,
+                            emptyList()
+                        )
+                    }
+
+                2 -> {
+                    if (index > 0) {
+                        val previous = documents[index - 1]
+                        val currentPosition =
+                            document.getLong("position") ?: index.toLong()
+                        val previousPosition =
+                            previous.getLong("position") ?: (index - 1).toLong()
+
+                        db.runBatch { batch ->
+                            batch.update(document.reference, "position", previousPosition)
+                            batch.update(previous.reference, "position", currentPosition)
+                        }.addOnSuccessListener {
+                            showHeaderLinkManager(
+                                collectionName,
+                                screenTitle,
+                                emptyList()
+                            )
+                        }
+                    } else {
+                        Toast.makeText(this, "यह पहला लिंक है।", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                3 -> {
+                    if (index < documents.lastIndex) {
+                        val next = documents[index + 1]
+                        val currentPosition =
+                            document.getLong("position") ?: index.toLong()
+                        val nextPosition =
+                            next.getLong("position") ?: (index + 1).toLong()
+
+                        db.runBatch { batch ->
+                            batch.update(document.reference, "position", nextPosition)
+                            batch.update(next.reference, "position", currentPosition)
+                        }.addOnSuccessListener {
+                            showHeaderLinkManager(
+                                collectionName,
+                                screenTitle,
+                                emptyList()
+                            )
+                        }
+                    } else {
+                        Toast.makeText(this, "यह आखिरी लिंक है।", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                4 -> AlertDialog.Builder(this)
+                    .setTitle("लिंक हटाएँ?")
+                    .setMessage("यह लिंक Firestore से हट जाएगा।")
+                    .setNegativeButton("रद्द करें", null)
+                    .setPositiveButton("हटाएँ") { _, _ ->
+                        document.reference.delete()
+                            .addOnSuccessListener {
+                                showHeaderLinkManager(
+                                    collectionName,
+                                    screenTitle,
+                                    emptyList()
+                                )
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "लिंक नहीं हटा: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    }
+                    .show()
+            }
+        }
+        .setNegativeButton("वापस", null)
+        .show()
+}
+
+private fun showHeaderLinkEditor(
+    collectionName: String,
+    screenTitle: String,
+    document: com.google.firebase.firestore.DocumentSnapshot?,
+    position: Int
+) {
+    val layout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(20), dp(8), dp(20), dp(8))
+    }
+
+    fun addField(hintText: String, value: String): EditText {
+        val editText = EditText(this).apply {
+            hint = hintText
+            setText(value)
+            textSize = 14f
+        }
+
+        layout.addView(
+            editText,
+            LinearLayout.LayoutParams(-1, dp(48))
+        )
+        return editText
+    }
+
+    val iconField = addField(
+        "आइकन / Emoji",
+        document?.getString("icon") ?: "🔗"
+    )
+    val labelField = addField(
+        "लिंक का नाम",
+        document?.getString("label") ?: ""
+    )
+    val urlField = addField(
+        "पूरा URL (https://...)",
+        document?.getString("url") ?: ""
+    )
+
+    AlertDialog.Builder(this)
+        .setTitle(if (document == null) "नया लिंक जोड़ें" else "लिंक संपादित करें")
+        .setView(layout)
+        .setNegativeButton("रद्द करें", null)
+        .setPositiveButton("सेव करें") { _, _ ->
+            val icon = iconField.text.toString().trim()
+            val label = labelField.text.toString().trim()
+            val url = urlField.text.toString().trim()
+
+            if (label.isBlank() || !url.startsWith("https://") && !url.startsWith("http://")) {
+                Toast.makeText(
+                    this,
+                    "नाम और सही पूरा URL भरें।",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setPositiveButton
+            }
+
+            val data = hashMapOf<String, Any>(
+                "icon" to if (icon.isBlank()) "🔗" else icon,
+                "label" to label,
+                "url" to url,
+                "enabled" to (document?.getBoolean("enabled") ?: true),
+                "position" to (document?.getLong("position")?.toInt() ?: position)
+            )
+
+            val operation = if (document == null) {
+                db.collection(collectionName).document().set(data)
+            } else {
+                document.reference.set(data)
+            }
+
+            operation
+                .addOnSuccessListener {
+                    Toast.makeText(this, "लिंक सेव हो गया।", Toast.LENGTH_SHORT).show()
+                    showHeaderLinkManager(
+                        collectionName,
+                        screenTitle,
+                        emptyList()
+                    )
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(
+                        this,
+                        "सेव नहीं हुआ: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+        .show()
+}
 // =========================================================
 // MORE MENU ACTIONS
 // =========================================================
