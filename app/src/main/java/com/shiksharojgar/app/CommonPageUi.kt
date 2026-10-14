@@ -98,9 +98,11 @@ fun createHeader(
                 dp(context, 4)
             )
 
-            setBackgroundColor(
-                Color.parseColor("#0B2A4A")
-            )
+            
+           setBackgroundColor(
+                 Color.parseColor("#E3F2FD")
+             )
+
         }
 
     /*
@@ -204,49 +206,35 @@ fun createHeader(
      * =====================================================
      */
 
-    val titleBox =
-        LinearLayout(context).apply {
-
-            orientation =
-                LinearLayout.VERTICAL
-
-            gravity =
-                Gravity.CENTER_VERTICAL
+    
+     val titleBox =
+         LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
         }
 
-    val appName =
-        TextView(context).apply {
 
-            text =
-                "📱 Shiksha Rojgar App"
-
-            textSize = 14f
-
-            typeface =
-                Typeface.DEFAULT_BOLD
-
-            maxLines = 1
-
-            setTextColor(
-                Color.WHITE
-            )
+    
+    
+     val appName =
+         TextView(context).apply {
+             text = "📱 Shiksha Rojgar App"
+            textSize = 15f
+             typeface = Typeface.DEFAULT_BOLD
+             maxLines = 1
+             gravity = Gravity.CENTER
+             setTextColor(Color.parseColor("#0D47A1"))
         }
 
-    val tagline =
-        TextView(context).apply {
-
-            text =
-                "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
-
-            textSize = 8.5f
-
-            maxLines = 1
-
-            setTextColor(
-                Color.WHITE
-            )
-        }
-
+     val tagline =
+    TextView(context).apply {
+             text = "शिक्षा से सफलता तक, हर कदम आपके साथ!"
+            textSize = 10f
+             maxLines = 2
+             gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#1565C0"))
+         }
+        
     titleBox.addView(
         appName,
         LinearLayout.LayoutParams(
@@ -309,9 +297,9 @@ fun createHeader(
             gravity =
                 Gravity.CENTER
 
-            setTextColor(
-                Color.WHITE
-            )
+            
+           setTextColor(Color.parseColor("#1E88E5"))
+
 
             typeface =
                 Typeface.DEFAULT_BOLD
@@ -380,9 +368,9 @@ fun createHeader(
             typeface =
                 Typeface.DEFAULT_BOLD
 
-            setTextColor(
-                Color.WHITE
-            )
+            
+             setTextColor(Color.parseColor("#1E88E5"))
+
 
             isClickable = true
             isFocusable = true
