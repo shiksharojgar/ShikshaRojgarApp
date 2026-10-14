@@ -136,13 +136,7 @@ fun createHeader(
             }
         }
 
-    header.addView(
-        back,
-        LinearLayout.LayoutParams(
-            dp(context, 38),
-            dp(context, 52)
-        )
-    )
+    
 
     /*
      * =====================================================
