@@ -320,7 +320,7 @@ fun createHeader(
             textSize = 8f
             gravity = Gravity.CENTER
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#0D47A1"))
+             setTextColor(Color.WHITE)
         }
 
     websiteBox.addView(
@@ -354,7 +354,7 @@ fun createHeader(
             textSize = 8f
             gravity = Gravity.CENTER
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#0D47A1"))
+            setTextColor(Color.WHITE)
         }
 
     val contactBox =
@@ -459,7 +459,7 @@ fun createHeader(
                 Typeface.DEFAULT_BOLD
 
             
-             setTextColor(Color.parseColor("#1E88E5"))
+              setTextColor(Color.WHITE)
 
 
             isClickable = true
