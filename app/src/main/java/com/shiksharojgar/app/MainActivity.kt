@@ -254,24 +254,30 @@ private val floatingNoticeRunnable =
 
         setupFirebaseNotifications()
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.topBar)
-        ) { view, insets ->
+         val topBar = findViewById<android.view.View>(R.id.topBar)
+ val originalTopBarHeight = topBar.layoutParams.height
 
-            val top =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.statusBars()
-                ).top
+ ViewCompat.setOnApplyWindowInsetsListener(
+    topBar
+ ) { view, insets ->
 
-            view.setPadding(
-                view.paddingLeft,
-                top + 6,
-                view.paddingRight,
-                view.paddingBottom
-            )
+     val top = insets.getInsets(
+         WindowInsetsCompat.Type.statusBars()
+     ).top
 
-            insets
-        }
+     val params = view.layoutParams
+     params.height = originalTopBarHeight + top
+     view.layoutParams = params
+
+     view.setPadding(
+         view.paddingLeft,
+        top + 6,
+         view.paddingRight,
+        view.paddingBottom
+     )
+
+   insets
+ }
 
         
 
