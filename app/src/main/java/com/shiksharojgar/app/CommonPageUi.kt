@@ -100,7 +100,7 @@ fun createHeader(
 
             
            setBackgroundColor(
-                 Color.parseColor("#E3F2FD")
+                 Color.parseColor("#1D4ED8")
              )
 
         }
@@ -217,7 +217,7 @@ fun createHeader(
              typeface = Typeface.DEFAULT_BOLD
              maxLines = 1
              gravity = Gravity.CENTER
-             setTextColor(Color.parseColor("#0D47A1"))
+             setTextColor(Color.WHITE)
         }
 
      val tagline =
@@ -226,7 +226,7 @@ fun createHeader(
             textSize = 10f
              maxLines = 2
              gravity = Gravity.CENTER
-            setTextColor(Color.parseColor("#1565C0"))
+            setTextColor(Color.WHITE)
          }
         
     titleBox.addView(
