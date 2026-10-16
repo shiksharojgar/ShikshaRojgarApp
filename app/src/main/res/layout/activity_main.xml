@@ -314,7 +314,7 @@
         android:textColor="@color/blue"
         android:textSize="13sp"
         android:textStyle="bold"
-        android:background="@android:color/transparent"
+        android:background="@drawable/rounded_outline_button"
         android:clickable="true"
         android:focusable="true" />
 
@@ -329,7 +329,7 @@
         android:textColor="@color/blue"
         android:textSize="12sp"
         android:textStyle="bold"
-        android:background="@android:color/transparent"
+        android:background="@drawable/rounded_outline_button"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true" />
