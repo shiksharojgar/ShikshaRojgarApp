@@ -52,15 +52,15 @@
                 android:maxLines="2" />
         </LinearLayout>
 
-        <TextView
+                <TextView
             android:id="@+id/loginButton"
-            android:layout_width="42dp"
-            android:layout_height="48dp"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:gravity="center"
-            android:text="👤"
+            android:text="👤\nUsers Login"
             android:textColor="@android:color/white"
-            android:textSize="20sp"
-            android:contentDescription="Login"
+            android:textSize="10sp"
+            android:contentDescription="Users Login"
             android:clickable="true"
             android:focusable="true" />
 
@@ -74,39 +74,43 @@
             android:textSize="20sp"
             android:contentDescription="Admin Panel"
             android:clickable="true"
+                        android:visibility="gone"
             android:focusable="true" />
 <!-- Website Button -->
 <TextView
     android:id="@+id/websiteButton"
-    android:layout_width="38dp"
-    android:layout_height="48dp"
+    android:layout_width="54dp"
+    android:layout_height="54dp"
     android:gravity="center"
-    android:text="🌐"
-    android:textSize="21sp"
+    android:text="🌐\nWebsite"
+    android:textSize="10sp"
+    android:textColor="@android:color/white"
     android:contentDescription="Website"
     android:clickable="true"
     android:focusable="true" />
 
 <!-- Contact Button -->
 <TextView
+<TextView
     android:id="@+id/contactButton"
-    android:layout_width="38dp"
-    android:layout_height="48dp"
+    android:layout_width="58dp"
+    android:layout_height="54dp"
     android:gravity="center"
-    android:text="🤝"
-    android:textSize="21sp"
+    android:text="🤝\nहमसे जुड़ें"
+    android:textSize="10sp"
+    android:textColor="@android:color/white"
     android:contentDescription="हमसे जुड़ें"
     android:clickable="true"
     android:focusable="true" />
-
 <!-- Notification Button -->
 <TextView
     android:id="@+id/notificationButton"
-    android:layout_width="34dp"
-    android:layout_height="48dp"
+    android:layout_width="62dp"
+    android:layout_height="54dp"
     android:gravity="center"
-    android:text="🔔"
-    android:textSize="21sp"
+    android:text="🔔\nNotifications"
+    android:textSize="10sp"
+    android:textColor="@android:color/white"
     android:contentDescription="Notifications"
     android:clickable="true"
     android:focusable="true" />
@@ -115,7 +119,7 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="45dp"
         android:background="@color/navy" android:gravity="center_vertical"
-        android:paddingStart="30dp" android:paddingEnd="30dp">
+        android:paddingStart="30dp" android:paddingEnd="55dp">
         <TextView android:id="@+id/searchButton" android:layout_width="match_parent" android:layout_height="40dp"
             android:gravity="center_vertical" android:text="🔍  Shiksha Rojgar पर खोजें..."
             android:textColor="@color/text" android:textSize="14sp" android:paddingStart="14dp"
