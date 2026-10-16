@@ -473,12 +473,6 @@ private val floatingNoticeRunnable =
             }
         }
 
-        findViewById<TextView>(
-            R.id.shareButton
-        ).setOnClickListener {
-            shareApp()
-        }
-
    // Website button — add after the existing shareButton listener
 
 findViewById<TextView>(R.id.websiteButton).setOnClickListener {
