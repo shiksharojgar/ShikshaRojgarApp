@@ -241,15 +241,7 @@
          android:textStyle="bold"
          android:textColor="@color/text" />
 
-     <TextView
-        android:id="@+id/liveLabel"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_marginStart="10dp"
-         android:text="🔴 LIVE"
-         android:textStyle="bold"
-         android:textColor="@color/red" />
-
+     
     <TextView
          android:id="@+id/ticker"
          android:layout_width="wrap_content"
@@ -268,6 +260,15 @@
             android:gravity="center_vertical" android:layout_marginTop="12dp">
             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
                 android:text="🔴 Latest Posts" android:textStyle="bold" android:textSize="19sp" android:textColor="@color/text"/>
+            <TextView
+        android:id="@+id/liveLabel"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="10dp"
+         android:text="🔴 LIVE"
+         android:textStyle="bold"
+         android:textColor="@color/red" />
+
             <TextView android:id="@+id/refreshButton" android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="↻ Refresh" android:textColor="@color/blue" android:textStyle="bold" android:padding="8dp" android:clickable="true" android:focusable="true"/>
         </LinearLayout>
