@@ -1254,7 +1254,7 @@ private fun loadFloatingNoticePhoto() {
                     ImageView(this).apply {
 
                         scaleType =
-                            ImageView.ScaleType.CENTER_CROP
+                         ImageView.ScaleType.FIT_CENTER
 
                         background =
                             GradientDrawable().apply {
