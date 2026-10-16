@@ -122,21 +122,7 @@
 
     <ScrollView android:id="@+id/contentScroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="10dp">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp"
-android:background="@drawable/rounded_breaking_bg"
-            android:gravity="center_vertical" android:paddingStart="10dp" android:paddingEnd="10dp" android:clipChildren="true">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/liveLabel" android:text="🔴 LIVE"
-                android:textStyle="bold" android:textColor="@color/red" android:paddingEnd="8dp"/>
-            <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clipChildren="true">
-                <TextView android:id="@+id/ticker" android:layout_width="wrap_content" android:layout_height="match_parent"
-                    android:gravity="center_vertical" android:text="नई पोस्ट लोड हो रही हैं…" android:textColor="@color/text"
-                    android:singleLine="true" android:ellipsize="none" android:includeFontPadding="false"/>
-            </FrameLayout>
-        </LinearLayout>
-
-        
+   
             <!-- Channel Card -->
 <FrameLayout
     android:id="@+id/channelButtonContainer"
@@ -239,9 +225,39 @@ android:background="@drawable/rounded_breaking_bg"
                 android:scaleType="centerCrop"
                 android:contentDescription="शिक्षा रोजगार: शिक्षक, विद्यार्थी और परीक्षा तैयारी" />
 
-        </FrameLayout>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quick Access"
-            android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text" android:layout_marginTop="14dp" android:layout_marginBottom="8dp"/>
+        </FrameLayout>243: <LinearLayout
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:orientation="horizontal"
+     android:gravity="center_vertical"
+     android:layout_marginTop="14dp"
+     android:layout_marginBottom="8dp">
+
+    <TextView
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+        android:text="Quick Access"
+         android:textSize="17sp"
+         android:textStyle="bold"
+         android:textColor="@color/text" />
+
+     <TextView
+        android:id="@+id/liveLabel"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="10dp"
+         android:text="🔴 LIVE"
+         android:textStyle="bold"
+         android:textColor="@color/red" />
+
+    <TextView
+         android:id="@+id/ticker"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+        android:visibility="gone"
+         android:text="नई पोस्ट लोड हो रही हैं…" />
+
+ </LinearLayout>
         <GridLayout android:id="@+id/quickGrid" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:columnCount="3" android:useDefaultMargins="false"/>
 
@@ -258,9 +274,7 @@ android:background="@drawable/rounded_breaking_bg"
         <androidx.recyclerview.widget.RecyclerView android:id="@+id/postsRecycler" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false" android:layout_marginTop="4dp"/>
 
-        
-        
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Official Websites"
+          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Official Websites"
             android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text" android:layout_marginTop="18dp" android:layout_marginBottom="8dp"/>
         <GridLayout android:id="@+id/websiteGrid" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:columnCount="1" android:useDefaultMargins="false"/>
