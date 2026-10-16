@@ -71,19 +71,7 @@
             android:contentDescription="Admin Panel"
             android:clickable="true"
             android:focusable="true" />
-
-        <TextView
-            android:id="@+id/notificationButton"
-            android:layout_width="34dp"
-            android:layout_height="48dp"
-            android:gravity="center"
-            android:text="🔔"
-            android:textSize="19sp"
-            android:contentDescription="Notifications"
-            android:clickable="true"
-            android:focusable="true" />
-    </LinearLayout>
-<!-- Website Button: Insert after existing line 73 -->
+<!-- Website Button -->
 
 <TextView
     android:id="@+id/websiteButton"
@@ -96,6 +84,8 @@
     android:clickable="true"
     android:focusable="true" />
 
+<!-- Contact Button -->
+
 <TextView
     android:id="@+id/contactButton"
     android:layout_width="38dp"
@@ -106,6 +96,18 @@
     android:contentDescription="हमसे जुड़ें"
     android:clickable="true"
     android:focusable="true" />
+        
+        <TextView
+            android:id="@+id/notificationButton"
+            android:layout_width="34dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="🔔"
+            android:textSize="19sp"
+            android:contentDescription="Notifications"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
 
 <!-- Keep existing notificationButton below these buttons -->
 
