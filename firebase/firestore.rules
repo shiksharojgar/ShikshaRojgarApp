@@ -456,6 +456,16 @@ service cloud.firestore {
 
       allow delete: if false;
     }
+    // HEADER WEBSITE LINKS
+    match /header_website_links/{linkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
 
+    // HEADER SOCIAL MEDIA LINKS
+    match /header_social_links/{linkId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
   }
 }
