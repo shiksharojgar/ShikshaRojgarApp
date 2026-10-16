@@ -113,7 +113,7 @@
     android:contentDescription="Notifications"
     android:clickable="true"
     android:focusable="true" />
-
+    </LinearLayout>
 <!-- Keep existing notificationButton below these buttons -->
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="45dp"
