@@ -83,7 +83,31 @@
             android:clickable="true"
             android:focusable="true" />
     </LinearLayout>
+<!-- Website Button: Insert after existing line 73 -->
 
+<TextView
+    android:id="@+id/websiteButton"
+    android:layout_width="38dp"
+    android:layout_height="48dp"
+    android:gravity="center"
+    android:text="🌐"
+    android:textSize="18sp"
+    android:contentDescription="Website"
+    android:clickable="true"
+    android:focusable="true" />
+
+<TextView
+    android:id="@+id/contactButton"
+    android:layout_width="38dp"
+    android:layout_height="48dp"
+    android:gravity="center"
+    android:text="🤝"
+    android:textSize="18sp"
+    android:contentDescription="हमसे जुड़ें"
+    android:clickable="true"
+    android:focusable="true" />
+
+<!-- Keep existing notificationButton below these buttons -->
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="45dp"
         android:background="@color/navy" android:gravity="center_vertical"
