@@ -479,7 +479,118 @@ private val floatingNoticeRunnable =
             shareApp()
         }
 
-        
+   // Website button — add after the existing shareButton listener
+
+findViewById<TextView>(R.id.websiteButton).setOnClickListener {
+    FirebaseFirestore.getInstance()
+        .collection("header_website_links")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            val links = snapshot.documents
+                .filter { it.getBoolean("enabled") ?: true }
+                .sortedBy { it.getLong("position") ?: Long.MAX_VALUE }
+
+            if (links.isEmpty()) {
+                Toast.makeText(
+                    this,
+                    "अभी कोई Website लिंक उपलब्ध नहीं है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                val options = links.map { doc ->
+                    "${doc.getString("icon") ?: "🌐"} ${
+                        doc.getString("label") ?: "Website"
+                    }"
+                }.toTypedArray()
+
+                AlertDialog.Builder(this)
+                    .setTitle("🌐 Website चुनें")
+                    .setItems(options) { _, which ->
+                        val url = links[which]
+                            .getString("url")
+                            .orEmpty()
+
+                        if (
+                            url.startsWith("https://") ||
+                            url.startsWith("http://")
+                        ) {
+                            startActivity(
+                                Intent(
+                                    this,
+                                    WebViewActivity::class.java
+                                ).putExtra("url", url)
+                            )
+                        }
+                    }
+                    .setNegativeButton("बंद करें", null)
+                    .show()
+            }
+        }
+        .addOnFailureListener {
+            Toast.makeText(
+                this,
+                "Website लिंक लोड नहीं हुए।",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}
+
+// हमसे जुड़ें button
+
+findViewById<TextView>(R.id.contactButton).setOnClickListener {
+    FirebaseFirestore.getInstance()
+        .collection("header_social_links")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            val links = snapshot.documents
+                .filter { it.getBoolean("enabled") ?: true }
+                .sortedBy { it.getLong("position") ?: Long.MAX_VALUE }
+
+            if (links.isEmpty()) {
+                Toast.makeText(
+                    this,
+                    "अभी कोई Social Media लिंक उपलब्ध नहीं है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                val options = links.map { doc ->
+                    "${doc.getString("icon") ?: "🔗"} ${
+                        doc.getString("label") ?: "Social Media"
+                    }"
+                }.toTypedArray()
+
+                AlertDialog.Builder(this)
+                    .setTitle("🤝 हमसे जुड़ें")
+                    .setItems(options) { _, which ->
+                        val url = links[which]
+                            .getString("url")
+                            .orEmpty()
+
+                        if (
+                            url.startsWith("https://") ||
+                            url.startsWith("http://")
+                        ) {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(url)
+                                )
+                            )
+                        }
+                    }
+                    .setNegativeButton("बंद करें", null)
+                    .show()
+            }
+        }
+// Existing code — keep this unchanged
+        .addOnFailureListener {
+            Toast.makeText(
+                this,
+                "Social Media लिंक लोड नहीं हुए।",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}     
 // ============================================================
 // LATEST POSTS NAVIGATION
 // ============================================================
