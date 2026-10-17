@@ -186,6 +186,127 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
     // =====================================================
+    // SHIKSHA ROJGAR GROUP - SECURITY RULES
+    // =====================================================
+
+    match /group_posts/{postId} {
+
+      // Admin सभी पोस्ट देख सकता है।
+      // सामान्य यूज़र केवल अपनी पोस्ट या मंजूर पोस्ट देख सकता है।
+      allow read: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.uid == request.auth.uid
+        )
+        || (
+          resource.data.status == "approved"
+          && resource.data.expiresAt is timestamp
+          && resource.data.expiresAt > request.time
+        );
+
+      // यूज़र केवल नई Pending पोस्ट बना सकता है।
+      // वह खुद अपनी पोस्ट को Approved नहीं कर सकता।
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          "uid",
+          "displayName",
+          "body",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "body",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 40
+        && request.resource.data.body is string
+        && request.resource.data.body.size() > 0
+        && request.resource.data.body.size() <= 5000
+        && request.resource.data.status == "pending"
+        && request.resource.data.createdAt == request.time;
+
+      // केवल Admin पोस्ट को मंजूर या रिजेक्ट कर सकता है।
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "status",
+            "approvedAt",
+            "expiresAt"
+          ])
+        && (
+          (
+            request.resource.data.status == "approved"
+            && request.resource.data.approvedAt == request.time
+            && request.resource.data.expiresAt is timestamp
+            && request.resource.data.expiresAt > request.time
+          )
+          ||
+          request.resource.data.status == "rejected"
+        );
+
+      // अपनी पोस्ट का मालिक या Admin पोस्ट हटा सकता है।
+      allow delete: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.uid == request.auth.uid
+        );
+    }
+
+
+    // =====================================================
+    // GROUP REPORTS - PRIVATE COMPLAINTS
+    // =====================================================
+
+    match /group_reports/{reportId} {
+
+      // शिकायत केवल शिकायतकर्ता और Admin पढ़ सकते हैं।
+      allow read: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.uid == request.auth.uid
+        );
+
+      // यूज़र केवल अपनी शिकायत भेज सकता है।
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          "uid",
+          "subject",
+          "message",
+          "suggestedSolution",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "subject",
+          "message",
+          "suggestedSolution",
+          "postId",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0
+        && request.resource.data.subject.size() <= 150
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 3000
+        && request.resource.data.suggestedSolution is string
+        && request.resource.data.suggestedSolution.size() <= 2000
+        && request.resource.data.status == "open"
+        && request.resource.data.createdAt == request.time;
+
+      // शिकायत की स्थिति बदलने और उसे हटाने का अधिकार Admin को है।
+      allow update, delete: if isAdmin();
+    }
+    // =====================================================
     // CHANNEL POSTS
     // =====================================================
 
