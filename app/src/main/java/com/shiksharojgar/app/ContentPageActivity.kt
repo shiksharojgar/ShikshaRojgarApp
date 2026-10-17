@@ -189,10 +189,14 @@ root.addView(
          * CONTENT
          * =====================================================
          */
-        val scroll =
-            ScrollView(this).apply {
+                 val scroll =
+             ScrollView(this).apply {
 
                 isFillViewport = true
+
+                 setBackgroundColor(
+                    Color.rgb(248, 250, 252)
+                )
             }
 
         bodyBox =
