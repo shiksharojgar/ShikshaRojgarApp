@@ -126,7 +126,9 @@
 
         <activity
             android:name=".NoticeActivity" />
-
+        <activity
+            android:name=".GroupAdminActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
