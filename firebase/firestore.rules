@@ -188,7 +188,71 @@ service cloud.firestore {
     // =====================================================
     // SHIKSHA ROJGAR GROUP - SECURITY RULES
     // =====================================================
+    // =====================================================
+    // GROUP USER PROFILES - PRIVATE USER IDENTITY
+    // =====================================================
 
+    match /group_profiles/{uid} {
+
+      // प्रोफ़ाइल केवल उसका मालिक या Admin पढ़ सकता है।
+      allow read: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == uid
+        );
+
+      // यूज़र केवल अपनी प्रोफ़ाइल बना सकता है।
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasAll([
+          "uid",
+          "displayName",
+          "email",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "email",
+          "mobileNumber",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 40
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // यूज़र केवल अपना नाम और मोबाइल फ़ील्ड बदल सकता है।
+      // ईमेल और UID इस नियम से नहीं बदल सकते।
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "displayName",
+            "mobileNumber",
+            "updatedAt"
+          ])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 40
+        && request.resource.data.updatedAt == request.time
+        && (
+          !("mobileNumber" in request.resource.data)
+          || (
+            request.resource.data.mobileNumber is string
+            && request.resource.data.mobileNumber.size() <= 20
+          )
+        );
+
+      // प्रोफ़ाइल यूज़र स्वयं डिलीट नहीं कर सकता।
+      allow delete: if false;
+    }
     match /group_posts/{postId} {
 
       // Admin सभी पोस्ट देख सकता है।
