@@ -476,31 +476,7 @@ private fun shareContentPage(
 
                 bodyBox.removeAllViews()
 
-                /*
-                 * CONTENT TITLE
-                 */
-                bodyBox.addView(
-                    TextView(this).apply {
-
-                        text = title
-
-                        textSize = 23f
-
-                        typeface =
-                            Typeface.DEFAULT_BOLD
-
-                        setTextColor(
-                            Color.rgb(7, 89, 133)
-                        )
-
-                        setPadding(
-                            0,
-                            0,
-                            0,
-                            12
-                        )
-                    }
-                )
+                
 
                 /*
                  * IMAGE
