@@ -2361,7 +2361,28 @@ homeContent.addView(
         "CATEGORY POST MANAGEMENT"
     )
 )
+// =========================================================
+// SHIKSHA ROJGAR GROUP - ADMIN MODERATION
+// =========================================================
 
+homeContent.addView(
+    adminActionButton(
+        "🛡️  शिक्षा रोजगार ग्रुप — पोस्ट समीक्षा"
+    ) {
+        startActivity(
+            android.content.Intent(
+                this,
+                GroupAdminActivity::class.java
+            )
+        )
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    ).apply {
+        bottomMargin = dp(10)
+    }
+)
 
 
 
