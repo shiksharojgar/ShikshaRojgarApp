@@ -260,6 +260,47 @@ root.addView(
             return
         }
 
+     // Gmail verification required before posting
+if (!user.isEmailVerified) {
+    user.reload()
+        .addOnSuccessListener {
+            if (user.isEmailVerified) {
+                openPostEditor()
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle("Gmail सत्यापन आवश्यक है")
+                    .setMessage(
+                        "ग्रुप में पोस्ट करने से पहले अपने Gmail में " +
+                            "आया सत्यापन लिंक खोलें। ईमेल न मिले तो " +
+                            "नीचे से दोबारा भेज सकते हैं।"
+                    )
+                    .setPositiveButton("ईमेल दोबारा भेजें") { _, _ ->
+                        user.sendEmailVerification()
+                            .addOnSuccessListener {
+                                toast(
+                                    "सत्यापन लिंक आपके Gmail पर भेज दिया गया है।"
+                                )
+                            }
+                            .addOnFailureListener {
+                                toast(
+                                    "ईमेल नहीं भेजा जा सका। बाद में प्रयास करें।"
+                                )
+                            }
+                    }
+                    .setNegativeButton("बंद करें", null)
+                    .show()
+            }
+        }
+        .addOnFailureListener {
+            toast(
+                "Gmail सत्यापन की जाँच नहीं हो सकी। " +
+                    "नेटवर्क जाँचकर दोबारा प्रयास करें।"
+            )
+        }
+
+    return
+}
+
         val nameInput = EditText(this).apply {
             hint = "आपका नाम"
             setSingleLine(true)
