@@ -331,6 +331,18 @@ ViewCompat.setOnApplyWindowInsetsListener(
                 )
             )
         }
+
+        // Home User Login — Shared Firebase Account
+        findViewById<View>(
+            R.id.loginButton
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    GroupAuthActivity::class.java
+                )
+            )
+        }
         
         /*
          * Hidden admin entry:
