@@ -10,6 +10,9 @@ import android.os.Looper
 import android.os.Build
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import androidx.core.app.ActivityCompat
 import android.content.pm.PackageManager
 import com.google.firebase.messaging.FirebaseMessaging
@@ -166,6 +169,25 @@ private val floatingNoticeRunnable =
             }
         }
     }
+
+    private fun enlargeHeaderIcon(button: TextView) {
+    val currentText = button.text.toString()
+    val lineBreak = currentText.indexOf('\n')
+
+    if (lineBreak > 0) {
+        val styledText = SpannableString(currentText)
+
+        styledText.setSpan(
+            RelativeSizeSpan(2.0f),
+            0,
+            lineBreak,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        button.text = styledText
+    }
+}
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -179,6 +201,11 @@ private val floatingNoticeRunnable =
         )
 
         setContentView(R.layout.activity_main)
+        enlargeHeaderIcon(findViewById(R.id.loginButton))
+enlargeHeaderIcon(findViewById(R.id.websiteButton))
+enlargeHeaderIcon(findViewById(R.id.contactButton))
+enlargeHeaderIcon(findViewById(R.id.notificationButton))
+
 
                 val homeLogo = findViewById<ImageView>(R.id.logo)
         homeLogo.background = null
@@ -532,6 +559,7 @@ FirebaseFirestore.getInstance()
 
         if (label.isNotEmpty()) {
             websiteHeaderButton.text = "🌐\n$label"
+            enlargeHeaderIcon(websiteHeaderButton)
         }
     }
 
@@ -547,6 +575,7 @@ FirebaseFirestore.getInstance()
 
         if (label.isNotEmpty()) {
             contactHeaderButton.text = "🤝\n$label"
+          enlargeHeaderIcon(contactHeaderButton)  
         }
     }
    // Website button — add after the existing shareButton listener
