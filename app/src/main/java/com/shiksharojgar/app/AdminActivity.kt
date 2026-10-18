@@ -18,6 +18,7 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.gms.tasks.Tasks
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -7801,167 +7802,284 @@ if (selectedNoticeImage != null) {
     // =========================================================
     // CHANNEL MEDIA STORAGE
     // =========================================================
+private fun showChannelMediaStorage() {
 
-    private fun showChannelMediaStorage() {
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("💾 Shiksha Rojgar Storage")
+        .setMessage("Storage की जानकारी पढ़ी जा रही है…")
+        .setPositiveButton("OK", null)
+        .create()
 
-        val dialog =
-            AlertDialog.Builder(this)
-                .setTitle(
-                    "💾 Channel Media Storage"
-                )
-                .setMessage(
-                    "Storage calculate हो रहा है…"
-                )
-                .setPositiveButton(
-                    "OK",
-                    null
-                )
-                .create()
+    dialog.show()
 
-        dialog.show()
+    val mediaTask = db.collection("channel_media").get()
+    val channelTask = db.collection("channel_posts").get()
+    val categoryTask = db.collection("category_posts").get()
+    val groupTask = db.collection("group_posts").get()
+    val statsTask = db.collection("media_storage_stats")
+        .document("summary")
+        .get()
 
-        db.collection(
-            "channel_media"
-        )
-            .get()
-            .addOnSuccessListener { snap ->
+    Tasks.whenAll(
+        mediaTask,
+        channelTask,
+        categoryTask,
+        groupTask,
+        statsTask
+    )
+        .addOnSuccessListener {
 
-                var totalBytes =
-                    0L
+            val mediaSnapshot = mediaTask.result
+            val channelSnapshot = channelTask.result
+            val categorySnapshot = categoryTask.result
+            val groupSnapshot = groupTask.result
+            val statsSnapshot = statsTask.result
 
-                var fileCount =
-                    0
+            val mediaByCategory =
+                mutableMapOf<String, MutableSet<String>>()
 
-                var imageCount =
-                    0
+            val categoryPostCounts =
+                mutableMapOf<String, Int>()
 
-                var documentCount =
-                    0
+            val mediaReferences =
+                mutableMapOf<String, MutableSet<String>>()
 
-                snap.documents.forEach { doc ->
+            fun registerPostMedia(
+                post: com.google.firebase.firestore.DocumentSnapshot,
+                defaultCategory: String
+            ) {
+                val category = (
+                    post.getString("category")
+                        ?.trim()
+                        ?.takeIf { it.isNotEmpty() }
+                        ?: defaultCategory
+                    )
 
-                    val size =
-                        doc.getLong(
-                            "size"
-                        ) ?: 0L
+                categoryPostCounts[category] =
+                    (categoryPostCounts[category] ?: 0) + 1
 
-                    totalBytes +=
-                        size.coerceAtLeast(
-                            0L
-                        )
+                listOf("imageUrl", "fileUrl").forEach { field ->
 
-                    fileCount++
+                    val url = post.getString(field).orEmpty()
 
-                    val folder =
-                        doc.getString(
-                            "folder"
-                        ).orEmpty()
+                    if (url.startsWith("firestore-media://")) {
 
-                    if (
-                        folder == "images"
-                    ) {
+                        val mediaId =
+                            url.removePrefix("firestore-media://")
 
+                        if (mediaId.isNotBlank()) {
+
+                            mediaReferences
+                                .getOrPut(mediaId) {
+                                    mutableSetOf()
+                                }
+                                .add(category)
+                        }
+                    }
+                }
+            }
+
+            channelSnapshot.documents.forEach {
+                registerPostMedia(it, "Channel")
+            }
+
+            categorySnapshot.documents.forEach {
+                registerPostMedia(it, "अन्य श्रेणियाँ")
+            }
+
+            groupSnapshot.documents.forEach {
+                registerPostMedia(it, "शिक्षा रोजगार ग्रुप")
+            }
+
+            var totalBytes = 0L
+            var imageCount = 0
+            var videoCount = 0
+            var pdfCount = 0
+            var otherFileCount = 0
+            var sharedMediaCount = 0
+
+            mediaSnapshot.documents.forEach { media ->
+
+                val size = (media.getLong("size") ?: 0L)
+                    .coerceAtLeast(0L)
+
+                totalBytes += size
+
+                val mime = media.getString("mimeType")
+                    .orEmpty()
+                    .lowercase(Locale.ROOT)
+
+                val fileName = media.getString("fileName")
+                    .orEmpty()
+                    .lowercase(Locale.ROOT)
+
+                when {
+                    mime.startsWith("image/") ||
+                        media.getString("folder") == "images" -> {
                         imageCount++
+                    }
 
-                    } else {
+                    mime.startsWith("video/") -> {
+                        videoCount++
+                    }
 
-                        documentCount++
+                    mime == "application/pdf" ||
+                        fileName.endsWith(".pdf") -> {
+                        pdfCount++
+                    }
+
+                    else -> {
+                        otherFileCount++
                     }
                 }
 
-                val mb =
-                    totalBytes.toDouble() /
-                        (
-                            1024.0 *
-                                1024.0
-                        )
+                val labels = mediaReferences[media.id]
+                    ?: mutableSetOf("अन्य / बिना संदर्भ")
 
-                val gb =
-                    totalBytes.toDouble() /
-                        (
-                            1024.0 *
-                                1024.0 *
-                                1024.0
-                        )
+                if (labels.size > 1) {
+                    sharedMediaCount++
+                }
 
-                val freeLimitGb =
-                    1.0
+                val assignedCategory = labels.sorted().first()
 
-                val percent =
-                    (
-                        gb /
-                            freeLimitGb *
-                            100.0
-                        )
-                        .coerceAtMost(
-                            100.0
-                        )
-
-                val message =
-                    """
-                    💾 Channel Media
-                    
-                    📁 Total media files: $fileCount
-                    🖼️ Images: $imageCount
-                    📄 Documents: $documentCount
-                    
-                    📦 Uploaded media:
-                    ${
-                        String.format(
-                            Locale.US,
-                            "%.2f MB",
-                            mb
-                        )
+                mediaByCategory
+                    .getOrPut(assignedCategory) {
+                        mutableSetOf()
                     }
-                    
-                    ${
-                        String.format(
-                            Locale.US,
-                            "%.4f GB",
-                            gb
-                        )
-                    }
-                    
-                    📊 Firestore free storage:
-                    1 GiB shared Firestore limit
-                    
-                    📈 Approx. media usage:
-                    ${
-                        String.format(
-                            Locale.US,
-                            "%.2f%%",
-                            percent
-                        )
-                    }
-                    
-                    ⚠️ यह Channel media का declared
-                    file-size total है।
-                    
-                    Firebase Console में दिखने वाला
-                    actual Firestore storage
-                    indexes/document overhead सहित
-                    इससे थोड़ा अलग हो सकता है।
-                    
-                    🗑️ Delete की गई post की unused
-                    image/PDF और उसके chunks
-                    repository की delete system से हटेंगे।
-                    """.trimIndent()
+                    .add(media.id)
+            }
 
-                dialog.setMessage(
-                    message
+            val mediaSizes = mediaSnapshot.documents.associate {
+                it.id to ((it.getLong("size") ?: 0L).coerceAtLeast(0L))
+            }
+
+            val totalFiles = mediaSnapshot.size()
+
+            val deletedBytes =
+                (statsSnapshot.getLong("deletedBytes") ?: 0L)
+                    .coerceAtLeast(0L)
+
+            val deletedFiles =
+                (statsSnapshot.getLong("deletedFiles") ?: 0L)
+                    .coerceAtLeast(0L)
+
+            val limitBytes = 1024L * 1024L * 1024L
+
+            val remainingBytes =
+                (limitBytes - totalBytes).coerceAtLeast(0L)
+
+            val usagePercent =
+                totalBytes.toDouble() / limitBytes.toDouble() * 100.0
+
+            fun formatBytes(bytes: Long): String {
+                val mb = bytes.toDouble() / (1024.0 * 1024.0)
+
+                return if (mb >= 1024.0) {
+                    String.format(
+                        Locale.US,
+                        "%.3f GB",
+                        mb / 1024.0
+                    )
+                } else {
+                    String.format(
+                        Locale.US,
+                        "%.2f MB",
+                        mb
+                    )
+                }
+            }
+
+            val categoryLines = mutableListOf<String>()
+
+            val allCategories =
+                (categoryPostCounts.keys + mediaByCategory.keys)
+                    .toSortedSet()
+
+            allCategories.forEach { category ->
+
+                val ids = mediaByCategory[category]
+                    ?: emptySet<String>()
+
+                val categoryBytes = ids.sumOf {
+                    mediaSizes[it] ?: 0L
+                }
+
+                val postCount =
+                    categoryPostCounts[category] ?: 0
+
+                categoryLines.add(
+                    "• $category\n" +
+                        "  पोस्ट: $postCount | मीडिया: ${ids.size} फाइलें\n" +
+                        "  मीडिया आकार: ${formatBytes(categoryBytes)}"
                 )
             }
-            .addOnFailureListener { e ->
 
-                dialog.setMessage(
-                    "Channel media storage पढ़ा नहीं जा सका:\n\n" +
-                        (
-                            e.message
-                                ?: "Firestore error"
-                            )
-                )
-            }
-    }
+            val categoryDetails =
+                if (categoryLines.isEmpty()) {
+                    "अभी किसी श्रेणी में मीडिया नहीं मिला।"
+                } else {
+                    categoryLines.joinToString("\n\n")
+                }
+
+            val message = """
+                💾 SHIKSHA ROJGAR STORAGE
+
+                📦 वर्तमान अपलोडेड मीडिया
+                कुल फाइलें: $totalFiles
+                कुल आकार: ${formatBytes(totalBytes)}
+
+                🖼️ फोटो: $imageCount
+                🎬 वीडियो: $videoCount
+                📕 PDF: $pdfCount
+                📎 अन्य फाइलें: $otherFileCount
+
+                📊 1 GiB के हिसाब से अनुमानित उपयोग
+                इस्तेमाल: ${String.format(Locale.US, "%.2f%%", usagePercent)}
+                शेष अनुमानित जगह: ${formatBytes(remainingBytes)}
+
+                🗑️ दर्ज किया गया डिलीट हिसाब
+                हटाई गई मीडिया फाइलें: $deletedFiles
+                हटाई गई मीडिया का आकार: ${formatBytes(deletedBytes)}
+
+                🔗 एक से अधिक पोस्ट में लगी मीडिया:
+                $sharedMediaCount फाइलें
+
+                📂 श्रेणी के अनुसार विवरण
+
+                $categoryDetails
+
+                ℹ️ जरूरी जानकारी:
+                श्रेणी का आकार मीडिया फाइलों के आधार पर
+                दिखाया जाता है। एक ही मीडिया कई पोस्ट में
+                इस्तेमाल हो तो उसका आकार केवल एक श्रेणी
+                में दिखाया जाता है, ताकि श्रेणियों का
+                योग कुल आकार से अधिक न हो।
+
+                टेक्स्ट और बाहरी लिंक का अपना Firestore
+                मीडिया फाइल आकार नहीं होता।
+
+                यह ऐप में दर्ज मीडिया फाइलों के आकार का
+                अनुमान है, Firebase Console का वास्तविक
+                कुल Firestore उपयोग नहीं।
+
+                1 GiB यहाँ तुलना के लिए रखा गया है।
+                Firebase Spark की वास्तविक सीमाएँ और
+                अन्य Firestore डेटा/इंडेक्स का उपयोग
+                इससे अलग हो सकता है।
+            """.trimIndent()
+
+            dialog.setMessage(message)
+        }
+        .addOnFailureListener { error ->
+
+            dialog.setMessage(
+                "Storage की जानकारी नहीं पढ़ी जा सकी।\n\n" +
+                    (error.message ?: "Firestore error") +
+                    "\n\nFirestore Rules और Admin permission जाँचें।"
+            )
+        }
+}
+           
 
     // =========================================================
     // ANALYTICS
