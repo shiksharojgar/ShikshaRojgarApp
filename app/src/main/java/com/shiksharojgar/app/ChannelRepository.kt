@@ -9,6 +9,7 @@ import com.google.firebase.firestore.Blob
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.FieldValue
 import com.google.android.gms.tasks.Tasks
 import java.io.File
 import java.net.HttpURLConnection
@@ -1317,45 +1318,68 @@ extraUrl = d.getString("extraUrl").orEmpty()
     // DELETE MEDIA DOCUMENT + CHUNKS
     // ---------------------------------------------------------
 
-    private fun deleteMediaDocumentAndChunks(
-        mediaId: String,
-        done: (Boolean) -> Unit
-    ) {
+    
+private fun deleteMediaDocumentAndChunks(
+    mediaId: String,
+    done: (Boolean) -> Unit
+) {
+    val mediaRef = db.collection("channel_media")
+        .document(mediaId)
 
-        val mediaRef =
-            db.collection("channel_media")
-                .document(mediaId)
+    val statsRef = db.collection("media_storage_stats")
+        .document("summary")
 
-        mediaRef.collection("chunks")
-            .get()
-            .addOnSuccessListener { chunks ->
+    mediaRef.get()
+        .addOnSuccessListener { mediaDoc ->
+            if (!mediaDoc.exists()) {
+                done(true)
+                return@addOnSuccessListener
+            }
 
-                db.runBatch { batch ->
+            val deletedBytes = (
+                mediaDoc.getLong("size") ?: 0L
+            ).coerceAtLeast(0L)
 
-                    chunks.documents.forEach { chunk ->
+            mediaRef.collection("chunks")
+                .get()
+                .addOnSuccessListener { chunks ->
 
-                        batch.delete(
-                            chunk.reference
+                    db.runBatch { batch ->
+                        chunks.documents.forEach { chunk ->
+                            batch.delete(chunk.reference)
+                        }
+
+                        batch.delete(mediaRef)
+
+                        batch.set(
+                            statsRef,
+                            mapOf(
+                                "deletedBytes" to
+                                    FieldValue.increment(deletedBytes),
+                                "deletedFiles" to
+                                    FieldValue.increment(1L),
+                                "updatedAt" to
+                                    System.currentTimeMillis()
+                            ),
+                            SetOptions.merge()
                         )
                     }
-
-                    batch.delete(mediaRef)
-
+                        .addOnSuccessListener {
+                            done(true)
+                        }
+                        .addOnFailureListener {
+                            done(false)
+                        }
                 }
-                    .addOnSuccessListener {
+                .addOnFailureListener {
+                    done(false)
+                }
+        }
+        .addOnFailureListener {
+            done(false)
+        }
+}
 
-                        done(true)
-                    }
-                    .addOnFailureListener {
-
-                        done(false)
-                    }
-            }
-            .addOnFailureListener {
-
-                done(false)
-            }
-    }
 
     // ---------------------------------------------------------
     // OFFLINE SAVE
