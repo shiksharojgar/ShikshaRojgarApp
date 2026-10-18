@@ -83,9 +83,10 @@ class GroupAdminActivity : AppCompatActivity() {
 
     private fun buildScreen(): LinearLayout {
         val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.rgb(248, 250, 252))
-        }
+    orientation = LinearLayout.VERTICAL
+    setBackgroundColor(Color.rgb(248, 250, 252))
+    setPadding(0, 0, 0, dp(40))
+}
 
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -190,10 +191,11 @@ class GroupAdminActivity : AppCompatActivity() {
         ?: error.javaClass.simpleName
         ?: "अज्ञात त्रुटि"
 
-    statusView.text = "पोस्ट लोड नहीं हो सकीं।"
+    statusView.text =
+        "❌ Group Admin त्रुटि:\n\n$errorDetails"
 
     showMessage(
-        "Group Admin त्रुटि:\n$errorDetails"
+        "Group Admin की त्रुटि ऊपर स्क्रीन पर दिखाई गई है।"
     )
 }
         )
