@@ -1257,7 +1257,6 @@ extraUrl = d.getString("extraUrl").orEmpty()
 
 
     private fun deleteMediaIfUnused(
-    private fun deleteMediaIfUnused(
     mediaUrl: String,
     done: (Boolean) -> Unit
 ) {
