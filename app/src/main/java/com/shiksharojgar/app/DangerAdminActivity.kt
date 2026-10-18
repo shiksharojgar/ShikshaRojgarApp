@@ -151,18 +151,18 @@ val root = FrameLayout(this).apply {
             }
         }
 
-        val secretIconParams = FrameLayout.LayoutParams(
-    dp(42),
-    dp(42),
-    Gravity.BOTTOM or Gravity.END
-).apply {
-    marginEnd = dp(12)
-    bottomMargin = dp(12)
-}
+                val secretIconParams = FrameLayout.LayoutParams(
+            dp(42),
+            dp(42),
+            Gravity.BOTTOM or Gravity.END
+        ).apply {
+            marginEnd = dp(12)
+            bottomMargin = dp(48)
+        }
 
-root.addView(secretIcon, secretIconParams)y.END
-            )
-        )
+        root.addView(secretIcon, secretIconParams)
+
+        setContentView(root)
 
         setContentView(root)
     }
