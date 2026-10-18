@@ -286,59 +286,64 @@ object GroupRepository {
     // --------------------------------------------------
 
     fun deleteExpiredPosts(
-        done: (Int, String?) -> Unit
-    ) {
-        val now = Timestamp.now()
+    done: (Int, String?) -> Unit
+) {
+    val now = Timestamp.now()
 
-        postsRef
-            .whereEqualTo("status", "approved")
-            .whereLessThanOrEqualTo("expiresAt", now)
-            .get()
-            .addOnSuccessListener { snapshot ->
+    postsRef
+        .whereEqualTo("status", "approved")
+        .whereLessThanOrEqualTo("expiresAt", now)
+        .get()
+        .addOnSuccessListener { snapshot ->
 
-                if (snapshot.isEmpty) {
-                    done(0, null)
-                    return@addOnSuccessListener
-                }
+            val documents = snapshot.documents
 
-                val documents = snapshot.documents
-                val batches = documents.chunked(400)
-                var deletedCount = 0
+            if (documents.isEmpty()) {
+                done(0, null)
+                return@addOnSuccessListener
+            }
 
-                fun deleteNextBatch(index: Int) {
-                    if (index >= batches.size) {
+            var index = 0
+            var deletedCount = 0
+            var hasFailure = false
+
+            fun deleteNextPost() {
+                if (index >= documents.size) {
+                    if (hasFailure) {
+                        done(
+                            deletedCount,
+                            "कुछ पुरानी पोस्ट या उनकी मीडिया सफाई पूरी नहीं हो सकी।"
+                        )
+                    } else {
                         done(deletedCount, null)
-                        return
                     }
-
-                    val batch = db.batch()
-                    batches[index].forEach { document ->
-                        batch.delete(document.reference)
-                    }
-
-                    batch.commit()
-                        .addOnSuccessListener {
-                            deletedCount += batches[index].size
-                            deleteNextBatch(index + 1)
-                        }
-                        .addOnFailureListener { error ->
-                            done(
-                                deletedCount,
-                                error.localizedMessage
-                                    ?: "कुछ पुरानी पोस्ट डिलीट नहीं हुईं।"
-                            )
-                        }
+                    return
                 }
 
-                deleteNextBatch(0)
+                val document = documents[index]
+                index++
+
+                ChannelRepository.deleteGroupPost(document.id) { success ->
+                    if (success) {
+                        deletedCount++
+                    } else {
+                        hasFailure = true
+                    }
+
+                    deleteNextPost()
+                }
             }
-            .addOnFailureListener { error ->
-                done(
-                    0,
-                    error.localizedMessage ?: "पुरानी पोस्ट की सफाई नहीं हो सकी।"
-                )
-            }
-    }
+
+            deleteNextPost()
+        }
+        .addOnFailureListener { error ->
+            done(
+                0,
+                error.localizedMessage
+                    ?: "पुरानी पोस्ट की सफाई नहीं हो सकी।"
+            )
+        }
+}
 
     // --------------------------------------------------
     // 9. USER: SEND PRIVATE REPORT / COMPLAINT
