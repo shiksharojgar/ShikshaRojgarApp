@@ -182,22 +182,22 @@ object GroupRepository {
         onError: (Exception) -> Unit
     ) {
         postsRef
-            .whereEqualTo("status", "pending")
-            .orderBy("createdAt", Query.Direction.ASCENDING)
-            .get()
+    .whereEqualTo("status", "pending")
+    .get()
             .addOnSuccessListener { snapshot ->
                 val posts = snapshot.documents.map { doc ->
-                    GroupPost(
-                        id = doc.id,
-                        uid = doc.getString("uid").orEmpty(),
-                        displayName = doc.getString("displayName").orEmpty(),
-                        body = doc.getString("body").orEmpty(),
-                        status = doc.getString("status") ?: "pending",
-                        createdAt = doc.getTimestamp("createdAt")
-                            ?.toDate()?.time ?: 0L
-                    )
-                }
-                onResult(posts)
+    GroupPost(
+        id = doc.id,
+        uid = doc.getString("uid").orEmpty(),
+        displayName = doc.getString("displayName").orEmpty(),
+        body = doc.getString("body").orEmpty(),
+        status = doc.getString("status") ?: "pending",
+        createdAt = doc.getTimestamp("createdAt")
+            ?.toDate()?.time ?: 0L
+    )
+}.sortedBy { it.createdAt }
+
+onResult(posts)
             }
             .addOnFailureListener { error ->
                 onError(error)
