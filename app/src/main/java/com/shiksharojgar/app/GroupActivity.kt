@@ -51,12 +51,19 @@ class GroupActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    super.onCreate(savedInstanceState)
 
-        setContentView(buildScreen())
-        updateLoginState()
+    setContentView(buildScreen())
+    updateLoginState()
+
+    val postId = intent?.data?.getQueryParameter("post")
+
+    if (!postId.isNullOrBlank()) {
+        openSharedGroupPost(postId)
+    } else {
         loadApprovedPosts()
     }
+}
 
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
@@ -329,6 +336,37 @@ root.addView(
         dialog.show()
     }
 
+    private fun openSharedGroupPost(postId: String) {
+    GroupRepository.approvedPostById(
+        postId = postId,
+        onResult = { post ->
+            if (post == null) {
+                Toast.makeText(
+                    this,
+                    "यह पोस्ट उपलब्ध नहीं है या इसकी समय-सीमा समाप्त हो गई है।",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                loadApprovedPosts()
+            } else {
+                postsContainer.removeAllViews()
+                statusView.text = "📌 शेयर की गई ग्रुप पोस्ट"
+
+                addPostCard(postsContainer, post, false)
+            }
+        },
+        onError = {
+            Toast.makeText(
+                this,
+                "पोस्ट खोलने में समस्या हुई। कृपया दोबारा प्रयास करें।",
+                Toast.LENGTH_LONG
+            ).show()
+
+            loadApprovedPosts()
+        }
+    )
+}
+    
     private fun loadApprovedPosts() {
         if (feedStarted) return
 
