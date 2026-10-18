@@ -109,10 +109,9 @@ class GroupActivity : AppCompatActivity() {
             }
         }
 
-        writeButton = Button(this).apply {
-    text = "➕ ✍️ अपनी पोस्ट लिखें…                         ➤\n" +
-
-    textSize = 14f
+                writeButton = Button(this).apply {
+            text = "➕ ✍️ अपनी पोस्ट लिखें…                         ➤"
+            textSize = 14f
     isAllCaps = false
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.WHITE)
