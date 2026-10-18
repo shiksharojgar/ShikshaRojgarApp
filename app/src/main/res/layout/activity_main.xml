@@ -262,12 +262,13 @@
             android:columnCount="4" android:useDefaultMargins="false" android:layout_marginTop="4dp"/>
 
         <!-- Shiksha Rojgar Group Card -->
-        <FrameLayout
+                <FrameLayout
             android:id="@+id/groupButtonContainer"
             android:layout_width="match_parent"
-            android:layout_height="82dp"
+            android:layout_height="76dp"
             android:layout_marginTop="10dp"
-            android:background="#198754"
+            android:background="@drawable/group_card_bg"
+            android:clipToOutline="true"
             android:clickable="true"
             android:focusable="true"
             android:elevation="5dp">
