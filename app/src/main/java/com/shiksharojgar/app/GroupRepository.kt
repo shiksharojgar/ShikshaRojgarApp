@@ -264,18 +264,21 @@ object GroupRepository {
     // --------------------------------------------------
 
     fun deletePost(
-        postId: String,
-        done: (Boolean, String?) -> Unit
-    ) {
-        postsRef.document(postId)
-            .delete()
-            .addOnSuccessListener {
-                done(true, null)
-            }
-            .addOnFailureListener { error ->
-                done(false, error.localizedMessage ?: "पोस्ट डिलीट नहीं हुई।")
-            }
+    postId: String,
+    done: (Boolean, String?) -> Unit
+) {
+    ChannelRepository.deleteGroupPost(postId) { success ->
+
+        if (success) {
+            done(true, null)
+        } else {
+            done(
+                false,
+                "ग्रुप पोस्ट डिलीट नहीं हुई या मीडिया की सफाई पूरी नहीं हो पाई।"
+            )
+        }
     }
+}
 
     // --------------------------------------------------
     // 8. ADMIN: DELETE ALL EXPIRED APPROVED POSTS
