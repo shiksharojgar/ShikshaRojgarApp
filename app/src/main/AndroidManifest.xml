@@ -132,9 +132,37 @@
                 <activity
             android:name=".GroupAuthActivity"
             android:exported="false" />
-                <activity
+                        <activity
             android:name=".GroupActivity"
-            android:exported="false" />
+            android:exported="true">
+
+            <!-- Custom link: shiksharojgar://group/post?post=POST_ID -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="shiksharojgar"
+                    android:host="group"
+                    android:pathPrefix="/post" />
+            </intent-filter>
+
+            <!-- Website link: https://shiksha-rojgar.web.app/group?post=POST_ID -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="shiksha-rojgar.web.app"
+                    android:pathPrefix="/group" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>
