@@ -86,15 +86,15 @@ class GroupActivity : AppCompatActivity() {
 
         val title = TextView(this).apply {
             text = "👥 शिक्षा रोजगार ग्रुप"
-            textSize = 23f
+            textSize = 17f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }
 
         val subtitle = TextView(this).apply {
-            text = "शिक्षा • रोजगार • महत्वपूर्ण अपडेट"
-            textSize = 14f
+            text = "• पोस्ट करें • उपयोगी जानकारी शेयर • एक दूसरे की मदद •"
+            textSize = 13f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }
@@ -111,7 +111,7 @@ class GroupActivity : AppCompatActivity() {
 
         writeButton = Button(this).apply {
     text = "➕ ✍️ अपनी पोस्ट लिखें…                         ➤\n" +
-        "सवाल पूछें, उपयोगी जानकारी शेयर करें और एक दूसरे की सहायता करें!"
+
     textSize = 14f
     isAllCaps = false
     typeface = Typeface.DEFAULT_BOLD
