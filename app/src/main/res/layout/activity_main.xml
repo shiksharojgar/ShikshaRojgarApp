@@ -52,17 +52,16 @@
                 android:maxLines="2" />
         </LinearLayout>
 
-                <TextView
-            android:id="@+id/loginButton"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
-            android:gravity="center"
-            android:text="👤\nUsers Login"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            android:contentDescription="Users Login"
+                        <FrameLayout
+            android:id="@+id/groupButtonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/group_card_bg"
+            android:clipToOutline="true"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"
+            android:elevation="5dp">
 
         <TextView
             android:id="@+id/adminPanelButton"
@@ -79,11 +78,11 @@
 <!-- Website Button -->
 <TextView
     android:id="@+id/websiteButton"
-    android:layout_width="54dp"
-    android:layout_height="54dp"
+    android:layout_width="42dp"
+    android:layout_height="48dp"
     android:gravity="center"
     android:text="🌐\nWebsite"
-    android:textSize="10sp"
+    android:textSize="8sp"
     android:textColor="@android:color/white"
     android:contentDescription="Website"
     android:clickable="true"
@@ -92,11 +91,11 @@
 <!-- Contact Button -->
 <TextView
     android:id="@+id/contactButton"
-    android:layout_width="58dp"
-    android:layout_height="54dp"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
     android:gravity="center"
     android:text="🤝\nहमसे जुड़ें"
-    android:textSize="10sp"
+    android:textSize="8sp"
     android:textColor="@android:color/white"
     android:contentDescription="हमसे जुड़ें"
     android:clickable="true"
@@ -104,11 +103,11 @@
 <!-- Notification Button -->
 <TextView
     android:id="@+id/notificationButton"
-    android:layout_width="62dp"
-    android:layout_height="54dp"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
     android:gravity="center"
-    android:text="🔔\nNotifications"
-    android:textSize="10sp"
+    android:text="🔔\nसूचना"
+    android:textSize="8sp"
     android:textColor="@android:color/white"
     android:contentDescription="Notifications"
     android:clickable="true"
