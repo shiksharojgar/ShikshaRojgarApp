@@ -51,17 +51,17 @@
                 android:gravity="center"
                 android:maxLines="2" />
         </LinearLayout>
-
-                        <FrameLayout
-            android:id="@+id/groupButtonContainer"
-            android:layout_width="match_parent"
-            android:layout_height="76dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/group_card_bg"
-            android:clipToOutline="true"
+        <TextView
+            android:id="@+id/loginButton"
+            android:layout_width="42dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="👤\nLogin"
+            android:textColor="@android:color/white"
+            android:textSize="8sp"
+            android:contentDescription="Users Login"
             android:clickable="true"
-            android:focusable="true"
-            android:elevation="5dp">
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/adminPanelButton"
@@ -73,45 +73,44 @@
             android:textSize="20sp"
             android:contentDescription="Admin Panel"
             android:clickable="true"
-                        android:visibility="gone"
+            android:visibility="gone"
             android:focusable="true" />
-<!-- Website Button -->
-<TextView
-    android:id="@+id/websiteButton"
-    android:layout_width="42dp"
-    android:layout_height="48dp"
-    android:gravity="center"
-    android:text="🌐\nWebsite"
-    android:textSize="8sp"
-    android:textColor="@android:color/white"
-    android:contentDescription="Website"
-    android:clickable="true"
-    android:focusable="true" />
 
-<!-- Contact Button -->
-<TextView
-    android:id="@+id/contactButton"
-    android:layout_width="48dp"
-    android:layout_height="48dp"
-    android:gravity="center"
-    android:text="🤝\nहमसे जुड़ें"
-    android:textSize="8sp"
-    android:textColor="@android:color/white"
-    android:contentDescription="हमसे जुड़ें"
-    android:clickable="true"
-    android:focusable="true" />
-<!-- Notification Button -->
-<TextView
-    android:id="@+id/notificationButton"
-    android:layout_width="48dp"
-    android:layout_height="48dp"
-    android:gravity="center"
-    android:text="🔔\nसूचना"
-    android:textSize="8sp"
-    android:textColor="@android:color/white"
-    android:contentDescription="Notifications"
-    android:clickable="true"
-    android:focusable="true" />
+        <TextView
+            android:id="@+id/websiteButton"
+            android:layout_width="42dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="🌐\nWebsite"
+            android:textSize="8sp"
+            android:textColor="@android:color/white"
+            android:contentDescription="Website"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/contactButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="🤝\nहमसे जुड़ें"
+            android:textSize="8sp"
+            android:textColor="@android:color/white"
+            android:contentDescription="हमसे जुड़ें"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/notificationButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="🔔\nसूचना"
+            android:textSize="8sp"
+            android:textColor="@android:color/white"
+            android:contentDescription="Notifications"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 <!-- Keep existing notificationButton below these buttons -->
 
