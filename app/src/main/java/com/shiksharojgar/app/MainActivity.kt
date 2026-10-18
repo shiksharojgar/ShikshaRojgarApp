@@ -410,7 +410,7 @@ ViewCompat.setOnApplyWindowInsetsListener(
                 startActivity(
                     Intent(
                         this,
-                        AdminActivity::class.java
+                        DangerAdminActivity::class.java
                     )
                 )
             }
