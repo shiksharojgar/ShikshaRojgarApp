@@ -10,9 +10,65 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class GroupAdminActivity : AppCompatActivity() {
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val db by lazy { FirebaseFirestore.getInstance() }
 
+    private fun checkAdminAccess() {
+        val user = auth.currentUser
+
+        if (user == null || user.isAnonymous) {
+            Toast.makeText(
+                this,
+                "Admin लॉगिन आवश्यक है।",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+            return
+        }
+
+        val configuredAdminUid = "PfpAI3BR2XfihY4t4B5ldInDBg72"
+
+        if (user.uid == configuredAdminUid) {
+            setContentView(buildScreen())
+            loadPendingPosts()
+            return
+        }
+
+        db.collection("users")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val isAdmin =
+                    document.getBoolean("admin") == true ||
+                    document.getBoolean("isAdmin") == true ||
+                    document.getString("role")
+                        ?.equals("admin", ignoreCase = true) == true
+
+                if (isAdmin) {
+                    setContentView(buildScreen())
+                    loadPendingPosts()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "आपको ग्रुप Admin की अनुमति नहीं है।",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    this,
+                    "Admin की पहचान नहीं हो सकी। दोबारा प्रयास करें।",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }
+    }
     private lateinit var listBox: LinearLayout
     private lateinit var statusView: TextView
 
@@ -20,11 +76,9 @@ class GroupAdminActivity : AppCompatActivity() {
         return (value * resources.displayMetrics.density).toInt()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContentView(buildScreen())
-        loadPendingPosts()
+        checkAdminAccess()
     }
 
     private fun buildScreen(): LinearLayout {
