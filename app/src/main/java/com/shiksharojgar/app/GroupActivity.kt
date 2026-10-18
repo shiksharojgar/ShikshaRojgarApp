@@ -115,7 +115,7 @@ class GroupActivity : AppCompatActivity() {
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.WHITE)
     gravity = Gravity.CENTER
-    setPadding(dp(12), dp(10), dp(12), dp(10))
+    setPadding(dp(8), dp(4), dp(8), dp(4))
     setBackgroundTintList(
         android.content.res.ColorStateList.valueOf(
             Color.rgb(22, 101, 52)
