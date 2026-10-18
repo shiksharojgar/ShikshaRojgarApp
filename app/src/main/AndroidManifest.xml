@@ -132,6 +132,9 @@
                 <activity
             android:name=".GroupAuthActivity"
             android:exported="false" />
+                <activity
+            android:name=".GroupActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
