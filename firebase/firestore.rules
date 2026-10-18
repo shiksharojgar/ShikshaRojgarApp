@@ -272,6 +272,10 @@ service cloud.firestore {
       // वह खुद अपनी पोस्ट को Approved नहीं कर सकता।
             allow create: if signedIn()
         && request.auth.token.firebase.sign_in_provider != "anonymous"
+&& (
+  isAdmin()
+  || request.auth.token.email_verified == true
+)
         && request.resource.data.keys().hasAll([
           "uid",
           "displayName",
