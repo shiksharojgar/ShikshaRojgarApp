@@ -270,7 +270,8 @@ service cloud.firestore {
 
       // यूज़र केवल नई Pending पोस्ट बना सकता है।
       // वह खुद अपनी पोस्ट को Approved नहीं कर सकता।
-      allow create: if signedIn()
+            allow create: if signedIn()
+        && request.auth.token.firebase.sign_in_provider != "anonymous"
         && request.resource.data.keys().hasAll([
           "uid",
           "displayName",
@@ -338,6 +339,7 @@ service cloud.firestore {
 
       // यूज़र केवल अपनी शिकायत भेज सकता है।
       allow create: if signedIn()
+        && request.auth.token.firebase.sign_in_provider != "anonymous"
         && request.resource.data.keys().hasAll([
           "uid",
           "subject",
