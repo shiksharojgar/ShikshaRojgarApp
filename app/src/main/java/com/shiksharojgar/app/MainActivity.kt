@@ -310,6 +310,28 @@ ViewCompat.setOnApplyWindowInsetsListener(
             )
         }
 
+                findViewById<View>(
+            R.id.groupButtonContainer
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    GroupActivity::class.java
+                )
+            )
+        }
+
+        findViewById<View>(
+            R.id.groupJoinButton
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    GroupActivity::class.java
+                )
+            )
+        }
+        
         /*
          * Hidden admin entry:
          * 7 quick taps on logo.
