@@ -434,7 +434,7 @@ if (!user.isEmailVerified) {
 
                 addMessage(
                     postsContainer,
-                    "नेटवर्क या Firestore Rules की समस्या हो सकती है।"
+                        "नेटवर्क या अन्य समस्या हो सकती है।"
                 )
             }
         )
