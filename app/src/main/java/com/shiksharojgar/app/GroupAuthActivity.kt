@@ -81,10 +81,14 @@ class GroupAuthActivity : AppCompatActivity() {
                 InputType.TYPE_TEXT_VARIATION_PASSWORD
         )
 
-        mobileInput = makeInput(
-            "मोबाइल नंबर (वैकल्पिक, OTP सत्यापन नहीं)",
+                mobileInput = makeInput(
+            "10 अंकों का मोबाइल नंबर (अनिवार्य)",
             InputType.TYPE_CLASS_PHONE
-        )
+        ).apply {
+            filters = arrayOf(
+                android.text.InputFilter.LengthFilter(10)
+            )
+        }
 
         submitButton = Button(this)
         switchButton = Button(this)
@@ -183,10 +187,12 @@ class GroupAuthActivity : AppCompatActivity() {
             return
         }
 
-        if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS
-                .matcher(email).matches()
+                if (
+            !android.util.Patterns.EMAIL_ADDRESS
+                .matcher(email).matches() ||
+            !email.endsWith("@gmail.com")
         ) {
-            toast("सही ईमेल पता दर्ज करें।")
+            toast("कृपया सही Gmail पता दर्ज करें।")
             return
         }
 
@@ -194,9 +200,8 @@ class GroupAuthActivity : AppCompatActivity() {
             toast("पासवर्ड कम-से-कम 6 अक्षरों का रखें।")
             return
         }
-
-        if (mobile.length > 20) {
-            toast("मोबाइल नंबर अधिकतम 20 अक्षरों का रखें।")
+        if (!mobile.matches(Regex("^[0-9]{10}$"))) {
+            toast("मोबाइल नंबर ठीक 10 अंकों का दर्ज करें।")
             return
         }
 
