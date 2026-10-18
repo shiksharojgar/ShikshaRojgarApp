@@ -530,11 +530,11 @@ if (!user.isEmailVerified) {
         }
 
         val date = TextView(this).apply {
-            text = if (isPending) {
-                "🕒 Pending • $dateText"
-            } else {
-                "📅 $dateText"
-            }
+                 text = if (isPending) {
+        "🕒 Pending • $dateText"
+     } else {
+         "📢 Public Post\n📅 $dateText"
+     }
 
             textSize = 12f
             setTextColor(Color.GRAY)
