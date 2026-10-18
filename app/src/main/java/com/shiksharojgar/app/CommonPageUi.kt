@@ -1299,7 +1299,14 @@ val prefix =
                                 )
                             )
                         }
-
+                        "group" -> {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    GroupActivity::class.java
+                                )
+                            )
+                        }
                         "notice" -> {
                             context.startActivity(
                                 Intent(
