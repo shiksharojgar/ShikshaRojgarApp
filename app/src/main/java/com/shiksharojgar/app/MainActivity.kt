@@ -179,7 +179,21 @@ private val floatingNoticeRunnable =
         )
 
         setContentView(R.layout.activity_main)
-        
+
+                val homeLogo = findViewById<ImageView>(R.id.logo)
+        homeLogo.background = null
+        homeLogo.scaleType = ImageView.ScaleType.CENTER_CROP
+        homeLogo.clipToOutline = true
+        homeLogo.outlineProvider =
+            object : android.view.ViewOutlineProvider() {
+                override fun getOutline(
+                    view: View,
+                    outline: android.graphics.Outline
+                ) {
+                    outline.setOval(0, 0, view.width, view.height)
+                }
+            }
+            
         /*
          * ============================================================
          * SHARED FIVE-BUTTON BOTTOM BAR
