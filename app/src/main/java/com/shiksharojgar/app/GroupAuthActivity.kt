@@ -221,7 +221,7 @@ class GroupAuthActivity : AppCompatActivity() {
                         setBusy(false)
                         toast("अकाउंट की जानकारी प्राप्त नहीं हुई।")
                     } else {
-                        saveProfile(user, displayName, mobile)
+                        sendVerificationThenSaveProfile(user, displayName, mobile)
                     }
                 }
                 .addOnFailureListener { error ->
@@ -248,7 +248,7 @@ class GroupAuthActivity : AppCompatActivity() {
                         setBusy(false)
                         toast("अकाउंट की जानकारी प्राप्त नहीं हुई।")
                     } else {
-                        saveProfile(user, displayName, mobile)
+                        sendVerificationThenSaveProfile(user, displayName, mobile)
                     }
                 }
                 .addOnFailureListener { error ->
@@ -303,6 +303,28 @@ class GroupAuthActivity : AppCompatActivity() {
             }
     }
 
+    private fun sendVerificationThenSaveProfile(
+    user: FirebaseUser,
+    displayName: String,
+    mobile: String
+) {
+    user.sendEmailVerification()
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                toast(
+                    "Gmail पर सत्यापन लिंक भेज दिया गया है। " +
+                        "अपना Gmail खोलकर लिंक पर क्लिक करें।"
+                )
+            } else {
+                toast(
+                    "सत्यापन ईमेल नहीं भेजा जा सका। " +
+                        "बाद में दोबारा प्रयास करें।"
+                )
+            }
+
+            saveProfile(user, displayName, mobile)
+        }
+}
     private fun saveProfile(
         user: FirebaseUser,
         displayName: String,
