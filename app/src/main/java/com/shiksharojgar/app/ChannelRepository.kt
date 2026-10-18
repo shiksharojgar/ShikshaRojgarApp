@@ -1257,62 +1257,74 @@ extraUrl = d.getString("extraUrl").orEmpty()
 
 
     private fun deleteMediaIfUnused(
-        mediaUrl: String,
-        done: (Boolean) -> Unit
-    ) {
-        if (!mediaUrl.startsWith("firestore-media://")) {
-            done(true)
-            return
-        }
-
-        val mediaId = mediaUrl.removePrefix("firestore-media://")
-        if (mediaId.isBlank()) {
-            done(true)
-            return
-        }
-
-        val channelImage = db.collection("channel_posts")
-            .whereEqualTo("imageUrl", mediaUrl)
-            .get()
-
-        val channelFile = db.collection("channel_posts")
-            .whereEqualTo("fileUrl", mediaUrl)
-            .get()
-
-        val categoryImage = db.collection("category_posts")
-            .whereEqualTo("imageUrl", mediaUrl)
-            .get()
-
-        val categoryFile = db.collection("category_posts")
-            .whereEqualTo("fileUrl", mediaUrl)
-            .get()
-
-        Tasks.whenAll(
-            channelImage,
-            channelFile,
-            categoryImage,
-            categoryFile
-        )
-            .addOnSuccessListener {
-                val stillReferenced =
-                    !channelImage.result.isEmpty ||
-                    !channelFile.result.isEmpty ||
-                    !categoryImage.result.isEmpty ||
-                    !categoryFile.result.isEmpty
-
-                if (stillReferenced) {
-                    done(true)
-                    return@addOnSuccessListener
-                }
-
-                deleteMediaDocumentAndChunks(mediaId, done)
-            }
-            .addOnFailureListener {
-                // जाँच असफल हो तो मीडिया सुरक्षित रखें।
-                done(false)
-            }
+    private fun deleteMediaIfUnused(
+    mediaUrl: String,
+    done: (Boolean) -> Unit
+) {
+    if (!mediaUrl.startsWith("firestore-media://")) {
+        done(true)
+        return
     }
 
+    val mediaId = mediaUrl.removePrefix("firestore-media://")
+    if (mediaId.isBlank()) {
+        done(true)
+        return
+    }
+
+    val channelImage = db.collection("channel_posts")
+        .whereEqualTo("imageUrl", mediaUrl)
+        .get()
+
+    val channelFile = db.collection("channel_posts")
+        .whereEqualTo("fileUrl", mediaUrl)
+        .get()
+
+    val categoryImage = db.collection("category_posts")
+        .whereEqualTo("imageUrl", mediaUrl)
+        .get()
+
+    val categoryFile = db.collection("category_posts")
+        .whereEqualTo("fileUrl", mediaUrl)
+        .get()
+
+    val groupImage = db.collection("group_posts")
+        .whereEqualTo("imageUrl", mediaUrl)
+        .get()
+
+    val groupFile = db.collection("group_posts")
+        .whereEqualTo("fileUrl", mediaUrl)
+        .get()
+
+    Tasks.whenAll(
+        channelImage,
+        channelFile,
+        categoryImage,
+        categoryFile,
+        groupImage,
+        groupFile
+    )
+        .addOnSuccessListener {
+            val stillReferenced =
+                !channelImage.result.isEmpty ||
+                !channelFile.result.isEmpty ||
+                !categoryImage.result.isEmpty ||
+                !categoryFile.result.isEmpty ||
+                !groupImage.result.isEmpty ||
+                !groupFile.result.isEmpty
+
+            if (stillReferenced) {
+                done(true)
+                return@addOnSuccessListener
+            }
+
+            deleteMediaDocumentAndChunks(mediaId, done)
+        }
+        .addOnFailureListener {
+            // जाँच असफल होने पर मीडिया सुरक्षित रखें।
+            done(false)
+        }
+}
 
     // ---------------------------------------------------------
     // DELETE MEDIA DOCUMENT + CHUNKS
