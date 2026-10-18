@@ -76,7 +76,43 @@ class GroupActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(245, 249, 255))
         }
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                systemBars.bottom
+            )
+            insets
+        }
 
+        root.addView(
+            CommonPageUi.createHeader(
+                context = this,
+                onBack = { finish() },
+                onShare = {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "📱 Shiksha Rojgar App 👥 शिक्षा रोजगार ग्रुप\nhttps://shiksha-rojgar.web.app/"
+                        )
+                    }
+                    startActivity(
+                        Intent.createChooser(shareIntent, "ग्रुप शेयर करें")
+                    )
+                },
+                onMenu = {
+                    startActivity(
+                        Intent(this, MainActivity::class.java)
+                    )
+                }
+            )
+        )
+        
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -186,6 +222,16 @@ root.addView(
         setMargins(dp(10), dp(6), dp(10), dp(8))
     }
 )
+        root.addView(
+            CommonPageUi.createBottomBar(
+                this,
+                CommonPageUi.Section.MORE
+            ),
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
         return root
     }
 
