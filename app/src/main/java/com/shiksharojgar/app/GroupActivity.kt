@@ -527,9 +527,37 @@ root.addView(
                 }
             }
 
-            actions.addView(
+                        actions.addView(
                 reportPostButton,
-                LinearLayout.LayoutParams(-1, -2)
+                LinearLayout.LayoutParams(0, -2, 1f)
+            )
+
+            val shareButton = Button(this).apply {
+                text = "📤 शेयर"
+                setOnClickListener {
+                    val shareText =
+                        "*📱 Shiksha Rojgar App  👥 शिक्षा रोजगार ग्रुप*\n\n" +
+                        "*पोस्ट देखें 👇*\n" +
+                        "https://shiksha-rojgar.web.app/group?post=${post.id}\n\n" +
+                        "*पोस्ट की जानकारी:*\n" +
+                        "${post.body}\n\n" +
+                        "*📅 तारीख और समय: $dateText*\n\n" +
+                        "*✅ शिक्षा रोजगार की Official Website 🌐*\n" +
+                        "https://www.shiksharojgar.com/\n" +
+                        "*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App डाउनलोड इंस्टॉल करें !*"
+
+                    ShareHelper.shareImageOrText(
+                        this@GroupActivity,
+                        "शिक्षा रोजगार ग्रुप पोस्ट",
+                        shareText,
+                        chooserTitle = "Shiksha Rojgar पर शेयर करें"
+                    )
+                }
+            }
+
+            actions.addView(
+                shareButton,
+                LinearLayout.LayoutParams(0, -2, 1f)
             )
         }
 
