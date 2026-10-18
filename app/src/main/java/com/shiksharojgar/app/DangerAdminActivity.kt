@@ -1,4 +1,3 @@
-
 package com.shiksharojgar.app
 
 import android.graphics.Color
@@ -24,11 +23,11 @@ class DangerAdminActivity : AppCompatActivity() {
 
         window.statusBarColor = Color.BLACK
         window.navigationBarColor = Color.BLACK
-
-        val root = FrameLayout(this).apply {
-            setBackgroundColor(Color.BLACK)
-            setPadding(dp(18), dp(18), dp(18), dp(18))
-        }
+val root = FrameLayout(this).apply {
+    setBackgroundColor(Color.BLACK)
+    clipChildren = false
+    clipToPadding = false
+}
 
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -113,18 +112,19 @@ class DangerAdminActivity : AppCompatActivity() {
 
         // छोटा छिपा हुआ डेंजर आइकॉन
         val secretIcon = TextView(this).apply {
-            text = "⚠"
-            textSize = 17f
-            gravity = Gravity.CENTER
-            alpha = 0.45f
-            setTextColor(Color.RED)
-            contentDescription = "Warning"
+    text = "⚠"
+    textSize = 19f
+    gravity = Gravity.CENTER
+    alpha = 0.90f
+    setTextColor(Color.RED)
+    contentDescription = "Warning"
 
-            background = GradientDrawable().apply {
-                setColor(Color.BLACK)
-                cornerRadius = dp(18).toFloat()
-            }
-        }
+    background = GradientDrawable().apply {
+        setColor(Color.rgb(55, 0, 0))
+        setStroke(dp(1), Color.rgb(170, 0, 0))
+        cornerRadius = dp(21).toFloat()
+    }
+}
 
         val tapCount = intArrayOf(0)
         var lastTap = 0L
@@ -151,12 +151,16 @@ class DangerAdminActivity : AppCompatActivity() {
             }
         }
 
-        root.addView(
-            secretIcon,
-            FrameLayout.LayoutParams(
-                dp(34),
-                dp(34),
-                Gravity.BOTTOM or Gravity.END
+        val secretIconParams = FrameLayout.LayoutParams(
+    dp(42),
+    dp(42),
+    Gravity.BOTTOM or Gravity.END
+).apply {
+    marginEnd = dp(12)
+    bottomMargin = dp(12)
+}
+
+root.addView(secretIcon, secretIconParams)y.END
             )
         )
 
