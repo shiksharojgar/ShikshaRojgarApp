@@ -129,6 +129,9 @@
         <activity
             android:name=".GroupAdminActivity"
             android:exported="false" />
+                <activity
+            android:name=".GroupAuthActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
