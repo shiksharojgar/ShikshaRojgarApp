@@ -1217,6 +1217,58 @@ extraUrl = d.getString("extraUrl").orEmpty()
             }
     }
 
+   fun deleteGroupPost(
+    id: String,
+    done: (Boolean) -> Unit
+) {
+    if (id.isBlank()) {
+        done(false)
+        return
+    }
+
+    val postRef = db.collection("group_posts")
+        .document(id)
+
+    postRef.get()
+        .addOnSuccessListener { post ->
+
+            if (!post.exists()) {
+                done(false)
+                return@addOnSuccessListener
+            }
+
+            val mediaRefs = listOf(
+                post.getString("imageUrl").orEmpty(),
+                post.getString("fileUrl").orEmpty()
+            )
+                .filter {
+                    it.startsWith("firestore-media://")
+                }
+                .distinct()
+
+            postRef.delete()
+                .addOnSuccessListener {
+
+                    if (mediaRefs.isEmpty()) {
+                        done(true)
+                    } else {
+                        deleteMediaRefsSequentially(
+                            mediaRefs,
+                            0
+                        ) { cleanupOk ->
+                            done(cleanupOk)
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    done(false)
+                }
+        }
+        .addOnFailureListener {
+            done(false)
+        }
+}
+   
     // ---------------------------------------------------------
     // DELETE MEDIA REFERENCES SEQUENTIALLY
     // ---------------------------------------------------------
