@@ -184,14 +184,18 @@ class GroupAdminActivity : AppCompatActivity() {
                 }
             },
             onError = { error ->
-                listBox.removeAllViews()
-                statusView.text = "पोस्ट लोड नहीं हो सकीं।"
+    listBox.removeAllViews()
 
-                showMessage(
-                    "अनुमति नहीं मिली या नेटवर्क समस्या है। " +
-                        "Admin अधिकार और Firestore Rules जाँचें।"
-                )
-            }
+    val errorDetails = error.message
+        ?: error.javaClass.simpleName
+        ?: "अज्ञात त्रुटि"
+
+    statusView.text = "पोस्ट लोड नहीं हो सकीं।"
+
+    showMessage(
+        "Group Admin त्रुटि:\n$errorDetails"
+    )
+}
         )
     }
 
