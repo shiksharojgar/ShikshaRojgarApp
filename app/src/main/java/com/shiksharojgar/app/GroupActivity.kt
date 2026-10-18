@@ -101,11 +101,23 @@ class GroupActivity : AppCompatActivity() {
         }
 
         writeButton = Button(this).apply {
-            text = "✍️ नई पोस्ट लिखें"
-            setOnClickListener {
-                openPostEditor()
-            }
-        }
+    text = "➕ ✍️ अपनी पोस्ट लिखें…                         ➤\n" +
+        "सवाल पूछें, उपयोगी जानकारी शेयर करें और एक दूसरे की सहायता करें!"
+    textSize = 14f
+    isAllCaps = false
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    gravity = Gravity.CENTER
+    setPadding(dp(12), dp(10), dp(12), dp(10))
+    setBackgroundTintList(
+        android.content.res.ColorStateList.valueOf(
+            Color.rgb(22, 101, 52)
+        )
+    )
+    setOnClickListener {
+        openPostEditor()
+    }
+}
 
         reportButton = Button(this).apply {
             text = "🛡️ शिकायत / सुझाव भेजें"
@@ -115,8 +127,7 @@ class GroupActivity : AppCompatActivity() {
         }
 
         root.addView(loginButton, buttonParams())
-        root.addView(writeButton, buttonParams())
-        root.addView(reportButton, buttonParams())
+root.addView(reportButton, buttonParams())
 
         statusView = TextView(this).apply {
             text = "पोस्ट लोड हो रही हैं..."
@@ -158,7 +169,15 @@ class GroupActivity : AppCompatActivity() {
                 1f
             )
         )
-
+root.addView(
+    writeButton,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        setMargins(dp(10), dp(6), dp(10), dp(8))
+    }
+)
         return root
     }
 
