@@ -8072,12 +8072,50 @@ private fun showChannelMediaStorage() {
         }
         .addOnFailureListener { error ->
 
-            dialog.setMessage(
-                "Storage की जानकारी नहीं पढ़ी जा सकी।\n\n" +
-                    (error.message ?: "Firestore error") +
-                    "\n\nFirestore Rules और Admin permission जाँचें।"
-            )
-        }
+    val failures = mutableListOf<String>()
+
+    if (!mediaTask.isSuccessful) {
+        failures.add(
+            "Media: ${mediaTask.exception?.message ?: "अज्ञात त्रुटि"}"
+        )
+    }
+
+    if (!channelTask.isSuccessful) {
+        failures.add(
+            "Channel: ${channelTask.exception?.message ?: "अज्ञात त्रुटि"}"
+        )
+    }
+
+    if (!categoryTask.isSuccessful) {
+        failures.add(
+            "Category Posts: ${categoryTask.exception?.message ?: "अज्ञात त्रुटि"}"
+        )
+    }
+
+    if (!groupTask.isSuccessful) {
+        failures.add(
+            "Group Posts: ${groupTask.exception?.message ?: "अज्ञात त्रुटि"}"
+        )
+    }
+
+    if (!statsTask.isSuccessful) {
+        failures.add(
+            "Storage Stats: ${statsTask.exception?.message ?: "अज्ञात त्रुटि"}"
+        )
+    }
+
+    val details = if (failures.isEmpty()) {
+        error.message ?: "अज्ञात Firestore त्रुटि"
+    } else {
+        failures.joinToString("\n\n")
+    }
+
+    dialog.setMessage(
+        "Storage की जानकारी नहीं पढ़ी जा सकी।\n\n" +
+            details +
+            "\n\nFirestore Rules और Admin permission जाँचें।"
+    )
+}
 }
            
 
