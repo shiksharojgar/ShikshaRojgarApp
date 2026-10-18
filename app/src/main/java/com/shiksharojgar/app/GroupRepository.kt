@@ -120,7 +120,59 @@ object GroupRepository {
                 onResult(posts)
             }
     }
+    // --------------------------------------------------
+    // GROUP: LOAD ONE PUBLIC POST BY ID
+    // केवल मंजूर और समय-सीमा में रहने वाली पोस्ट।
+    // --------------------------------------------------
 
+    fun approvedPostById(
+        postId: String,
+        onResult: (GroupPost?) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        if (postId.isBlank() || postId.length > 150) {
+            onResult(null)
+            return
+        }
+
+        postsRef.document(postId)
+            .get()
+            .addOnSuccessListener { doc ->
+                val now = System.currentTimeMillis()
+                val status = doc.getString("status").orEmpty()
+                val createdAt = doc.getTimestamp("createdAt")
+                    ?.toDate()?.time ?: 0L
+                val approvedAt = doc.getTimestamp("approvedAt")
+                    ?.toDate()?.time ?: 0L
+                val expiresAt = doc.getTimestamp("expiresAt")
+                    ?.toDate()?.time ?: 0L
+
+                if (!doc.exists() ||
+                    status != "approved" ||
+                    expiresAt <= now
+                ) {
+                    onResult(null)
+                    return@addOnSuccessListener
+                }
+
+                onResult(
+                    GroupPost(
+                        id = doc.id,
+                        uid = doc.getString("uid").orEmpty(),
+                        displayName = doc.getString("displayName").orEmpty(),
+                        body = doc.getString("body").orEmpty(),
+                        status = status,
+                        createdAt = createdAt,
+                        approvedAt = approvedAt,
+                        expiresAt = expiresAt
+                    )
+                )
+            }
+            .addOnFailureListener { error ->
+                onError(error)
+            }
+    }
+    
     // --------------------------------------------------
     // 4. ADMIN: PENDING POSTS
     // --------------------------------------------------
