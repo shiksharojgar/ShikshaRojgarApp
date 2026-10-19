@@ -105,10 +105,8 @@ class GroupActivity : AppCompatActivity() {
                         Intent.createChooser(shareIntent, "ग्रुप शेयर करें")
                     )
                 },
-                onMenu = {
-                    startActivity(
-                        Intent(this, MainActivity::class.java)
-                    )
+                                onMenu = {
+                    CommonPageUi.showAccountMenu(this)
                 }
             )
         )
