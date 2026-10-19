@@ -744,27 +744,45 @@ if (!user.isEmailVerified) {
                 )
             )
 
-            // शुरुआती Like और Share काउंट पढ़ें।
-            db.collection("group_post_stats")
+                        // शुरुआती Like काउंट पढ़ें।
+            db.collection("group_posts")
                 .document(post.id)
+                .collection("likes")
                 .get()
-                .addOnSuccessListener { stats ->
+                .addOnSuccessListener { snapshot ->
 
-                    likeCount = (
-                        stats.getLong("likeCount") ?: 0L
-                    ).coerceAtLeast(0L)
-
-                    shareCount = (
-                        stats.getLong("shareCount") ?: 0L
-                    ).coerceAtLeast(0L)
+                    likeCount = snapshot.size().toLong()
 
                     likeButton.text = if (isLiked) {
                         "👍 Liked $likeCount"
                     } else {
                         "👍 Like $likeCount"
                     }
+                }
+                .addOnFailureListener { error ->
+                    android.util.Log.w(
+                        "GroupActivity",
+                        "Like काउंट नहीं पढ़ा जा सका।",
+                        error
+                    )
+                }
 
+            // शुरुआती Share काउंट पढ़ें।
+            db.collection("group_posts")
+                .document(post.id)
+                .collection("shares")
+                .get()
+                .addOnSuccessListener { snapshot ->
+
+                    shareCount = snapshot.size().toLong()
                     shareButton.text = "↗️ Share $shareCount"
+                }
+                .addOnFailureListener { error ->
+                    android.util.Log.w(
+                        "GroupActivity",
+                        "Share काउंट नहीं पढ़ा जा सका।",
+                        error
+                    )
                 }
 
             // पता करें कि मौजूदा यूज़र ने Like किया है या नहीं।
