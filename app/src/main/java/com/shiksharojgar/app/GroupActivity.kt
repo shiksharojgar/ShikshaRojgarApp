@@ -651,6 +651,11 @@ if (!user.isEmailVerified) {
         }
 
 
+                // --------------------------------------------
+        // GROUP POST ACTION BUTTONS
+        // Like + Share + Complaint
+        // --------------------------------------------
+
         val actions = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
@@ -658,6 +663,7 @@ if (!user.isEmailVerified) {
         }
 
         if (isPending) {
+
             val deleteButton = Button(this).apply {
                 text = "🗑️ अपनी पोस्ट हटाएँ"
                 setOnClickListener {
@@ -667,53 +673,185 @@ if (!user.isEmailVerified) {
 
             actions.addView(
                 deleteButton,
-                LinearLayout.LayoutParams(-1, -2)
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    -2
+                )
             )
+
         } else {
+
+            var likeCount = post.likeCount
+            var shareCount = post.shareCount
+            var isLiked = false
+
+            val likeButton = Button(this).apply {
+                text = "👍 Like $likeCount"
+                textSize = 12f
+                isAllCaps = false
+                minWidth = 0
+                setPadding(dp(2), 0, dp(2), 0)
+            }
+
+            val shareButton = Button(this).apply {
+                text = "↗️ Share $shareCount"
+                textSize = 12f
+                isAllCaps = false
+                minWidth = 0
+                setPadding(dp(2), 0, dp(2), 0)
+            }
+
             val reportPostButton = Button(this).apply {
                 text = "⚑ शिकायत"
+                textSize = 12f
+                isAllCaps = false
+                minWidth = 0
+                setPadding(dp(2), 0, dp(2), 0)
+
                 setOnClickListener {
                     openReportDialog(post.id)
                 }
             }
 
-                        actions.addView(
-                reportPostButton,
-                LinearLayout.LayoutParams(0, -2, 1f)
-            )
-
-            val shareButton = Button(this).apply {
-                text = "📤 शेयर"
-                setOnClickListener {
-                    val shareText =
-                        "*📱 Shiksha Rojgar App  👥 शिक्षा रोजगार ग्रुप*\n\n" +
-                        "*पोस्ट देखें 👇*\n" +
-                        "https://shiksha-rojgar.web.app/group?post=${post.id}\n\n" +
-                        "*पोस्ट की जानकारी:*\n" +
-                        "${post.body}\n\n" +
-                        "*📅 तारीख और समय: $dateText*\n\n" +
-                        "*✅ शिक्षा रोजगार की Official Website 🌐*\n" +
-                        "https://www.shiksharojgar.com/\n" +
-                        "*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App डाउनलोड इंस्टॉल करें !*"
-
-                    ShareHelper.shareImageOrText(
-                        this@GroupActivity,
-                        "शिक्षा रोजगार ग्रुप पोस्ट",
-                        shareText,
-                        chooserTitle = "Shiksha Rojgar पर शेयर करें"
-                    )
-                }
+            // तीनों बटन मोबाइल में बराबर जगह लेंगे।
+            val actionParams = LinearLayout.LayoutParams(
+                0,
+                -2,
+                1f
+            ).apply {
+                marginEnd = dp(2)
             }
+
+            actions.addView(likeButton, actionParams)
 
             actions.addView(
                 shareButton,
-                LinearLayout.LayoutParams(0, -2, 1f)
+                LinearLayout.LayoutParams(
+                    0,
+                    -2,
+                    1f
+                ).apply {
+                    marginEnd = dp(2)
+                }
             )
+
+            actions.addView(
+                reportPostButton,
+                LinearLayout.LayoutParams(
+                    0,
+                    -2,
+                    1f
+                )
+            )
+
+            // शुरुआती Like और Share काउंट पढ़ें।
+            db.collection("group_post_stats")
+                .document(post.id)
+                .get()
+                .addOnSuccessListener { stats ->
+
+                    likeCount = (
+                        stats.getLong("likeCount") ?: 0L
+                    ).coerceAtLeast(0L)
+
+                    shareCount = (
+                        stats.getLong("shareCount") ?: 0L
+                    ).coerceAtLeast(0L)
+
+                    likeButton.text = if (isLiked) {
+                        "👍 Liked $likeCount"
+                    } else {
+                        "👍 Like $likeCount"
+                    }
+
+                    shareButton.text = "↗️ Share $shareCount"
+                }
+
+            // पता करें कि मौजूदा यूज़र ने Like किया है या नहीं।
+            val currentUser = auth.currentUser
+
+            if (currentUser != null && !currentUser.isAnonymous) {
+                db.collection("group_posts")
+                    .document(post.id)
+                    .collection("likes")
+                    .document(currentUser.uid)
+                    .get()
+                    .addOnSuccessListener { likeDocument ->
+
+                        isLiked = likeDocument.exists()
+
+                        likeButton.text = if (isLiked) {
+                            "👍 Liked $likeCount"
+                        } else {
+                            "👍 Like $likeCount"
+                        }
+                    }
+            }
+
+            // Like / Unlike
+            likeButton.setOnClickListener {
+
+                GroupRepository.toggleLike(post.id) {
+                        liked, count, error ->
+
+                    if (error != null) {
+                        toast(error)
+                    } else {
+                        isLiked = liked
+                        likeCount = count
+
+                        likeButton.text = if (isLiked) {
+                            "👍 Liked $likeCount"
+                        } else {
+                            "👍 Like $likeCount"
+                        }
+                    }
+                }
+            }
+
+            // Share
+            shareButton.setOnClickListener {
+
+                val shareText =
+                    "*📱 Shiksha Rojgar App  👥 शिक्षा रोजगार ग्रुप*\n\n" +
+                    "*पोस्ट देखें 👇*\n" +
+                    "https://shiksha-rojgar.web.app/group?post=${post.id}\n\n" +
+                    "*पोस्ट की जानकारी:*\n" +
+                    "${post.body}\n\n" +
+                    "*📅 तारीख और समय: $dateText*\n\n" +
+                    "*✅ शिक्षा रोजगार की Official Website 🌐*\n" +
+                    "https://www.shiksharojgar.com/\n" +
+                    "*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App डाउनलोड इंस्टॉल करें !*"
+
+                // मौजूदा शेयर सुविधा चालू रखें।
+                ShareHelper.shareImageOrText(
+                    this@GroupActivity,
+                    "शिक्षा रोजगार ग्रुप पोस्ट",
+                    shareText,
+                    chooserTitle = "Shiksha Rojgar पर शेयर करें"
+                )
+
+                // शेयर काउंट अपडेट करने का प्रयास करें।
+                GroupRepository.recordShare(post.id) {
+                        success, count, error ->
+
+                    if (success) {
+                        shareCount = count
+                        shareButton.text = "↗️ Share $shareCount"
+                    } else {
+                        android.util.Log.w(
+                            "GroupActivity",
+                            error ?: "Share काउंट अपडेट नहीं हुआ।"
+                        )
+                    }
+                }
+            }
         }
 
         if (actions.childCount > 0) {
             card.addView(actions)
         }
+        
 
         container.addView(
             card,
