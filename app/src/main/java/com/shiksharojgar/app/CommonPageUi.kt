@@ -528,8 +528,7 @@ fun createHeader(
                     0 -> {
                         val currentUser = auth.currentUser
 
-                                                currentUser.reload()
-                            .addOnSuccessListener {
+                                                
                                 val refreshedUser = auth.currentUser
 
         
