@@ -373,17 +373,12 @@ ViewCompat.setOnApplyWindowInsetsListener(
             )
         }
 
-        // Home User Login — Shared Firebase Account
-        findViewById<View>(
-            R.id.loginButton
-        ).setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    GroupAuthActivity::class.java
-                )
-            )
-        }
+        // Home User Account Menu — Login, Profile and Logout
+findViewById<View>(
+    R.id.loginButton
+).setOnClickListener {
+    CommonPageUi.showAccountMenu(this)
+}
         
         /*
          * Hidden admin entry:
