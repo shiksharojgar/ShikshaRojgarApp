@@ -30,6 +30,31 @@ override fun onCreate(savedInstanceState: Bundle?) {
     setContentView(buildUi())
 
     loadNotices()
+
+    handleNoticeDeepLink(intent)
+}
+
+override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    handleNoticeDeepLink(intent)
+}
+
+private fun handleNoticeDeepLink(intent: Intent?) {
+    val uri = intent?.data ?: return
+
+    val noticeId = uri.getQueryParameter("post")
+        ?: uri.pathSegments.lastOrNull()
+
+    if (noticeId.isNullOrBlank() || noticeId == "notice") {
+        return
+    }
+
+    Toast.makeText(
+        this,
+        "🔔 नोटिस लिंक प्राप्त हुआ। नोटिस खोजी जा रही है।",
+        Toast.LENGTH_SHORT
+    ).show()
 }
 
 // ============================================================
