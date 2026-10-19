@@ -901,6 +901,24 @@ text = formatPostBody(body)
                         }
                     )
                 }
+// 🌐 Notice पोस्ट में वेबसाइट और YouTube लिंक प्रीव्यू
+val noticePreviewLinks = buildString {
+    appendLine(title)
+    appendLine(body)
+    appendLine(description)
+    appendLine(websiteUrl)
+
+    customButtons.forEach { button ->
+        appendLine(button.url)
+    }
+}
+
+LinkPreviewUi.addPreviews(
+    context = this@NoticeActivity,
+    container = card,
+    text = noticePreviewLinks,
+    maxLinks = 2
+)
 
                 if (websiteUrl.isNotBlank()) {
                     card.addView(
