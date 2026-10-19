@@ -103,64 +103,92 @@ object CommonShareBuilder {
      */
     
     fun buildText(
-        post: ChannelPost,
-        section: Section
-    ): String {
+    post: ChannelPost,
+    section: Section
+): String {
 
-        val postUrl = directPostUrl(post.id)
+    val postUrl = directPostUrl(post.id)
 
-        return buildString {
+    return buildString {
 
-            // SECTION HEADER — BOLD
+        // APP NAME + CATEGORY
+        append("*")
+        append(section.header)
+        append("*")
+
+        // DIRECT POST LINK
+        append("\n\n*पोस्ट देखें 👇*")
+        append("\n")
+        append(postUrl)
+
+        // POST TITLE
+        if (post.title.isNotBlank()) {
+            append("\n\n*")
+            append(post.title.trim())
             append("*")
-            append(sectionHeader(section))
-            append("*")
-
-            // DIRECT POST LINK — TOP
-            append("\n\n*पोस्ट देखें 👇*")
-            append("\n")
-            append(postUrl)
-
-            // TITLE — BOLD
-            if (post.title.isNotBlank()) {
-                append("\n\n*")
-                append(post.title.trim())
-                append("*")
-            }
-
-            // DESCRIPTION — BOLD
-            if (post.body.isNotBlank()) {
-                append("\n\n*")
-                append(post.body.trim())
-                append("*")
-            }
-
-            // PDF / DOCUMENT
-            if (post.fileUrl.isNotBlank()) {
-                append("\n\n*📄 ")
-                append(
-                    post.fileName.ifBlank {
-                        "PDF / Document"
-                    }
-                )
-                append("*\n")
-                append(post.fileUrl)
-            }
-
-            // OFFICIAL WEBSITE HEADING
-            append("\n\n")
-            append("*✅ शिक्षा रोजगार की Official Website 🌐*")
-
-            // URL — KEEP PLAIN FOR CLICKABILITY
-            append("\nhttps://www.shiksharojgar.com/")
-
-            // APP DOWNLOAD MESSAGE — BOLD
-            append(
-                "\n*👈 यहां क्लिक करके 📱 Shiksha Rojgar App " +
-                    "डाउनलोड इंस्टॉल करें !*"
-            )
         }
+
+        // PHOTO
+        if (post.imageUrl.isNotBlank()) {
+            append("\n\n🖼️ फोटो देखें 👇\n")
+            append(post.imageUrl)
+        }
+
+        // WEBSITE LINK
+        if (post.websiteUrl.isNotBlank()) {
+            append("\n\n🌐 वेबसाइट लिंक 👇\n")
+            append(post.websiteUrl)
+        }
+
+        // EXTRA LINK
+        if (post.extraUrl.isNotBlank()) {
+            append("\n\n🔗 अतिरिक्त लिंक 👇\n")
+            append(post.extraUrl)
+        }
+
+        // OTHER CATEGORY BUTTON LINKS
+        post.buttons.forEach { button ->
+            if (button.url.isNotBlank()) {
+                append("\n\n🔗 ")
+                append(button.label.ifBlank { "लिंक खोलें" })
+                append(" 👇\n")
+                append(button.url)
+            }
+        }
+
+        // DESCRIPTION
+        if (post.body.isNotBlank()) {
+            append("\n\n*")
+            append(post.body.trim())
+            append("*")
+        }
+
+        // PDF / DOCUMENT
+        if (post.fileUrl.isNotBlank()) {
+            append("\n\n📄 ")
+            append(
+                post.fileName.ifBlank {
+                    "PDF / Document"
+                }
+            )
+            append(" 👇\n")
+            append(post.fileUrl)
+        }
+
+        // OFFICIAL WEBSITE
+        append("\n\n")
+        append("*✅ शिक्षा रोजगार की Official Website 🌐*")
+        append("\nhttps://www.shiksharojgar.com/")
+
+        // APP DOWNLOAD
+        append(
+            "\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                "डाउनलोड इंस्टॉल करें !*"
+        )
+        append("\n")
+        append(appDownloadUrl())
     }
+}
 
 
 
