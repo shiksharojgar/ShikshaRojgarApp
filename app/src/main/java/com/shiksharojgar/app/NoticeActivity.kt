@@ -23,7 +23,8 @@ class NoticeActivity : AppCompatActivity() {
 private val db = FirebaseFirestore.getInstance()
 
 private lateinit var listBox: LinearLayout
-
+private var pendingNoticeId: String? = null
+    
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
@@ -50,11 +51,37 @@ private fun handleNoticeDeepLink(intent: Intent?) {
         return
     }
 
-    Toast.makeText(
-        this,
-        "🔔 नोटिस लिंक प्राप्त हुआ। नोटिस खोजी जा रही है।",
-        Toast.LENGTH_SHORT
-    ).show()
+    pendingNoticeId = noticeId
+
+    db.collection("category_posts")
+        .document(noticeId)
+        .get()
+        .addOnSuccessListener { doc ->
+            if (doc.exists() &&
+                doc.getString("category") == "notice"
+            ) {
+                pendingNoticeId = doc.id
+
+                Toast.makeText(
+                    this,
+                    "✅ नोटिस मिला: ${doc.getString("title").orEmpty()}",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    this,
+                    "यह नोटिस उपलब्ध नहीं है।",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        .addOnFailureListener {
+            Toast.makeText(
+                this,
+                "नोटिस खोलने में समस्या हुई।",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 }
 
 // ============================================================
