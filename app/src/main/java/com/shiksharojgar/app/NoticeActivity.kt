@@ -633,29 +633,43 @@ private fun addNoticeCard(
 val noticeShareText =
     buildString {
 
-        append(
-            "📱 Shiksha Rojgar App 🔔 Notice / Update"
-        )
+        append("*📱 Shiksha Rojgar App 🔔 नोटिस अपडेट*")
 
-        append("\n\n")
-        append(title)
+        append("\n\n*पोस्ट देखें 👇*")
+
+        if (linkUrl.isNotBlank()) {
+            append("\n")
+            append(linkUrl.trim())
+        } else {
+            append("\nhttps://www.shiksharojgar.com/")
+        }
+
+        if (title.isNotBlank()) {
+            append("\n\n*")
+            append(title.trim())
+            append("*")
+        }
 
         if (body.isNotBlank()) {
             append("\n\n")
-            append(body)
+            append(body.trim())
         }
 
         if (linkUrl.isNotBlank()) {
-            append("\n\n")
-            append(linkLabel)
-            append("\n")
-            append(linkUrl)
+            append("\n\n🔗 ")
+            append(linkLabel.ifBlank { "लिंक खोलें" })
+            append(" 👇\n")
+            append(linkUrl.trim())
         }
 
-        append("\n\n🌐 Official Website")
+        append("\n\n*✅ शिक्षा रोजगार की Official Website 🌐*")
         append("\nhttps://www.shiksharojgar.com/")
 
-        append("\n\n📱 Download Shiksha Rojgar App")
+        append(
+            "\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                "डाउनलोड इंस्टॉल करें !*"
+        )
+
         append(
             "\nhttps://www.shiksharojgar.com/2026/09/" +
                 "shiksha-rojgar-android-app-latest.html"
