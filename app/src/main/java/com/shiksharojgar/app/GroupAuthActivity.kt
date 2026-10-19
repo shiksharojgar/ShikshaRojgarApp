@@ -447,10 +447,29 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
 
                         if (document.exists()) {
                             profileRef.update(data)
-                                .addOnSuccessListener {
+                                                                .addOnSuccessListener {
+                                    getSharedPreferences(
+                                        "shiksha_auth",
+                                        MODE_PRIVATE
+                                    ).edit()
+                                        .putString(
+                                            "last_email",
+                                            user.email ?: ""
+                                        )
+                                        .putString(
+                                            "last_username",
+                                            displayName
+                                        )
+                                        .putString(
+                                            "last_mobile",
+                                            mobile
+                                        )
+                                        .apply()
+
                                     setBusy(false)
                                     openGroup()
                                 }
+                                                                
                                 .addOnFailureListener { error ->
                                     setBusy(false)
                                     toast(
@@ -474,11 +493,30 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                                 newProfile["mobileNumber"] = mobile
                             }
 
-                            profileRef.set(newProfile)
+                                                        profileRef.set(newProfile)
                                 .addOnSuccessListener {
+                                    getSharedPreferences(
+                                        "shiksha_auth",
+                                        MODE_PRIVATE
+                                    ).edit()
+                                        .putString(
+                                            "last_email",
+                                            user.email ?: ""
+                                        )
+                                        .putString(
+                                            "last_username",
+                                            displayName
+                                        )
+                                        .putString(
+                                            "last_mobile",
+                                            mobile
+                                        )
+                                        .apply()
+
                                     setBusy(false)
                                     openGroup()
                                 }
+                                
                                 .addOnFailureListener { error ->
                                     setBusy(false)
                                     toast(
