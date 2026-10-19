@@ -107,8 +107,8 @@ val header =
         onShare = {
             shareContentPage(pageTitle)
         },
-        onMenu = {
-            openMore()
+                onMenu = {
+            CommonPageUi.showAccountMenu(this)
         }
     )
 
