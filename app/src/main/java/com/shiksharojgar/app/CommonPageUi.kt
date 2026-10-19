@@ -537,7 +537,8 @@ fun createHeader(
                             ).show()
                             return@setItems
                         }
-
+                        currentUser.reload().addOnCompleteListener {
+                            
                         FirebaseFirestore.getInstance()
                             .collection("group_profiles")
                             .document(currentUser.uid)
@@ -706,7 +707,8 @@ fun createHeader(
                                 ).show()
                             }
                     }
-
+                    }
+                    
                     1 -> {
                         AlertDialog.Builder(context)
                             .setTitle("Logout करें?")
