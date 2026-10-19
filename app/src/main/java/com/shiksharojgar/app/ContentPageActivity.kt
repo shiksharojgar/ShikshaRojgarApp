@@ -764,6 +764,21 @@ private fun shareContentPage(
                         )
                     }
 
+                                        // 🌐 वेबसाइट और YouTube लिंक प्रीव्यू
+                    val previewLinks = buildString {
+                        appendLine(body)
+                        appendLine(description)
+                        appendLine(websiteUrl)
+                        appendLine(extraUrl)
+                    }
+
+                    LinkPreviewUi.addPreviews(
+                        context = this,
+                        container = card,
+                        text = previewLinks,
+                        maxLinks = 2
+                    )
+                    
                     // Admin द्वारा बनाए गए कस्टम बटन
                     val customButtons =
                         (doc.get("buttons") as? List<*>)
