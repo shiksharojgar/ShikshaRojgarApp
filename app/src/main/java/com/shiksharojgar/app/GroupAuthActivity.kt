@@ -333,7 +333,7 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
         }
     }
 
-    private fun loginUser() {
+        private fun loginUser() {
         val email = emailInput.text.toString().trim().lowercase()
         val password = passwordInput.text.toString()
 
@@ -341,11 +341,7 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
             toast("ईमेल और पासवर्ड दोनों दर्ज करें।")
             return
         }
-        getSharedPreferences("shiksha_auth", MODE_PRIVATE)
-            .edit()
-            .putString("last_email", email)
-            .apply()
-            
+
         setBusy(true)
 
         auth.signInWithEmailAndPassword(email, password)
@@ -355,42 +351,48 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                 if (user == null) {
                     setBusy(false)
                     toast("यूज़र की जानकारी प्राप्त नहीं हुई।")
-                } else {
-                                        db.collection("group_profiles")
-                        .document(user.uid)
-                        .get()
-                        .addOnSuccessListener { profile ->
-                            val savedName = profile
-                                .getString("displayName")
-                                .orEmpty()
-
-                            val savedMobile = profile
-                                .getString("mobileNumber")
-                                .orEmpty()
-
-                            getSharedPreferences(
-                                "shiksha_auth",
-                                MODE_PRIVATE
-                            ).edit()
-                                .putString("last_email", email)
-                                .putString("last_username", savedName)
-                                .putString("last_mobile", savedMobile)
-                                .apply()
-                        }
-                        
-                    user.getIdToken(true)
-                        .addOnSuccessListener {
-                            setBusy(false)
-                            openGroup()
-                        }
-                        .addOnFailureListener {
-                            setBusy(false)
-                            toast(
-                                "लॉगिन हो गया, लेकिन सुरक्षा टोकन " +
-                                    "रीफ़्रेश नहीं हुआ। दोबारा प्रयास करें।"
-                            )
-                        }
+                    return@addOnSuccessListener
                 }
+
+                val authPrefs = getSharedPreferences(
+                    "shiksha_auth",
+                    MODE_PRIVATE
+                )
+
+                authPrefs.edit()
+                    .putString("last_email", email)
+                    .remove("last_username")
+                    .remove("last_mobile")
+                    .apply()
+
+                db.collection("group_profiles")
+                    .document(user.uid)
+                    .get()
+                    .addOnSuccessListener { profile ->
+                        val savedName = profile
+                            .getString("displayName")
+                            ?: user.displayName
+                            ?: ""
+
+                        val savedMobile = profile
+                            .getString("mobileNumber")
+                            .orEmpty()
+
+                        authPrefs.edit()
+                            .putString("last_email", email)
+                            .putString("last_username", savedName)
+                            .putString("last_mobile", savedMobile)
+                            .apply()
+
+                        finishLogin(user)
+                    }
+                    .addOnFailureListener {
+                        toast(
+                            "प्रोफाइल जानकारी लोड नहीं हुई। " +
+                                "आप लॉगिन जारी रख सकते हैं।"
+                        )
+                        finishLogin(user)
+                    }
             }
             .addOnFailureListener { error ->
                 setBusy(false)
@@ -400,6 +402,22 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                 )
             }
     }
+
+    private fun finishLogin(user: FirebaseUser) {
+        user.getIdToken(true)
+            .addOnSuccessListener {
+                setBusy(false)
+                openGroup()
+            }
+            .addOnFailureListener {
+                setBusy(false)
+                toast(
+                    "लॉगिन हो गया, लेकिन सुरक्षा टोकन " +
+                        "रीफ़्रेश नहीं हुआ। दोबारा प्रयास करें।"
+                )
+            }
+    }
+    
 
     private fun sendVerificationThenSaveProfile(
     user: FirebaseUser,
