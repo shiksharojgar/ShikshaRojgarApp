@@ -2833,15 +2833,15 @@ p.buttons
         }
     }
 
-    private fun toggleLike(
-    p: ChannelPost,
-    currentLiked: Boolean,
-    likeButton: TextView
-) {
+        private fun toggleLike(
+        p: ChannelPost,
+        initialLiked: Boolean,
+        likeButton: TextView
+    ) {
 
-    ChannelRepository.ensureSignedIn { connected ->
+        ChannelRepository.ensureSignedIn { connected ->
 
-        if (!connected) {
+            if (!connected) {
 
             runOnUiThread {
 
@@ -2854,6 +2854,9 @@ p.buttons
 
             return@ensureSignedIn
         }
+
+                val currentLiked =
+            likedState[p.id] ?: initialLiked
 
         val target =
             !currentLiked
