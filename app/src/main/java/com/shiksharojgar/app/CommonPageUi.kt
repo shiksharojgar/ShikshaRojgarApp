@@ -663,7 +663,7 @@ fun createHeader(
 
     currentUser.updateProfile(profileUpdates)
         .addOnCompleteListener {
-            getSharedPreferences(
+                        context.getSharedPreferences(
                 "shiksha_auth",
                 Context.MODE_PRIVATE
             ).edit()
