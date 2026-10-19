@@ -153,7 +153,22 @@ class GroupAuthActivity : AppCompatActivity() {
         } else {
             "यूज़र लॉगिन"
         }
+        if (!registerMode && emailInput.text.isBlank()) {
+            val savedEmail = getSharedPreferences(
+                "shiksha_auth",
+                MODE_PRIVATE
+            ).getString("last_email", "").orEmpty()
 
+            val signedInEmail = auth.currentUser
+                ?.takeIf { !it.isAnonymous }
+                ?.email
+                .orEmpty()
+
+            emailInput.setText(
+                savedEmail.ifBlank { signedInEmail }
+            )
+        }
+        
         nameInput.visibility =
             if (registerMode) View.VISIBLE else View.GONE
 
@@ -269,7 +284,11 @@ class GroupAuthActivity : AppCompatActivity() {
             toast("ईमेल और पासवर्ड दोनों दर्ज करें।")
             return
         }
-
+        getSharedPreferences("shiksha_auth", MODE_PRIVATE)
+            .edit()
+            .putString("last_email", email)
+            .apply()
+            
         setBusy(true)
 
         auth.signInWithEmailAndPassword(email, password)
