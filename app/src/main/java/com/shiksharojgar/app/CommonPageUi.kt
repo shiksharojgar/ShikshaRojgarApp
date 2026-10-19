@@ -529,10 +529,6 @@ fun createHeader(
                         val currentUser = auth.currentUser
 
                                                 
-                                val refreshedUser = auth.currentUser
-
-        
-
                         if (currentUser == null) {
                             Toast.makeText(
                                 context,
