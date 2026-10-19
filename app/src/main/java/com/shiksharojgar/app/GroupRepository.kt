@@ -71,12 +71,46 @@ object GroupRepository {
             "createdAt" to FieldValue.serverTimestamp()
         )
 
-        postsRef.add(data)
+                user.reload()
             .addOnSuccessListener {
-                done(true, null)
+
+                if (!user.isEmailVerified) {
+                    done(
+                        false,
+                        "पोस्ट भेजने से पहले Gmail सत्यापित करें।"
+                    )
+                    return@addOnSuccessListener
+                }
+
+                user.getIdToken(true)
+                    .addOnSuccessListener {
+
+                        postsRef.add(data)
+                            .addOnSuccessListener {
+                                done(true, null)
+                            }
+                            .addOnFailureListener { error ->
+                                done(
+                                    false,
+                                    error.localizedMessage
+                                        ?: "पोस्ट भेजी नहीं जा सकी।"
+                                )
+                            }
+                    }
+                    .addOnFailureListener { error ->
+                        done(
+                            false,
+                            error.localizedMessage
+                                ?: "सुरक्षा टोकन रीफ़्रेश नहीं हुआ।"
+                        )
+                    }
             }
             .addOnFailureListener { error ->
-                done(false, error.localizedMessage ?: "पोस्ट भेजी नहीं जा सकी।")
+                done(
+                    false,
+                    error.localizedMessage
+                        ?: "Gmail सत्यापन की जाँच नहीं हो सकी।"
+                )
             }
     }
 
