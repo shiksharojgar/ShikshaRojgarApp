@@ -2084,7 +2084,20 @@ p.buttons
             }
         )
     }
-    
+            // 🌐 वेबसाइट और YouTube लिंक प्रीव्यू
+        val previewLinks = buildString {
+            appendLine(p.body)
+            appendLine(p.websiteUrl)
+            appendLine(p.extraUrl)
+        }
+
+        LinkPreviewUi.addPreviews(
+            context = this,
+            container = box,
+            text = previewLinks,
+            maxLinks = 2
+        )
+        
         /*
          * WEBSITE LINK
          */
