@@ -553,7 +553,7 @@ fun createHeader(
                                         ?: document.getString("email")
                                         ?: "उपलब्ध नहीं"
 
-                                val mobile =
+                                                                val mobile =
                                     document.getString("mobileNumber")
                                         ?: "रिकॉर्ड उपलब्ध नहीं"
 
@@ -565,8 +565,123 @@ fun createHeader(
                                             "मोबाइल नंबर: $mobile\n\n" +
                                             "पासवर्ड: ••••••••"
                                     )
+                                    .setNeutralButton("✏️ प्रोफाइल संपादित करें") { _, _ ->
+
+                                        val nameInput = EditText(context).apply {
+                                            hint = "यूज़रनेम"
+                                            setText(
+                                                username.takeUnless {
+                                                    it == "उपलब्ध नहीं"
+                                                } ?: ""
+                                            )
+                                            isSingleLine = true
+                                        }
+
+                                        val mobileInput = EditText(context).apply {
+                                            hint = "10 अंकों का मोबाइल नंबर"
+                                            inputType =
+                                                android.text.InputType.TYPE_CLASS_NUMBER
+                                            filters = arrayOf(
+                                                android.text.InputFilter.LengthFilter(10)
+                                            )
+                                            setText(
+                                                mobile.takeUnless {
+                                                    it == "रिकॉर्ड उपलब्ध नहीं"
+                                                } ?: ""
+                                            )
+                                            isSingleLine = true
+                                        }
+
+                                        val form = LinearLayout(context).apply {
+                                            orientation = LinearLayout.VERTICAL
+                                            setPadding(32, 8, 32, 0)
+                                            addView(nameInput)
+                                            addView(mobileInput)
+                                        }
+
+                                        AlertDialog.Builder(context)
+                                            .setTitle("✏️ प्रोफाइल अपडेट करें")
+                                            .setView(form)
+                                            .setNegativeButton("रद्द करें", null)
+                                            .setPositiveButton("सेव करें") { _, _ ->
+
+                                                val newName =
+                                                    nameInput.text.toString().trim()
+
+                                                val newMobile =
+                                                    mobileInput.text.toString().trim()
+
+                                                if (newName.isBlank() ||
+                                                    newName.length > 40
+                                                ) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "यूज़रनेम 1 से 40 अक्षरों का रखें।",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                } else if (
+                                                    !newMobile.matches(
+                                                        Regex("^[0-9]{10}$")
+                                                    )
+                                                ) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "मोबाइल नंबर ठीक 10 अंकों का दर्ज करें।",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                } else {
+
+                                                    FirebaseFirestore.getInstance()
+                                                        .collection("group_profiles")
+                                                        .document(currentUser.uid)
+                                                        .set(
+                                                            mapOf(
+                                                                "uid" to currentUser.uid,
+                                                                "displayName" to newName,
+                                                                "email" to (
+                                                                    currentUser.email ?: ""
+                                                                ),
+                                                                "mobileNumber" to newMobile,
+                                                                "updatedAt" to
+                                                                    com.google.firebase.firestore.FieldValue.serverTimestamp()
+                                                            ),
+                                                            com.google.firebase.firestore.SetOptions.merge()
+                                                        )
+                                                        .addOnSuccessListener {
+                                                            getSharedPreferences(
+                                                                "shiksha_auth",
+                                                                Context.MODE_PRIVATE
+                                                            ).edit()
+                                                                .putString(
+                                                                    "last_username",
+                                                                    newName
+                                                                )
+                                                                .putString(
+                                                                    "last_mobile",
+                                                                    newMobile
+                                                                )
+                                                                .apply()
+
+                                                            Toast.makeText(
+                                                                context,
+                                                                "प्रोफाइल सफलतापूर्वक अपडेट हो गई।",
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+                                                        }
+                                                        .addOnFailureListener {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "प्रोफाइल अपडेट नहीं हुई। Firestore Rules जाँचें।",
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+                                                        }
+                                                }
+                                            }
+                                            .show()
+                                    }
                                     .setPositiveButton("ठीक है", null)
                                     .show()
+                                    
                             }
                             .addOnFailureListener {
                                 Toast.makeText(
