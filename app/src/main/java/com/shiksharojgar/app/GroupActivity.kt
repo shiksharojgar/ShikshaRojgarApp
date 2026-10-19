@@ -541,10 +541,31 @@ if (!user.isEmailVerified) {
         post: GroupPost,
         isPending: Boolean
     ) {
+        
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(12), dp(14), dp(12))
             setBackgroundColor(Color.WHITE)
+        }
+
+        // पोस्ट के ऊपर हरी लाइन
+        val greenLine = View(this).apply {
+            setBackgroundColor(Color.rgb(22, 131, 74))
+        }
+
+        card.addView(
+            greenLine,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(3)
+            ).apply {
+                bottomMargin = dp(10)
+            }
+        )
+
+        // यूजर का नाम और उपलब्ध मोबाइल नंबर
+        val userInfo = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
         }
 
         val name = TextView(this).apply {
@@ -554,18 +575,34 @@ if (!user.isEmailVerified) {
             setTextColor(Color.rgb(7, 89, 133))
         }
 
-        card.addView(name)
-
-        val body = TextView(this).apply {
-            text = post.body
-            textSize = 16f
-            setTextColor(Color.rgb(31, 41, 55))
-            setPadding(0, dp(8), 0, dp(8))
-            autoLinkMask = Linkify.WEB_URLS
-            movementMethod = LinkMovementMethod.getInstance()
+        val mobile = TextView(this).apply {
+            text = "📱 मोबाइल नंबर लोड हो रहा है…"
+            textSize = 13f
+            setTextColor(Color.DKGRAY)
         }
 
-        card.addView(body)
+        userInfo.addView(name)
+        userInfo.addView(mobile)
+        card.addView(userInfo)
+
+        if (post.uid.isNotBlank()) {
+            db.collection("group_profiles")
+                .document(post.uid)
+                .get()
+                .addOnSuccessListener { profile ->
+                    val number = profile.getString("mobileNumber")
+                    mobile.text = if (!number.isNullOrBlank()) {
+                        "📱 $number"
+                    } else {
+                        "📱 मोबाइल नंबर उपलब्ध नहीं"
+                    }
+                }
+                .addOnFailureListener {
+                    mobile.text = "📱 मोबाइल नंबर उपलब्ध नहीं"
+                }
+        } else {
+            mobile.text = "📱 मोबाइल नंबर उपलब्ध नहीं"
+        }
 
         val dateText = if (post.createdAt > 0L) {
             SimpleDateFormat(
@@ -577,17 +614,42 @@ if (!user.isEmailVerified) {
         }
 
         val date = TextView(this).apply {
-                 text = if (isPending) {
-        "🕒 Pending • $dateText"
-     } else {
-         "📢 Public Post\n📅 $dateText"
-     }
-
+            text = "📅 $dateText"
             textSize = 12f
             setTextColor(Color.GRAY)
+            setPadding(0, dp(5), 0, dp(8))
         }
 
         card.addView(date)
+
+        // पहली लाइन को शीर्षक और शेष टेक्स्ट को विवरण मानें।
+        val lines = post.body.lines()
+        val titleText = lines.firstOrNull().orEmpty()
+        val remainingBody = lines.drop(1).joinToString("\n").trim()
+
+        val titleView = TextView(this).apply {
+            text = titleText
+            textSize = 17f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(31, 41, 55))
+            setPadding(0, dp(4), 0, dp(6))
+        }
+
+        card.addView(titleView)
+
+        if (remainingBody.isNotBlank()) {
+            val body = TextView(this).apply {
+                text = remainingBody
+                textSize = 15f
+                setTextColor(Color.rgb(31, 41, 55))
+                setPadding(0, dp(4), 0, dp(8))
+                autoLinkMask = Linkify.WEB_URLS
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+
+            card.addView(body)
+        }
+
 
         val actions = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
