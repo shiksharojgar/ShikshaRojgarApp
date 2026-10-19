@@ -14,6 +14,9 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import android.widget.Toast
+
 object CommonPageUi {
 
     enum class Section {
@@ -481,6 +484,135 @@ fun createHeader(
     return header
 }
 
+    /**
+     * साझा Account Menu:
+     * Login/Register, Profile और वास्तविक Firebase Logout.
+     */
+    fun showAccountMenu(context: Context) {
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+
+        if (user == null || user.isAnonymous) {
+            AlertDialog.Builder(context)
+                .setTitle("👤 यूज़र अकाउंट")
+                .setItems(
+                    arrayOf(
+                        "🔐 Login / Register"
+                    )
+                ) { _, which ->
+                    if (which == 0) {
+                        context.startActivity(
+                            Intent(
+                                context,
+                                GroupAuthActivity::class.java
+                            )
+                        )
+                    }
+                }
+                .setNegativeButton("बंद करें", null)
+                .show()
+
+            return
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("👤 यूज़र अकाउंट")
+            .setItems(
+                arrayOf(
+                    "📋 मेरी प्रोफाइल",
+                    "🚪 Logout"
+                )
+            ) { _, which ->
+
+                when (which) {
+                    0 -> {
+                        val currentUser = auth.currentUser
+
+                        if (currentUser == null) {
+                            Toast.makeText(
+                                context,
+                                "पहले लॉगिन करें।",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setItems
+                        }
+
+                        FirebaseFirestore.getInstance()
+                            .collection("group_profiles")
+                            .document(currentUser.uid)
+                            .get()
+                            .addOnSuccessListener { document ->
+
+                                val username =
+                                    document.getString("displayName")
+                                        ?: currentUser.displayName
+                                        ?: "उपलब्ध नहीं"
+
+                                val email =
+                                    currentUser.email
+                                        ?: document.getString("email")
+                                        ?: "उपलब्ध नहीं"
+
+                                val mobile =
+                                    document.getString("mobileNumber")
+                                        ?: "रिकॉर्ड उपलब्ध नहीं"
+
+                                AlertDialog.Builder(context)
+                                    .setTitle("📋 मेरी प्रोफाइल")
+                                    .setMessage(
+                                        "यूज़रनेम: $username\n\n" +
+                                            "ईमेल: $email\n\n" +
+                                            "मोबाइल नंबर: $mobile\n\n" +
+                                            "पासवर्ड: ••••••••"
+                                    )
+                                    .setPositiveButton("ठीक है", null)
+                                    .show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    context,
+                                    "प्रोफाइल लोड नहीं हो सकी।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    }
+
+                    1 -> {
+                        AlertDialog.Builder(context)
+                            .setTitle("Logout करें?")
+                            .setMessage(
+                                "क्या आप अपने अकाउंट से बाहर निकलना चाहते हैं?"
+                            )
+                            .setNegativeButton("नहीं", null)
+                            .setPositiveButton("Logout") { _, _ ->
+
+                                auth.signOut()
+
+                                Toast.makeText(
+                                    context,
+                                    "आप सफलतापूर्वक Logout हो गए।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                val intent = Intent(
+                                    context,
+                                    MainActivity::class.java
+                                ).apply {
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                }
+
+                                context.startActivity(intent)
+                            }
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton("बंद करें", null)
+            .show()
+    }
+    
     /*
      * =========================================================
      * COMMON BOTTOM BAR
