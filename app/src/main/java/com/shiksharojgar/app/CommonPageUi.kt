@@ -714,13 +714,13 @@ fun createHeader(
                             )
                             .setNegativeButton("नहीं", null)
                             .setPositiveButton("Logout") { _, _ ->
-
-                                                                context.getSharedPreferences(
+                                context.getSharedPreferences(
                                     "shiksha_auth",
                                     Context.MODE_PRIVATE
                                 ).edit()
                                     .remove("last_username")
                                     .remove("last_mobile")
+                                    .remove("last_email")
                                     .apply()
 
                                 auth.signOut()
