@@ -681,8 +681,8 @@ if (!user.isEmailVerified) {
 
         } else {
 
-            var likeCount = post.likeCount
-            var shareCount = post.shareCount
+             var likeCount = 0L
+            var shareCount = 0L
             var isLiked = false
 
             val likeButton = Button(this).apply {
