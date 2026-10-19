@@ -60,10 +60,8 @@ jobs:
           echo "===== VERIFY APPLICATION ID ====="
           grep -q 'applicationId = "com.shiksharojgar.app"' app/build.gradle.kts
 
-          echo "===== VERIFY GRADLE WRAPPER ====="
-          test -f gradlew
-
-          chmod +x gradlew
+                    echo "===== VERIFY GRADLE ====="
+          gradle --version
 
           echo "===== PROJECT VERIFIED ====="
           echo "Building directly from GitHub source."
@@ -150,14 +148,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          chmod +x ./gradlew
-
-          echo "===== GRADLE VERSION ====="
-          ./gradlew --version
+                    echo "===== GRADLE VERSION ====="
+          gradle --version
 
           echo "===== CLEAN BUILD ====="
 
-          ./gradlew clean :app:assembleRelease \
+          gradle clean :app:assembleRelease \
             --stacktrace \
             --no-daemon \
             --console=plain
