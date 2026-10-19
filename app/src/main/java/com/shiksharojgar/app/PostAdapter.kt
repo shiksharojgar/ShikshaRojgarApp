@@ -38,6 +38,8 @@ class PostAdapter(
 
         val share: TextView =
             v.findViewById(R.id.sharePost)
+                    val previewContainer: android.widget.LinearLayout =
+            v.findViewById(R.id.postPreviewContainer)
     }
 
     override fun onCreateViewHolder(
@@ -80,7 +82,16 @@ class PostAdapter(
 
         holder.date.text =
             p.date
+        // 🌐 होम पोस्ट में वेबसाइट और YouTube प्रीव्यू
+        holder.previewContainer.removeAllViews()
 
+        LinkPreviewUi.addPreviews(
+            context = holder.itemView.context,
+            container = holder.previewContainer,
+            text = "${p.title}\n${p.description}\n${p.url}",
+            maxLinks = 2
+        )
+        
         // ====================================================
         // POST IMAGE
         // ====================================================
