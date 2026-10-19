@@ -24,6 +24,7 @@ private val db = FirebaseFirestore.getInstance()
 
 private lateinit var listBox: LinearLayout
 private var pendingNoticeId: String? = null
+ private lateinit var noticeScroll: ScrollView
     
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -200,8 +201,8 @@ private fun buildUi(): LinearLayout {
     // NOTICE LIST
     // --------------------------------------------------------
 
-    val scroll =
-        ScrollView(this)
+noticeScroll =
+    ScrollView(this)
 
     listBox =
         LinearLayout(this).apply {
@@ -217,12 +218,12 @@ private fun buildUi(): LinearLayout {
             )
         }
 
-    scroll.addView(
-        listBox
-    )
+    noticeScroll.addView(
+    listBox
+)
 
     root.addView(
-    scroll,
+    noticeScroll,
     LinearLayout.LayoutParams(
         -1,
         0,
