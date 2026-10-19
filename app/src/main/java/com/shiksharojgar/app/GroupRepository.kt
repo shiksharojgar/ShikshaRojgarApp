@@ -258,6 +258,131 @@ onResult(posts)
             }
     }
 
+        // --------------------------------------------------
+    // GROUP POST LIKE
+    // --------------------------------------------------
+
+    fun toggleLike(
+        postId: String,
+        done: (Boolean, Long, String?) -> Unit
+    ) {
+        val user = auth.currentUser
+
+        if (user == null || user.isAnonymous) {
+            done(false, 0L, "Like करने के लिए लॉगिन करें।")
+            return
+        }
+
+        if (postId.isBlank()) {
+            done(false, 0L, "पोस्ट की जानकारी उपलब्ध नहीं है।")
+            return
+        }
+
+        val postRef = postsRef.document(postId)
+        val likeRef = postRef.collection("likes").document(user.uid)
+        val statsRef = db.collection("group_post_stats").document(postId)
+
+        db.runTransaction { transaction ->
+            val likeSnapshot = transaction.get(likeRef)
+            val statsSnapshot = transaction.get(statsRef)
+
+            val currentCount =
+                (statsSnapshot.getLong("likeCount") ?: 0L)
+                    .coerceAtLeast(0L)
+
+            val liked = !likeSnapshot.exists()
+
+            val newCount = if (liked) {
+                currentCount + 1L
+            } else {
+                (currentCount - 1L).coerceAtLeast(0L)
+            }
+
+            if (liked) {
+                transaction.set(
+                    likeRef,
+                    mapOf(
+                        "uid" to user.uid,
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+                )
+            } else {
+                transaction.delete(likeRef)
+            }
+
+            transaction.set(
+                statsRef,
+                mapOf(
+                    "likeCount" to newCount,
+                    "updatedAt" to FieldValue.serverTimestamp()
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            Pair(liked, newCount)
+        }.addOnSuccessListener { result ->
+            done(result.first, result.second, null)
+        }.addOnFailureListener { error ->
+            done(
+                false,
+                0L,
+                error.localizedMessage ?: "Like अपडेट नहीं हो सका।"
+            )
+        }
+    }
+
+    // --------------------------------------------------
+    // GROUP POST SHARE COUNT
+    // --------------------------------------------------
+
+    fun recordShare(
+        postId: String,
+        done: (Boolean, Long, String?) -> Unit
+    ) {
+        val user = auth.currentUser
+
+        if (user == null || user.isAnonymous) {
+            done(false, 0L, "Share काउंट के लिए लॉगिन करें।")
+            return
+        }
+
+        if (postId.isBlank()) {
+            done(false, 0L, "पोस्ट की जानकारी उपलब्ध नहीं है।")
+            return
+        }
+
+        val statsRef = db.collection("group_post_stats").document(postId)
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(statsRef)
+
+            val currentCount =
+                (snapshot.getLong("shareCount") ?: 0L)
+                    .coerceAtLeast(0L)
+
+            val newCount = currentCount + 1L
+
+            transaction.set(
+                statsRef,
+                mapOf(
+                    "shareCount" to newCount,
+                    "updatedAt" to FieldValue.serverTimestamp()
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            newCount
+        }.addOnSuccessListener { count ->
+            done(true, count, null)
+        }.addOnFailureListener { error ->
+            done(
+                false,
+                0L,
+                error.localizedMessage ?: "Share काउंट अपडेट नहीं हो सका।"
+            )
+        }
+    }
+    
     // --------------------------------------------------
     // 7. DELETE POST
     // सुरक्षा: Rules मालिक या Admin को ही अनुमति दें।
