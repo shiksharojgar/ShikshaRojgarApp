@@ -648,26 +648,35 @@ fun createHeader(
                                                             com.google.firebase.firestore.SetOptions.merge()
                                                         )
                                                         .addOnSuccessListener {
-                                                            getSharedPreferences(
-                                                                "shiksha_auth",
-                                                                Context.MODE_PRIVATE
-                                                            ).edit()
-                                                                .putString(
-                                                                    "last_username",
-                                                                    newName
-                                                                )
-                                                                .putString(
-                                                                    "last_mobile",
-                                                                    newMobile
-                                                                )
-                                                                .apply()
+    val profileUpdates =
+        com.google.firebase.auth.UserProfileChangeRequest
+            .Builder()
+            .setDisplayName(newName)
+            .build()
 
-                                                            Toast.makeText(
-                                                                context,
-                                                                "प्रोफाइल सफलतापूर्वक अपडेट हो गई।",
-                                                                Toast.LENGTH_LONG
-                                                            ).show()
-                                                        }
+    currentUser.updateProfile(profileUpdates)
+        .addOnCompleteListener {
+            getSharedPreferences(
+                "shiksha_auth",
+                Context.MODE_PRIVATE
+            ).edit()
+                .putString(
+                    "last_username",
+                    newName
+                )
+                .putString(
+                    "last_mobile",
+                    newMobile
+                )
+                .apply()
+
+            Toast.makeText(
+                context,
+                "प्रोफाइल सफलतापूर्वक अपडेट हो गई।",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
                                                         .addOnFailureListener {
                                                             Toast.makeText(
                                                                 context,
