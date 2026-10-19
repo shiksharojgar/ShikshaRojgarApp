@@ -290,7 +290,26 @@ class GroupAdminActivity : AppCompatActivity() {
         )
 
         card.addView(buttons)
+        val deleteButton = TextView(this).apply {
+            text = "🗑️ पोस्ट हमेशा के लिए डिलीट करें"
+            gravity = Gravity.CENTER
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            setBackgroundColor(Color.rgb(185, 28, 28))
 
+            setOnClickListener {
+                confirmDelete(post)
+            }
+        }
+
+        card.addView(
+            deleteButton,
+            LinearLayout.LayoutParams(-1, -2).apply {
+                topMargin = dp(8)
+            }
+        )
         listBox.addView(
             card,
             LinearLayout.LayoutParams(-1, -2).apply {
@@ -372,7 +391,32 @@ class GroupAdminActivity : AppCompatActivity() {
             .setNegativeButton("रद्द करें", null)
             .show()
     }
-
+    private fun confirmDelete(post: GroupPost) {
+        AlertDialog.Builder(this)
+            .setTitle("🗑️ पोस्ट डिलीट करें?")
+            .setMessage(
+                "यह पोस्ट हमेशा के लिए डिलीट हो जाएगी। " +
+                    "इसके मीडिया की सफाई भी की जाएगी। " +
+                    "क्या आप जारी रखना चाहते हैं?"
+            )
+            .setPositiveButton("हाँ, डिलीट करें") { _, _ ->
+                GroupRepository.deletePost(post.id) { success, error ->
+                    runOnUiThread {
+                        if (success) {
+                            showMessage("पोस्ट डिलीट हो गई।")
+                            loadPendingPosts()
+                        } else {
+                            showMessage(
+                                error ?: "पोस्ट डिलीट नहीं हो सकी।"
+                            )
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("रद्द करें", null)
+            .show()
+    }
+    
     private fun showMessage(message: String) {
         Toast.makeText(
             this,
