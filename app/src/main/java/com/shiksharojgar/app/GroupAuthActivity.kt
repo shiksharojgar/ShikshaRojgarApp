@@ -184,36 +184,43 @@ root.addView(mobileInput)
             "यूज़र लॉगिन"
         }
 
-        val authPrefs = getSharedPreferences(
+                val authPrefs = getSharedPreferences(
             "shiksha_auth",
             MODE_PRIVATE
         )
 
-        if (registerMode) {
-            if (nameInput.text.isBlank()) {
-                nameInput.setText(
-                    authPrefs.getString("last_username", "").orEmpty()
-                )
+        val signedInUser = auth.currentUser
+            ?.takeIf { !it.isAnonymous }
+
+        val savedName = authPrefs
+            .getString("last_username", "")
+            .orEmpty()
+            .ifBlank {
+                signedInUser?.displayName.orEmpty()
             }
 
-            if (mobileInput.text.isBlank()) {
-                mobileInput.setText(
-                    authPrefs.getString("last_mobile", "").orEmpty()
-                )
+        val savedEmail = authPrefs
+            .getString("last_email", "")
+            .orEmpty()
+            .ifBlank {
+                signedInUser?.email.orEmpty()
             }
-        } else if (emailInput.text.isBlank()) {
-            val savedEmail = authPrefs
-                .getString("last_email", "")
-                .orEmpty()
 
-            val signedInEmail = auth.currentUser
-                ?.takeIf { !it.isAnonymous }
-                ?.email
-                .orEmpty()
+        val savedMobile = authPrefs
+            .getString("last_mobile", "")
+            .orEmpty()
 
-            emailInput.setText(
-                savedEmail.ifBlank { signedInEmail }
-            )
+        if (nameInput.text.isBlank() && savedName.isNotBlank()) {
+            nameInput.setText(savedName)
+        }
+
+        if (emailInput.text.isBlank() && savedEmail.isNotBlank()) {
+            emailInput.setText(savedEmail)
+        }
+
+        if (mobileInput.text.isBlank() && savedMobile.isNotBlank()) {
+            mobileInput.setText(savedMobile)
+        }
         }
         
         
