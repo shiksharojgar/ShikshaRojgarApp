@@ -62,6 +62,7 @@ private fun handleNoticeDeepLink(intent: Intent?) {
                 doc.getString("category") == "notice"
             ) {
                 pendingNoticeId = doc.id
+scrollToNoticeIfLoaded(doc.id)
 
                 Toast.makeText(
                     this,
@@ -83,6 +84,26 @@ private fun handleNoticeDeepLink(intent: Intent?) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+}
+private fun scrollToNoticeIfLoaded(noticeId: String) {
+    if (!::listBox.isInitialized ||
+        !::noticeScroll.isInitialized
+    ) {
+        return
+    }
+
+    val targetCard = (0 until listBox.childCount)
+        .map { listBox.getChildAt(it) }
+        .firstOrNull { it.tag == noticeId }
+        ?: return
+
+    noticeScroll.post {
+        noticeScroll.smoothScrollTo(
+            0,
+            targetCard.top
+        )
+        pendingNoticeId = null
+    }
 }
 
 // ============================================================
@@ -1232,9 +1253,13 @@ LinkPreviewUi.addPreviews(
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         bottomMargin = dp(12)
-                    }
-                )
+                                    )
+
+                if (pendingNoticeId == doc.id) {
+                    scrollToNoticeIfLoaded(doc.id)
+                }
             }
+                 }
         }
         .addOnFailureListener { error ->
             Toast.makeText(
