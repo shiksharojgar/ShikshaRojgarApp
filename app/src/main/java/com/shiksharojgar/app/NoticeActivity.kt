@@ -904,10 +904,11 @@ private fun loadCommonNoticePosts() {
     } ?: emptyList()
 
                 val card = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(dp(14), dp(14), dp(14), dp(14))
-                    setBackgroundColor(Color.WHITE)
-                }
+    orientation = LinearLayout.VERTICAL
+    setPadding(dp(14), dp(14), dp(14), dp(14))
+    setBackgroundColor(Color.WHITE)
+    tag = doc.id
+}
 
                 card.addView(
                     TextView(this).apply {
