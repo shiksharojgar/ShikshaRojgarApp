@@ -558,13 +558,18 @@ fun createHeader(
                                         ?: "रिकॉर्ड उपलब्ध नहीं"
 
                                 AlertDialog.Builder(context)
-                                    .setTitle("📋 मेरी प्रोफाइल")
                                     .setMessage(
-                                        "यूज़रनेम: $username\n\n" +
-                                            "ईमेल: $email\n\n" +
-                                            "मोबाइल नंबर: $mobile\n\n" +
-                                            "पासवर्ड: ••••••••"
-                                    )
+    "यूज़रनेम: $username\n\n" +
+        "ईमेल: $email\n\n" +
+        "Gmail सत्यापन: " +
+        if (currentUser.isEmailVerified) {
+            "सत्यापित ✅\n\n"
+        } else {
+            "सत्यापित नहीं ⚠️\n\n"
+        } +
+        "मोबाइल नंबर: $mobile\n\n" +
+        "पासवर्ड: ••••••••"
+)
                                     .setNeutralButton("✏️ प्रोफाइल संपादित करें") { _, _ ->
 
                                         val nameInput = EditText(context).apply {
