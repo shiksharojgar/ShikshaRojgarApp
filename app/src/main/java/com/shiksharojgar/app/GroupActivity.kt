@@ -648,7 +648,14 @@ if (!user.isEmailVerified) {
             card.addView(body)
         }
 
-
+        // 🌐 वेबसाइट और YouTube लिंक प्रीव्यू
+        LinkPreviewUi.addPreviews(
+            context = this,
+            container = card,
+            text = post.body,
+            maxLinks = 2
+        )
+        
                 // --------------------------------------------
         // GROUP POST ACTION BUTTONS
         // Like + Share + Complaint
