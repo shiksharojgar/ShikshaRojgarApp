@@ -338,6 +338,28 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                     setBusy(false)
                     toast("यूज़र की जानकारी प्राप्त नहीं हुई।")
                 } else {
+                                        db.collection("group_profiles")
+                        .document(user.uid)
+                        .get()
+                        .addOnSuccessListener { profile ->
+                            val savedName = profile
+                                .getString("displayName")
+                                .orEmpty()
+
+                            val savedMobile = profile
+                                .getString("mobileNumber")
+                                .orEmpty()
+
+                            getSharedPreferences(
+                                "shiksha_auth",
+                                MODE_PRIVATE
+                            ).edit()
+                                .putString("last_email", email)
+                                .putString("last_username", savedName)
+                                .putString("last_mobile", savedMobile)
+                                .apply()
+                        }
+                        
                     user.getIdToken(true)
                         .addOnSuccessListener {
                             setBusy(false)
