@@ -178,16 +178,33 @@ root.addView(mobileInput)
     }
 
     private fun showMode() {
-        titleView.text = if (registerMode) {
+                titleView.text = if (registerMode) {
             "नया अकाउंट बनाएँ"
         } else {
             "यूज़र लॉगिन"
         }
-        if (!registerMode && emailInput.text.isBlank()) {
-            val savedEmail = getSharedPreferences(
-                "shiksha_auth",
-                MODE_PRIVATE
-            ).getString("last_email", "").orEmpty()
+
+        val authPrefs = getSharedPreferences(
+            "shiksha_auth",
+            MODE_PRIVATE
+        )
+
+        if (registerMode) {
+            if (nameInput.text.isBlank()) {
+                nameInput.setText(
+                    authPrefs.getString("last_username", "").orEmpty()
+                )
+            }
+
+            if (mobileInput.text.isBlank()) {
+                mobileInput.setText(
+                    authPrefs.getString("last_mobile", "").orEmpty()
+                )
+            }
+        } else if (emailInput.text.isBlank()) {
+            val savedEmail = authPrefs
+                .getString("last_email", "")
+                .orEmpty()
 
             val signedInEmail = auth.currentUser
                 ?.takeIf { !it.isAnonymous }
@@ -198,6 +215,7 @@ root.addView(mobileInput)
                 savedEmail.ifBlank { signedInEmail }
             )
         }
+        
         
         nameInput.visibility =
             if (registerMode) View.VISIBLE else View.GONE
