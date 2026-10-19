@@ -532,52 +532,7 @@ fun createHeader(
                             .addOnSuccessListener {
                                 val refreshedUser = auth.currentUser
 
-                                if (refreshedUser == null) {
-                                    Toast.makeText(
-                                        context,
-                                        "कृपया दोबारा लॉगिन करें।",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return@addOnSuccessListener
-                                }
-
-                                FirebaseFirestore.getInstance()
-                                    .collection("group_profiles")
-                                    .document(refreshedUser.uid)
-                                    .get()
-                                    .addOnSuccessListener { document ->
-
-                                        val username =
-                                            document.getString("displayName")
-                                                ?: refreshedUser.displayName
-                                                ?: "उपलब्ध नहीं"
-
-                                        val email =
-                                            refreshedUser.email
-                                                ?: "उपलब्ध नहीं"
-
-                                        val mobile =
-                                            document.getString("mobileNumber")
-                                                ?: "रिकॉर्ड उपलब्ध नहीं"
-
-                                        AlertDialog.Builder(context)
-                                            .setTitle("📋 मेरी प्रोफाइल")
-                                            .setMessage(
-                                                "यूज़रनेम: $username\n\n" +
-                                                    "ईमेल: $email\n\n" +
-                                                    "Gmail सत्यापन: " +
-                                                    if (refreshedUser.isEmailVerified) {
-                                                        "सत्यापित ✅\n\n"
-                                                    } else {
-                                                        "सत्यापित नहीं ⚠️\n\n"
-                                                    } +
-                                                    "मोबाइल नंबर: $mobile\n\n" +
-                                                    "पासवर्ड: ••••••••"
-                                            )
-                                            .setPositiveButton("ठीक है", null)
-                                            .show()
-                                    }
-                            }
+        
 
                         if (currentUser == null) {
                             Toast.makeText(
