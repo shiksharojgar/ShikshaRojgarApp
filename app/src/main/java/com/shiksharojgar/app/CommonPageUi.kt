@@ -701,6 +701,14 @@ fun createHeader(
                             .setNegativeButton("नहीं", null)
                             .setPositiveButton("Logout") { _, _ ->
 
+                                                                context.getSharedPreferences(
+                                    "shiksha_auth",
+                                    Context.MODE_PRIVATE
+                                ).edit()
+                                    .remove("last_username")
+                                    .remove("last_mobile")
+                                    .apply()
+
                                 auth.signOut()
 
                                 Toast.makeText(
