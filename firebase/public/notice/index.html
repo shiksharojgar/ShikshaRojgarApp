@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>🔔 नोटिस अपडेट | Shiksha Rojgar App</title>
+
+  <meta name="description"
+        content="शिक्षा रोजगार ऐप के नवीनतम नोटिस और महत्वपूर्ण अपडेट देखें।">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shiksha Rojgar App">
+  <meta property="og:title" content="🔔 नोटिस अपडेट | Shiksha Rojgar App">
+  <meta property="og:description"
+        content="शिक्षा रोजगार ऐप के नवीनतम नोटिस और महत्वपूर्ण अपडेट देखें।">
+  <meta property="og:url"
+        content="https://shiksha-rojgar.web.app/notice">
+  <meta property="og:image"
+        content="https://www.shiksharojgar.com/favicon.ico">
+
+  <meta name="twitter:card" content="summary">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 24px;
+      background: #f1f5f9;
+      color: #123;
+    }
+
+    .card {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+    }
+
+    a {
+      display: block;
+      margin: 14px auto;
+      padding: 14px;
+      background: #075985;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>🔔 नोटिस अपडेट</h2>
+
+    <p>Shiksha Rojgar App में नोटिस देखने के लिए नीचे क्लिक करें।</p>
+
+    <a id="openApp" href="#">
+      📱 ऐप में नोटिस खोलें
+    </a>
+
+    <a href="https://www.shiksharojgar.com/">
+      🌐 शिक्षा रोजगार वेबसाइट
+    </a>
+
+    <p>शिक्षा से सफलता तक, हर कदम आपके साथ!</p>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const postId = params.get("post");
+      const button = document.getElementById("openApp");
+
+      if (postId) {
+        button.href =
+          "intent://notice/post/" +
+          encodeURIComponent(postId) +
+          "#Intent;scheme=shiksharojgar;package=com.shiksharojgar.app;end";
+      } else {
+        button.href =
+          "intent://notice#Intent;scheme=shiksharojgar;package=com.shiksharojgar.app;end";
+      }
+    })();
+  </script>
+</body>
+</html>
