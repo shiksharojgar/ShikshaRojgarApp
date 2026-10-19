@@ -667,13 +667,17 @@ fun createHeader(
                 "shiksha_auth",
                 Context.MODE_PRIVATE
             ).edit()
-                .putString(
+                                .putString(
                     "last_username",
                     newName
                 )
                 .putString(
                     "last_mobile",
                     newMobile
+                )
+                .putString(
+                    "last_email",
+                    currentUser.email ?: ""
                 )
                 .apply()
 
