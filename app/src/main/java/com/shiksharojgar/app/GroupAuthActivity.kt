@@ -26,6 +26,8 @@ class GroupAuthActivity : AppCompatActivity() {
     private lateinit var nameInput: EditText
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
+    private lateinit var passwordToggleButton: Button
+private var passwordVisible = false
     private lateinit var mobileInput: EditText
     private lateinit var submitButton: Button
     private lateinit var switchButton: Button
@@ -92,6 +94,33 @@ class GroupAuthActivity : AppCompatActivity() {
 
         submitButton = Button(this)
         switchButton = Button(this)
+        passwordToggleButton = Button(this).apply {
+    text = "👁️ पासवर्ड दिखाएँ"
+
+    setOnClickListener {
+        passwordVisible = !passwordVisible
+
+        val cursorPosition = passwordInput.selectionStart
+
+        passwordInput.inputType = if (passwordVisible) {
+            InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        } else {
+            InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        passwordInput.setSelection(
+            cursorPosition.coerceIn(0, passwordInput.text.length)
+        )
+
+        text = if (passwordVisible) {
+            "🙈 पासवर्ड छिपाएँ"
+        } else {
+            "👁️ पासवर्ड दिखाएँ"
+        }
+    }
+}
         resetButton = Button(this).apply {
             text = "पासवर्ड भूल गए?"
             setOnClickListener { resetPassword() }
@@ -119,7 +148,8 @@ class GroupAuthActivity : AppCompatActivity() {
         root.addView(nameInput)
         root.addView(emailInput)
         root.addView(passwordInput)
-        root.addView(mobileInput)
+root.addView(passwordToggleButton)
+root.addView(mobileInput)
         root.addView(submitButton)
         root.addView(switchButton)
         root.addView(resetButton)
@@ -174,7 +204,16 @@ class GroupAuthActivity : AppCompatActivity() {
 
         mobileInput.visibility =
             if (registerMode) View.VISIBLE else View.GONE
+        
+passwordToggleButton.visibility = View.VISIBLE
+passwordVisible = false
 
+passwordInput.inputType =
+    InputType.TYPE_CLASS_TEXT or
+        InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
+        
         submitButton.text = if (registerMode) {
             "रजिस्ट्रेशन करें"
         } else {
