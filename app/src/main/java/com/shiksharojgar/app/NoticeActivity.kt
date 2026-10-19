@@ -1045,7 +1045,132 @@ LinkPreviewUi.addPreviews(
                             }
                         )
                     }
+                // 📤 CATEGORY NOTICE SHARE BUTTON
 
+                val categoryNoticeShareText =
+                    buildString {
+
+                        append(
+                            "*📱 Shiksha Rojgar App 🔔 नोटिस अपडेट*"
+                        )
+
+                        if (title.isNotBlank()) {
+                            append("\n\n*")
+                            append(title.trim())
+                            append("*")
+                        }
+
+                        if (imageUrl.isNotBlank()) {
+                            append("\n\n🖼️ फोटो देखें 👇\n")
+                            append(imageUrl)
+                        }
+
+                        if (body.isNotBlank()) {
+                            append("\n\n")
+                            append(body.trim())
+                        }
+
+                        if (description.isNotBlank()) {
+                            append("\n\n")
+                            append(description.trim())
+                        }
+
+                        if (websiteUrl.isNotBlank()) {
+                            append("\n\n🌐 वेबसाइट लिंक 👇\n")
+                            append(websiteUrl)
+                        }
+
+                        customButtons
+                            .filter {
+                                it.enabled && it.url.isNotBlank()
+                            }
+                            .forEach { button ->
+                                append("\n\n🔗 ")
+                                append(
+                                    button.label.ifBlank {
+                                        "लिंक खोलें"
+                                    }
+                                )
+                                append(" 👇\n")
+                                append(button.url)
+                            }
+
+                        val categoryNoticeFileUrl =
+                            doc.getString("fileUrl").orEmpty()
+
+                        val categoryNoticeFileName =
+                            doc.getString("fileName").orEmpty()
+
+                        if (categoryNoticeFileUrl.isNotBlank()) {
+                            append("\n\n📄 ")
+                            append(
+                                categoryNoticeFileName.ifBlank {
+                                    "PDF / Document"
+                                }
+                            )
+                            append(" 👇\n")
+                            append(categoryNoticeFileUrl)
+                        }
+
+                        append(
+                            "\n\n*✅ शिक्षा रोजगार की Official Website 🌐*"
+                        )
+                        append("\nhttps://www.shiksharojgar.com/")
+
+                        append(
+                            "\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                                "डाउनलोड इंस्टॉल करें !*"
+                        )
+                        append(
+                            "\nhttps://www.shiksharojgar.com/2026/09/" +
+                                "shiksha-rojgar-android-app-latest.html"
+                        )
+                    }
+
+                card.addView(
+                    TextView(this@NoticeActivity).apply {
+
+                        text = "📤 Share ↗️"
+                        textSize = 15f
+                        typeface = Typeface.DEFAULT_BOLD
+                        gravity = Gravity.CENTER
+
+                        setTextColor(Color.rgb(7, 89, 133))
+
+                        setPadding(
+                            dp(12),
+                            dp(12),
+                            dp(12),
+                            dp(12)
+                        )
+
+                        setOnClickListener {
+                            try {
+                                val shareIntent =
+                                    Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(
+                                            Intent.EXTRA_TEXT,
+                                            categoryNoticeShareText
+                                        )
+                                    }
+
+                                startActivity(
+                                    Intent.createChooser(
+                                        shareIntent,
+                                        "Share Notice / Update"
+                                    )
+                                )
+                            } catch (_: Exception) {
+                                Toast.makeText(
+                                    this@NoticeActivity,
+                                    "Notice शेयर नहीं हो सका।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                )
                 listBox.addView(
                     card,
                     LinearLayout.LayoutParams(
