@@ -1128,6 +1128,9 @@ LinkPreviewUi.addPreviews(
                         append(
                             "*📱 Shiksha Rojgar App 🔔 नोटिस अपडेट*"
                         )
+append("\n\n*पोस्ट देखें 👇*")
+append("\nhttps://shiksha-rojgar.web.app/notice?post=")
+append(doc.id)
 
                         if (title.isNotBlank()) {
                             append("\n\n*")
