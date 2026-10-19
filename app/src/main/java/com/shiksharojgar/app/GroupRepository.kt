@@ -258,8 +258,9 @@ onResult(posts)
             }
     }
 
-        // --------------------------------------------------
+            // --------------------------------------------------
     // GROUP POST LIKE
+    // हर यूज़र का अपना Like दस्तावेज़
     // --------------------------------------------------
 
     fun toggleLike(
@@ -279,24 +280,13 @@ onResult(posts)
         }
 
         val postRef = postsRef.document(postId)
-        val likeRef = postRef.collection("likes").document(user.uid)
-        val statsRef = db.collection("group_post_stats").document(postId)
+        val likeRef = postRef.collection("likes")
+            .document(user.uid)
 
         db.runTransaction { transaction ->
+
             val likeSnapshot = transaction.get(likeRef)
-            val statsSnapshot = transaction.get(statsRef)
-
-            val currentCount =
-                (statsSnapshot.getLong("likeCount") ?: 0L)
-                    .coerceAtLeast(0L)
-
             val liked = !likeSnapshot.exists()
-
-            val newCount = if (liked) {
-                currentCount + 1L
-            } else {
-                (currentCount - 1L).coerceAtLeast(0L)
-            }
 
             if (liked) {
                 transaction.set(
@@ -310,29 +300,39 @@ onResult(posts)
                 transaction.delete(likeRef)
             }
 
-            transaction.set(
-                statsRef,
-                mapOf(
-                    "likeCount" to newCount,
-                    "updatedAt" to FieldValue.serverTimestamp()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
+            liked
 
-            Pair(liked, newCount)
-        }.addOnSuccessListener { result ->
-            done(result.first, result.second, null)
+        }.addOnSuccessListener { liked ->
+
+            postRef.collection("likes")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    done(liked, snapshot.size().toLong(), null)
+                }
+                .addOnFailureListener { error ->
+                    done(
+                        liked,
+                        0L,
+                        error.localizedMessage
+                            ?: "Like की गिनती नहीं पढ़ी जा सकी।"
+                    )
+                }
+
         }.addOnFailureListener { error ->
             done(
                 false,
                 0L,
-                error.localizedMessage ?: "Like अपडेट नहीं हो सका।"
+                error.localizedMessage
+                    ?: "Like अपडेट नहीं हो सका।"
             )
         }
     }
+    
 
     // --------------------------------------------------
+        // --------------------------------------------------
     // GROUP POST SHARE COUNT
+    // एक यूज़र की एक पोस्ट पर एक Share एंट्री
     // --------------------------------------------------
 
     fun recordShare(
@@ -351,36 +351,77 @@ onResult(posts)
             return
         }
 
-        val statsRef = db.collection("group_post_stats").document(postId)
+        val postRef = postsRef.document(postId)
+        val shareRef = postRef.collection("shares")
+            .document(user.uid)
 
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(statsRef)
+        shareRef.get()
+            .addOnSuccessListener { existingShare ->
 
-            val currentCount =
-                (snapshot.getLong("shareCount") ?: 0L)
-                    .coerceAtLeast(0L)
+                if (existingShare.exists()) {
+                    postRef.collection("shares")
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            done(
+                                true,
+                                snapshot.size().toLong(),
+                                null
+                            )
+                        }
+                        .addOnFailureListener { error ->
+                            done(
+                                false,
+                                0L,
+                                error.localizedMessage
+                                    ?: "Share की गिनती नहीं पढ़ी जा सकी।"
+                            )
+                        }
 
-            val newCount = currentCount + 1L
+                    return@addOnSuccessListener
+                }
 
-            transaction.set(
-                statsRef,
-                mapOf(
-                    "shareCount" to newCount,
-                    "updatedAt" to FieldValue.serverTimestamp()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
+                shareRef.set(
+                    mapOf(
+                        "uid" to user.uid,
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+                ).addOnSuccessListener {
 
-            newCount
-        }.addOnSuccessListener { count ->
-            done(true, count, null)
-        }.addOnFailureListener { error ->
-            done(
-                false,
-                0L,
-                error.localizedMessage ?: "Share काउंट अपडेट नहीं हो सका।"
-            )
-        }
+                    postRef.collection("shares")
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            done(
+                                true,
+                                snapshot.size().toLong(),
+                                null
+                            )
+                        }
+                        .addOnFailureListener { error ->
+                            done(
+                                false,
+                                0L,
+                                error.localizedMessage
+                                    ?: "Share की गिनती नहीं पढ़ी जा सकी।"
+                            )
+                        }
+
+                }.addOnFailureListener { error ->
+                    done(
+                        false,
+                        0L,
+                        error.localizedMessage
+                            ?: "Share रिकॉर्ड नहीं हो सका।"
+                    )
+                }
+            }
+            .addOnFailureListener { error ->
+                done(
+                    false,
+                    0L,
+                    error.localizedMessage
+                        ?: "Share रिकॉर्ड जाँचा नहीं जा सका।"
+                )
+            }
     }
     
     // --------------------------------------------------
