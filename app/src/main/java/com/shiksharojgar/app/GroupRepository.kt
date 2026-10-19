@@ -39,7 +39,7 @@ object GroupRepository {
     // पोस्ट हमेशा Pending बनेगी।
     // --------------------------------------------------
 
-    fun submitPost(
+        fun submitPost(
         displayName: String,
         body: String,
         done: (Boolean, String?) -> Unit
@@ -49,7 +49,16 @@ object GroupRepository {
         val cleanBody = body.trim()
 
         if (user == null) {
-            done(false, "पहले साइन-इन आवश्यक है।")
+            done(false, "पहले लॉगिन करें।")
+            return
+        }
+
+        if (user.isAnonymous) {
+            done(
+                false,
+                "आपका अकाउंट अभी Guest मोड में है। " +
+                    "ईमेल और पासवर्ड से लॉगिन करें।"
+            )
             return
         }
 
@@ -63,15 +72,7 @@ object GroupRepository {
             return
         }
 
-        val data = hashMapOf<String, Any>(
-            "uid" to user.uid,
-            "displayName" to cleanName,
-            "body" to cleanBody,
-            "status" to "pending",
-            "createdAt" to FieldValue.serverTimestamp()
-        )
-
-                user.reload()
+        user.reload()
             .addOnSuccessListener {
 
                 if (!user.isEmailVerified) {
@@ -83,7 +84,43 @@ object GroupRepository {
                 }
 
                 user.getIdToken(true)
-                    .addOnSuccessListener {
+                    .addOnSuccessListener { tokenResult ->
+
+                        val firebaseClaims =
+                            tokenResult.claims["firebase"] as? Map<*, *>
+
+                        val provider =
+                            firebaseClaims?.get("sign_in_provider")
+                                ?.toString()
+
+                        val emailVerified =
+                            tokenResult.claims["email_verified"] == true
+
+                        if (provider == "anonymous") {
+                            done(
+                                false,
+                                "Firebase अभी आपको Guest अकाउंट मान रहा है। " +
+                                    "लॉगआउट करके अपने सत्यापित ईमेल से दोबारा लॉगिन करें।"
+                            )
+                            return@addOnSuccessListener
+                        }
+
+                        if (!emailVerified) {
+                            done(
+                                false,
+                                "Firebase टोकन में Gmail सत्यापन सक्रिय नहीं है। " +
+                                    "लॉगिन करके दोबारा प्रयास करें।"
+                            )
+                            return@addOnSuccessListener
+                        }
+
+                        val data = hashMapOf<String, Any>(
+                            "uid" to user.uid,
+                            "displayName" to cleanName,
+                            "body" to cleanBody,
+                            "status" to "pending",
+                            "createdAt" to FieldValue.serverTimestamp()
+                        )
 
                         postsRef.add(data)
                             .addOnSuccessListener {
@@ -92,24 +129,25 @@ object GroupRepository {
                             .addOnFailureListener { error ->
                                 done(
                                     false,
-                                    error.localizedMessage
-                                        ?: "पोस्ट भेजी नहीं जा सकी।"
+                                    "पोस्ट सेव नहीं हुई: " +
+                                        (error.localizedMessage
+                                            ?: "अनुमति नहीं मिली।")
                                 )
                             }
                     }
                     .addOnFailureListener { error ->
                         done(
                             false,
-                            error.localizedMessage
-                                ?: "सुरक्षा टोकन रीफ़्रेश नहीं हुआ।"
+                            "Firebase सुरक्षा टोकन नहीं मिला: " +
+                                (error.localizedMessage ?: "अज्ञात त्रुटि")
                         )
                     }
             }
             .addOnFailureListener { error ->
                 done(
                     false,
-                    error.localizedMessage
-                        ?: "Gmail सत्यापन की जाँच नहीं हो सकी।"
+                    "अकाउंट की जाँच नहीं हो सकी: " +
+                        (error.localizedMessage ?: "अज्ञात त्रुटि")
                 )
             }
     }
