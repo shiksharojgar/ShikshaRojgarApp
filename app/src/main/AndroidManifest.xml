@@ -127,9 +127,35 @@
 
         <activity
             android:name=".HomeCategoryActivity" />
+<activity
+    android:name=".NoticeActivity"
+    android:exported="true">
 
-        <activity
-            android:name=".NoticeActivity" />
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+            android:scheme="shiksharojgar"
+            android:host="notice"
+            android:pathPrefix="/post" />
+    </intent-filter>
+
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+            android:scheme="https"
+            android:host="shiksha-rojgar.web.app"
+            android:pathPrefix="/notice" />
+    </intent-filter>
+
+</activity>
         <activity
             android:name=".GroupAdminActivity"
             android:exported="false" />
