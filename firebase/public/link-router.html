@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shiksha Rojgar App</title>
+  <meta name="theme-color" content="#0759A5">
+  <meta name="description" content="Shiksha Rojgar App में पोस्ट देखें।">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #eef5ff;
+      color: #17324d;
+      font-family: Arial, "Noto Sans Devanagari", sans-serif;
+      text-align: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 20px;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 5px 24px rgba(0, 50, 100, 0.12);
+    }
+
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #0759a5;
+      font-size: 25px;
+    }
+
+    .tagline {
+      margin: 0 0 20px;
+      color: #52677b;
+      line-height: 1.6;
+    }
+
+    .details {
+      margin: 16px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f1f7ff;
+      overflow-wrap: anywhere;
+    }
+
+    .open-button {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 0;
+      border-radius: 10px;
+      background: #0877d1;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .website {
+      display: inline-block;
+      margin-top: 18px;
+      color: #0759a5;
+      text-decoration: none;
+    }
+
+    .message {
+      margin-top: 12px;
+      color: #536779;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <div class="logo">📱</div>
+
+    <h1>Shiksha Rojgar App</h1>
+
+    <p class="tagline">
+      शिक्षा से सफलता तक, हर कदम आपके साथ!
+    </p>
+
+    <div class="details">
+      <strong id="sectionName">पोस्ट खोलें</strong>
+      <div id="postInfo" class="message"></div>
+    </div>
+
+    <a id="openApp" class="open-button" href="#">
+      📲 ऐप में खोलें
+    </a>
+
+    <div id="status" class="message">
+      ऐप खोलने के लिए बटन दबाएँ।
+    </div>
+
+    <a
+      class="website"
+      href="https://www.shiksharojgar.com/"
+      target="_blank"
+      rel="noopener noreferrer">
+      🌐 Shiksha Rojgar वेबसाइट
+    </a>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const routes = {
+        "channel": {
+          name: "📢 शिक्षा रोजगार चैनल",
+          path: "channel"
+        },
+        "group": {
+          name: "👥 शिक्षा रोजगार ग्रुप",
+          path: "group"
+        },
+        "notice": {
+          name: "🔔 नोटिस अपडेट",
+          path: "notice"
+        },
+        "teacher": {
+          name: "👨‍🏫 Teacher",
+          path: "teacher"
+        },
+        "student": {
+          name: "🎓 Student",
+          path: "student"
+        },
+        "school": {
+          name: "🏫 School",
+          path: "school"
+        },
+        "vacancy": {
+          name: "💼 Jobs / Vacancy",
+          path: "vacancy"
+        },
+        "result": {
+          name: "📊 Result",
+          path: "result"
+        },
+        "admit-card": {
+          name: "🪪 Admit Card",
+          path: "admit-card"
+        },
+        "study-material": {
+          name: "📚 Study Material / Syllabus",
+          path: "study-material"
+        },
+        "career-guide": {
+          name: "🧭 Career Guide",
+          path: "career-guide"
+        },
+        "important-information": {
+          name: "📌 Important Information",
+          path: "important-information"
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const pathParts = window.location.pathname
+        .split("/")
+        .filter(Boolean);
+
+      let section = (pathParts[pathParts.length - 1] || "channel")
+        .toLowerCase();
+
+      if (section === "index.html" || section === "link-router.html") {
+        section = (params.get("section") || "channel").toLowerCase();
+      }
+
+      const route = routes[section] || routes["channel"];
+      const postId = params.get("post") || params.get("postId") || "";
+
+      document.getElementById("sectionName").textContent = route.name;
+
+      document.getElementById("postInfo").textContent = postId
+        ? "पोस्ट ID: " + postId
+        : "ऐप में संबंधित पेज खोलें।";
+
+      const query = postId
+        ? "?post=" + encodeURIComponent(postId)
+        : "";
+
+      let appUrl;
+
+      if (section === "channel") {
+        appUrl = "shiksharojgar://channel/post" + query;
+      } else if (section === "group") {
+        appUrl = "shiksharojgar://group/post" + query;
+      } else if (section === "notice") {
+        appUrl = "shiksharojgar://notice/post" + query;
+      } else {
+        appUrl = "shiksharojgar://open/" +
+          encodeURIComponent(route.path) + query;
+      }
+
+      const button = document.getElementById("openApp");
+      button.href = appUrl;
+
+      button.addEventListener("click", function () {
+        document.getElementById("status").textContent =
+          "ऐप खुलने का प्रयास किया जा रहा है। यदि ऐप नहीं खुलता, तो सुनिश्चित करें कि ऐप इंस्टॉल है और उसका लिंक सेटअप किया गया है।";
+      });
+    })();
+  </script>
+</body>
+</html>
