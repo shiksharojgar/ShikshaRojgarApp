@@ -5661,11 +5661,17 @@ private fun showCommonPostCreator(
 ) {
 
         val categories = listOf(
-            "नोटिस और अपडेट" to "notice",
-            "महत्वपूर्ण जानकारी" to "important_information",
-            "अध्ययन सामग्री" to "study_material",
-            "करियर गाइड और उपयोगी टूल्स" to "career_guide"
-        )
+    "Teacher" to "teacher",
+    "Student" to "student",
+    "School" to "school",
+    "Vacancy" to "vacancy",
+    "Result" to "result",
+    "Admit Card" to "admit_card",
+    "नोटिस और अपडेट" to "notice",
+    "महत्वपूर्ण जानकारी" to "important_information",
+    "अध्ययन सामग्री" to "study_material",
+    "करियर गाइड और उपयोगी टूल्स" to "career_guide"
+)
 
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
