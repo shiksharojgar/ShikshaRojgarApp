@@ -104,6 +104,10 @@ private val floatingNoticeRunnable =
     }
 
     private lateinit var adapter: PostAdapter
+    private lateinit var vacancyAdapter: PostAdapter
+
+private var allShikshaPosts: List<Post> = emptyList()
+private var allVacancyPosts: List<Post> = emptyList()
 
     private var channelPostsListener:
         com.google.firebase.firestore.ListenerRegistration? = null
@@ -317,19 +321,29 @@ ViewCompat.setOnApplyWindowInsetsListener(
 
         
 
-        adapter = PostAdapter(emptyList()) {
-            openInApp(it.url)
-        }
+        // Shiksha Rojgar Posts
+adapter = PostAdapter(emptyList()) {
+    openInApp(it.url)
+}
 
-        findViewById<androidx.recyclerview.widget.RecyclerView>(
-            R.id.postsRecycler
-        ).apply {
+findViewById<androidx.recyclerview.widget.RecyclerView>(
+    R.id.postsRecycler
+).apply {
+    layoutManager = LinearLayoutManager(this@MainActivity)
+    adapter = this@MainActivity.adapter
+}
 
-            layoutManager =
-                LinearLayoutManager(this@MainActivity)
+// Vacancy Bazaar Posts
+vacancyAdapter = PostAdapter(emptyList()) {
+    openInApp(it.url)
+}
 
-            adapter = this@MainActivity.adapter
-        }
+findViewById<androidx.recyclerview.widget.RecyclerView>(
+    R.id.vacancyPostsRecycler
+).apply {
+    layoutManager = LinearLayoutManager(this@MainActivity)
+    adapter = this@MainActivity.vacancyAdapter
+}
 
         setupLiveBreaking()
 
