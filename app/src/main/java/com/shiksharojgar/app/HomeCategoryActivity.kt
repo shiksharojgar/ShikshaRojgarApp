@@ -19,7 +19,42 @@ class HomeCategoryActivity : AppCompatActivity() {
         FirebaseFirestore.getInstance()
 
     private lateinit var listLayout: LinearLayout
-    private lateinit var unreadBadge: TextView
+private lateinit var subCategoryLayout: LinearLayout
+private lateinit var postsLayout: LinearLayout
+private lateinit var unreadBadge: TextView
+
+private var categoryPostsListener:
+    com.google.firebase.firestore.ListenerRegistration? = null
+
+private val sliderHandler =
+    android.os.Handler(android.os.Looper.getMainLooper())
+
+private var sliderIndex = 0
+
+private val sliderImages = intArrayOf(
+    R.drawable.home_teacher,
+    R.drawable.home_student,
+    R.drawable.home_exam
+)
+
+private val sliderRunnable = object : Runnable {
+    override fun run() {
+        if (isFinishing || isDestroyed) return
+
+        sliderIndex = (sliderIndex + 1) % sliderImages.size
+
+        val image = findViewById<android.widget.ImageView>(
+            R.id.categoryBannerImage
+        )
+
+        if (image != null) {
+            image.setImageResource(sliderImages[sliderIndex])
+        }
+
+        sliderHandler.postDelayed(this, 4500L)
+    }
+}
+
 
     private val colors = listOf(
         Color.rgb(46, 125, 50),
@@ -204,9 +239,97 @@ class HomeCategoryActivity : AppCompatActivity() {
                 )
             }
 
-        scroll.addView(
-            listLayout
-        )
+        // 1. ऊपर HD स्लाइडर के लिए जगह
+val banner = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+    setPadding(dp(4), dp(4), dp(4), dp(8))
+}
+
+val previous = TextView(this).apply {
+    text = "‹"
+    textSize = 36f
+    gravity = Gravity.CENTER
+    setTextColor(Color.rgb(25, 118, 210))
+    setOnClickListener {
+        sliderIndex =
+            (sliderIndex - 1 + sliderImages.size) % sliderImages.size
+        findViewById<android.widget.ImageView>(
+            R.id.categoryBannerImage
+        )?.setImageResource(sliderImages[sliderIndex])
+    }
+}
+
+val bannerImage = android.widget.ImageView(this).apply {
+    id = R.id.categoryBannerImage
+    setImageResource(sliderImages[0])
+    scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+    contentDescription = "शिक्षा रोजगार स्लाइडर"
+    adjustViewBounds = true
+}
+
+val next = TextView(this).apply {
+    text = "›"
+    textSize = 36f
+    gravity = Gravity.CENTER
+    setTextColor(Color.rgb(25, 118, 210))
+    setOnClickListener {
+        sliderIndex = (sliderIndex + 1) % sliderImages.size
+        findViewById<android.widget.ImageView>(
+            R.id.categoryBannerImage
+        )?.setImageResource(sliderImages[sliderIndex])
+    }
+}
+
+banner.addView(previous, LinearLayout.LayoutParams(dp(36), dp(140)))
+
+banner.addView(
+    bannerImage,
+    LinearLayout.LayoutParams(0, dp(140), 1f)
+)
+
+banner.addView(next, LinearLayout.LayoutParams(dp(36), dp(140)))
+
+listLayout.addView(banner)
+
+sliderHandler.removeCallbacks(sliderRunnable)
+sliderHandler.postDelayed(sliderRunnable, 4500L)
+
+// 2. सब-कैटेगरी का अलग हिस्सा
+val subHeading = TextView(this).apply {
+    text = "📚 विषय और सब-कैटेगरी"
+    textSize = 18f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(25, 118, 210))
+    setPadding(0, dp(10), 0, dp(8))
+}
+
+listLayout.addView(subHeading)
+
+subCategoryLayout = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+}
+
+listLayout.addView(subCategoryLayout)
+
+// 3. नई पोस्ट का अलग हिस्सा
+val postsHeading = TextView(this).apply {
+    text = "📰 ताज़ा पोस्ट"
+    textSize = 18f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(25, 118, 210))
+    setPadding(0, dp(18), 0, dp(8))
+}
+
+listLayout.addView(postsHeading)
+
+postsLayout = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+}
+
+listLayout.addView(postsLayout)
+
+scroll.addView(listLayout)
 
         root.addView(
             scroll,
