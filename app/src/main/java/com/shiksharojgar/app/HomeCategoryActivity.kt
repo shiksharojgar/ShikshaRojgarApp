@@ -526,120 +526,99 @@ ViewCompat.setOnApplyWindowInsetsListener(
      * =========================================================
      */
     private fun loadSubCategories(
-        categoryId: String
-    ) {
+        
+private fun loadSubCategories(
+    categoryId: String
+) {
+    subCategoryLayout.removeAllViews()
 
-        subCategoryLayout.removeAllViews()
+    val progress = ProgressBar(this)
 
-        val progress =
-            ProgressBar(this)
-
-        subCategoryLayout.removeAllViews(
-            progress,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(60)
-            )
+    subCategoryLayout.addView(
+        progress,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(60)
         )
+    )
 
-        db.collection(
-            "home_subcategories"
-        )
-            .whereEqualTo(
-                "parentId",
-                categoryId
-            )
-            .whereEqualTo(
-                "enabled",
-                true
-            )
-            .get()
-            .addOnSuccessListener { result ->
+    db.collection("home_subcategories")
+        .whereEqualTo("parentId", categoryId)
+        .whereEqualTo("enabled", true)
+        .get()
+        .addOnSuccessListener { result ->
 
-                listLayout.removeAllViews()
+            subCategoryLayout.removeAllViews()
 
-                val items =
-                    result.documents.sortedBy {
+            val items = result.documents.sortedBy {
+                it.getLong("position") ?: 0L
+            }
 
-                        it.getLong(
-                            "position"
-                        ) ?: 0L
-                    }
-
-                if (items.isEmpty()) {
-
-                    val empty =
-                        TextView(this).apply {
-
-                            text =
-                                "अभी कोई Sub-Category उपलब्ध नहीं है।"
-
-                            textSize = 16f
-
-                            gravity =
-                                Gravity.CENTER
-
-                            setPadding(
-                                dp(16),
-                                dp(40),
-                                dp(16),
-                                dp(40)
-                            )
-                        }
-
-                    listLayout.addView(
-                        empty
-                    )
-
-                    return@addOnSuccessListener
-                }
-
-                items.forEachIndexed {
-                    index,
-                    doc ->
-
-                    val name =
-                        doc.getString(
-                            "name"
-                        ) ?: "Sub-Category"
-
-                    val icon =
-                        doc.getString(
-                            "icon"
-                        ) ?: ""
-
-                    val url =
-                        doc.getString(
-                            "url"
-                        ) ?: ""
-
-                    val pageType =
-                        doc.getString(
-                            "pageType"
-                        ) ?: "Website"
-
-                    addSubCategoryButton(
-                        name = name,
-                        icon = icon,
-                        url = url,
-                        pageType = pageType,
-                        index = index
+            if (items.isEmpty()) {
+                val empty = TextView(this).apply {
+                    text = "अभी कोई Sub-Category उपलब्ध नहीं है।"
+                    textSize = 16f
+                    gravity = Gravity.CENTER
+                    setPadding(
+                        dp(16),
+                        dp(24),
+                        dp(16),
+                        dp(24)
                     )
                 }
-            }
-            .addOnFailureListener { e ->
 
-                listLayout.removeAllViews()
-
-                Toast.makeText(
-                    this,
-                    "Sub-Category load failed: ${
-                        e.message ?: "Firestore error"
-                    }",
-                    Toast.LENGTH_LONG
-                ).show()
+                subCategoryLayout.addView(empty)
+                return@addOnSuccessListener
             }
-    }
+
+            items.forEachIndexed { index, doc ->
+                val name = doc.getString("name")
+                    ?: "Sub-Category"
+
+                val icon = doc.getString("icon")
+                    ?: ""
+
+                val url = doc.getString("url")
+                    ?: ""
+
+                val pageType = doc.getString("pageType")
+                    ?: "Website"
+
+                addSubCategoryButton(
+                    name = name,
+                    icon = icon,
+                    url = url,
+                    pageType = pageType,
+                    index = index
+                )
+            }
+        }
+        .addOnFailureListener { e ->
+            subCategoryLayout.removeAllViews()
+
+            val errorText = TextView(this).apply {
+                text = "Sub-Category लोड नहीं हुई। इंटरनेट और Firestore जाँचें।"
+                textSize = 14f
+                setPadding(
+                    dp(8),
+                    dp(16),
+                    dp(8),
+                    dp(16)
+                )
+            }
+
+            subCategoryLayout.addView(errorText)
+
+            Toast.makeText(
+                this,
+                "Sub-Category load failed: ${
+                    e.message ?: "Firestore error"
+                }",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+}
+
 
     /*
      * =========================================================
@@ -708,17 +687,15 @@ ViewCompat.setOnApplyWindowInsetsListener(
                 }
             }
 
-        listLayout.addView(
-            button,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(58)
-            ).apply {
-
-                bottomMargin =
-                    dp(12)
-            }
-        )
+        subCategoryLayout.addView(
+    button,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(58)
+    ).apply {
+        bottomMargin = dp(12)
+    }
+)
     }
 
     /*
