@@ -14,6 +14,80 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/teacher",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/teacher/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/student",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/student/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/school",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/school/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/vacancy",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/vacancy/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/result",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/result/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/admit-card",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/admit-card/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/study-material",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/study-material/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/career-guide",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/career-guide/**",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/important-information",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/important-information/**",
+        "destination": "/link-router.html"
+      }
     ]
   }
 }
