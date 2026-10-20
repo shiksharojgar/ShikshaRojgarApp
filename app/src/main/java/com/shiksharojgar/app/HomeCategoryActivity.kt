@@ -85,7 +85,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
     val categoryName = intent.getStringExtra("categoryName") ?: "Category"
     val categoryIcon = intent.getStringExtra("categoryIcon") ?: ""
 
-    setContentView(buildUi(categoryName, categoryIcon))
+    setContentView(buildUi(categoryName, categoryIcon, categoryId))
 
     loadSubCategories(categoryId)
     loadCategoryPosts(categoryId)
@@ -179,9 +179,10 @@ private fun loadCategoryPageSettings(
      * =========================================================
      */
     private fun buildUi(
-        categoryName: String,
-        categoryIcon: String
-    ): LinearLayout {
+    categoryName: String,
+    categoryIcon: String,
+    categoryId: String
+): LinearLayout {
 
         val root =
             LinearLayout(this).apply {
