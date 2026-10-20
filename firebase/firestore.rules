@@ -121,6 +121,19 @@ function isAdmin() {
     }
 
     // =====================================================
+    // INDIVIDUAL CATEGORY PAGE SETTINGS
+    // Teacher / Student / School / Vacancy / Result / Admit Card
+    // =====================================================
+
+    match /category_page_settings/{categoryId} {
+      // सभी यूज़र पेज की सेटिंग पढ़ सकते हैं।
+      allow read: if true;
+
+      // केवल अधिकृत Admin सेटिंग बना या बदल सकता है।
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =====================================================
     // HOME NOTICES
     // Notice / Update button content
     // =====================================================
