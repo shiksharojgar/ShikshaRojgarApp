@@ -346,8 +346,71 @@
             <TextView android:id="@+id/refreshButton" android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="↻ Refresh" android:textColor="@color/blue" android:textStyle="bold" android:padding="8dp" android:clickable="true" android:focusable="true"/>
         </LinearLayout>
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/postsRecycler" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" android:layout_marginTop="4dp"/>
+        <!-- Shiksha Rojgar Latest Posts -->
+<TextView
+    android:id="@+id/shikshaPostsHeading"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="📚 Shiksha Rojgar की नई पोस्ट"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:textColor="@color/text"
+    android:layout_marginTop="4dp"
+    android:padding="4dp"/>
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/postsRecycler"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:nestedScrollingEnabled="false"
+    android:layout_marginTop="4dp"/>
+
+<TextView
+    android:id="@+id/moreShikshaPostsButton"
+    android:layout_width="match_parent"
+    android:layout_height="42dp"
+    android:layout_marginTop="6dp"
+    android:gravity="center"
+    android:text="🌈 अधिक पोस्ट देखें ↓"
+    android:textColor="@android:color/white"
+    android:textStyle="bold"
+    android:textSize="14sp"
+    android:background="#2563EB"
+    android:clickable="true"
+    android:focusable="true"/>
+
+<!-- Vacancy Bazaar Latest Posts -->
+<TextView
+    android:id="@+id/vacancyPostsHeading"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="💼 Vacancy Bazaar की नई पोस्ट"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:textColor="@color/text"
+    android:layout_marginTop="14dp"
+    android:padding="4dp"/>
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/vacancyPostsRecycler"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:nestedScrollingEnabled="false"
+    android:layout_marginTop="4dp"/>
+
+<TextView
+    android:id="@+id/moreVacancyPostsButton"
+    android:layout_width="match_parent"
+    android:layout_height="42dp"
+    android:layout_marginTop="6dp"
+    android:gravity="center"
+    android:text="🌈 अधिक पोस्ट देखें ↓"
+    android:textColor="@android:color/white"
+    android:textStyle="bold"
+    android:textSize="14sp"
+    android:background="#16A34A"
+    android:clickable="true"
+    android:focusable="true"/>
 
           <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Official Websites"
             android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text" android:layout_marginTop="18dp" android:layout_marginBottom="8dp"/>
