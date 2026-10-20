@@ -2420,6 +2420,45 @@ pageRow2.addView(
 
 homeContent.addView(pageManager)
 
+
+homeContent.addView(
+    adminSectionTitle(
+        "🎨",
+        "CATEGORY PAGE LAYOUT / PHOTO / TEXT"
+    )
+)
+
+homeContent.addView(
+    adminSectionNote(
+        "हर कैटेगरी की फोटो, शीर्षक, परिचय और लेआउट अलग सेट करें।"
+    )
+)
+
+listOf(
+    "teacher" to "🧑‍🏫 Teacher",
+    "student" to "🎓 Student",
+    "school" to "🏫 School",
+    "vacancy" to "💼 Vacancy",
+    "result" to "🏆 Result",
+    "admit_card" to "🪪 Admit Card"
+).forEach { (pageId, pageLabel) ->
+    homeContent.addView(
+        adminActionButton(
+            "🎨 $pageLabel — सेटिंग बदलें"
+        ) {
+            showCategoryPageLayoutEditor(pageId, pageLabel)
+        },
+        LinearLayout.LayoutParams(
+            -1,
+            dp(44)
+        ).apply {
+            topMargin = dp(3)
+            bottomMargin = dp(3)
+        }
+    )
+}
+
+
 homeContent.addView(
     adminSectionTitle(
         "📝",
@@ -3095,6 +3134,190 @@ private fun showUserManagementDialog() {
                     "यूजर प्रोफाइल नहीं पढ़ सके।\n" +
                     (error.message
                         ?: "अनुमति या नेटवर्क की समस्या")
+            }
+        }
+}
+
+
+private fun showCategoryPageLayoutEditor(
+    categoryId: String,
+    categoryLabel: String
+) {
+    db.collection("category_page_settings")
+        .document(categoryId)
+        .get()
+        .addOnSuccessListener { snapshot ->
+            if (isFinishing || isDestroyed) return@addOnSuccessListener
+
+            val titleField = EditText(this).apply {
+                hint = "पेज का शीर्षक"
+                setSingleLine(true)
+                setText(snapshot.getString("title") ?: categoryLabel)
+            }
+
+            val descriptionField = EditText(this).apply {
+                hint = "पेज का परिचय / विवरण"
+                minLines = 2
+                maxLines = 4
+                setText(snapshot.getString("description") ?: "")
+            }
+
+            val imageUrlField = EditText(this).apply {
+                hint = "फोटो का सीधा HTTPS URL"
+                setSingleLine(true)
+                inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+                setText(snapshot.getString("imageUrl") ?: "")
+            }
+
+            val layoutOptions = listOf(
+                "सामान्य कार्ड" to "standard",
+                "बड़ी फोटो वाला लेआउट" to "large_image",
+                "कॉम्पैक्ट सूची" to "compact"
+            )
+
+            val layoutSpinner = Spinner(this).apply {
+                adapter = ArrayAdapter(
+                    this@AdminActivity,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    layoutOptions.map { it.first }
+                )
+
+                val savedStyle =
+                    snapshot.getString("layoutStyle") ?: "standard"
+
+                setSelection(
+                    layoutOptions.indexOfFirst {
+                        it.second == savedStyle
+                    }.coerceAtLeast(0)
+                )
+            }
+
+            val form = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(18), dp(8), dp(18), dp(4))
+            }
+
+            form.addView(TextView(this).apply {
+                text = "पेज का शीर्षक"
+            })
+            form.addView(
+                titleField,
+                LinearLayout.LayoutParams(-1, dp(52))
+            )
+
+            form.addView(TextView(this).apply {
+                text = "परिचय / विवरण"
+            })
+            form.addView(
+                descriptionField,
+                LinearLayout.LayoutParams(-1, dp(92))
+            )
+
+            form.addView(TextView(this).apply {
+                text = "बैनर फोटो URL"
+            })
+            form.addView(
+                imageUrlField,
+                LinearLayout.LayoutParams(-1, dp(52))
+            )
+
+            form.addView(TextView(this).apply {
+                text = "लेआउट चुनें"
+            })
+            form.addView(
+                layoutSpinner,
+                LinearLayout.LayoutParams(-1, dp(48))
+            )
+
+            form.addView(TextView(this).apply {
+                text = "फोटो URL खाली रखने पर डिफ़ॉल्ट फोटो रहेगी।"
+                textSize = 11f
+                setTextColor(Color.GRAY)
+            })
+
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("$categoryLabel पेज सेटिंग")
+                .setView(ScrollView(this).apply {
+                    addView(form)
+                })
+                .setNegativeButton("रद्द करें", null)
+                .setPositiveButton("सेव करें", null)
+                .create()
+
+            dialog.setOnShowListener {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener {
+                        val pageTitle =
+                            titleField.text.toString().trim()
+                        val description =
+                            descriptionField.text.toString().trim()
+                        val imageUrl =
+                            imageUrlField.text.toString().trim()
+                        val style = layoutOptions[
+                            layoutSpinner.selectedItemPosition
+                                .coerceIn(0, layoutOptions.lastIndex)
+                        ].second
+
+                        if (pageTitle.isBlank()) {
+                            titleField.error = "शीर्षक लिखें"
+                            return@setOnClickListener
+                        }
+
+                        if (
+                            imageUrl.isNotBlank() &&
+                            !imageUrl.startsWith("https://", true)
+                        ) {
+                            imageUrlField.error =
+                                "फोटो का HTTPS URL डालें"
+                            return@setOnClickListener
+                        }
+
+                        val values = hashMapOf<String, Any>(
+                            "categoryId" to categoryId,
+                            "categoryLabel" to categoryLabel,
+                            "title" to pageTitle,
+                            "description" to description,
+                            "imageUrl" to imageUrl,
+                            "layoutStyle" to style,
+                            "updatedAt" to
+                                com.google.firebase.firestore.FieldValue
+                                    .serverTimestamp()
+                        )
+
+                        dialog.getButton(
+                            AlertDialog.BUTTON_POSITIVE
+                        ).isEnabled = false
+
+                        db.collection("category_page_settings")
+                            .document(categoryId)
+                            .set(values)
+                            .addOnSuccessListener {
+                                if (!isFinishing && !isDestroyed) {
+                                    toast(
+                                        "$categoryLabel की सेटिंग सेव हो गई"
+                                    )
+                                    dialog.dismiss()
+                                }
+                            }
+                            .addOnFailureListener { error ->
+                                if (!isFinishing && !isDestroyed) {
+                                    dialog.getButton(
+                                        AlertDialog.BUTTON_POSITIVE
+                                    ).isEnabled = true
+
+                                    toast(
+                                        "सेव नहीं हुआ: ${error.message}"
+                                    )
+                                }
+                            }
+                    }
+            }
+
+            dialog.show()
+        }
+        .addOnFailureListener { error ->
+            if (!isFinishing && !isDestroyed) {
+                toast("सेटिंग नहीं खुली: ${error.message}")
             }
         }
 }
