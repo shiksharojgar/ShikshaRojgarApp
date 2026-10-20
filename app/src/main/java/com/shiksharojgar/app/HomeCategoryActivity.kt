@@ -78,40 +78,20 @@ private val sliderRunnable = object : Runnable {
         Color.rgb(85, 139, 47)
     )
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
-        super.onCreate(savedInstanceState)
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-        val categoryId =
-            intent.getStringExtra("categoryId")
-                ?: ""
+    val categoryId = intent.getStringExtra("categoryId") ?: ""
+    val categoryName = intent.getStringExtra("categoryName") ?: "Category"
+    val categoryIcon = intent.getStringExtra("categoryIcon") ?: ""
 
-        val categoryName =
-            intent.getStringExtra("categoryName")
-                ?: "Category"
+    setContentView(buildUi(categoryName, categoryIcon))
 
-        val categoryIcon =
-            intent.getStringExtra("categoryIcon")
-                ?: ""
+    loadSubCategories(categoryId)
+    loadCategoryPosts(categoryId)
+    loadCategoryPageSettings(categoryId, categoryName, categoryIcon)
+}
 
-        setContentView(
-            buildUi(
-                categoryName,
-                categoryIcon
-            )
-        )
-
-        loadSubCategories(
-            categoryId
-        )
-loadCategoryPosts(categoryId)
-loadCategoryPageSettings(
-    categoryId,
-    categoryName,
-    categoryIcon
-)
-  
 private fun loadCategoryPageSettings(
     categoryId: String,
     categoryName: String,
@@ -124,26 +104,18 @@ private fun loadCategoryPageSettings(
         .get()
         .addOnSuccessListener { snapshot ->
             if (isFinishing || isDestroyed) return@addOnSuccessListener
-
             if (!snapshot.exists()) return@addOnSuccessListener
 
             val savedTitle = snapshot.getString("title").orEmpty()
             val description = snapshot.getString("description").orEmpty()
             val imageUrl = snapshot.getString("imageUrl").orEmpty()
 
+            val titleText = savedTitle.ifBlank { categoryName }
             categoryPageTitleView.text =
-                if (savedTitle.isNotBlank()) {
-                    if (categoryIcon.isNotBlank()) {
-                        "$categoryIcon  $savedTitle"
-                    } else {
-                        savedTitle
-                    }
+                if (categoryIcon.isNotBlank()) {
+                    "$categoryIcon  $titleText"
                 } else {
-                    if (categoryIcon.isNotBlank()) {
-                        "$categoryIcon  $categoryName"
-                    } else {
-                        categoryName
-                    }
+                    titleText
                 }
 
             categoryPageDescriptionView.text = description
@@ -186,6 +158,8 @@ private fun loadCategoryPageSettings(
                     }
                 }.start()
             }
+
+            loadCategoryPosts(categoryId)
         }
         .addOnFailureListener {
             if (!isFinishing && !isDestroyed) {
@@ -194,12 +168,10 @@ private fun loadCategoryPageSettings(
                     "कैटेगरी सेटिंग लोड नहीं हुई। इंटरनेट और Firestore Rules जाँचें।",
                     Toast.LENGTH_LONG
                 ).show()
-               loadCategoryPosts(categoryId) 
             }
         }
 }
-      
-    }
+
 
     /*
      * =========================================================
@@ -834,35 +806,7 @@ if (post.imageUrl.isNotBlank()) {
 }
 
 
-                    row.addView(
-                        image,
-                        LinearLayout.LayoutParams(
-                            dp(105),
-                            dp(110)
-                        )
-                    )
-
-                    Thread {
-                        try {
-                            val connection = URL(post.imageUrl)
-                                .openConnection()
-                            connection.connectTimeout = 10000
-                            connection.readTimeout = 10000
-
-                            val bitmap = connection.getInputStream().use {
-                                BitmapFactory.decodeStream(it)
-                            }
-
-                            runOnUiThread {
-                                if (!isFinishing && !isDestroyed && bitmap != null) {
-                                    image.setImageBitmap(bitmap)
-                                }
-                            }
-                        } catch (_: Exception) {
-                            // फोटो लोड न होने पर पोस्ट का टेक्स्ट दिखता रहेगा।
-                        }
-                    }.start()
-                }
+                    
 
                 val textColumn = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
