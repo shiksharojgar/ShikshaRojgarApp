@@ -194,6 +194,7 @@ private fun loadCategoryPageSettings(
                     "कैटेगरी सेटिंग लोड नहीं हुई। इंटरनेट और Firestore Rules जाँचें।",
                     Toast.LENGTH_LONG
                 ).show()
+               loadCategoryPosts(categoryId) 
             }
         }
 }
@@ -766,26 +767,72 @@ private fun loadCategoryPosts(categoryId: String) {
             }
 
             posts.forEach { post ->
-                val card = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(dp(10), dp(10), dp(10), dp(10))
-                    background = GradientDrawable().apply {
-                        setColor(Color.WHITE)
-                        cornerRadius = dp(12).toFloat()
-                        setStroke(dp(1), Color.rgb(220, 230, 238))
-                    }
-                }
+                
+val isLargeImage = categoryLayoutStyle == "large_image"
+val isCompact = categoryLayoutStyle == "compact"
 
-                val row = LinearLayout(this).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = Gravity.TOP
-                }
+val card = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+    setPadding(
+        dp(if (isCompact) 6 else 10),
+        dp(if (isCompact) 6 else 10),
+        dp(if (isCompact) 6 else 10),
+        dp(if (isCompact) 6 else 10)
+    )
+    background = GradientDrawable().apply {
+        setColor(Color.WHITE)
+        cornerRadius = dp(12).toFloat()
+        setStroke(dp(1), Color.rgb(220, 230, 238))
+    }
+}
 
-                if (post.imageUrl.isNotBlank()) {
-                    val image = ImageView(this).apply {
-                        scaleType = ImageView.ScaleType.FIT_CENTER
-                        adjustViewBounds = true
-                    }
+val row = LinearLayout(this).apply {
+    orientation = if (isLargeImage) {
+        LinearLayout.VERTICAL
+    } else {
+        LinearLayout.HORIZONTAL
+    }
+    gravity = Gravity.TOP
+}
+
+if (post.imageUrl.isNotBlank()) {
+    val image = ImageView(this).apply {
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        adjustViewBounds = true
+    }
+
+    val imageParams = if (isLargeImage) {
+        LinearLayout.LayoutParams(-1, dp(200))
+    } else {
+        LinearLayout.LayoutParams(
+            dp(if (isCompact) 76 else 105),
+            dp(if (isCompact) 80 else 110)
+        )
+    }
+
+    row.addView(image, imageParams)
+
+    Thread {
+        try {
+            val connection = URL(post.imageUrl).openConnection()
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+
+            val bitmap = connection.getInputStream().use {
+                BitmapFactory.decodeStream(it)
+            }
+
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && bitmap != null) {
+                    image.setImageBitmap(bitmap)
+                }
+            }
+        } catch (_: Exception) {
+            // फोटो लोड न होने पर पोस्ट का टेक्स्ट दिखता रहेगा।
+        }
+    }.start()
+}
+
 
                     row.addView(
                         image,
@@ -819,7 +866,12 @@ private fun loadCategoryPosts(categoryId: String) {
 
                 val textColumn = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
-                    setPadding(dp(10), 0, 0, 0)
+                    setPadding(
+    if (isLargeImage) 0 else dp(if (isCompact) 6 else 10),
+    if (isLargeImage) dp(8) else 0,
+    0,
+    0
+)
                 }
 
                 val title = TextView(this).apply {
@@ -860,11 +912,15 @@ private fun loadCategoryPosts(categoryId: String) {
                 }
 
                 row.addView(
-                    textColumn,
-                    LinearLayout.LayoutParams(0, -2, 1f)
-                )
+    textColumn,
+    if (isLargeImage) {
+        LinearLayout.LayoutParams(-1, -2)
+    } else {
+        LinearLayout.LayoutParams(0, -2, 1f)
+    }
+)
 
-                card.addView(row)
+card.addView(row)
 
                 card.setOnClickListener {
                     val url = post.websiteUrl.ifBlank {
