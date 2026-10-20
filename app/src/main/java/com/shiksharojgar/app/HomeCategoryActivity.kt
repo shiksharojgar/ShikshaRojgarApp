@@ -184,8 +184,20 @@ loadCategoryPosts(categoryId)
             )
         )
 
-        val title =
-            TextView(this).apply {
+        
+categoryPageTitleView = TextView(this).apply {
+    text = if (categoryIcon.isNotBlank()) {
+        "$categoryIcon  $categoryName"
+    } else {
+        categoryName
+    }
+
+    textSize = 18f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(7, 89, 133))
+    gravity = Gravity.CENTER_VERTICAL
+}
+
 
                 text =
                     if (categoryIcon.isNotBlank()) {
@@ -208,7 +220,7 @@ loadCategoryPosts(categoryId)
             }
 
         titleStrip.addView(
-            title,
+            categoryPageTitleView,
             LinearLayout.LayoutParams(
                 0,
                 dp(48),
@@ -270,9 +282,15 @@ val previous = TextView(this).apply {
     }
 }
 
-val bannerImage = android.widget.ImageView(this).apply {
+
+categoryBannerImageView = ImageView(this).apply {
     id = R.id.categoryBannerImage
     setImageResource(sliderImages[0])
+    scaleType = ImageView.ScaleType.FIT_CENTER
+    contentDescription = "कैटेगरी बैनर फोटो"
+    adjustViewBounds = true
+}
+
     scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
     contentDescription = "शिक्षा रोजगार स्लाइडर"
     adjustViewBounds = true
@@ -294,7 +312,7 @@ val next = TextView(this).apply {
 banner.addView(previous, LinearLayout.LayoutParams(dp(36), dp(140)))
 
 banner.addView(
-    bannerImage,
+    categoryBannerImageView,
     LinearLayout.LayoutParams(0, dp(140), 1f)
 )
 
@@ -304,6 +322,17 @@ listLayout.addView(banner)
 
 sliderHandler.removeCallbacks(sliderRunnable)
 sliderHandler.postDelayed(sliderRunnable, 4500L)
+
+
+categoryPageDescriptionView = TextView(this).apply {
+    textSize = 14f
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(4), dp(4), dp(4), dp(12))
+    visibility = View.GONE
+}
+
+listLayout.addView(categoryPageDescriptionView)
+
 
 // 2. सब-कैटेगरी का अलग हिस्सा
 val subHeading = TextView(this).apply {
