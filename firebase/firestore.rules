@@ -117,11 +117,7 @@ function isAdmin() {
 
       allow read: if true;
 
-      allow create, update, delete: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == configuredAdminUid()
-        );
+      allow create, update, delete: if isAdmin();
     }
 
     // =====================================================
@@ -135,11 +131,7 @@ function isAdmin() {
       allow read: if true;
 
       // केवल Admin Notice बना/बदल/हटा सकता है
-      allow create, update, delete: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == configuredAdminUid()
-        );
+      allow create, update, delete: if isAdmin();
     }
     // =====================================================
     // HOME CATEGORIES
@@ -152,11 +144,7 @@ function isAdmin() {
       allow read: if true;
 
       // Only admin can add/edit/delete categories
-      allow create, update, delete: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == configuredAdminUid()
-        );
+      allow create, update, delete: if isAdmin();
     }
 
 
@@ -182,11 +170,7 @@ function isAdmin() {
       allow read: if true;
 
       // Only admin can add/edit/delete sub-categories
-      allow create, update, delete: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == configuredAdminUid()
-        );
+      allow create, update, delete: if isAdmin();
     }
 
     // =====================================================
@@ -395,12 +379,7 @@ function isAdmin() {
     match /channel_posts/{postId} {
 
       allow read: if true;
-
-      allow create, delete: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == configuredAdminUid()
-        );
+allow create, delete: if isAdmin();
 
       allow update: if isAdmin() ||
         (
