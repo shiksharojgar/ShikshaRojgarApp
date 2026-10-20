@@ -3270,61 +3270,99 @@ HomeCategory(
     // ============================================================
 
     private fun loadPosts(
-        done: (() -> Unit)? = null
-    ) {
+    done: (() -> Unit)? = null
+) {
+    findViewById<TextView>(
+        R.id.ticker
+    ).text = "Shiksha Rojgar की नई पोस्ट लोड हो रही हैं…"
+
+    animateTicker()
+
+    // Shiksha Rojgar: शुरुआत में केवल 2 पोस्ट
+    FeedLoader.load { posts ->
+
+        allShikshaPosts = posts
+
+        adapter.submit(
+            allShikshaPosts.take(2)
+        )
+
+        val moreShikshaButton =
+            findViewById<TextView>(
+                R.id.moreShikshaPostsButton
+            )
+
+        moreShikshaButton.visibility =
+            if (allShikshaPosts.size > 2) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+        moreShikshaButton.setOnClickListener {
+            adapter.submit(allShikshaPosts)
+            moreShikshaButton.visibility = View.GONE
+        }
+
+        val latest = allShikshaPosts.take(8)
+
+        val title =
+            if (latest.isNotEmpty()) {
+                latest.mapIndexed { index, post ->
+                    "${index + 1}. ${post.title}"
+                }.joinToString("     ✦     ")
+            } else {
+                "अभी नई पोस्ट नहीं मिली — Refresh करें"
+            }
+
+        val tickerText =
+            "$title     ✦     $title     ✦     $title"
 
         findViewById<TextView>(
             R.id.ticker
-        ).text =
-            "Shiksha Rojgar की नई पोस्ट लोड हो रही हैं…"
+        ).text = tickerText
 
         animateTicker()
 
-        FeedLoader.load { posts ->
+        findViewById<TextView>(
+            R.id.ticker
+        ).postDelayed(
+            {
+                animateTicker()
+            },
+            350L
+        )
 
-            adapter.submit(posts)
+        done?.invoke()
+    }
 
-            val latest =
-                posts.take(8)
+    // Vacancy Bazaar: शुरुआत में केवल 1 पोस्ट
+    FeedLoader.loadVacancy { posts ->
 
-            val title =
-                if (latest.isNotEmpty()) {
+        allVacancyPosts = posts
 
-                    latest.mapIndexed {
-                            index,
-                            post ->
+        vacancyAdapter.submit(
+            allVacancyPosts.take(1)
+        )
 
-                        "${index + 1}. ${post.title}"
-                    }.joinToString(
-                        "     ✦     "
-                    )
-
-                } else {
-
-                    "अभी नई पोस्ट नहीं मिली — Refresh करें"
-                }
-
-            val tickerText =
-                "$title     ✦     $title     ✦     $title"
-
+        val moreVacancyButton =
             findViewById<TextView>(
-                R.id.ticker
-            ).text = tickerText
-
-            animateTicker()
-
-            findViewById<TextView>(
-                R.id.ticker
-            ).postDelayed(
-                {
-                    animateTicker()
-                },
-                350L
+                R.id.moreVacancyPostsButton
             )
 
-            done?.invoke()
+        moreVacancyButton.visibility =
+            if (allVacancyPosts.size > 1) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+        moreVacancyButton.setOnClickListener {
+            vacancyAdapter.submit(allVacancyPosts)
+            moreVacancyButton.visibility = View.GONE
         }
     }
+}
 
     // ============================================================
     // TICKER
