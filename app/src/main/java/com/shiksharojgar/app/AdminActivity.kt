@@ -698,13 +698,53 @@ private fun addFormattingToolbar(
                             e,
                             p
                         )
-                        .addOnSuccessListener {
+                        
+.addOnSuccessListener {
 
-                            isEnabled =
-                                true
+    isEnabled = true
 
-                            checkAdmin()
-                        }
+    val signedInUser = auth.currentUser
+
+    if (signedInUser == null) {
+        toast("लॉगिन उपयोगकर्ता नहीं मिला")
+        return@addOnSuccessListener
+    }
+
+    if (!signedInUser.isEmailVerified) {
+
+        signedInUser.sendEmailVerification()
+            .addOnSuccessListener {
+
+                auth.signOut()
+
+                AlertDialog.Builder(this@AdminActivity)
+                    .setTitle("📧 ईमेल सत्यापन जरूरी")
+                    .setMessage(
+                        "आपके ईमेल पर सत्यापन लिंक भेज दिया गया है।\n\n" +
+                            "1. अपना ईमेल खोलें।\n" +
+                            "2. Firebase का सत्यापन लिंक दबाएँ।\n" +
+                            "3. फिर ऐप में ईमेल और पासवर्ड से लॉगिन करें।\n\n" +
+                            "ईमेल सत्यापित होने के बाद ही Admin जाँच आगे बढ़ेगी।"
+                    )
+                    .setPositiveButton("ठीक है", null)
+                    .show()
+            }
+            .addOnFailureListener { error ->
+
+                auth.signOut()
+
+                toast(
+                    "सत्यापन ईमेल नहीं भेजा गया: " +
+                        (error.message ?: "फिर कोशिश करें")
+                )
+            }
+
+        return@addOnSuccessListener
+    }
+
+    checkAdmin()
+}
+
                         .addOnFailureListener {
 
                             isEnabled =
