@@ -199,25 +199,7 @@ categoryPageTitleView = TextView(this).apply {
 }
 
 
-                text =
-                    if (categoryIcon.isNotBlank()) {
-                        "$categoryIcon  $categoryName"
-                    } else {
-                        categoryName
-                    }
-
-                textSize = 18f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(7, 89, 133)
-                )
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-            }
+                
 
         titleStrip.addView(
             categoryPageTitleView,
@@ -291,10 +273,7 @@ categoryBannerImageView = ImageView(this).apply {
     adjustViewBounds = true
 }
 
-    scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-    contentDescription = "शिक्षा रोजगार स्लाइडर"
-    adjustViewBounds = true
-}
+    
 
 val next = TextView(this).apply {
     text = "›"
