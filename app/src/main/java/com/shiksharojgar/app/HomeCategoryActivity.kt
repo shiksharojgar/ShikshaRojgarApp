@@ -529,12 +529,12 @@ ViewCompat.setOnApplyWindowInsetsListener(
         categoryId: String
     ) {
 
-        listLayout.removeAllViews()
+        subCategoryLayout.removeAllViews()
 
         val progress =
             ProgressBar(this)
 
-        listLayout.addView(
+        subCategoryLayout.removeAllViews(
             progress,
             LinearLayout.LayoutParams(
                 -1,
@@ -780,5 +780,11 @@ ViewCompat.setOnApplyWindowInsetsListener(
             value *
                 resources.displayMetrics.density
         ).toInt()
+    }
+
+    override fun onDestroy() {
+    sliderHandler.removeCallbacks(sliderRunnable)
+    categoryPostsListener?.remove()
+    super.onDestroy()
     }
 }
