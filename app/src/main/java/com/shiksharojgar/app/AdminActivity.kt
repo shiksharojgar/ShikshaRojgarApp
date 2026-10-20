@@ -1576,18 +1576,11 @@ private fun showAdminSessionsDialog() {
                 it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
             }
 
-            if (sessions.isEmpty()) {
-                Toast.makeText(
-                    this,
-                    "कोई Admin Session नहीं मिला।",
-                    Toast.LENGTH_LONG
-                ).show()
-                return@addOnSuccessListener
-            }
-
-            val activeCount = sessions.count {
+            val activeSessions = sessions.filter {
                 it.getBoolean("revoked") != true
             }
+
+            val activeCount = activeSessions.size
 
             val labels = sessions.mapIndexed { index, session ->
                 val device =
@@ -1604,36 +1597,29 @@ private fun showAdminSessionsDialog() {
                     }
 
                 "${index + 1}. $device\n$email\nUID: ${uid.take(8)}… | $status"
-            }
+            }.toTypedArray()
 
-            AlertDialog.Builder(this)
-                .setTitle(
-                    "🔐 Admin Sessions — चालू: $activeCount"
-                )
-                .setItems(labels.toTypedArray()) { _, which ->
+            val builder = AlertDialog.Builder(this)
+                .setTitle("🔐 Admin Sessions — चालू: $activeCount")
+                .setItems(labels) { _, which ->
 
                     val selected = sessions[which]
                     val sessionId = selected.id
-                    val isRevoked =
-                        selected.getBoolean("revoked") == true
                     val device =
-                        selected.getString("deviceLabel")
-                            ?: "Unknown device"
+                        selected.getString("deviceLabel") ?: "Unknown device"
                     val email =
                         selected.getString("email") ?: ""
+                    val isRevoked =
+                        selected.getBoolean("revoked") == true
 
                     if (isRevoked) {
-                        Toast.makeText(
-                            this,
-                            "यह Session पहले से बंद है।",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        toast("यह Session पहले से बंद है।")
                     } else {
                         AlertDialog.Builder(this)
                             .setTitle("Session बंद करें?")
                             .setMessage(
                                 "डिवाइस: $device\n$email\n\n" +
-                                    "इस डिवाइस का Admin Session बंद किया जाएगा।"
+                                    "इस डिवाइस का Admin Session बंद होगा।"
                             )
                             .setNegativeButton("रद्द करें", null)
                             .setPositiveButton("बंद करें") { _, _ ->
@@ -1649,34 +1635,72 @@ private fun showAdminSessionsDialog() {
                                         )
                                     )
                                     .addOnSuccessListener {
-                                        Toast.makeText(
-                                            this,
-                                            "Session बंद कर दिया गया।",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        toast("Session बंद कर दिया गया।")
+                                        showAdminSessionsDialog()
                                     }
                                     .addOnFailureListener { error ->
-                                        Toast.makeText(
-                                            this,
-                                            "Session बंद नहीं हुआ: ${error.message}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        toast(
+                                            "Session बंद नहीं हुआ: ${error.message}"
+                                        )
                                     }
                             }
                             .show()
                     }
                 }
                 .setNegativeButton("बंद", null)
-                .show()
+
+            if (activeSessions.isNotEmpty()) {
+                builder.setNeutralButton(
+                    "🚨 सभी Admin Logout"
+                ) { _, _ ->
+
+                    AlertDialog.Builder(this)
+                        .setTitle("⚠️ सभी Admin Logout करें?")
+                        .setMessage(
+                            "$activeCount सक्रिय सेशन बंद किए जाएँगे।\n\n" +
+                                "यह कार्रवाई वापस नहीं होगी। आगे बढ़ें?"
+                        )
+                        .setNegativeButton("रद्द करें", null)
+                        .setPositiveButton("हाँ, सभी बंद करें") { _, _ ->
+
+                            val batch = db.batch()
+
+                            activeSessions.forEach { session ->
+                                batch.update(
+                                    db.collection("admin_sessions")
+                                        .document(session.id),
+                                    mapOf(
+                                        "revoked" to true,
+                                        "revokedAt" to
+                                            com.google.firebase.firestore
+                                                .FieldValue.serverTimestamp()
+                                    )
+                                )
+                            }
+
+                            batch.commit()
+                                .addOnSuccessListener {
+                                    toast("सभी सक्रिय Admin Sessions बंद कर दिए गए।")
+                                    showAdminSessionsDialog()
+                                }
+                                .addOnFailureListener { error ->
+                                    toast(
+                                        "सभी Sessions बंद नहीं हुए: " +
+                                            (error.message ?: "Firestore error")
+                                    )
+                                }
+                        }
+                        .show()
+                }
+            }
+
+            builder.show()
         }
         .addOnFailureListener { error ->
-            Toast.makeText(
-                this,
-                "Sessions लोड नहीं हुए: ${error.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            toast("Sessions लोड नहीं हुए: ${error.message}")
         }
 }
+
 
         // =========================================================
     // ADMIN PANEL
