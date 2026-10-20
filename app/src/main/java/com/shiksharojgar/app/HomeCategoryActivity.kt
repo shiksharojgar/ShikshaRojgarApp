@@ -27,6 +27,14 @@ private lateinit var unreadBadge: TextView
 
 private var categoryPostsListener:
     com.google.firebase.firestore.ListenerRegistration? = null
+    
+private lateinit var categoryPageTitleView: TextView
+private lateinit var categoryPageDescriptionView: TextView
+private lateinit var categoryBannerImageView: ImageView
+
+private var categoryLayoutStyle = "standard"
+private var customBannerImageUrl = ""
+    
 
 private val sliderHandler =
     android.os.Handler(android.os.Looper.getMainLooper())
