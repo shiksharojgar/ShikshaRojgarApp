@@ -276,13 +276,137 @@ categoryPageTitleView = TextView(this).apply {
             )
         )
 
-        root.addView(
-            titleStrip,
-            LinearLayout.LayoutParams(
-                -1,
-                dp(48)
+        
+        /*
+         * =====================================================
+         * COMMON HEADER FOR SIX MAIN CATEGORIES
+         * Other pages retain their existing title strip.
+         * =====================================================
+         */
+
+        val useCommonHeader =
+            categoryId.lowercase() in setOf(
+                "teacher",
+                "student",
+                "school",
+                "vacancy",
+                "result",
+                "admit_card"
             )
-        )
+
+        categoryPageTitleView =
+            TextView(this).apply {
+
+                text =
+                    if (categoryIcon.isNotBlank()) {
+                        "$categoryIcon  $categoryName"
+                    } else {
+                        categoryName
+                    }
+
+                textSize = 18f
+
+                typeface =
+                    Typeface.DEFAULT_BOLD
+
+                setTextColor(
+                    Color.rgb(7, 89, 133)
+                )
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        if (useCommonHeader) {
+
+            val header =
+                CommonPageUi.createHeader(
+                    this,
+                    onBack = {
+                        finish()
+                    },
+                    onShare = {},
+                    onMenu = {
+                        CommonPageUi.showAccountMenu(this)
+                    }
+                )
+
+            root.addView(
+                header,
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(58)
+                )
+            )
+
+        } else {
+
+            val titleStrip =
+                LinearLayout(this).apply {
+
+                    orientation =
+                        LinearLayout.HORIZONTAL
+
+                    gravity =
+                        Gravity.CENTER_VERTICAL
+
+                    setPadding(
+                        dp(10),
+                        0,
+                        dp(10),
+                        0
+                    )
+
+                    setBackgroundColor(
+                        Color.rgb(219, 242, 255)
+                    )
+                }
+
+            val back =
+                TextView(this).apply {
+
+                    text = "←"
+
+                    textSize = 25f
+
+                    setTextColor(
+                        Color.rgb(7, 89, 133)
+                    )
+
+                    gravity =
+                        Gravity.CENTER
+
+                    setOnClickListener {
+                        finish()
+                    }
+                }
+
+            titleStrip.addView(
+                back,
+                LinearLayout.LayoutParams(
+                    dp(44),
+                    dp(48)
+                )
+            )
+
+            titleStrip.addView(
+                categoryPageTitleView,
+                LinearLayout.LayoutParams(
+                    0,
+                    dp(48),
+                    1f
+                )
+            )
+
+            root.addView(
+                titleStrip,
+                LinearLayout.LayoutParams(
+                    -1,
+                    dp(48)
+                )
+            )
+        }
+
 
         /*
          * =====================================================
