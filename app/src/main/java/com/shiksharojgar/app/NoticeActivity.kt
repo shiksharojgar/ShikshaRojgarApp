@@ -1264,7 +1264,7 @@ append(doc.id)
                     scrollToNoticeIfLoaded(doc.id)
                 }
             }
-                 }
+                 
         }
         .addOnFailureListener { error ->
             Toast.makeText(
