@@ -39,7 +39,8 @@ class GroupActivity : AppCompatActivity() {
     private lateinit var reportButton: Button
     private lateinit var postsContainer: LinearLayout
     private lateinit var pendingContainer: LinearLayout
-
+private lateinit var memberCountView: TextView
+    
     private var feedStarted = false
 
     private val loginLauncher =
@@ -56,7 +57,8 @@ class GroupActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
 
     setContentView(buildScreen())
-    updateLoginState()
+updateLoginState()
+listenToMemberCount()
 
     val postId = intent?.data?.getQueryParameter("post")
 
@@ -67,6 +69,20 @@ class GroupActivity : AppCompatActivity() {
     }
 }
 
+   private fun listenToMemberCount() {
+    db.document("channel_config/main")
+        .addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                return@addSnapshotListener
+            }
+
+            val count = snapshot?.getLong("totalAppUsers") ?: 0L
+
+            memberCountView.text =
+                "👥 ${String.format(Locale.US, "%,d", count)} Members"
+        }
+}
+   
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }
@@ -127,15 +143,25 @@ class GroupActivity : AppCompatActivity() {
         }
 
         val subtitle = TextView(this).apply {
-            text = "• पोस्ट करें • उपयोगी जानकारी शेयर • एक दूसरे की मदद •"
-            textSize = 13f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-        }
+    text = "• पोस्ट करें • उपयोगी जानकारी शेयर • एक दूसरे की मदद •"
+    textSize = 13f
+    setTextColor(Color.WHITE)
+    gravity = Gravity.CENTER
+}
 
-        header.addView(title)
-        header.addView(subtitle)
-        root.addView(header)
+memberCountView = TextView(this).apply {
+    text = "👥 0000 Members"
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    gravity = Gravity.CENTER
+    setPadding(0, dp(4), 0, 0)
+}
+
+header.addView(title)
+header.addView(subtitle)
+header.addView(memberCountView)
+root.addView(header)
 
         loginButton = Button(this).apply {
             setOnClickListener {
