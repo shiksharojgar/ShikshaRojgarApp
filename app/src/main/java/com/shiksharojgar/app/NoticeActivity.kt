@@ -1254,9 +1254,10 @@ append(doc.id)
                     LinearLayout.LayoutParams(
                         -1,
                         LinearLayout.LayoutParams.WRAP_CONTENT
-                                        ).apply {
+                                                            ).apply {
                         bottomMargin = dp(12)
                     }
+                
                 )
 
                 if (pendingNoticeId == doc.id) {
