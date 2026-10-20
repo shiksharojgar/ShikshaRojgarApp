@@ -169,4 +169,40 @@ fun load(
         }
     }.start()
 }
+fun loadVacancy(
+    callback: (List<Post>) -> Unit
+) {
+    Thread {
+        val feed =
+            "https://www.vacancybazaar.in/feeds/posts/default"
+
+        var posts = emptyList<Post>()
+
+        try {
+            posts = fetchJson(
+                "$feed?alt=json&max-results=20",
+                "Vacancy Bazaar"
+            )
+        } catch (_: Exception) {
+        }
+
+        if (posts.isEmpty()) {
+            try {
+                posts = fetchRss(
+                    "$feed?alt=rss&max-results=20",
+                    "Vacancy Bazaar"
+                )
+            } catch (_: Exception) {
+            }
+        }
+
+        val sorted =
+            posts.sortedByDescending { it.date }.take(20)
+
+        handler.post {
+            callback(sorted)
+        }
+    }.start()
+}
+
 }
