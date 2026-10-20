@@ -2606,7 +2606,7 @@ homeContent.addView(
 // USER MANAGEMENT DIALOG
 // =========================================================
 
- fun showUserManagementDialog() {
+private fun showUserManagementDialog() {
 
     val currentAdmin = auth.currentUser
 
