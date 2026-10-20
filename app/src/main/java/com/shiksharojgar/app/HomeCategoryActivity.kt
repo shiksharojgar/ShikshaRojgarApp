@@ -527,8 +527,7 @@ ViewCompat.setOnApplyWindowInsetsListener(
      * LOAD SUB CATEGORIES
      * =========================================================
      */
-    private fun loadSubCategories(
-        
+    
 private fun loadSubCategories(
     categoryId: String
 ) {
