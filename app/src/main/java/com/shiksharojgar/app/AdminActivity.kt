@@ -2602,241 +2602,7 @@ homeContent.addView(
             }
         )
 
-        // =========================================================
-// USER MANAGEMENT DIALOG
-// =========================================================
 
-private fun showUserManagementDialog() {
-
-    val currentAdmin = auth.currentUser
-
-    if (currentAdmin == null) {
-        toast("पहले Admin Login करें")
-        return
-    }
-
-    val root = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(
-            dp(16),
-            dp(12),
-            dp(16),
-            dp(12)
-        )
-    }
-
-    val summary = TextView(this).apply {
-        text = "⏳ यूजर आँकड़े लोड हो रहे हैं..."
-        textSize = 14f
-        setTextColor(Color.DKGRAY)
-    }
-
-    root.addView(summary)
-
-    val userList = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-    }
-
-    val scroll = ScrollView(this)
-
-    scroll.addView(userList)
-
-    root.addView(
-        scroll,
-        LinearLayout.LayoutParams(
-            -1,
-            dp(360)
-        )
-    )
-
-    val dialog = AlertDialog.Builder(this)
-        .setTitle("👥 यूजर प्रबंधन")
-        .setView(root)
-        .setPositiveButton("बंद करें", null)
-        .create()
-
-    dialog.show()
-
-    summary.text =
-        "पंजीकृत प्रोफाइल और चैनल फॉलो रिकॉर्ड पढ़े जा रहे हैं।"
-
-    db.collection("group_profiles")
-        .get()
-        .addOnSuccessListener { profiles ->
-
-            if (isFinishing || isDestroyed) {
-                return@addOnSuccessListener
-            }
-
-            db.collection("channel_followers")
-                .get()
-                .addOnSuccessListener { followers ->
-
-                    if (isFinishing || isDestroyed) {
-                        return@addOnSuccessListener
-                    }
-
-                    val followerIds = followers.documents
-                        .map { it.id }
-                        .toSet()
-
-                    val registeredIds = profiles.documents
-                        .map { it.id }
-                        .toSet()
-
-                    val registeredCount = registeredIds.size
-
-                    val followerCount = followerIds
-                        .count { it in registeredIds }
-
-                    val notFollowingCount =
-                        (registeredCount - followerCount)
-                            .coerceAtLeast(0)
-
-                    summary.text =
-                        "📋 पंजीकृत प्रोफाइल: $registeredCount\n\n" +
-                        "🔔 चैनल फॉलो करने वाले: $followerCount\n\n" +
-                        "🔕 चैनल फॉलो नहीं करने वाले: " +
-                        "$notFollowingCount\n\n" +
-                        "ℹ️ ये आँकड़े उपलब्ध प्रोफाइल रिकॉर्ड पर " +
-                        "आधारित हैं।"
-
-                    userList.removeAllViews()
-
-                    if (profiles.isEmpty) {
-
-                        userList.addView(
-                            TextView(this).apply {
-                                text =
-                                    "अभी कोई पंजीकृत प्रोफाइल रिकॉर्ड नहीं मिली।"
-                                textSize = 14f
-                                setPadding(
-                                    0,
-                                    dp(16),
-                                    0,
-                                    dp(16)
-                                )
-                            }
-                        )
-
-                        return@addOnSuccessListener
-                    }
-
-                    profiles.documents.forEach { profile ->
-
-                        val uid = profile.id
-
-                        val username =
-                            profile.getString("username")
-                                ?: profile.getString("name")
-                                ?: "रिकॉर्ड में नाम उपलब्ध नहीं"
-
-                        val email =
-                            profile.getString("email")
-                                ?: "रिकॉर्ड में ईमेल उपलब्ध नहीं"
-
-                        val mobile =
-                            profile.getString("mobileNumber")
-                                ?: "रिकॉर्ड में मोबाइल उपलब्ध नहीं"
-
-                        val following =
-                            uid in followerIds
-
-                        val card = LinearLayout(this).apply {
-                            orientation =
-                                LinearLayout.VERTICAL
-
-                            setPadding(
-                                dp(10),
-                                dp(10),
-                                dp(10),
-                                dp(10)
-                            )
-
-                            setBackgroundColor(
-                                Color.rgb(243, 247, 250)
-                            )
-                        }
-
-                        card.addView(
-                            TextView(this).apply {
-                                text = "👤 $username"
-                                textSize = 16f
-                                typeface =
-                                    Typeface.DEFAULT_BOLD
-                            }
-                        )
-
-                        card.addView(
-                            TextView(this).apply {
-                                text = "UID: $uid"
-                                textSize = 11f
-                            }
-                        )
-
-                        card.addView(
-                            TextView(this).apply {
-                                text = "📧 $email"
-                                textSize = 12f
-                            }
-                        )
-
-                        card.addView(
-                            TextView(this).apply {
-                                text = "📱 $mobile"
-                                textSize = 12f
-                            }
-                        )
-
-                        card.addView(
-                            TextView(this).apply {
-                                text = if (following) {
-                                    "🔔 चैनल फॉलो: हाँ"
-                                } else {
-                                    "🔕 चैनल फॉलो: नहीं"
-                                }
-
-                                textSize = 13f
-
-                                setTextColor(
-                                    if (following) {
-                                        Color.rgb(22, 125, 75)
-                                    } else {
-                                        Color.rgb(185, 35, 35)
-                                    }
-                                )
-                            }
-                        )
-
-                        userList.addView(
-                            card,
-                            LinearLayout.LayoutParams(
-                                -1,
-                                -2
-                            ).apply {
-                                bottomMargin = dp(10)
-                            }
-                        )
-                    }
-                }
-                .addOnFailureListener { error ->
-
-                    if (!isFinishing && !isDestroyed) {
-                        summary.text =
-                            "चैनल फॉलो रिकॉर्ड नहीं पढ़ सके।\n" +
-                            (error.message ?: "अनुमति या नेटवर्क की समस्या")
-                    }
-                }
-        }
-        .addOnFailureListener { error ->
-
-            if (!isFinishing && !isDestroyed) {
-                summary.text =
-                    "यूजर प्रोफाइल नहीं पढ़ सके।\n" +
-                    (error.message ?: "अनुमति या नेटवर्क की समस्या")
-            }
-        }
-}
 
         // =====================================================
         // MEDIA STORAGE + ANALYTICS
@@ -3041,6 +2807,233 @@ private fun showUserManagementDialog() {
 
         loadAdminPosts()
     }
+
+private fun showUserManagementDialog() {
+
+    val currentAdmin = auth.currentUser
+
+    if (currentAdmin == null) {
+        toast("पहले Admin Login करें")
+        return
+    }
+
+    val root = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(16),
+            dp(12),
+            dp(16),
+            dp(12)
+        )
+    }
+
+    val summary = TextView(this).apply {
+        text = "⏳ यूजर आँकड़े लोड हो रहे हैं..."
+        textSize = 14f
+        setTextColor(Color.DKGRAY)
+    }
+
+    root.addView(summary)
+
+    val userList = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+    }
+
+    val scroll = ScrollView(this)
+    scroll.addView(userList)
+
+    root.addView(
+        scroll,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(360)
+        )
+    )
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("👥 यूजर प्रबंधन")
+        .setView(root)
+        .setPositiveButton("बंद करें", null)
+        .create()
+
+    dialog.show()
+
+    summary.text =
+        "पंजीकृत प्रोफाइल और चैनल फॉलो रिकॉर्ड पढ़े जा रहे हैं।"
+
+    db.collection("group_profiles")
+        .get()
+        .addOnSuccessListener { profiles ->
+
+            if (isFinishing || isDestroyed) {
+                return@addOnSuccessListener
+            }
+
+            db.collection("channel_followers")
+                .get()
+                .addOnSuccessListener { followers ->
+
+                    if (isFinishing || isDestroyed) {
+                        return@addOnSuccessListener
+                    }
+
+                    val followerIds = followers.documents
+                        .map { it.id }
+                        .toSet()
+
+                    val registeredIds = profiles.documents
+                        .map { it.id }
+                        .toSet()
+
+                    val registeredCount = registeredIds.size
+
+                    val followerCount = followerIds
+                        .count { it in registeredIds }
+
+                    val notFollowingCount =
+                        (registeredCount - followerCount)
+                            .coerceAtLeast(0)
+
+                    summary.text =
+                        "📋 पंजीकृत प्रोफाइल: $registeredCount\n\n" +
+                        "🔔 चैनल फॉलो करने वाले: $followerCount\n\n" +
+                        "🔕 चैनल फॉलो नहीं करने वाले: " +
+                        "$notFollowingCount\n\n" +
+                        "ℹ️ ये आँकड़े उपलब्ध प्रोफाइल रिकॉर्ड पर " +
+                        "आधारित हैं।"
+
+                    userList.removeAllViews()
+
+                    if (profiles.isEmpty) {
+                        userList.addView(
+                            TextView(this).apply {
+                                text =
+                                    "अभी कोई पंजीकृत प्रोफाइल रिकॉर्ड नहीं मिली।"
+                                textSize = 14f
+                                setPadding(
+                                    0,
+                                    dp(16),
+                                    0,
+                                    dp(16)
+                                )
+                            }
+                        )
+
+                        return@addOnSuccessListener
+                    }
+
+                    profiles.documents.forEach { profile ->
+
+                        val uid = profile.id
+
+                        val username =
+                            profile.getString("username")
+                                ?: profile.getString("name")
+                                ?: "रिकॉर्ड में नाम उपलब्ध नहीं"
+
+                        val email =
+                            profile.getString("email")
+                                ?: "रिकॉर्ड में ईमेल उपलब्ध नहीं"
+
+                        val mobile =
+                            profile.getString("mobileNumber")
+                                ?: "रिकॉर्ड में मोबाइल उपलब्ध नहीं"
+
+                        val following = uid in followerIds
+
+                        val card = LinearLayout(this).apply {
+                            orientation = LinearLayout.VERTICAL
+
+                            setPadding(
+                                dp(10),
+                                dp(10),
+                                dp(10),
+                                dp(10)
+                            )
+
+                            setBackgroundColor(
+                                Color.rgb(243, 247, 250)
+                            )
+                        }
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = "👤 $username"
+                                textSize = 16f
+                                typeface = Typeface.DEFAULT_BOLD
+                            }
+                        )
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = "UID: $uid"
+                                textSize = 11f
+                            }
+                        )
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = "📧 $email"
+                                textSize = 12f
+                            }
+                        )
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = "📱 $mobile"
+                                textSize = 12f
+                            }
+                        )
+
+                        card.addView(
+                            TextView(this).apply {
+                                text = if (following) {
+                                    "🔔 चैनल फॉलो: हाँ"
+                                } else {
+                                    "🔕 चैनल फॉलो: नहीं"
+                                }
+
+                                textSize = 13f
+
+                                setTextColor(
+                                    if (following) {
+                                        Color.rgb(22, 125, 75)
+                                    } else {
+                                        Color.rgb(185, 35, 35)
+                                    }
+                                )
+                            }
+                        )
+
+                        userList.addView(
+                            card,
+                            LinearLayout.LayoutParams(
+                                -1,
+                                -2
+                            ).apply {
+                                bottomMargin = dp(10)
+                            }
+                        )
+                    }
+                }
+                .addOnFailureListener { error ->
+                    if (!isFinishing && !isDestroyed) {
+                        summary.text =
+                            "चैनल फॉलो रिकॉर्ड नहीं पढ़ सके।\n" +
+                            (error.message
+                                ?: "अनुमति या नेटवर्क की समस्या")
+                    }
+                }
+        }
+        .addOnFailureListener { error ->
+            if (!isFinishing && !isDestroyed) {
+                summary.text =
+                    "यूजर प्रोफाइल नहीं पढ़ सके।\n" +
+                    (error.message
+                        ?: "अनुमति या नेटवर्क की समस्या")
+            }
+        }
+}
 
     // =========================================================
     // DEFAULT HOME CATEGORIES
