@@ -497,7 +497,7 @@ fun createHeader(
                 .setTitle("👤 यूज़र अकाउंट")
                 .setItems(
                     arrayOf(
-                        "🔐 Login / Register"
+                        "👤  Login करें"
                     )
                 ) { _, which ->
                     if (which == 0) {
@@ -519,8 +519,8 @@ fun createHeader(
             .setTitle("👤 यूज़र अकाउंट")
             .setItems(
                 arrayOf(
-                    "📋 मेरी प्रोफाइल",
-                    "🚪 Logout"
+                    "📋 अपनी प्रोफाइल देखें",
+                    "🚪 Logout करें"
                 )
             ) { _, which ->
 
