@@ -134,15 +134,39 @@ if (
         } finally { connection.disconnect() }
         return result
     }
+fun load(
+    callback: (List<Post>) -> Unit
+) {
+    Thread {
+        val feed =
+            "https://www.shiksharojgar.com/feeds/posts/default"
 
-    fun load(callback: (List<Post>) -> Unit) {
-        Thread {
-            val feed = "https://www.shiksharojgar.com/feeds/posts/default"
-            var posts = emptyList<Post>()
-            try { posts = fetchJson("$feed?alt=json&max-results=20", "Shiksha Rojgar") } catch (_: Exception) {}
-            if (posts.isEmpty()) try { posts = fetchRss("$feed?alt=rss&max-results=20", "Shiksha Rojgar") } catch (_: Exception) {}
-            val sorted = posts.sortedByDescending { it.date }.take(20)
-            handler.post { callback(sorted) }
-        }.start()
-    }
+        var posts = emptyList<Post>()
+
+        try {
+            posts = fetchJson(
+                "$feed?alt=json&max-results=20",
+                "Shiksha Rojgar"
+            )
+        } catch (_: Exception) {
+        }
+
+        if (posts.isEmpty()) {
+            try {
+                posts = fetchRss(
+                    "$feed?alt=rss&max-results=20",
+                    "Shiksha Rojgar"
+                )
+            } catch (_: Exception) {
+            }
+        }
+
+        val sorted =
+            posts.sortedByDescending { it.date }.take(20)
+
+        handler.post {
+            callback(sorted)
+        }
+    }.start()
+}
 }
