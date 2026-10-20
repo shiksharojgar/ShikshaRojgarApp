@@ -16,8 +16,19 @@ service cloud.firestore {
       return "PfpAI3BR2XfihY4t4B5ldInDBg72";
     }
 
-    function isAdmin() {
+    
+function adminAuthAllowed() {
   return signedIn() && (
+    request.auth.token.firebase.sign_in_provider == "phone" ||
+    (
+      request.auth.token.firebase.sign_in_provider == "password" &&
+      request.auth.token.email_verified == true
+    )
+  );
+}
+
+function isAdmin() {
+  return adminAuthAllowed() && (
     request.auth.uid == configuredAdminUid() ||
     get(
       /databases/$(database)/documents/users/$(request.auth.uid)
@@ -30,6 +41,7 @@ service cloud.firestore {
     ).data.role == "admin"
   );
 }
+
 
     // =====================================================
     // USERS
@@ -647,6 +659,50 @@ service cloud.firestore {
 
       allow delete: if false;
     }
+
+
+    // =====================================================
+    // ADMIN SESSIONS
+    // =====================================================
+    match /admin_sessions/{sessionId} {
+
+      allow read: if isAdmin();
+
+      allow create: if isAdmin()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.revoked == false
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastSeenAt == request.time
+        && request.resource.data.keys().hasAll([
+          "uid",
+          "email",
+          "deviceLabel",
+          "appVersion",
+          "createdAt",
+          "lastSeenAt",
+          "revoked"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "email",
+          "deviceLabel",
+          "appVersion",
+          "createdAt",
+          "lastSeenAt",
+          "revoked"
+        ]);
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(["revoked", "revokedAt"])
+        && request.resource.data.revoked == true
+        && request.resource.data.revokedAt == request.time;
+
+      allow delete: if false;
+    }
+
+
     // HEADER WEBSITE LINKS
     match /header_website_links/{linkId} {
       allow read: if true;
