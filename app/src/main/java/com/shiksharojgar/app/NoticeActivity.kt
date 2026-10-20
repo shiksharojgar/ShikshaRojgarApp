@@ -131,92 +131,30 @@ private fun buildUi(): LinearLayout {
     // TOP BAR
     // --------------------------------------------------------
 
-    val bar =
-        LinearLayout(this).apply {
+    
+/*
+ * EXISTING COMMON HEADER
+ * Notice / Update page only
+ */
+val header = CommonPageUi.createHeader(
+    this,
+    onBack = {
+        finish()
+    },
+    onShare = {},
+    onMenu = {
+        CommonPageUi.showAccountMenu(this)
+    }
+)
 
-            orientation =
-                LinearLayout.HORIZONTAL
-
-            gravity =
-                Gravity.CENTER_VERTICAL
-
-            setPadding(
-                dp(8),
-                dp(8),
-                dp(8),
-                dp(8)
-            )
-
-            setBackgroundColor(
-                Color.rgb(
-                    7,
-                    89,
-                    133
-                )
-            )
-        }
-
-    val back =
-        TextView(this).apply {
-
-            text =
-                "←"
-
-            textSize =
-                28f
-
-            setTextColor(
-                Color.WHITE
-            )
-
-            gravity =
-                Gravity.CENTER
-
-            setOnClickListener {
-                finish()
-            }
-        }
-
-    bar.addView(
-        back,
-        LinearLayout.LayoutParams(
-            dp(52),
-            dp(52)
-        )
+root.addView(
+    header,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(58)
     )
+)
 
-    val title =
-        TextView(this).apply {
-
-            text =
-                "📢 Notice / Update"
-
-            textSize =
-                19f
-
-            typeface =
-                Typeface.DEFAULT_BOLD
-
-            setTextColor(
-                Color.WHITE
-            )
-
-            gravity =
-                Gravity.CENTER_VERTICAL
-        }
-
-    bar.addView(
-        title,
-        LinearLayout.LayoutParams(
-            0,
-            dp(52),
-            1f
-        )
-    )
-
-    root.addView(
-        bar
-    )
 
     // --------------------------------------------------------
     // NOTICE LIST
