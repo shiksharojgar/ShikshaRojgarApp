@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
+import android.graphics.BitmapFactory
+import java.net.URL
 
 class HomeCategoryActivity : AppCompatActivity() {
 
@@ -94,7 +96,7 @@ private val sliderRunnable = object : Runnable {
         loadSubCategories(
             categoryId
         )
-
+loadCategoryPosts(categoryId)
         
     }
 
@@ -619,6 +621,195 @@ private fun loadSubCategories(
         }
 }
 
+
+private fun loadCategoryPosts(categoryId: String) {
+    postsLayout.removeAllViews()
+
+    if (categoryId.isBlank()) {
+        return
+    }
+
+    val progress = ProgressBar(this)
+
+    postsLayout.addView(
+        progress,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(48)
+        )
+    )
+
+    categoryPostsListener?.remove()
+
+    categoryPostsListener = CategoryPostRepository.observePosts(
+        categoryId,
+        onResult = { posts ->
+            postsLayout.removeAllViews()
+
+            if (posts.isEmpty()) {
+                val empty = TextView(this).apply {
+                    text = "अभी इस कैटेगरी में कोई पोस्ट उपलब्ध नहीं है।"
+                    textSize = 14f
+                    setTextColor(Color.DKGRAY)
+                    setPadding(dp(8), dp(16), dp(8), dp(16))
+                }
+
+                postsLayout.addView(empty)
+                return@observePosts
+            }
+
+            posts.forEach { post ->
+                val card = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), dp(10), dp(10), dp(10))
+                    background = GradientDrawable().apply {
+                        setColor(Color.WHITE)
+                        cornerRadius = dp(12).toFloat()
+                        setStroke(dp(1), Color.rgb(220, 230, 238))
+                    }
+                }
+
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.TOP
+                }
+
+                if (post.imageUrl.isNotBlank()) {
+                    val image = ImageView(this).apply {
+                        scaleType = ImageView.ScaleType.FIT_CENTER
+                        adjustViewBounds = true
+                    }
+
+                    row.addView(
+                        image,
+                        LinearLayout.LayoutParams(
+                            dp(105),
+                            dp(110)
+                        )
+                    )
+
+                    Thread {
+                        try {
+                            val connection = URL(post.imageUrl)
+                                .openConnection()
+                            connection.connectTimeout = 10000
+                            connection.readTimeout = 10000
+
+                            val bitmap = connection.getInputStream().use {
+                                BitmapFactory.decodeStream(it)
+                            }
+
+                            runOnUiThread {
+                                if (!isFinishing && !isDestroyed && bitmap != null) {
+                                    image.setImageBitmap(bitmap)
+                                }
+                            }
+                        } catch (_: Exception) {
+                            // फोटो लोड न होने पर पोस्ट का टेक्स्ट दिखता रहेगा।
+                        }
+                    }.start()
+                }
+
+                val textColumn = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), 0, 0, 0)
+                }
+
+                val title = TextView(this).apply {
+                    text = post.title.ifBlank { "बिना शीर्षक की पोस्ट" }
+                    textSize = 16f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(Color.rgb(25, 80, 130))
+                }
+
+                textColumn.addView(title)
+
+                val description = post.description.ifBlank {
+                    post.body
+                }
+
+                if (description.isNotBlank()) {
+                    textColumn.addView(
+                        TextView(this).apply {
+                            text = description
+                            textSize = 14f
+                            setTextColor(Color.DKGRAY)
+                            setPadding(0, dp(6), 0, dp(6))
+                        }
+                    )
+                }
+
+                if (post.createdAt > 0L) {
+                    textColumn.addView(
+                        TextView(this).apply {
+                            text = android.text.format.DateFormat.format(
+                                "dd MMM yyyy, hh:mm a",
+                                post.createdAt
+                            ).toString()
+                            textSize = 11f
+                            setTextColor(Color.GRAY)
+                        }
+                    )
+                }
+
+                row.addView(
+                    textColumn,
+                    LinearLayout.LayoutParams(0, -2, 1f)
+                )
+
+                card.addView(row)
+
+                card.setOnClickListener {
+                    val url = post.websiteUrl.ifBlank {
+                        post.fileUrl
+                    }
+
+                    if (url.isNotBlank()) {
+                        openSubCategory(
+                            url = url,
+                            pageType = "Website",
+                            name = post.title
+                        )
+                    } else {
+                        Toast.makeText(
+                            this,
+                            post.title + "\n" + description,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+                postsLayout.addView(
+                    card,
+                    LinearLayout.LayoutParams(
+                        -1,
+                        -2
+                    ).apply {
+                        bottomMargin = dp(12)
+                    }
+                )
+            }
+        },
+        onError = { error ->
+            postsLayout.removeAllViews()
+
+            postsLayout.addView(
+                TextView(this).apply {
+                    text = "पोस्ट लोड नहीं हुई। इंटरनेट और Firestore नियम जाँचें।"
+                    textSize = 14f
+                    setTextColor(Color.RED)
+                    setPadding(dp(8), dp(16), dp(8), dp(16))
+                }
+            )
+
+            Toast.makeText(
+                this,
+                "पोस्ट लोड त्रुटि: ${error.message ?: "Firestore error"}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    )
+}
 
     /*
      * =========================================================
