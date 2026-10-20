@@ -50,6 +50,7 @@ private val sliderImages = intArrayOf(
 private val sliderRunnable = object : Runnable {
     override fun run() {
         if (isFinishing || isDestroyed) return
+        if (customBannerImageUrl.isNotBlank()) return
 
         sliderIndex = (sliderIndex + 1) % sliderImages.size
 
@@ -105,7 +106,98 @@ private val sliderRunnable = object : Runnable {
             categoryId
         )
 loadCategoryPosts(categoryId)
-        
+loadCategoryPageSettings(
+    categoryId,
+    categoryName,
+    categoryIcon
+)
+  
+private fun loadCategoryPageSettings(
+    categoryId: String,
+    categoryName: String,
+    categoryIcon: String
+) {
+    if (categoryId.isBlank()) return
+
+    db.collection("category_page_settings")
+        .document(categoryId)
+        .get()
+        .addOnSuccessListener { snapshot ->
+            if (isFinishing || isDestroyed) return@addOnSuccessListener
+
+            if (!snapshot.exists()) return@addOnSuccessListener
+
+            val savedTitle = snapshot.getString("title").orEmpty()
+            val description = snapshot.getString("description").orEmpty()
+            val imageUrl = snapshot.getString("imageUrl").orEmpty()
+
+            categoryPageTitleView.text =
+                if (savedTitle.isNotBlank()) {
+                    if (categoryIcon.isNotBlank()) {
+                        "$categoryIcon  $savedTitle"
+                    } else {
+                        savedTitle
+                    }
+                } else {
+                    if (categoryIcon.isNotBlank()) {
+                        "$categoryIcon  $categoryName"
+                    } else {
+                        categoryName
+                    }
+                }
+
+            categoryPageDescriptionView.text = description
+            categoryPageDescriptionView.visibility =
+                if (description.isBlank()) View.GONE else View.VISIBLE
+
+            categoryLayoutStyle =
+                snapshot.getString("layoutStyle") ?: "standard"
+
+            customBannerImageUrl = imageUrl
+
+            if (imageUrl.startsWith("https://")) {
+                sliderHandler.removeCallbacks(sliderRunnable)
+
+                Thread {
+                    try {
+                        val connection = URL(imageUrl).openConnection()
+                        connection.connectTimeout = 10000
+                        connection.readTimeout = 10000
+
+                        val bitmap = connection.getInputStream().use {
+                            BitmapFactory.decodeStream(it)
+                        }
+
+                        runOnUiThread {
+                            if (!isFinishing && !isDestroyed && bitmap != null) {
+                                categoryBannerImageView.setImageBitmap(bitmap)
+                            }
+                        }
+                    } catch (_: Exception) {
+                        runOnUiThread {
+                            if (!isFinishing && !isDestroyed) {
+                                Toast.makeText(
+                                    this,
+                                    "कैटेगरी की फोटो लोड नहीं हुई। फोटो URL जाँचें।",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                }.start()
+            }
+        }
+        .addOnFailureListener {
+            if (!isFinishing && !isDestroyed) {
+                Toast.makeText(
+                    this,
+                    "कैटेगरी सेटिंग लोड नहीं हुई। इंटरनेट और Firestore Rules जाँचें।",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+}
+      
     }
 
     /*
