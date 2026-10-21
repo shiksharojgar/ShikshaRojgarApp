@@ -116,55 +116,95 @@ object LinkPreviewUi {
             visibility = View.GONE
         }
 
-        val linkText = TextView(context).apply {
-            text = url
-            textSize = 12f
-            setTextColor(Color.rgb(37, 99, 235))
-            setPadding(0, dp(context, 6), 0, dp(context, 6))
-        }
+        
+val buttonsRow = LinearLayout(context).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
 
-        val openButton = TextView(context).apply {
-            text = "🔵 लिंक खोलें"
-            gravity = Gravity.CENTER
-            textSize = 14f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.WHITE)
-            setPadding(dp(context, 12), dp(context, 10),
-                dp(context, 12), dp(context, 10))
+val openButton = TextView(context).apply {
+    text = "🌐 पूरी जानकारी देखें"
+    gravity = Gravity.CENTER
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    setPadding(
+        dp(context, 8), dp(context, 12),
+        dp(context, 8), dp(context, 12)
+    )
+    background = GradientDrawable().apply {
+        setColor(Color.rgb(37, 99, 235))
+        cornerRadius = dp(context, 8).toFloat()
+    }
+    setOnClickListener {
+        openUrl(context, url)
+    }
+}
 
-            background = GradientDrawable().apply {
-                setColor(Color.rgb(37, 99, 235))
-                cornerRadius = dp(context, 8).toFloat()
-            }
-
-            setOnClickListener {
-                openUrl(context, url)
-            }
-        }
-
-        card.addView(
-            image,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+val shareButton = TextView(context).apply {
+    text = "↗ शेयर"
+    gravity = Gravity.CENTER
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    setPadding(
+        dp(context, 8), dp(context, 12),
+        dp(context, 8), dp(context, 12)
+    )
+    background = GradientDrawable().apply {
+        setColor(Color.rgb(22, 163, 74))
+        cornerRadius = dp(context, 8).toFloat()
+    }
+    setOnClickListener {
+        context.startActivity(
+            Intent.createChooser(
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(
+                        Intent.EXTRA_TEXT,
+                        "${title.text}\n$url"
+                    )
+                },
+                "पोस्ट शेयर करें"
             )
         )
+    }
+}
 
-        card.addView(title)
-        card.addView(description)
-        card.addView(linkText)
-        card.addView(openButton)
+buttonsRow.addView(
+    openButton,
+    LinearLayout.LayoutParams(0, dp(context, 44), 1f).apply {
+        marginEnd = dp(context, 6)
+    }
+)
 
-        container.addView(
-            card,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dp(context, 8)
-                bottomMargin = dp(context, 8)
-            }
-        )
+buttonsRow.addView(
+    shareButton,
+    LinearLayout.LayoutParams(0, dp(context, 44), 1f)
+)
+
+
+        
+card.addView(
+    image,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
+
+card.addView(title)
+card.addView(description)
+card.addView(
+    buttonsRow,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        topMargin = dp(context, 8)
+    }
+)
+
 
         executor.execute {
             val data = loadPreview(url)
