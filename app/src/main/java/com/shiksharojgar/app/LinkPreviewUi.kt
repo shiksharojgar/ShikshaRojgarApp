@@ -47,6 +47,184 @@ object LinkPreviewUi {
         }
     }
 
+    
+fun addPostPreview(
+    context: Context,
+    container: LinearLayout,
+    post: Post,
+    onOpen: () -> Unit
+) {
+    val card = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(context, 10),
+            dp(context, 10),
+            dp(context, 10),
+            dp(context, 10)
+        )
+        background = GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = dp(context, 12).toFloat()
+            setStroke(dp(context, 1), Color.rgb(220, 230, 240))
+        }
+    }
+
+    val image = ImageView(context).apply {
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        adjustViewBounds = true
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        contentDescription = "वेबसाइट पोस्ट की बड़ी इमेज"
+        visibility = if (post.imageUrl.isBlank()) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+    }
+
+    val title = TextView(context).apply {
+        text = post.title
+        textSize = 17f
+        typeface = Typeface.DEFAULT_BOLD
+        setTextColor(Color.rgb(20, 75, 130))
+        setPadding(0, dp(context, 10), 0, dp(context, 6))
+    }
+
+    val description = TextView(context).apply {
+        text = post.description
+        textSize = 14f
+        setTextColor(Color.DKGRAY)
+        visibility = if (post.description.isBlank()) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+    }
+
+    val buttonsRow = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    val openButton = TextView(context).apply {
+        text = "🌐 ओपन पेज"
+        gravity = Gravity.CENTER
+        textSize = 14f
+        typeface = Typeface.DEFAULT_BOLD
+        setTextColor(Color.WHITE)
+        setPadding(dp(context, 6), 0, dp(context, 6), 0)
+        background = GradientDrawable().apply {
+            setColor(Color.rgb(37, 99, 235))
+            cornerRadius = dp(context, 8).toFloat()
+        }
+        setOnClickListener {
+            onOpen()
+        }
+    }
+
+    val shareButton = TextView(context).apply {
+        text = "↗ शेयर"
+        gravity = Gravity.CENTER
+        textSize = 14f
+        typeface = Typeface.DEFAULT_BOLD
+        setTextColor(Color.WHITE)
+        setPadding(dp(context, 6), 0, dp(context, 6), 0)
+        background = GradientDrawable().apply {
+            setColor(Color.rgb(22, 163, 74))
+            cornerRadius = dp(context, 8).toFloat()
+        }
+        setOnClickListener {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_SUBJECT,
+                    post.title
+                )
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "${post.title}\n${post.url}"
+                )
+            }
+
+            context.startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    "पोस्ट शेयर करें"
+                )
+            )
+        }
+    }
+
+    buttonsRow.addView(
+        openButton,
+        LinearLayout.LayoutParams(
+            0,
+            dp(context, 44),
+            1f
+        ).apply {
+            marginEnd = dp(context, 8)
+        }
+    )
+
+    buttonsRow.addView(
+        shareButton,
+        LinearLayout.LayoutParams(
+            0,
+            dp(context, 44),
+            1f
+        )
+    )
+
+    card.addView(image)
+    card.addView(title)
+    card.addView(description)
+
+    card.addView(
+        buttonsRow,
+        LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(context, 12)
+        }
+    )
+
+    container.addView(
+        card,
+        LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            bottomMargin = dp(context, 10)
+        }
+    )
+
+    if (post.imageUrl.isNotBlank()) {
+        val largeImageUrl = post.imageUrl
+            .replace(
+                Regex("=s\\d+(-c)?"),
+                "=s1200"
+            )
+            .replace(
+                Regex("=w\\d+-h\\d+[^&]*"),
+                "=w1200"
+            )
+            .replace(
+                Regex("/s\\d+(-c)?/"),
+                "/s1200/"
+            )
+
+        loadImage(largeImageUrl) { bitmap ->
+            if (bitmap != null) {
+                image.setImageBitmap(bitmap)
+                image.visibility = View.VISIBLE
+            }
+        }
+    }
+}
+
     private fun extractUrls(text: String): List<String> {
         val pattern = Pattern.compile(
             """https?://[^\s<>"']+""",
