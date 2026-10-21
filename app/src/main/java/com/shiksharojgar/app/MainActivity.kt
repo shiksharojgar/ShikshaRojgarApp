@@ -2023,7 +2023,7 @@ if (
     30f * resources.displayMetrics.density
 
 badge.translationY =
-    -18f * resources.displayMetrics.density
+    8f * resources.displayMetrics.density
 }
 if (
     label.contains("information", ignoreCase = true) ||
