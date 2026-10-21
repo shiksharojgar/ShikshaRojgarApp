@@ -3330,7 +3330,12 @@ HomeCategory(
 
         
 moreShikshaButton.setOnClickListener {
-    openInApp("https://www.shiksharojgar.com/")
+    startActivity(
+        Intent(
+            this@MainActivity,
+            ShikshaPostsActivity::class.java
+        )
+    )
 }
 
 
