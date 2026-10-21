@@ -286,39 +286,78 @@ private fun adminActionButton(
 ): Button {
 
     val buttonColor = when {
-        textValue.contains("DELETE", ignoreCase = true) ||
-        textValue.contains("🗑") ->
-            Color.rgb(185, 35, 35)
+    
+val buttonColor = when {
+    textValue.contains("DELETE", ignoreCase = true) ||
+    textValue.contains("🗑") ->
+        Color.rgb(185, 35, 35)
 
-        textValue.contains("SAVE", ignoreCase = true) ||
-        textValue.contains("PUBLISH", ignoreCase = true) ||
-        textValue.contains("💾") ->
-            Color.rgb(22, 125, 75)
+    textValue.contains("SAVE", ignoreCase = true) ||
+    textValue.contains("PUBLISH", ignoreCase = true) ||
+    textValue.contains("💾") ->
+        Color.rgb(22, 125, 75)
 
-        textValue.contains("EDIT", ignoreCase = true) ||
-        textValue.contains("✏") ->
-            Color.rgb(124, 58, 237)
+    textValue.contains("EDIT", ignoreCase = true) ||
+    textValue.contains("✏") ||
+    textValue.contains("🎨") ->
+        Color.rgb(124, 58, 237)
 
-        textValue.contains("HOME", ignoreCase = true) ||
-        textValue.contains("🏠") ->
-            Color.rgb(2, 132, 199)
+    textValue.contains("TEACHER", ignoreCase = true) ||
+    textValue.contains("🧑‍🏫") ->
+        Color.rgb(2, 132, 199)
 
-        textValue.contains("NOTICE", ignoreCase = true) ||
-        textValue.contains("📢") ->
-            Color.rgb(217, 119, 6)
+    textValue.contains("STUDENT", ignoreCase = true) ||
+    textValue.contains("🎓") ->
+        Color.rgb(13, 148, 136)
 
-        textValue.contains("MEDIA", ignoreCase = true) ||
-        textValue.contains("📷") ||
-        textValue.contains("🎥") ->
-            Color.rgb(13, 148, 136)
+    textValue.contains("SCHOOL", ignoreCase = true) ||
+    textValue.contains("🏫") ->
+        Color.rgb(22, 125, 75)
 
-        textValue.contains("ANALYTICS", ignoreCase = true) ||
-        textValue.contains("📊") ->
-            Color.rgb(71, 85, 105)
+    textValue.contains("VACANCY", ignoreCase = true) ||
+    textValue.contains("💼") ->
+        Color.rgb(217, 119, 6)
 
-        else ->
-            Color.rgb(7, 89, 133)
-    }
+    textValue.contains("RESULT", ignoreCase = true) ||
+    textValue.contains("🏆") ->
+        Color.rgb(194, 65, 12)
+
+    textValue.contains("ADMIT", ignoreCase = true) ||
+    textValue.contains("🪪") ->
+        Color.rgb(79, 70, 229)
+
+    textValue.contains("WEBSITE", ignoreCase = true) ||
+    textValue.contains("🌐") ->
+        Color.rgb(2, 132, 199)
+
+    textValue.contains("SOCIAL", ignoreCase = true) ||
+    textValue.contains("🤝") ->
+        Color.rgb(219, 39, 119)
+
+    textValue.contains("MORE MENU", ignoreCase = true) ||
+    textValue.contains("☰") ->
+        Color.rgb(109, 40, 217)
+
+    textValue.contains("HOME", ignoreCase = true) ||
+    textValue.contains("🏠") ->
+        Color.rgb(2, 132, 199)
+
+    textValue.contains("NOTICE", ignoreCase = true) ||
+    textValue.contains("📢") ->
+        Color.rgb(217, 119, 6)
+
+    textValue.contains("MEDIA", ignoreCase = true) ||
+    textValue.contains("📷") ||
+    textValue.contains("🎥") ->
+        Color.rgb(13, 148, 136)
+
+    textValue.contains("ANALYTICS", ignoreCase = true) ||
+    textValue.contains("📊") ->
+        Color.rgb(71, 85, 105)
+
+    else ->
+        Color.rgb(7, 89, 133)
+}
 
     return Button(this).apply {
 
@@ -2168,82 +2207,56 @@ homeManagement.addView(
 // MORE MENU CARD
 // =========================================================
 
-val moreManagement =
-    LinearLayout(this).apply {
 
-        orientation =
-            LinearLayout.VERTICAL
+val moreMenuButtonsRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
 
-        setPadding(
-            dp(10),
-            dp(8),
-            dp(10),
-            dp(10)
-        )
-
-        setBackgroundColor(
-            Color.rgb(
-                247,
-                244,
-                255
-            )
-        )
-
-        elevation = 2f
-    }
-
-fixed.addView(
-    moreManagement,
-    LinearLayout.LayoutParams(
-        -1,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply {
-
-        topMargin = dp(5)
-        bottomMargin = dp(5)
-    }
-)
-
-moreManagement.addView(
-    adminSectionTitle(
-        "☰",
-        "MORE MENU MANAGEMENT"
-    )
-)
-
-moreManagement.addView(
-    adminSectionNote(
-        "More में दिखने वाले menu को बिना APK update के बदलें।"
-    )
-)
-
-moreManagement.addView(
-    adminActionButton(
-        "☰  MANAGE MORE MENU"
-    ) {
+moreMenuButtonsRow.addView(
+    adminActionButton("☰ More Menu") {
         showMoreMenuManager()
     },
     LinearLayout.LayoutParams(
-        -1,
-        dp(38)
-    )
+        0,
+        dp(44),
+        1f
+    ).apply {
+        rightMargin = dp(3)
+    }
 )
-moreManagement.addView(
-    adminActionButton("🌐  MANAGE WEBSITE LINKS") {
+
+moreMenuButtonsRow.addView(
+    adminActionButton("🌐 Website") {
         showHeaderLinkManager(
             "header_website_links",
             "Website Links",
             listOf(
-                mapOf("icon" to "🌐", "label" to "Shiksha Rojgar", "url" to "https://www.shiksharojgar.com/"),
-                mapOf("icon" to "🌐", "label" to "Vacancy Bazaar", "url" to "https://www.vacancybazaar.in/")
+                mapOf(
+                    "icon" to "🌐",
+                    "label" to "Shiksha Rojgar",
+                    "url" to "https://www.shiksharojgar.com/"
+                ),
+                mapOf(
+                    "icon" to "🌐",
+                    "label" to "Vacancy Bazaar",
+                    "url" to "https://www.vacancybazaar.in/"
+                )
             )
         )
     },
-    LinearLayout.LayoutParams(-1, dp(38))
+    LinearLayout.LayoutParams(
+        0,
+        dp(44),
+        1f
+    ).apply {
+        leftMargin = dp(3)
+        rightMargin = dp(3)
+    }
 )
 
-moreManagement.addView(
-    adminActionButton("🤝  MANAGE SOCIAL MEDIA LINKS") {
+moreMenuButtonsRow.addView(
+    adminActionButton("🤝 Social Links") {
         showHeaderLinkManager(
             "header_social_links",
             "Social Media Links",
@@ -2259,8 +2272,25 @@ moreManagement.addView(
             )
         )
     },
-    LinearLayout.LayoutParams(-1, dp(38))
+    LinearLayout.LayoutParams(
+        0,
+        dp(44),
+        1f
+    ).apply {
+        leftMargin = dp(3)
+    }
 )
+
+moreManagement.addView(
+    moreMenuButtonsRow,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(44)
+    ).apply {
+        topMargin = dp(3)
+    }
+)
+
 
 // =========================================================
 // HOME CONTENT CARD
@@ -2434,20 +2464,44 @@ homeContent.addView(
     )
 )
 
-listOf(
+
+val categoryPages = listOf(
     "teacher" to "🧑‍🏫 Teacher",
     "student" to "🎓 Student",
     "school" to "🏫 School",
     "vacancy" to "💼 Vacancy",
     "result" to "🏆 Result",
     "admit_card" to "🪪 Admit Card"
-).forEach { (pageId, pageLabel) ->
+)
+
+categoryPages.chunked(3).forEach { pageRow ->
+    val row = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    pageRow.forEachIndexed { index, item ->
+        val (pageId, pageLabel) = item
+
+        row.addView(
+            adminActionButton(pageLabel) {
+                showCategoryPageLayoutEditor(pageId, pageLabel)
+            },
+            LinearLayout.LayoutParams(
+                0,
+                dp(44),
+                1f
+            ).apply {
+                if (index > 0) {
+                    leftMargin = dp(3)
+                }
+                rightMargin = dp(3)
+            }
+        )
+    }
+
     homeContent.addView(
-        adminActionButton(
-            "🎨 $pageLabel — सेटिंग बदलें"
-        ) {
-            showCategoryPageLayoutEditor(pageId, pageLabel)
-        },
+        row,
         LinearLayout.LayoutParams(
             -1,
             dp(44)
@@ -2457,6 +2511,7 @@ listOf(
         }
     )
 }
+
 
 
 homeContent.addView(
