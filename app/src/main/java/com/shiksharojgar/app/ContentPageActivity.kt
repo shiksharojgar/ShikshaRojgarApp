@@ -582,7 +582,32 @@ private fun shareContentPage(
                 }
 
                 if (posts.isEmpty()) return@addOnSuccessListener
+                
+                if (categoryKey == "important_information") {
+                    val newestTime = posts
+                        .mapNotNull {
+                            it.getLong("createdAt")
+                        }
+                        .maxOrNull()
 
+                    if (newestTime != null) {
+                        getSharedPreferences(
+                            "sr_notifications",
+                            MODE_PRIVATE
+                        ).edit()
+                            .putLong(
+                                "imp_info_last_seen_at",
+                                newestTime
+                            )
+                            .apply()
+
+                        sendBroadcast(
+                            android.content.Intent(
+                                "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
+                            ).setPackage(packageName)
+                        )
+                    }
+                }
                 bodyBox.addView(
                     TextView(this).apply {
                         text = "📢 नई पोस्ट और अपडेट"
