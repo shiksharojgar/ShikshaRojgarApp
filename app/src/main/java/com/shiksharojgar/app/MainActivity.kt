@@ -2009,22 +2009,21 @@ if (
 
     val badgeParams =
         android.widget.FrameLayout.LayoutParams(
-            38,
-            38
-        ).apply {
-
-            gravity =
-                Gravity.TOP or Gravity.END
-
-            topMargin = 2
-
-            rightMargin = 2
-        }
+    44,
+    44
+).apply {
+    gravity = Gravity.CENTER
+}
 
     frame.addView(
         badge,
         badgeParams
-    )
+ )
+    badge.translationX =
+    30f * resources.displayMetrics.density
+
+badge.translationY =
+    -18f * resources.displayMetrics.density
 }
 if (
     label.contains("information", ignoreCase = true) ||
@@ -2049,15 +2048,18 @@ if (
 
     val badgeParams =
         android.widget.FrameLayout.LayoutParams(
-            38,
-            38
-        ).apply {
-            gravity = Gravity.TOP or Gravity.END
-            topMargin = 2
-            rightMargin = 2
-        }
+    44,
+    44
+).apply {
+    gravity = Gravity.CENTER
+}
 
     frame.addView(badge, badgeParams)
+    badge.translationX =
+    30f * resources.displayMetrics.density
+
+badge.translationY =
+    -18f * resources.displayMetrics.density
     importantInfoUnreadBadge = badge
 
     val count = getSharedPreferences(
