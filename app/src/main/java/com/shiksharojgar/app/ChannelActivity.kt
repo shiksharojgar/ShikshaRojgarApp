@@ -324,16 +324,7 @@ if (
     }
 }
 
-        } else {
-
-            feedScroll.fullScroll(
-                View.FOCUS_DOWN
-            )
-        }
-    }
-}
-
-            
+ 
             pendingPostId?.let { id ->
 
                 val index =
