@@ -3328,10 +3328,11 @@ HomeCategory(
                 View.GONE
             }
 
-        moreShikshaButton.setOnClickListener {
-            adapter.submit(allShikshaPosts)
-            moreShikshaButton.visibility = View.GONE
-        }
+        
+moreShikshaButton.setOnClickListener {
+    openInApp("https://www.shiksharojgar.com/")
+}
+
 
         val latest = allShikshaPosts.take(8)
 
