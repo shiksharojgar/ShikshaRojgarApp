@@ -285,7 +285,6 @@ private fun adminActionButton(
     click: () -> Unit
 ): Button {
 
-    val buttonColor = when {
     
 val buttonColor = when {
     textValue.contains("DELETE", ignoreCase = true) ||
