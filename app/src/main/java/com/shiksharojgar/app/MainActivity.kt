@@ -1141,6 +1141,7 @@ private fun updateNoticeUnreadCount() {
             updateChannelBadge()
         }
         updateNoticeUnreadCount()
+                updateImportantInfoUnreadCount()
 floatingNoticeHandler.removeCallbacks(
     floatingNoticeRunnable
 )
