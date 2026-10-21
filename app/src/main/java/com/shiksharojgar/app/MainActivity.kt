@@ -551,42 +551,20 @@ findViewById<View>(
                 }
             }
         }
-// Load admin-configured header button labels
 
-val websiteHeaderButton = findViewById<TextView>(R.id.websiteButton)
-val contactHeaderButton = findViewById<TextView>(R.id.contactButton)
+ // Home Header के बटन नाम स्थिर रखें
+val websiteHeaderButton =
+    findViewById<TextView>(R.id.websiteButton)
 
-FirebaseFirestore.getInstance()
-    .collection("header_website_links")
-    .get()
-    .addOnSuccessListener { snapshot ->
-        val firstLink = snapshot.documents
-            .filter { it.getBoolean("enabled") ?: true }
-            .minByOrNull { it.getLong("position") ?: Long.MAX_VALUE }
+val contactHeaderButton =
+    findViewById<TextView>(R.id.contactButton)
 
-        val label = firstLink?.getString("label")?.trim().orEmpty()
+websiteHeaderButton.text = "🌐\nWebsite"
+contactHeaderButton.text = "🤝\nहमसे जुड़ें"
 
-        if (label.isNotEmpty()) {
-            websiteHeaderButton.text = "🌐\n$label"
-            enlargeHeaderIcon(websiteHeaderButton)
-        }
-    }
+enlargeHeaderIcon(websiteHeaderButton)
+enlargeHeaderIcon(contactHeaderButton)
 
-FirebaseFirestore.getInstance()
-    .collection("header_social_links")
-    .get()
-    .addOnSuccessListener { snapshot ->
-        val firstLink = snapshot.documents
-            .filter { it.getBoolean("enabled") ?: true }
-            .minByOrNull { it.getLong("position") ?: Long.MAX_VALUE }
-
-        val label = firstLink?.getString("label")?.trim().orEmpty()
-
-        if (label.isNotEmpty()) {
-            contactHeaderButton.text = "🤝\n$label"
-          enlargeHeaderIcon(contactHeaderButton)  
-        }
-    }
    // Website button — add after the existing shareButton listener
 
 findViewById<TextView>(R.id.websiteButton).setOnClickListener {
