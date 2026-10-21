@@ -18,6 +18,9 @@
         <activity
             android:name=".WebViewActivity"
             android:exported="false" />
+        <activity
+    android:name=".ShikshaPostsActivity"
+    android:exported="false" />
 
         <activity
             android:name=".ContentPageActivity"
