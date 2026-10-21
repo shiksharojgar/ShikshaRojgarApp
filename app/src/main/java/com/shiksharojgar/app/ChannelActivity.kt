@@ -323,36 +323,6 @@ if (
         }
     }
 }
- {
-
-    feedScroll.post {
-
-        if (
-            unreadCountAtOpen > 0 &&
-            pendingPostId == null
-        ) {
-
-            val marker =
-                list.children
-                    .firstOrNull {
-                        it is TextView &&
-                            (it as TextView).text ==
-                                "🔴 $unreadCountAtOpen नई पोस्ट"
-                    }
-
-            if (marker != null) {
-
-                feedScroll.scrollTo(
-                    0,
-                    marker.top
-                )
-
-            } else {
-
-                feedScroll.fullScroll(
-                    View.FOCUS_DOWN
-                )
-            }
 
         } else {
 
@@ -1653,9 +1623,13 @@ private fun updateFollow(
             -1
         }
     var oldScrollY = 0
+        val shouldRestoreScroll =
+    preservePosition &&
+        !firstFeedRender &&
+        unreadCountAtOpen <= 0
 
 if (
-    preservePosition &&
+    shouldRestoreScroll &&
     ::feedScroll.isInitialized
 ) {
     oldScrollY =
@@ -1807,7 +1781,7 @@ list.addView(marker)
      * Firebase refresh -> jump नहीं
      */
 if (
-    preservePosition &&
+    shouldRestoreScroll &&
     ::feedScroll.isInitialized
 ) {
 
