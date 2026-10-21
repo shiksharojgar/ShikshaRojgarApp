@@ -1118,6 +1118,46 @@ private fun updateNoticeUnreadCount() {
         }
 }
 
+private fun updateImportantInfoUnreadCount() {
+    val prefs = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    )
+
+    val lastSeen = prefs.getLong(
+        "imp_info_last_seen_at",
+        0L
+    )
+
+    FirebaseFirestore.getInstance()
+        .collection("category_posts")
+        .whereEqualTo(
+            "category",
+            "important_information"
+        )
+        .get()
+        .addOnSuccessListener { snapshot ->
+
+            val count = snapshot.documents.count { doc ->
+                (doc.getBoolean("enabled") ?: true) &&
+                (doc.getLong("createdAt") ?: 0L) > lastSeen
+            }
+
+            prefs.edit()
+                .putInt(
+                    "imp_info_bottom_unread",
+                    count
+                )
+                .apply()
+
+            sendBroadcast(
+                Intent(
+                    "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
+                ).setPackage(packageName)
+            )
+        }
+}
+
     // ============================================================
     // LIFECYCLE
     // ============================================================
