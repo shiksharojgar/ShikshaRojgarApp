@@ -57,104 +57,47 @@ class PostAdapter(
         )
     }
 
-    override fun onBindViewHolder(
-        holder: VH,
-        position: Int
+
+override fun onBindViewHolder(
+    holder: VH,
+    position: Int
+) {
+    val p = posts[position]
+
+    // पुरानी छोटी इमेज और पुराने टेक्स्ट छिपाएँ।
+    holder.image.visibility = View.GONE
+    holder.source.visibility = View.GONE
+    holder.title.visibility = View.GONE
+    holder.description.visibility = View.GONE
+    holder.date.visibility = View.GONE
+    holder.share.visibility = View.GONE
+
+    // हर पोस्ट का अपना बड़ा प्रीव्यू कार्ड।
+    holder.previewContainer.removeAllViews()
+
+    LinkPreviewUi.addPostPreview(
+        context = holder.itemView.context,
+        container = holder.previewContainer,
+        post = p
     ) {
-
-        val p = posts[position]
-
-        holder.source.text =
-            "${p.source}  •  Latest"
-
-        holder.title.text =
-            p.title
-
-        holder.description.text =
-            p.description
-
-        holder.description.visibility =
-            if (p.description.isBlank()) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-
-        holder.date.text =
-            p.date
-        // 🌐 होम पोस्ट में वेबसाइट और YouTube प्रीव्यू
-        holder.previewContainer.removeAllViews()
-
-        LinkPreviewUi.addPreviews(
-            context = holder.itemView.context,
-            container = holder.previewContainer,
-            text = "${p.title}\n${p.description}\n${p.url}",
-            maxLinks = 2
+        AnalyticsTracker.uniqueFeedPostView(
+            holder.itemView.context,
+            p.url
         )
-        
-        // ====================================================
-        // POST IMAGE
-        // ====================================================
-
-        holder.image.setImageDrawable(null)
-
-        if (p.imageUrl.isBlank()) {
-
-            holder.image.visibility =
-                View.GONE
-
-        } else {
-
-            holder.image.visibility =
-                View.VISIBLE
-
-            loadPostImage(
-                holder.image,
-                p.imageUrl
-            )
-        }
-
-        // ====================================================
-        // OPEN POST
-        // ====================================================
-
-        holder.itemView.setOnClickListener {
-
-            AnalyticsTracker.uniqueFeedPostView(
-                holder.itemView.context,
-                p.url
-            )
-
-            onClick(p)
-        }
-
-        // ====================================================
-        // SHARE POST
-        // ====================================================
-
-        holder.share.setOnClickListener {
-
-            AnalyticsTracker.uniqueFeedPostShare(
-                holder.itemView.context,
-                p.url
-            )
-
-            holder.itemView.context.startActivity(
-                Intent.createChooser(
-                    Intent(Intent.ACTION_SEND).apply {
-
-                        type = "text/plain"
-
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            "${p.title}\n${p.url}"
-                        )
-                    },
-                    "Share Post"
-                )
-            )
-        }
+        onClick(p)
     }
+
+    // कार्ड पर टैप करने पर भी पोस्ट खुले।
+    holder.itemView.setOnClickListener {
+        AnalyticsTracker.uniqueFeedPostView(
+            holder.itemView.context,
+            p.url
+        )
+        onClick(p)
+    }
+}
+
+        
 
     override fun getItemCount(): Int =
         posts.size
