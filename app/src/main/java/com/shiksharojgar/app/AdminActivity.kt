@@ -2280,13 +2280,14 @@ moreMenuButtonsRow.addView(
     }
 )
 
-moreManagement.addView(
+fixed.addView(
     moreMenuButtonsRow,
     LinearLayout.LayoutParams(
         -1,
         dp(44)
     ).apply {
         topMargin = dp(3)
+        bottomMargin = dp(5)
     }
 )
 
