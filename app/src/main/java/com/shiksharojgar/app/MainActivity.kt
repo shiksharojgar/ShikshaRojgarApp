@@ -1044,16 +1044,6 @@ morePostsButton.visibility =
     }
 
 private fun updateNoticeUnreadCount() {
-
-    val noticeBadge =
-        findViewById<TextView?>(
-            resources.getIdentifier(
-                "noticeUnreadBadge",
-                "id",
-                packageName
-            )
-        ) ?: return
-
     val prefs = getSharedPreferences(
         "sr_notifications",
         MODE_PRIVATE
@@ -1073,16 +1063,15 @@ private fun updateNoticeUnreadCount() {
         .get()
         .addOnSuccessListener { homeSnapshot ->
 
-            val homeCount =
-                homeSnapshot.documents.count { doc ->
-                    val startAt = doc.getLong("startAt") ?: 0L
-                    val endAt = doc.getLong("endAt") ?: 0L
-                    val createdAt = doc.getLong("createdAt") ?: 0L
+            val homeCount = homeSnapshot.documents.count { doc ->
+                val startAt = doc.getLong("startAt") ?: 0L
+                val endAt = doc.getLong("endAt") ?: 0L
+                val createdAt = doc.getLong("createdAt") ?: 0L
 
-                    (startAt == 0L || now >= startAt) &&
-                    (endAt == 0L || now <= endAt) &&
-                    createdAt > homeLastSeen
-                }
+                (startAt == 0L || now >= startAt) &&
+                (endAt == 0L || now <= endAt) &&
+                createdAt > homeLastSeen
+            }
 
             firestore.collection("category_posts")
                 .whereEqualTo("category", "notice")
@@ -1097,81 +1086,38 @@ private fun updateNoticeUnreadCount() {
                         }
 
                     val totalCount = homeCount + categoryCount
-                                        prefs.edit()
-                        .putInt(
-                            "notice_bottom_unread",
-                            totalCount
-                        )
+
+                    prefs.edit()
+                        .putInt("notice_bottom_unread", totalCount)
                         .apply()
+
+                    val noticeBadge = findViewById<TextView?>(
+                        resources.getIdentifier(
+                            "noticeUnreadBadge",
+                            "id",
+                            packageName
+                        )
+                    )
+
+                    if (noticeBadge != null) {
+                        noticeBadge.text =
+                            if (totalCount > 99) "99+"
+                            else totalCount.toString()
+
+                        noticeBadge.visibility =
+                            if (totalCount > 0) View.VISIBLE
+                            else View.GONE
+                    }
 
                     sendBroadcast(
                         Intent(
                             "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
                         ).setPackage(packageName)
                     )
-
-                    noticeBadge.text =
-                        if (totalCount > 99) {
-                            "99+"
-                        } else {
-                            totalCount.toString()
-                        }
-
-                    noticeBadge.visibility =
-                        if (totalCount > 0) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
                 }
-                .addOnFailureListener {
-                    noticeBadge.visibility = View.GONE
-                }
-        }
-        .addOnFailureListener {
-            noticeBadge.visibility = View.GONE
         }
 }
 
-    private fun updateImportantInfoUnreadCount() {
-        val prefs = getSharedPreferences(
-            "sr_notifications",
-            MODE_PRIVATE
-        )
-
-        val lastSeen = prefs.getLong(
-            "imp_info_last_seen_at",
-            0L
-        )
-
-        FirebaseFirestore.getInstance()
-            .collection("category_posts")
-            .whereEqualTo(
-                "category",
-                "important_information"
-            )
-            .get()
-            .addOnSuccessListener { snapshot ->
-
-                val count = snapshot.documents.count { doc ->
-                    (doc.getBoolean("enabled") ?: true) &&
-                    (doc.getLong("createdAt") ?: 0L) > lastSeen
-                }
-
-                prefs.edit()
-                    .putInt(
-                        "imp_info_bottom_unread",
-                        count
-                    )
-                    .apply()
-
-                sendBroadcast(
-                    Intent(
-                        "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
-                    ).setPackage(packageName)
-                )
-            }
-    }
     // ============================================================
     // LIFECYCLE
     // ============================================================
