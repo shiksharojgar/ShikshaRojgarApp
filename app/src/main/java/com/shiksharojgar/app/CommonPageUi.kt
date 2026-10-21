@@ -1316,6 +1316,118 @@ fun createHeader(
 }
     
 
+    private fun addUnreadBadge(
+        context: Context,
+        box: FrameLayout,
+        button: TextView,
+        prefKey: String,
+        hideBadge: Boolean
+    ) {
+        box.addView(
+            button,
+            FrameLayout.LayoutParams(
+                -1,
+                dp(context, 50)
+            )
+        )
+
+        val badge = TextView(context).apply {
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.RED)
+            }
+
+            visibility = View.GONE
+        }
+
+        fun refreshBadge() {
+            val count = context
+                .getSharedPreferences(
+                    "sr_notifications",
+                    Context.MODE_PRIVATE
+                )
+                .getInt(prefKey, 0)
+
+            if (hideBadge || count <= 0) {
+                badge.visibility = View.GONE
+            } else {
+                badge.text = if (count > 99) {
+                    "99+"
+                } else {
+                    count.toString()
+                }
+
+                badge.visibility = View.VISIBLE
+            }
+        }
+
+        box.addView(
+            badge,
+            FrameLayout.LayoutParams(
+                dp(context, 24),
+                dp(context, 24)
+            ).apply {
+                gravity = Gravity.TOP or Gravity.END
+                rightMargin = dp(context, 3)
+                topMargin = dp(context, 1)
+            }
+        )
+
+        refreshBadge()
+
+        val receiver =
+            object : android.content.BroadcastReceiver() {
+                override fun onReceive(
+                    receiverContext: Context?,
+                    intent: Intent?
+                ) {
+                    refreshBadge()
+                }
+            }
+
+        var registered = false
+
+        box.addOnAttachStateChangeListener(
+            object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(
+                    view: View
+                ) {
+                    if (!registered) {
+                        androidx.core.content.ContextCompat.registerReceiver(
+                            context,
+                            receiver,
+                            android.content.IntentFilter(
+                                "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
+                            ),
+                            androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+                        )
+
+                        registered = true
+                        refreshBadge()
+                    }
+                }
+
+                override fun onViewDetachedFromWindow(
+                    view: View
+                ) {
+                    if (registered) {
+                        try {
+                            context.unregisterReceiver(receiver)
+                        } catch (_: IllegalArgumentException) {
+                        }
+
+                        registered = false
+                    }
+                }
+            }
+        )
+    }
+
     private fun weightParams(
         context: Context
     ): LinearLayout.LayoutParams {
