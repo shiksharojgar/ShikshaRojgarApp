@@ -162,7 +162,10 @@ fun load(
         }
 
         val sorted =
-            posts.sortedByDescending { it.date }.take(20)
+    posts
+        .distinctBy { it.url }
+        .sortedByDescending { it.date }
+        .take(20)
 
         handler.post {
             callback(sorted)
@@ -197,7 +200,10 @@ fun loadVacancy(
         }
 
         val sorted =
-            posts.sortedByDescending { it.date }.take(20)
+    posts
+        .distinctBy { it.url }
+        .sortedByDescending { it.date }
+        .take(20)
 
         handler.post {
             callback(sorted)
