@@ -1332,7 +1332,7 @@ fun createHeader(
         )
 
         val badge = TextView(context).apply {
-            textSize = 10f
+            textSize = 12f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
@@ -1369,8 +1369,8 @@ fun createHeader(
         box.addView(
             badge,
             FrameLayout.LayoutParams(
-                dp(context, 24),
-                dp(context, 24)
+                dp(context, 28),
+                dp(context, 28)
             ).apply {
                 gravity = Gravity.TOP or Gravity.END
                 rightMargin = dp(context, 3)
