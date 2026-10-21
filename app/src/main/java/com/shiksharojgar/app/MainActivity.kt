@@ -79,6 +79,8 @@ class MainActivity : AppCompatActivity() {
     private val liveHandler = Handler(Looper.getMainLooper())
     private var floatingNoticeImage: ImageView? = null
    private var noticeCardView: View? = null
+private var importantInfoUnreadBadge: TextView? = null
+    
 private val floatingNoticeHandler =
     Handler(Looper.getMainLooper())
 
@@ -911,22 +913,17 @@ morePostsButton.visibility =
                             (it.getLong("createdAt")
                                 ?: 0L) > lastSeen
                         }
+prefs.edit()
+    .putInt("channel_unread", unread)
+    .apply()
 
-                    if (unread > 0) {
+sendBroadcast(
+    Intent(
+        "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
+    ).setPackage(packageName)
+)
 
-                        prefs.edit()
-                            .putInt(
-                                "channel_unread",
-                                unread
-                            )
-                            .apply()
-                        sendBroadcast(
-                            Intent(
-                                "com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"
-                            ).setPackage(packageName)
-                        )
-                        updateChannelBadge()
-                    }
+updateChannelBadge()
                 }
     }
 
@@ -2021,7 +2018,50 @@ if (
         badgeParams
     )
 }
+if (
+    label.contains("information", ignoreCase = true) ||
+    label.contains("महत्वपूर्ण") ||
+    label.contains("imp info", ignoreCase = true)
+) {
+    val badge = TextView(this).apply {
+        textSize = 13f
+        gravity = Gravity.CENTER
+        setTextColor(Color.WHITE)
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+        includeFontPadding = false
 
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(Color.RED)
+        }
+
+        elevation = 12f
+        visibility = View.GONE
+    }
+
+    val badgeParams =
+        android.widget.FrameLayout.LayoutParams(
+            38,
+            38
+        ).apply {
+            gravity = Gravity.TOP or Gravity.END
+            topMargin = 2
+            rightMargin = 2
+        }
+
+    frame.addView(badge, badgeParams)
+    importantInfoUnreadBadge = badge
+
+    val count = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    ).getInt("imp_info_bottom_unread", 0)
+
+    if (count > 0) {
+        badge.text = if (count > 99) "99+" else count.toString()
+        badge.visibility = View.VISIBLE
+    }
+}
     return frame
 }
 
@@ -3298,9 +3338,22 @@ HomeCategory(
 
         allShikshaPosts = posts
 
-        adapter.submit(
-            allShikshaPosts.take(2)
-        )
+val shikshaRecycler =
+    findViewById<androidx.recyclerview.widget.RecyclerView>(
+        R.id.postsRecycler
+    )
+
+adapter.submit(allShikshaPosts.take(2))
+
+shikshaRecycler.post {
+    shikshaRecycler.requestLayout()
+    shikshaRecycler.invalidate()
+}
+
+android.util.Log.d(
+    "SR_LATEST_POSTS",
+    "Shiksha feed total=${allShikshaPosts.size}, shown=${allShikshaPosts.take(2).size}"
+)
 
         val moreShikshaButton =
             findViewById<TextView>(
