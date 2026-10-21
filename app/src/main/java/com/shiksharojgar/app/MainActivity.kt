@@ -1146,6 +1146,14 @@ private fun updateImportantInfoUnreadCount() {
                     count
                 )
                 .apply()
+                importantInfoUnreadBadge?.let { badge ->
+    if (count > 0) {
+        badge.text = if (count > 99) "99+" else count.toString()
+        badge.visibility = View.VISIBLE
+    } else {
+        badge.visibility = View.GONE
+    }
+                }
 
             sendBroadcast(
                 Intent(
