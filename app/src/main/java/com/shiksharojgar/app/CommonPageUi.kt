@@ -906,6 +906,7 @@ fun createHeader(
 
         visibility =
             View.GONE
+        elevation = dp(context, 8).toFloat()
     }
 
         /*
@@ -1343,6 +1344,7 @@ fun createHeader(
             }
 
             visibility = View.GONE
+            elevation = dp(context, 8).toFloat()
         }
 
         fun refreshBadge() {
