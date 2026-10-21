@@ -279,19 +279,51 @@ unreadCountAtOpen =
                 posts.lastOrNull()?.id
 
             val shouldGoToNewest =
-                firstFeedRender ||
-                    oldNewest != newNewest
+    unreadCountAtOpen <= 0 &&
+        (
+            firstFeedRender ||
+                oldNewest != newNewest
+        )
 
             renderPosts(
                 preservePosition =
                     !shouldGoToNewest
             )
 
-            if (
-    shouldGoToNewest &&
+
+if (
+    firstFeedRender &&
     pendingPostId == null &&
     notificationTargetPostId == null
 ) {
+    feedScroll.post {
+        list.post {
+            if (
+                unreadCountAtOpen > 0
+            ) {
+                val marker =
+                    list.findViewWithTag<View>(
+                        "channel_unread_marker"
+                    )
+
+                if (marker != null) {
+                    feedScroll.scrollTo(
+                        0,
+                        (marker.top - dp(12))
+                            .coerceAtLeast(0)
+                    )
+                } else {
+                    feedScroll.scrollTo(0, 0)
+                }
+            } else {
+                feedScroll.fullScroll(
+                    View.FOCUS_DOWN
+                )
+            }
+        }
+    }
+}
+ {
 
     feedScroll.post {
 
