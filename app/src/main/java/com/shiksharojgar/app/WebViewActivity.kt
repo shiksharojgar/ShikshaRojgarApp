@@ -283,8 +283,8 @@ ViewCompat.setOnApplyWindowInsetsListener(
             object : OnBackPressedCallback(true) {
 
                 override fun handleOnBackPressed() {
-                    goBackOrClose()
-                }
+    finish()
+}
             }
         )
 
