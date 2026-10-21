@@ -1352,30 +1352,29 @@ fun createHeader(
                     Context.MODE_PRIVATE
                 )
                 .getInt(prefKey, 0)
+if (count <= 0) {
+    badge.visibility = View.GONE
+} else {
+    badge.text = if (count > 99) {
+        "99+"
+    } else {
+        count.toString()
+    }
 
-            if (hideBadge || count <= 0) {
-                badge.visibility = View.GONE
-            } else {
-                badge.text = if (count > 99) {
-                    "99+"
-                } else {
-                    count.toString()
-                }
-
-                badge.visibility = View.VISIBLE
-            }
+    badge.visibility = View.VISIBLE
+}
         }
 
         box.addView(
             badge,
             FrameLayout.LayoutParams(
-                dp(context, 28),
-                dp(context, 28)
-            ).apply {
-                gravity = Gravity.TOP or Gravity.END
-                rightMargin = dp(context, 3)
-                topMargin = dp(context, 1)
-            }
+    dp(context, 32),
+    dp(context, 32)
+).apply {
+    gravity = Gravity.TOP or Gravity.END
+    rightMargin = dp(context, 1)
+    topMargin = dp(context, 0)
+}
         )
 
         refreshBadge()
