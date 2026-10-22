@@ -2359,18 +2359,6 @@ homeContent.addView(
 )
 
 
-    
-
-        // =========================================================
-// HOME PAGE CONTENT — 4 FIXED MANAGEMENT BUTTONS
-// =========================================================
-
-val pageManager =
-    LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-    }
-
-
         // HOME PAGE CONTENT — 3 BUTTONS IN ONE ROW
 
         val pageManager =
