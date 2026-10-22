@@ -1605,251 +1605,357 @@ if (count <= 0) {
      */
 
     
-    private fun showMoreMenu(
-        context: Context
-    ) {
-
-        val loading = ProgressBar(context)
-
-        val dialog = AlertDialogCompat(
-            context,
-             "☰ More ▼",
-            loading
-        )
-
-        dialog.show()
-
-        FirebaseFirestore
-            .getInstance()
-            .collection("more_menu_items")
-            .whereEqualTo("enabled", true)
-            .get()
-            .addOnSuccessListener { snap ->
-
-                dialog.dismiss()
-
-                val items = snap.documents.sortedBy {
-                    it.getLong("position") ?: 0L
-                }
-
-                if (items.isEmpty()) {
-                    Toast.makeText(
-                        context,
-                        "More Menu अभी Admin द्वारा सेट नहीं किया गया है।",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@addOnSuccessListener
-                }
-fun showMenuList(
-    menuItems: List<com.google.firebase.firestore.DocumentSnapshot>,
-    title: String
+    
+private fun showMoreMenu(
+    context: Context,
+    anchor: View
 ) {
-    if (menuItems.isEmpty()) {
-        Toast.makeText(
-            context,
-            "इस Section में अभी कोई Sub-menu नहीं है।",
-            Toast.LENGTH_SHORT
-        ).show()
-        return
-    }
+    Toast.makeText(
+        context,
+        "More मेनू लोड हो रहा है…",
+        Toast.LENGTH_SHORT
+    ).show()
 
-    val scrollView = ScrollView(context)
+    FirebaseFirestore.getInstance()
+        .collection("more_menu_items")
+        .whereEqualTo("enabled", true)
+        .get()
+        .addOnSuccessListener { snap ->
 
-    val list = LinearLayout(context).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(
-            dp(context, 10),
-            dp(context, 8),
-            dp(context, 10),
-            dp(context, 8)
-        )
-    }
-
-    scrollView.addView(list)
-
-    menuItems.forEach { doc ->
-
-        val iconText = doc.getString("icon") ?: "☰"
-        val labelText = doc.getString("label") ?: "Menu"
-        val menuType = doc.getString("menuType")
-            ?.lowercase()
-            .orEmpty()
-
-        val colorText = doc.getString("color") ?: "#E3F2FD"
-
-        val cardColor = try {
-            Color.parseColor(colorText)
-        } catch (_: Exception) {
-            Color.parseColor("#E3F2FD")
-        }
-
-        val card = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                dp(context, 12),
-                dp(context, 10),
-                dp(context, 12),
-                dp(context, 10)
-            )
-
-            background = GradientDrawable().apply {
-                setColor(cardColor)
-                cornerRadius = dp(context, 14).toFloat()
-                setStroke(
-                    dp(context, 1),
-                    Color.parseColor("#D1D5DB")
-                )
+            val items = snap.documents.sortedBy {
+                it.getLong("position") ?: 0L
             }
 
-            isClickable = true
-            isFocusable = true
-        }
-
-        val iconView = TextView(context).apply {
-            text = iconText
-            textSize = 25f
-            gravity = Gravity.CENTER
-        }
-
-        card.addView(
-            iconView,
-            LinearLayout.LayoutParams(
-                dp(context, 44),
-                dp(context, 44)
-            )
-        )
-
-        val nameView = TextView(context).apply {
-            text = if (menuType == "section") {
-                "$labelText  ▼"
-            } else {
-                labelText
-            }
-
-            textSize = 15f
-            setTextColor(Color.parseColor("#172033"))
-            setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-            )
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                dp(context, 10),
-                0,
-                dp(context, 4),
-                0
-            )
-        }
-
-        card.addView(
-            nameView,
-            LinearLayout.LayoutParams(
-                0,
-                -2,
-                1f
-            )
-        )
-
-        val arrow = TextView(context).apply {
-            text = "›"
-            textSize = 28f
-            setTextColor(Color.parseColor("#334155"))
-            gravity = Gravity.CENTER
-        }
-
-        card.addView(
-            arrow,
-            LinearLayout.LayoutParams(
-                dp(context, 28),
-                dp(context, 40)
-            )
-        )
-
-        list.addView(
-            card,
-            LinearLayout.LayoutParams(
-                -1,
-                -2
-            ).apply {
-                bottomMargin = dp(context, 8)
-            }
-        )
-
-        card.setOnClickListener {
-
-            if (menuType == "section") {
-
-                val sectionId = doc.getString("menuId")
-                    ?.trim()
-                    .orEmpty()
-
-                if (sectionId.isBlank()) {
-                    Toast.makeText(
-                        context,
-                        "इस Section का Menu ID सेट नहीं है।",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
-
-                val children = items.filter { child ->
-                    child.getString("parentId")
-                        ?.trim() == sectionId &&
-                        child.getString("menuType")
-                            ?.lowercase() != "section"
-                }
-
-                showMenuList(
-                    children,
-                    "⌃ $labelText"
-                )
-
-            } else {
-                openMoreItem(context, doc)
-            }
-        }
-    }
-
-    AlertDialog.Builder(context)
-        .setTitle(title)
-        .setView(scrollView)
-        .setNegativeButton("बंद करें", null)
-        .show()
-}
-
-                val rootItems = items.filter { doc ->
-
-                    val menuType =
-                        doc.getString("menuType")
-                            ?.lowercase()
-                            .orEmpty()
-
-                    val parentId =
-                        doc.getString("parentId")
-                            ?.trim()
-                            .orEmpty()
-
-                    menuType == "section" ||
-                        parentId.isBlank()
-                }
-
-                showMenuList(
-    rootItems,
-    "☰ More ▼"
-)
-            }
-            .addOnFailureListener {
-
-                dialog.dismiss()
-
+            if (items.isEmpty()) {
                 Toast.makeText(
                     context,
-                    "More Menu load नहीं हो सका।",
+                    "More Menu अभी Admin द्वारा सेट नहीं किया गया है.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@addOnSuccessListener
+            }
+
+            val screenWidth =
+                context.resources.displayMetrics.widthPixels
+            val screenHeight =
+                context.resources.displayMetrics.heightPixels
+
+            val popupWidth = minOf(
+                dp(context, 300),
+                (screenWidth * 0.84f).toInt()
+            )
+
+            val popupHeight = (screenHeight * 0.60f).toInt()
+
+            val scrollView = ScrollView(context)
+
+            val list = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(
+                    dp(context, 10),
+                    dp(context, 8),
+                    dp(context, 10),
+                    dp(context, 8)
+                )
+                setBackgroundColor(Color.WHITE)
+            }
+
+            scrollView.addView(
+                list,
+                ScrollView.LayoutParams(
+                    ScrollView.LayoutParams.MATCH_PARENT,
+                    ScrollView.LayoutParams.WRAP_CONTENT
+                )
+            )
+
+            val popup = PopupWindow(
+                scrollView,
+                popupWidth,
+                popupHeight,
+                true
+            ).apply {
+                setBackgroundDrawable(
+                    ColorDrawable(Color.WHITE)
+                )
+                elevation = dp(context, 12).toFloat()
+                isOutsideTouchable = true
+                isFocusable = true
+            }
+
+            val menuStack =
+                mutableListOf<Pair<List<com.google.firebase.firestore.DocumentSnapshot>, String>>()
+
+            lateinit var renderMenu:
+                (List<com.google.firebase.firestore.DocumentSnapshot>, String) -> Unit
+
+            renderMenu = { menuItems, title ->
+
+                list.removeAllViews()
+
+                val topBar = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(
+                        dp(context, 8),
+                        dp(context, 6),
+                        dp(context, 4),
+                        dp(context, 10)
+                    )
+                }
+
+                if (menuStack.isNotEmpty()) {
+                    val backButton = TextView(context).apply {
+                        text = "←"
+                        textSize = 24f
+                        setTextColor(Color.parseColor("#1565C0"))
+                        gravity = Gravity.CENTER
+                    }
+
+                    topBar.addView(
+                        backButton,
+                        LinearLayout.LayoutParams(
+                            dp(context, 42),
+                            dp(context, 42)
+                        )
+                    )
+
+                    backButton.setOnClickListener {
+                        if (menuStack.isNotEmpty()) {
+                            val previous = menuStack.removeAt(
+                                menuStack.lastIndex
+                            )
+                            renderMenu(previous.first, previous.second)
+                        }
+                    }
+                }
+
+                val titleView = TextView(context).apply {
+                    text = title
+                    textSize = 17f
+                    setTextColor(Color.parseColor("#172033"))
+                    setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+                    gravity = Gravity.CENTER_VERTICAL
+                }
+
+                topBar.addView(
+                    titleView,
+                    LinearLayout.LayoutParams(
+                        0,
+                        dp(context, 42),
+                        1f
+                    )
+                )
+
+                val closeButton = TextView(context).apply {
+                    text = "✕"
+                    textSize = 19f
+                    setTextColor(Color.DKGRAY)
+                    gravity = Gravity.CENTER
+                }
+
+                topBar.addView(
+                    closeButton,
+                    LinearLayout.LayoutParams(
+                        dp(context, 38),
+                        dp(context, 42)
+                    )
+                )
+
+                closeButton.setOnClickListener {
+                    popup.dismiss()
+                }
+
+                list.addView(
+                    topBar,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                )
+
+                menuItems.forEach { doc ->
+
+                    val iconText = doc.getString("icon") ?: "☰"
+                    val labelText = doc.getString("label") ?: "Menu"
+                    val menuType =
+                        doc.getString("menuType")?.lowercase().orEmpty()
+
+                    val colorText =
+                        doc.getString("color") ?: "#E3F2FD"
+
+                    val cardColor = try {
+                        Color.parseColor(colorText)
+                    } catch (_: Exception) {
+                        Color.parseColor("#E3F2FD")
+                    }
+
+                    val card = LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER_VERTICAL
+                        setPadding(
+                            dp(context, 10),
+                            dp(context, 6),
+                            dp(context, 8),
+                            dp(context, 6)
+                        )
+
+                        background = GradientDrawable().apply {
+                            setColor(cardColor)
+                            cornerRadius = dp(context, 12).toFloat()
+                            setStroke(
+                                dp(context, 1),
+                                Color.parseColor("#D1D5DB")
+                            )
+                        }
+
+                        isClickable = true
+                        isFocusable = true
+                    }
+
+                    val iconView = TextView(context).apply {
+                        text = iconText
+                        textSize = 23f
+                        gravity = Gravity.CENTER
+                    }
+
+                    card.addView(
+                        iconView,
+                        LinearLayout.LayoutParams(
+                            dp(context, 42),
+                            dp(context, 42)
+                        )
+                    )
+
+                    val nameView = TextView(context).apply {
+                        text = if (menuType == "section") {
+                            "$labelText  ▼"
+                        } else {
+                            labelText
+                        }
+                        textSize = 14f
+                        setTextColor(Color.parseColor("#172033"))
+                        setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+                        gravity = Gravity.CENTER_VERTICAL
+                        setPadding(
+                            dp(context, 8),
+                            0,
+                            dp(context, 4),
+                            0
+                        )
+                    }
+
+                    card.addView(
+                        nameView,
+                        LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        )
+                    )
+
+                    val arrow = TextView(context).apply {
+                        text = "›"
+                        textSize = 26f
+                        setTextColor(Color.parseColor("#334155"))
+                        gravity = Gravity.CENTER
+                    }
+
+                    card.addView(
+                        arrow,
+                        LinearLayout.LayoutParams(
+                            dp(context, 24),
+                            dp(context, 40)
+                        )
+                    )
+
+                    list.addView(
+                        card,
+                        LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            bottomMargin = dp(context, 6)
+                        }
+                    )
+
+                    card.setOnClickListener {
+                        if (menuType == "section") {
+
+                            val sectionId =
+                                doc.getString("menuId")?.trim().orEmpty()
+
+                            if (sectionId.isBlank()) {
+                                Toast.makeText(
+                                    context,
+                                    "इस सेक्शन की ID सेट नहीं है।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@setOnClickListener
+                            }
+
+                            val children = items.filter { child ->
+                                child.getString("parentId")
+                                    ?.trim() == sectionId &&
+                                    child.getString("menuType")
+                                        ?.lowercase() != "section"
+                            }
+
+                            if (children.isEmpty()) {
+                                Toast.makeText(
+                                    context,
+                                    "इस सेक्शन में अभी कोई विकल्प नहीं है।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@setOnClickListener
+                            }
+
+                            menuStack.add(menuItems to title)
+                            renderMenu(children, "› $labelText")
+
+                        } else {
+                            popup.dismiss()
+                            openMoreItem(context, doc)
+                        }
+                    }
+                }
+            }
+
+            val rootItems = items.filter { doc ->
+                val menuType =
+                    doc.getString("menuType")?.lowercase().orEmpty()
+                val parentId =
+                    doc.getString("parentId")?.trim().orEmpty()
+
+                menuType == "section" || parentId.isBlank()
+            }
+
+            renderMenu(rootItems, "☰ More")
+
+            if (anchor.isAttachedToWindow) {
+                popup.showAsDropDown(
+                    anchor,
+                    0,
+                    -dp(context, 3),
+                    Gravity.END
+                )
+            } else {
+                Toast.makeText(
+                    context,
+                    "More मेनू खोलने के लिए दोबारा टैप करें।",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-    }
+        }
+        .addOnFailureListener {
+            Toast.makeText(
+                context,
+                "More Menu लोड नहीं हो सका।",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+}
+
+
 
 
     private fun openMoreItem(
