@@ -271,11 +271,24 @@ unreadCountAtOpen =
              * पूरा feed दोबारा मत बनाओ।
              */
             if (
-                !structureChanged &&
-                !firstFeedRender
-            ) {
-                return@runOnUiThread
-            }
+    !structureChanged &&
+    !firstFeedRender
+) {
+    pendingPostId?.let { id ->
+        val index = posts.indexOfFirst {
+            it.id == id
+        }
+
+        if (
+            index >= 0 &&
+            scrollToPost(index)
+        ) {
+            pendingPostId = null
+        }
+    }
+
+    return@runOnUiThread
+}
 
             val newNewest =
                 posts.lastOrNull()?.id
