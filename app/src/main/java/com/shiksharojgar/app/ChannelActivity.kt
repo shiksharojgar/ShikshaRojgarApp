@@ -302,7 +302,6 @@ unreadCountAtOpen =
                 oldNewest != newNewest
         )
 alignInitialFeedAfterImages =
-    firstFeedRender &&
     shouldGoToNewest &&
     pendingPostId == null &&
     notificationTargetPostId == null &&
@@ -355,7 +354,22 @@ if (
     }
 }
 
- 
+ if (
+    !firstFeedRender &&
+    shouldGoToNewest &&
+    pendingPostId == null &&
+    notificationTargetPostId == null &&
+    unreadCountAtOpen <= 0 &&
+    initialImageLoadsPending == 0
+) {
+    feedScroll.post {
+        list.post {
+            feedScroll.fullScroll(
+                View.FOCUS_DOWN
+            )
+        }
+    }
+ }
             pendingPostId?.let { id ->
 
                 val index =
