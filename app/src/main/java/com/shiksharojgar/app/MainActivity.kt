@@ -591,27 +591,28 @@ findViewById<TextView>(R.id.websiteButton).setOnClickListener {
                     }"
                 }.toTypedArray()
 
-                AlertDialog.Builder(this)
-                    .setTitle("🌐 Website चुनें")
-                    .setAdapter(CommonPageUi.coloredHeaderOptionsAdapter(this, options)) { _, which ->
-                        val url = links[which]
-                            .getString("url")
-                            .orEmpty()
+CommonPageUi.showAnchoredOptions(
+    this,
+    findViewById(R.id.websiteButton),
+    options
+) { which ->
+    val url = links[which]
+        .getString("url")
+        .orEmpty()
 
-                        if (
-                            url.startsWith("https://") ||
-                            url.startsWith("http://")
-                        ) {
-                            startActivity(
-                                Intent(
-                                    this,
-                                    WebViewActivity::class.java
-                                ).putExtra("url", url)
-                            )
-                        }
-                    }
-                    .setNegativeButton("बंद करें", null)
-                    .show()
+    if (
+        url.startsWith("https://") ||
+        url.startsWith("http://")
+    ) {
+        startActivity(
+            Intent(
+                this,
+                WebViewActivity::class.java
+            ).putExtra("url", url)
+        )
+    }
+}
+
             }
         }
         .addOnFailureListener {
@@ -647,27 +648,29 @@ findViewById<TextView>(R.id.contactButton).setOnClickListener {
                     }"
                 }.toTypedArray()
 
-                AlertDialog.Builder(this)
-                    .setTitle("🤝 हमसे जुड़ें")
-                    .setAdapter(CommonPageUi.coloredHeaderOptionsAdapter(this, options)) { _, which ->
-                        val url = links[which]
-                            .getString("url")
-                            .orEmpty()
+                
+CommonPageUi.showAnchoredOptions(
+    this,
+    findViewById(R.id.contactButton),
+    options
+) { which ->
+    val url = links[which]
+        .getString("url")
+        .orEmpty()
 
-                        if (
-                            url.startsWith("https://") ||
-                            url.startsWith("http://")
-                        ) {
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(url)
-                                )
-                            )
-                        }
-                    }
-                    .setNegativeButton("बंद करें", null)
-                    .show()
+    if (
+        url.startsWith("https://") ||
+        url.startsWith("http://")
+    ) {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(url)
+            )
+        )
+    }
+}
+
             }
         }
 // Existing code — keep this unchanged
