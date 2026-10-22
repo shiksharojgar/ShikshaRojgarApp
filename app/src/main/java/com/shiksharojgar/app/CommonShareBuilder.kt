@@ -117,7 +117,7 @@ object CommonShareBuilder {
         append("*")
 
         // DIRECT POST LINK
-        append("\n\n*पोस्ट देखें 👇*")
+        append("\n*पोस्ट देखें 👇*")
         append("\n")
         append(postUrl)
 
@@ -128,11 +128,7 @@ object CommonShareBuilder {
             append("*")
         }
 
-        // PHOTO
-        if (post.imageUrl.isNotBlank()) {
-            append("\n\n🖼️ फोटो देखें 👇\n")
-            append(post.imageUrl)
-        }
+        
 
         // WEBSITE LINK
         if (post.websiteUrl.isNotBlank()) {
@@ -182,7 +178,7 @@ object CommonShareBuilder {
 
         // APP DOWNLOAD
         append(
-            "\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+            "\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
                 "डाउनलोड इंस्टॉल करें !*"
         )
         append("\n")
