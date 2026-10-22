@@ -18,7 +18,54 @@ import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
 
 object CommonPageUi {
+    
+    fun coloredHeaderOptionsAdapter(
+        context: Context,
+        options: Array<String>
+    ): ArrayAdapter<String> {
+        val colors = intArrayOf(
+            Color.rgb(25, 118, 210),   // नीला
+            Color.rgb(0, 137, 123),    // हरा-नीला
+            Color.rgb(239, 108, 0),    // नारंगी
+            Color.rgb(106, 27, 154),   // बैंगनी
+            Color.rgb(46, 125, 50),    // हरा
+            Color.rgb(198, 40, 40),    // लाल
+            Color.rgb(57, 73, 171),    // इंडिगो
+            Color.rgb(173, 20, 87)     // गुलाबी
+        )
 
+        return object : ArrayAdapter<String>(
+            context,
+            android.R.layout.simple_list_item_1,
+            options
+        ) {
+            override fun getView(
+                position: Int,
+                convertView: View?,
+                parent: android.view.ViewGroup
+            ): View {
+                val itemView = super.getView(
+                    position,
+                    convertView,
+                    parent
+                ) as TextView
+
+                itemView.setTextColor(Color.WHITE)
+                itemView.setTypeface(null, Typeface.BOLD)
+                itemView.setBackgroundColor(
+                    colors[position % colors.size]
+                )
+                itemView.setPadding(
+                    dp(context, 16),
+                    dp(context, 12),
+                    dp(context, 16),
+                    dp(context, 12)
+                )
+
+                return itemView
+            }
+        }
+    }
     enum class Section {
         HOME,
         CHANNEL,
@@ -285,7 +332,7 @@ fun createHeader(
 
                 AlertDialog.Builder(context)
                     .setTitle("🌐 Website चुनें")
-                    .setItems(options) { _, which ->
+                    .setAdapter(coloredHeaderOptionsAdapter(context, options)) { _, which ->
                         val url = links[which].getString("url").orEmpty()
                         if (url.startsWith("https://") || url.startsWith("http://")) {
                             context.startActivity(
@@ -393,7 +440,7 @@ val contactIcon =
 
                             AlertDialog.Builder(context)
                                 .setTitle("🤝 हमसे जुड़ें")
-                                .setItems(options) { _, which ->
+                                .setAdapter(coloredHeaderOptionsAdapter(context, options)) { _, which ->
                                     val url = links[which]
                                         .getString("url")
                                         .orEmpty()
