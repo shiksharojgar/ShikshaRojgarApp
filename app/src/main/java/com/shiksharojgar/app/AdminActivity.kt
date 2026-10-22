@@ -4075,6 +4075,11 @@ private fun showMoreMenuEditor(
             document?.getString("label")
                 ?: ""
         )
+        val color = field(
+    "Card Color जैसे #E3F2FD",
+    document?.getString("color")
+        ?: "#E3F2FD"
+)
 val menuType =
         field(
             "Menu Type: section / item",
@@ -4213,6 +4218,11 @@ val menuType =
                         parentId.text
                             .toString()
                             .trim(),
+                    
+                    "color" to color.text
+    .toString()
+    .trim()
+    .ifBlank { "#E3F2FD" },
                     
                     "label" to
                         label.text
