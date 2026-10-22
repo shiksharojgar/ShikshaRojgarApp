@@ -69,6 +69,8 @@ class ChannelActivity : AppCompatActivity() {
 private var unreadCountAtOpen = 0
  private var unreadMarkerView: View? = null   
     private var followingState = false
+    private var alignInitialFeedAfterImages = false
+private var initialImageLoadsPending = 0
 
     private var pendingPostId: String? = null
 private var notificationTargetPostId: String? = null
@@ -299,7 +301,21 @@ unreadCountAtOpen =
             firstFeedRender ||
                 oldNewest != newNewest
         )
+alignInitialFeedAfterImages =
+    firstFeedRender &&
+    shouldGoToNewest &&
+    pendingPostId == null &&
+    notificationTargetPostId == null &&
+    unreadCountAtOpen <= 0
 
+initialImageLoadsPending =
+    if (alignInitialFeedAfterImages) {
+        posts.count {
+            it.imageUrl.isNotBlank()
+        }
+    } else {
+        0
+    }
             renderPosts(
                 preservePosition =
                     !shouldGoToNewest
@@ -2268,6 +2284,28 @@ p.buttons
                         hint.text =
                             "🖼️ फोटो खोलने के लिए यहाँ दबाएँ"
                     }
+                    if (
+    alignInitialFeedAfterImages &&
+    initialImageLoadsPending > 0
+) {
+    initialImageLoadsPending--
+
+    if (initialImageLoadsPending == 0) {
+        alignInitialFeedAfterImages = false
+        scrollToNewest()
+    }
+}
+
+notificationTargetPostId?.let { targetId ->
+    val targetIndex =
+        posts.indexOfFirst {
+            it.id == targetId
+        }
+
+    if (targetIndex >= 0) {
+        scrollToPost(targetIndex)
+    }
+}
                 }
             }
         }
