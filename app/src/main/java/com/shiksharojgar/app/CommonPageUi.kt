@@ -418,21 +418,20 @@ fun createHeader(
                     "${doc.getString("icon") ?: "🌐"} ${doc.getString("label") ?: "Website"}"
                 }.toTypedArray()
 
-                AlertDialog.Builder(context)
-                    .setTitle("🌐 Website चुनें")
-                    .setAdapter(coloredHeaderOptionsAdapter(context, options)) { _, which ->
-                        val url = links[which].getString("url").orEmpty()
-                        if (url.startsWith("https://") || url.startsWith("http://")) {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    WebViewActivity::class.java
-                                ).putExtra("url", url)
-                            )
-                        }
-                    }
-                    .setNegativeButton("बंद करें", null)
-                    .show()
+                
+showAnchoredOptions(context, this@apply, options) { which ->
+    val url = links[which].getString("url").orEmpty()
+
+    if (url.startsWith("https://") || url.startsWith("http://")) {
+        context.startActivity(
+            Intent(
+                context,
+                WebViewActivity::class.java
+            ).putExtra("url", url)
+        )
+    }
+}
+
             }
         }
         .addOnFailureListener {
@@ -526,27 +525,25 @@ val contactIcon =
                                 }"
                             }.toTypedArray()
 
-                            AlertDialog.Builder(context)
-                                .setTitle("🤝 हमसे जुड़ें")
-                                .setAdapter(coloredHeaderOptionsAdapter(context, options)) { _, which ->
-                                    val url = links[which]
-                                        .getString("url")
-                                        .orEmpty()
+                            
+showAnchoredOptions(context, this@apply, options) { which ->
+    val url = links[which]
+        .getString("url")
+        .orEmpty()
 
-                                    if (
-                                        url.startsWith("https://") ||
-                                        url.startsWith("http://")
-                                    ) {
-                                        context.startActivity(
-                                            Intent(
-                                                Intent.ACTION_VIEW,
-                                                Uri.parse(url)
-                                            )
-                                        )
-                                    }
-                                }
-                                .setNegativeButton("बंद करें", null)
-                                .show()
+    if (
+        url.startsWith("https://") ||
+        url.startsWith("http://")
+    ) {
+        context.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(url)
+            )
+        )
+    }
+}
+
                         }
                     }
                     .addOnFailureListener {
