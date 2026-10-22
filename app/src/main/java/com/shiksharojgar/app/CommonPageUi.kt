@@ -1255,17 +1255,25 @@ showAnchoredOptions(context, this@apply, options) { which ->
         /*
          * MORE
          */
-        val more =
-            createBottomButton(
-                context,
-                "☰\nMore ▼",
-                activeSection != Section.HOME &&
-                    activeSection != Section.CHANNEL &&
-                    activeSection != Section.NOTICE &&
-                    activeSection != Section.IMP_INFO
-            ) {
-                showMoreMenu(context)
-            }
+        
+var moreAnchor: View? = null
+
+val more =
+    createBottomButton(
+        context,
+        "☰\nMore ▼",
+        activeSection != Section.HOME &&
+            activeSection != Section.CHANNEL &&
+            activeSection != Section.NOTICE &&
+            activeSection != Section.IMP_INFO
+    ) {
+        moreAnchor?.let { anchor ->
+            showMoreMenu(context, anchor)
+        }
+    }
+
+moreAnchor = more
+
 
 
         bottom.addView(
