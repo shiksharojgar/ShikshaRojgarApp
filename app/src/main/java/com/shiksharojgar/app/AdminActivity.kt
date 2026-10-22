@@ -3525,39 +3525,101 @@ private fun showMoreMenuManager() {
 
             dialog.dismiss()
 
-            val items =
-                snap.documents.toMutableList()
+val allItems = snap.documents
 
-            val names =
-                ArrayList<String>()
+val items =
+    ArrayList<com.google.firebase.firestore.DocumentSnapshot>()
 
-            items.forEach { doc ->
+val displayNumbers =
+    ArrayList<String>()
 
-                val icon =
-                    doc.getString("icon")
-                        ?: "☰"
+val sections =
+    allItems
+        .filter {
+            it.getString("menuType")
+                ?.lowercase() == "section"
+        }
+        .sortedBy {
+            it.getLong("position") ?: 1L
+        }
 
-                val label =
-                    doc.getString("label")
-                        ?: "Unnamed"
+sections.forEachIndexed { sectionIndex, section ->
 
-    
-        
-                val enabled =
-                    doc.getBoolean("enabled")
-                        ?: true
+    items.add(section)
+    displayNumbers.add("${sectionIndex + 1}")
 
-                val status =
-                    if (enabled) "✅" else "❌"
+    val sectionId =
+        section.getString("menuId") ?: ""
 
-                names.add(
-                    "$status $icon $label"
-                )
+    val children =
+        allItems
+            .filter {
+                it.getString("menuType")
+                    ?.lowercase() == "item" &&
+                it.getString("parentId") == sectionId
+            }
+            .sortedBy {
+                it.getLong("position") ?: 1L
             }
 
-            names.add(
-                "➕ Add New More Menu"
-            )
+    children.forEachIndexed { childIndex, child ->
+        items.add(child)
+        displayNumbers.add(
+            "${sectionIndex + 1}.${childIndex + 1}"
+        )
+    }
+}
+
+val remainingItems =
+    allItems
+        .filter { doc ->
+            items.none { it.id == doc.id }
+        }
+        .sortedBy {
+            it.getLong("position") ?: 1L
+        }
+
+remainingItems.forEach { doc ->
+    items.add(doc)
+    displayNumbers.add("•")
+}
+
+val names =
+    ArrayList<String>()
+
+items.forEachIndexed { index, doc ->
+
+    val icon =
+        doc.getString("icon") ?: "☰"
+
+    val label =
+        doc.getString("label") ?: "Unnamed"
+
+    val enabled =
+        doc.getBoolean("enabled") ?: true
+
+    val status =
+        if (enabled) "✅" else "❌"
+
+    val number =
+        displayNumbers[index]
+
+    val prefix =
+        if (doc.getString("menuType")
+                ?.lowercase() == "section"
+        ) {
+            "$number."
+        } else {
+            "$number"
+        }
+
+    names.add(
+        "$prefix  $status $icon $label"
+    )
+}
+
+names.add("➕ Add New More Menu")
+
 
             AlertDialog.Builder(this)
                 .setTitle(
