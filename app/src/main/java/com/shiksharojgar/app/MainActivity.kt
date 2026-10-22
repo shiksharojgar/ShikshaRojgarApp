@@ -593,7 +593,7 @@ findViewById<TextView>(R.id.websiteButton).setOnClickListener {
 
                 AlertDialog.Builder(this)
                     .setTitle("🌐 Website चुनें")
-                    .setItems(options) { _, which ->
+                    .setAdapter(CommonPageUi.coloredHeaderOptionsAdapter(this, options)) { _, which ->
                         val url = links[which]
                             .getString("url")
                             .orEmpty()
@@ -649,7 +649,7 @@ findViewById<TextView>(R.id.contactButton).setOnClickListener {
 
                 AlertDialog.Builder(this)
                     .setTitle("🤝 हमसे जुड़ें")
-                    .setItems(options) { _, which ->
+                    .setAdapter(CommonPageUi.coloredHeaderOptionsAdapter(this, options)) { _, which ->
                         val url = links[which]
                             .getString("url")
                             .orEmpty()
