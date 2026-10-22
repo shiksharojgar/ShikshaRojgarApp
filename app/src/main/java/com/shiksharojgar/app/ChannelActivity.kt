@@ -700,6 +700,20 @@ private fun updateLatestPostButtonVisibility() {
                     )
                 )
             }
+            ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+    val statusBarHeight = insets.getInsets(
+        WindowInsetsCompat.Type.statusBars()
+    ).top
+
+    view.setPadding(
+        view.paddingLeft,
+        statusBarHeight,
+        view.paddingRight,
+        view.paddingBottom
+    )
+
+    insets
+            }
 /*
  * =========================================================
  * MASTER COMMON HEADER
