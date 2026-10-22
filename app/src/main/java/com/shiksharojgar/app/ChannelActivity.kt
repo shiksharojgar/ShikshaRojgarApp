@@ -333,11 +333,11 @@ if (
                     posts.indexOfFirst {
                         it.id == id
                     }
-
-                if (index >= 0) {
-                    scrollToPost(index)
-                    pendingPostId = null
-                }
+if (index >= 0) {
+    if (scrollToPost(index)) {
+        pendingPostId = null
+    }
+}
                 // पोस्ट अभी लोड नहीं हुई हो तो ID सुरक्षित रखें।
                 // अगली बार पोस्ट सूची अपडेट होने पर फिर प्रयास होगा।
             }
@@ -412,9 +412,10 @@ if (
                 }
 
             if (index >= 0) {
-                scrollToPost(index)
-                pendingPostId = null
-            }
+    if (scrollToPost(index)) {
+        pendingPostId = null
+    }
+}
             // पोस्ट नहीं मिली तो ID सुरक्षित रहेगी।
             // पोस्ट सूची अपडेट होने पर फिर प्रयास होगा।
         }
@@ -444,58 +445,51 @@ if (
         }
     }
 
-    private fun scrollToPost(
-        index: Int
+    
+private fun scrollToPost(
+    index: Int
+): Boolean {
+
+    if (
+        !::feedScroll.isInitialized ||
+        !::list.isInitialized
     ) {
+        return false
+    }
 
-        if (
-            !::feedScroll.isInitialized ||
-            !::list.isInitialized
-        ) {
-            return
-        }
+    if (
+        index < 0 ||
+        index >= posts.size
+    ) {
+        return false
+    }
 
-        if (
-            index < 0 ||
-            index >= posts.size
-        ) {
-            return
-        }
+    val postId = posts[index].id
 
-        val postId =
-            posts[index].id
+    var target: View? = null
 
-        /*
-         * Every post has a blue divider after it.
-         * Therefore child index != post index.
-         *
-         * We use the post ID tag instead.
-         */
-        var target: View? = null
+    for (i in 0 until list.childCount) {
+        val child = list.getChildAt(i)
 
-        for (i in 0 until list.childCount) {
-
-            val child =
-                list.getChildAt(i)
-
-            if (child.tag == postId) {
-                target = child
-                break
-            }
-        }
-
-        target?.let { child ->
-
-            feedScroll.post {
-
-                feedScroll.smoothScrollTo(
-                    0,
-                    child.top
-                )
-                updateLatestPostButtonVisibility()
-            }
+        if (child.tag == postId) {
+            target = child
+            break
         }
     }
+
+    val child = target ?: return false
+
+    feedScroll.post {
+        feedScroll.smoothScrollTo(
+            0,
+            child.top
+        )
+        updateLatestPostButtonVisibility()
+    }
+
+    return true
+}
+
 private fun createLatestPostButton(): TextView {
 
     return TextView(this).apply {
