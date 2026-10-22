@@ -89,6 +89,94 @@ object CommonPageUi {
             ).toInt()
     }
 
+fun showAnchoredOptions(
+    context: Context,
+    anchor: View,
+    options: Array<String>,
+    onSelect: (Int) -> Unit
+) {
+    if (options.isEmpty()) return
+
+    val list = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(context, 4),
+            dp(context, 4),
+            dp(context, 4),
+            dp(context, 4)
+        )
+        background = GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = dp(context, 12).toFloat()
+            setStroke(dp(context, 1), Color.parseColor("#CBD5E1"))
+        }
+    }
+
+    var popup: PopupWindow? = null
+
+    options.forEachIndexed { index, option ->
+        val row = TextView(context).apply {
+            text = option
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                dp(context, 14),
+                dp(context, 12),
+                dp(context, 14),
+                dp(context, 12)
+            )
+
+            val colors = intArrayOf(
+                Color.parseColor("#1DA1F2"),
+                Color.parseColor("#00897B"),
+                Color.parseColor("#EF6C00"),
+                Color.parseColor("#6A1B9A"),
+                Color.parseColor("#2E7D32"),
+                Color.parseColor("#C62828")
+            )
+
+            setBackgroundColor(colors[index % colors.size])
+            isClickable = true
+            isFocusable = true
+        }
+
+        list.addView(
+            row,
+            LinearLayout.LayoutParams(-1, -2).apply {
+                bottomMargin = dp(context, 3)
+            }
+        )
+
+        row.setOnClickListener {
+            popup?.dismiss()
+            onSelect(index)
+        }
+    }
+
+    val width = minOf(
+        dp(context, 280),
+        (context.resources.displayMetrics.widthPixels * 0.82f).toInt()
+    )
+
+    popup = PopupWindow(
+        list,
+        width,
+        minOf(
+            dp(context, 420),
+            (context.resources.displayMetrics.heightPixels * 0.60f).toInt()
+        ),
+        true
+    ).apply {
+        setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        elevation = dp(context, 12).toFloat()
+        isOutsideTouchable = true
+    }
+
+    popup.showAsDropDown(anchor, 0, -dp(context, 3), Gravity.END)
+}
+
     /*
      * =========================================================
      * COMMON HEADER
