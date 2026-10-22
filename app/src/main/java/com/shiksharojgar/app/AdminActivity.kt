@@ -301,6 +301,19 @@ val buttonColor = when {
     textValue.contains("🎨") ->
         Color.rgb(124, 58, 237)
 
+        
+    textValue.contains("STUDY MATERIAL", ignoreCase = true) ||
+    textValue.contains("📖") ->
+        Color.rgb(109, 40, 217)
+
+    textValue.contains("CAREER", ignoreCase = true) ||
+    textValue.contains("🚀") ->
+        Color.rgb(217, 119, 6)
+
+    textValue.contains("IMPORTANT INFORMATION", ignoreCase = true) ||
+    textValue.contains("📌") ->
+        Color.rgb(13, 148, 136)
+        
     textValue.contains("TEACHER", ignoreCase = true) ||
     textValue.contains("🧑‍🏫") ->
         Color.rgb(2, 132, 199)
@@ -2357,98 +2370,84 @@ val pageManager =
         orientation = LinearLayout.VERTICAL
     }
 
-// -------------------------
-// ROW 1
-// -------------------------
 
-val pageRow1 =
-    LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-    }
+        // HOME PAGE CONTENT — 3 BUTTONS IN ONE ROW
 
-pageManager.addView(
-    pageRow1,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(40)
-    ).apply {
-        bottomMargin = dp(6)
-    }
-)
+        val pageManager =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+            }
 
-// 1. Study Material / Syllabus
-pageRow1.addView(
-    adminActionButton(
-        "📖  Study Material / Syllabus"
-    ) {
-        editHomePage(
-            "study_material",
-            "Study Material / Syllabus"
+        val pageRow1 =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
+
+        pageManager.addView(
+            pageRow1,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(44)
+            ).apply {
+                bottomMargin = dp(4)
+            }
         )
-    },
-    LinearLayout.LayoutParams(
-        0,
-        -1,
-        1f
-    ).apply {
-        rightMargin = dp(3)
-    }
-)
 
-// 2. Career Guide / Useful Tools
-pageRow1.addView(
-    adminActionButton(
-        "📚  Career Guide / Useful Tools"
-    ) {
-        editHomePage(
-            "career",
-            "Career Guide / Useful Tools"
+        // Study Material
+        pageRow1.addView(
+            adminActionButton("📖 Study Material") {
+                editHomePage(
+                    "study_material",
+                    "Study Material / Syllabus"
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                -1,
+                1f
+            ).apply {
+                rightMargin = dp(3)
+            }
         )
-    },
-    LinearLayout.LayoutParams(
-        0,
-        -1,
-        1f
-    ).apply {
-        leftMargin = dp(3)
-    }
-)
 
-// -------------------------
-// ROW 2
-// -------------------------
-
-val pageRow2 =
-    LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-    }
-
-pageManager.addView(
-    pageRow2,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(40)
-    )
-)
-
- // 4. Implementation Information — Full Width
-pageRow2.addView(
-    adminActionButton(
-        "📌  Important Information / Imp Info"
-    ) {
-        editHomePage(
-            "important_information",
-            "Implementation Information"
+        // Career & Useful Tools
+        pageRow1.addView(
+            adminActionButton("🚀 Career / Tools") {
+                editHomePage(
+                    "career",
+                    "Career Guide / Useful Tools"
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                -1,
+                1f
+            ).apply {
+                leftMargin = dp(1)
+                rightMargin = dp(1)
+            }
         )
-    },
-    LinearLayout.LayoutParams(
-        -1,
-        -1
-    )
-)
 
+        // Important Information
+        pageRow1.addView(
+            adminActionButton("📌 महत्वपूर्ण सूचना") {
+                editHomePage(
+                    "important_information",
+                    "Implementation Information"
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                -1,
+                1f
+            ).apply {
+                leftMargin = dp(3)
+            }
+        )
 
-homeContent.addView(pageManager)
+        homeContent.addView(pageManager)
+
 
 
 homeContent.addView(
@@ -2465,51 +2464,91 @@ homeContent.addView(
 )
 
 
-val categoryPages = listOf(
-    "teacher" to "🧑‍🏫 Teacher",
-    "student" to "🎓 Student",
-    "school" to "🏫 School",
-    "vacancy" to "💼 Vacancy",
-    "result" to "🏆 Result",
-    "admit_card" to "🪪 Admit Card"
+val postCategories = listOf(
+    Triple(
+        "📌 Important\nInformation",
+        "important_information",
+        Color.rgb(0, 150, 136)
+    ),
+    Triple(
+        "📖 Study\nMaterial",
+        "study_material",
+        Color.rgb(123, 104, 238)
+    ),
+    Triple(
+        "🚀 Career\nGuide / Tools",
+        "career_guide",
+        Color.rgb(230, 126, 34)
+    )
 )
 
-categoryPages.chunked(3).forEach { pageRow ->
-    val row = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-    }
+val postCategoryRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
 
-    pageRow.forEachIndexed { index, item ->
-        val (pageId, pageLabel) = item
+postCategories.forEachIndexed { index, category ->
 
-        row.addView(
-            adminActionButton(pageLabel) {
-                showCategoryPageLayoutEditor(pageId, pageLabel)
-            },
-            LinearLayout.LayoutParams(
-                0,
-                dp(44),
-                1f
-            ).apply {
-                if (index > 0) {
-                    leftMargin = dp(3)
-                }
-                rightMargin = dp(3)
+    val (label, categoryKey, buttonColor) = category
+
+    postCategoryRow.addView(
+        Button(this).apply {
+            text = label
+            textSize = 10f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList =
+                android.content.res.ColorStateList.valueOf(buttonColor)
+            minHeight = dp(54)
+            minimumHeight = dp(54)
+            setPadding(dp(2), dp(2), dp(2), dp(2))
+
+            setOnClickListener {
+                AlertDialog.Builder(this@AdminActivity)
+                    .setTitle(label.replace("\n", " "))
+                    .setItems(
+                        arrayOf(
+                            "📋 Manage Post",
+                            "➕ Create Post"
+                        )
+                    ) { _, choice ->
+                        if (choice == 0) {
+                            showCategoryPostManager(
+                                categoryKey,
+                                label.replace("\n", " ")
+                            )
+                        } else {
+                            showCommonPostCreator(categoryKey)
+                        }
+                    }
+                    .setNegativeButton("बंद करें", null)
+                    .show()
             }
-        )
-    }
-
-    homeContent.addView(
-        row,
+        },
         LinearLayout.LayoutParams(
-            -1,
-            dp(44)
+            0,
+            dp(54),
+            1f
         ).apply {
-            topMargin = dp(3)
-            bottomMargin = dp(3)
+            if (index > 0) {
+                leftMargin = dp(3)
+            }
+            rightMargin = dp(3)
         }
     )
+}
+
+homeContent.addView(
+    postCategoryRow,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(58)
+    ).apply {
+        topMargin = dp(4)
+        bottomMargin = dp(4)
+    }
+)
+
 }
 
 
