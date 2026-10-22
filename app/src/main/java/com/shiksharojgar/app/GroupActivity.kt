@@ -93,17 +93,23 @@ listenToMemberCount()
             setBackgroundColor(Color.rgb(245, 249, 255))
         }
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
-            view.setPadding(
-                view.paddingLeft,
-                view.paddingTop,
-                view.paddingRight,
-                systemBars.bottom
-            )
-            insets
-        }
+    val systemBars = insets.getInsets(
+        WindowInsetsCompat.Type.systemBars()
+    )
+
+    val statusBarHeight = insets.getInsets(
+        WindowInsetsCompat.Type.statusBars()
+    ).top
+
+    view.setPadding(
+        view.paddingLeft,
+        statusBarHeight,
+        view.paddingRight,
+        systemBars.bottom
+    )
+
+    insets
+}
 
         root.addView(
             CommonPageUi.createHeader(
