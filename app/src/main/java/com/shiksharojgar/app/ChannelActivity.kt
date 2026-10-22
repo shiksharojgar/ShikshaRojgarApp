@@ -172,7 +172,7 @@ private fun samePostContent(
     ) {
         super.onCreate(savedInstanceState)
 
-        setContentView(makeUi())
+        
 
         pendingPostId =
             intent.data?.let { uri ->
@@ -183,6 +183,8 @@ private fun samePostContent(
                     }
             }
             notificationTargetPostId = pendingPostId
+        setContentView(makeUi())
+        
 unreadCountAtOpen =
     getSharedPreferences(
         "sr_notifications",
