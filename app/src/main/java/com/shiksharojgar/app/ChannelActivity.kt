@@ -2285,6 +2285,28 @@ p.buttons
                             "🖼️ फोटो खोलने के लिए यहाँ दबाएँ"
                     }
                     if (
+    unreadCountAtOpen > 0 &&
+    pendingPostId == null &&
+    notificationTargetPostId == null
+) {
+    feedScroll.post {
+        feedScroll.post {
+            val marker =
+                list.findViewWithTag<View>(
+                    "channel_unread_marker"
+                )
+
+            if (marker != null) {
+                feedScroll.scrollTo(
+                    0,
+                    (marker.top - dp(12))
+                        .coerceAtLeast(0)
+                )
+            }
+        }
+    }
+                    }
+                    if (
     alignInitialFeedAfterImages &&
     initialImageLoadsPending > 0
 ) {
