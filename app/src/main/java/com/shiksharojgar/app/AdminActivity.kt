@@ -6213,6 +6213,10 @@ box.addView(commonPostImagePreview)
             .also { dialog ->
 
                 dialog.setOnShowListener {
+                    dialog.window?.setLayout(
+    (resources.displayMetrics.widthPixels * 0.95).toInt(),
+    (resources.displayMetrics.heightPixels * 0.82).toInt()
+)
 
                     dialog.getButton(
                         AlertDialog.BUTTON_POSITIVE
