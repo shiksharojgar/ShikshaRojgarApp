@@ -1685,10 +1685,12 @@ private fun showMoreMenu(
             val menuStack =
                 mutableListOf<Pair<List<com.google.firebase.firestore.DocumentSnapshot>, String>>()
 
-            lateinit var renderMenu:
-                (List<com.google.firebase.firestore.DocumentSnapshot>, String) -> Unit
+            
+fun renderMenu(
+    menuItems: List<com.google.firebase.firestore.DocumentSnapshot>,
+    title: String
+) {
 
-            renderMenu = { menuItems, title ->
 
                 list.removeAllViews()
 
