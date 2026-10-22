@@ -1500,104 +1500,183 @@ if (count <= 0) {
                     ).show()
                     return@addOnSuccessListener
                 }
-
-                fun showMenuList(
-                    menuItems: List<com.google.firebase.firestore.DocumentSnapshot>,
-                    title: String
-                ) {
-
-                    if (menuItems.isEmpty()) {
-                        Toast.makeText(
-                            context,
-                            "इस Section में अभी कोई Sub-menu नहीं है।",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return
-                    }
-
-                    val labels = menuItems.map { doc ->
-
-                        val icon =
-                            doc.getString("icon") ?: ""
-
-                        val label =
-                            doc.getString("label") ?: "Menu"
-
-                        val menuType =
-                            doc.getString("menuType")
-                                ?.lowercase()
-                                .orEmpty()
-
-                        
-val prefix =
-    if (menuType == "section") {
-        "⌄ "
-    } else {
-        ""
+fun showMenuList(
+    menuItems: List<com.google.firebase.firestore.DocumentSnapshot>,
+    title: String
+) {
+    if (menuItems.isEmpty()) {
+        Toast.makeText(
+            context,
+            "इस Section में अभी कोई Sub-menu नहीं है।",
+            Toast.LENGTH_SHORT
+        ).show()
+        return
     }
 
+    val scrollView = ScrollView(context)
 
-                        if (icon.isNotBlank()) {
-                            "$prefix$icon  $label"
-                        } else {
-                            "$prefix$label"
-                        }
-                    }.toTypedArray()
+    val list = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(
+            dp(context, 10),
+            dp(context, 8),
+            dp(context, 10),
+            dp(context, 8)
+        )
+    }
 
-                    AlertDialog.Builder(context)
-                        .setTitle(title)
-                        .setItems(labels) { _, which ->
+    scrollView.addView(list)
 
-                            val selected = menuItems[which]
+    menuItems.forEach { doc ->
 
-                            val menuType =
-                                selected.getString("menuType")
-                                    ?.lowercase()
-                                    .orEmpty()
+        val iconText = doc.getString("icon") ?: "☰"
+        val labelText = doc.getString("label") ?: "Menu"
+        val menuType = doc.getString("menuType")
+            ?.lowercase()
+            .orEmpty()
 
-                            if (menuType == "section") {
+        val colorText = doc.getString("color") ?: "#E3F2FD"
 
-                                val sectionId =
-                                    selected.getString("menuId")
-                                        ?.trim()
-                                        .orEmpty()
+        val cardColor = try {
+            Color.parseColor(colorText)
+        } catch (_: Exception) {
+            Color.parseColor("#E3F2FD")
+        }
 
-                                if (sectionId.isBlank()) {
-                                    Toast.makeText(
-                                        context,
-                                        "इस Section का Menu ID सेट नहीं है।",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return@setItems
-                                }
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                dp(context, 12),
+                dp(context, 10),
+                dp(context, 12),
+                dp(context, 10)
+            )
 
-                                val children = items.filter { child ->
+            background = GradientDrawable().apply {
+                setColor(cardColor)
+                cornerRadius = dp(context, 14).toFloat()
+                setStroke(
+                    dp(context, 1),
+                    Color.parseColor("#D1D5DB")
+                )
+            }
 
-                                    child.getString("parentId")
-                                        ?.trim() == sectionId &&
-                                        child.getString("menuType")
-                                            ?.lowercase() != "section"
-                                }
+            isClickable = true
+            isFocusable = true
+        }
 
-                                showMenuList(
-    children,
-    "⌃ " + (
-        selected.getString("label")
-            ?: "Sub-menu"
-    )
-)
+        val iconView = TextView(context).apply {
+            text = iconText
+            textSize = 25f
+            gravity = Gravity.CENTER
+        }
 
-                            } else {
+        card.addView(
+            iconView,
+            LinearLayout.LayoutParams(
+                dp(context, 44),
+                dp(context, 44)
+            )
+        )
 
-                                openMoreItem(
-                                    context,
-                                    selected
-                                )
-                            }
-                        }
-                        .setNegativeButton("CLOSE", null)
-                        .show()
+        val nameView = TextView(context).apply {
+            text = if (menuType == "section") {
+                "$labelText  ▼"
+            } else {
+                labelText
+            }
+
+            textSize = 15f
+            setTextColor(Color.parseColor("#172033"))
+            setTypeface(
+                Typeface.DEFAULT,
+                Typeface.BOLD
+            )
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                dp(context, 10),
+                0,
+                dp(context, 4),
+                0
+            )
+        }
+
+        card.addView(
+            nameView,
+            LinearLayout.LayoutParams(
+                0,
+                -2,
+                1f
+            )
+        )
+
+        val arrow = TextView(context).apply {
+            text = "›"
+            textSize = 28f
+            setTextColor(Color.parseColor("#334155"))
+            gravity = Gravity.CENTER
+        }
+
+        card.addView(
+            arrow,
+            LinearLayout.LayoutParams(
+                dp(context, 28),
+                dp(context, 40)
+            )
+        )
+
+        list.addView(
+            card,
+            LinearLayout.LayoutParams(
+                -1,
+                -2
+            ).apply {
+                bottomMargin = dp(context, 8)
+            }
+        )
+
+        card.setOnClickListener {
+
+            if (menuType == "section") {
+
+                val sectionId = doc.getString("menuId")
+                    ?.trim()
+                    .orEmpty()
+
+                if (sectionId.isBlank()) {
+                    Toast.makeText(
+                        context,
+                        "इस Section का Menu ID सेट नहीं है।",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
                 }
+
+                val children = items.filter { child ->
+                    child.getString("parentId")
+                        ?.trim() == sectionId &&
+                        child.getString("menuType")
+                            ?.lowercase() != "section"
+                }
+
+                showMenuList(
+                    children,
+                    "⌃ $labelText"
+                )
+
+            } else {
+                openMoreItem(context, doc)
+            }
+        }
+    }
+
+    AlertDialog.Builder(context)
+        .setTitle(title)
+        .setView(scrollView)
+        .setNegativeButton("बंद करें", null)
+        .show()
+}
 
                 val rootItems = items.filter { doc ->
 
