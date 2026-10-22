@@ -4169,6 +4169,12 @@ private fun showMoreMenuEditor(
     document?.getString("color")
         ?: "#E3F2FD"
 )
+        
+val textColor = field(
+    "Text Color जैसे #FFFFFF",
+    document?.getString("textColor") ?: "#172033"
+)
+
 val menuType =
         field(
             "Menu Type: section / item",
@@ -4312,6 +4318,9 @@ val menuType =
     .toString()
     .trim()
     .ifBlank { "#E3F2FD" },
+                    
+"textColor" to textColor.text.toString().trim().ifBlank { "#172033" },
+                    
                     
                     "label" to
                         label.text
