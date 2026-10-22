@@ -1782,6 +1782,15 @@ private fun showMoreMenu(
 
                     val colorText =
                         doc.getString("color") ?: "#E3F2FD"
+                    
+val textColorValue = try {
+    Color.parseColor(
+        doc.getString("textColor") ?: "#172033"
+    )
+} catch (_: Exception) {
+    Color.parseColor("#172033")
+}
+    
 
                     val cardColor = try {
                         Color.parseColor(colorText)
@@ -1833,7 +1842,7 @@ private fun showMoreMenu(
                             labelText
                         }
                         textSize = 14f
-                        setTextColor(Color.parseColor("#172033"))
+                        setTextColor(textColorValue)
                         setTypeface(Typeface.DEFAULT, Typeface.BOLD)
                         gravity = Gravity.CENTER_VERTICAL
                         setPadding(
@@ -1856,7 +1865,7 @@ private fun showMoreMenu(
                     val arrow = TextView(context).apply {
                         text = "›"
                         textSize = 26f
-                        setTextColor(Color.parseColor("#334155"))
+                        setTextColor(textColorValue)
                         gravity = Gravity.CENTER
                     }
 
