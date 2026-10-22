@@ -343,13 +343,13 @@ fun createHeader(
             dp(context, 52)
         )
     )
-
-        val contactIcon =
-        TextView(context).apply {
-            text = "🤝"
-            textSize = 17f
-            gravity = Gravity.CENTER
-        }
+val contactIcon =
+    TextView(context).apply {
+        text = "🤝"
+        textSize = 17f
+        gravity = Gravity.CENTER
+        setTextColor(Color.YELLOW)
+    }
 
     val contactText =
         TextView(context).apply {
