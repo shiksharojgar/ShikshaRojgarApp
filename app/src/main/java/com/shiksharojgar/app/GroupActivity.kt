@@ -130,7 +130,7 @@ listenToMemberCount()
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(dp(16), dp(18), dp(16), dp(18))
+            setPadding(dp(12), dp(8), dp(12), dp(8))
             setBackgroundColor(Color.rgb(3, 105, 161))
         }
 
