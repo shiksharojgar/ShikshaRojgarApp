@@ -217,7 +217,7 @@ fun createHeader(
     context: Context,
     onBack: () -> Unit,
     onShare: () -> Unit,
-    onMenu: () -> Unit
+    onMenu: (View) -> Unit
 ): LinearLayout {
 
     val header =
@@ -601,8 +601,8 @@ showAnchoredOptions(context, this@apply, options) { which ->
             isFocusable = true
 
             setOnClickListener {
-                onMenu()
-            }
+    onMenu(this)
+}
         }
 
     header.addView(
