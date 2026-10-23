@@ -181,8 +181,7 @@ object CommonShareBuilder {
             "\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
                 "डाउनलोड इंस्टॉल करें !*"
         )
-        append("\n")
-        append(appDownloadUrl())
+        
     }
 }
 
