@@ -480,13 +480,7 @@ val debugInfo = buildString {
     appendLine("Body length: ${body.length}")
 }
 
-val debugInfo = buildString {
-    appendLine("Page ID: $pageId")
-    appendLine("Document exists: ${d.exists()}")
-    appendLine("Fields: ${d.data?.keys?.joinToString()}")
-    appendLine("Body type: ${rawBody?.javaClass?.simpleName ?: "null"}")
-    appendLine("Body length: ${body.length}")
-}
+
 
                 val image =
                     d.getString("imageUrl")
