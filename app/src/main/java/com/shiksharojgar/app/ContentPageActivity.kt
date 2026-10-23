@@ -846,54 +846,88 @@ private fun shareContentPage(
 
                             setOnClickListener {
                                 val shareText = buildString {
-                                    appendLine("📱 Shiksha Rojgar App")
-                                    appendLine(title)
+    val categoryHeader = when (pageId) {
+        "career", "career_tools" ->
+            "📱 Shiksha Rojgar App 🛠️ Career / Useful Tools"
 
-                                    if (body.isNotBlank()) {
-                                        appendLine(body)
-                                    }
+        "study_material" ->
+            "📱 Shiksha Rojgar App 📚 Study / Syllabus"
 
-                                    if (description.isNotBlank()) {
-                                        appendLine(description)
-                                    }
+        else ->
+            "📱 Shiksha Rojgar App 📌 Imp Info"
+    }
 
-                                    if (websiteUrl.isNotBlank()) {
-                                        val url = if (
-                                            websiteUrl.startsWith("http://") ||
-                                            websiteUrl.startsWith("https://")
-                                        ) websiteUrl else "https://$websiteUrl"
+    append("*")
+    append(categoryHeader)
+    append("*")
 
-                                        appendLine("🌐 वेबसाइट: $url")
-                                    }
+    append("\n*पोस्ट देखें 👇*")
+    append("\n")
+    append(CommonShareBuilder.directPostUrl(doc.id))
 
-                                    if (extraUrl.isNotBlank()) {
-                                        val url = if (
-                                            extraUrl.startsWith("http://") ||
-                                            extraUrl.startsWith("https://")
-                                        ) extraUrl else "https://$extraUrl"
+    if (title.isNotBlank()) {
+        append("\n\n*")
+        append(title.trim())
+        append("*")
+    }
 
-                                        appendLine("🔗 अतिरिक्त लिंक: $url")
-                                    }
+    if (body.isNotBlank()) {
+        append("\n\n")
+        append(body.trim())
+    }
 
-                                    customButtons.forEach { (label, rawUrl) ->
-                                        val url = if (
-                                            rawUrl.startsWith("http://") ||
-                                            rawUrl.startsWith("https://")
-                                        ) rawUrl else "https://$rawUrl"
+    if (description.isNotBlank()) {
+        append("\n\n")
+        append(description.trim())
+    }
 
-                                        appendLine("$label: $url")
-                                    }
+    if (websiteUrl.isNotBlank()) {
+        val url = if (
+            websiteUrl.startsWith("http://") ||
+            websiteUrl.startsWith("https://")
+        ) websiteUrl else "https://$websiteUrl"
 
-                                    if (fileUrl.isNotBlank()) {
-                                        appendLine("📄 ${fileName.ifBlank { "फाइल / PDF" }}: $fileUrl")
-                                    }
+        append("\n\n🌐 वेबसाइट लिंक 👇\n")
+        append(url)
+    }
 
-                                    
+    if (extraUrl.isNotBlank()) {
+        val url = if (
+            extraUrl.startsWith("http://") ||
+            extraUrl.startsWith("https://")
+        ) extraUrl else "https://$extraUrl"
 
-                                    appendLine()
-                                    appendLine("Official Website: https://www.shiksharojgar.com/")
-                                    appendLine("App Download: https://www.shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
-                                }
+        append("\n\n🔗 अतिरिक्त लिंक 👇\n")
+        append(url)
+    }
+
+    customButtons.forEach { (label, rawUrl) ->
+        val url = if (
+            rawUrl.startsWith("http://") ||
+            rawUrl.startsWith("https://")
+        ) rawUrl else "https://$rawUrl"
+
+        append("\n\n🔗 ")
+        append(label)
+        append(" 👇\n")
+        append(url)
+    }
+
+    if (fileUrl.isNotBlank()) {
+        append("\n\n📄 ")
+        append(fileName.ifBlank { "फाइल / PDF" })
+        append(" 👇\n")
+        append(fileUrl)
+    }
+
+    append("\n\n*✅ शिक्षा रोजगार की Official Website 🌐*")
+    append("\nhttps://www.shiksharojgar.com/")
+
+    append(
+        "\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+            "डाउनलोड इंस्टॉल करें !*"
+    )
+}
 
                                 ShareHelper.shareImageOrText(
     this@ContentPageActivity,
