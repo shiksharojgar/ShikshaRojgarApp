@@ -110,9 +110,8 @@ val paint =
     android.graphics.Paint(
         android.graphics.Paint.ANTI_ALIAS_FLAG
     ).apply {
-
         color =
-            android.graphics.Color.WHITE
+            android.graphics.Color.CYAN
 
         alpha =
             185
@@ -157,7 +156,7 @@ canvas.drawText(
     y1,
     paint
 )
-
+paint.color = android.graphics.Color.YELLOW
 canvas.drawText(
     line2,
     x,
