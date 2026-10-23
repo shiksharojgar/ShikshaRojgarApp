@@ -731,7 +731,8 @@ card.addView(
     this,
     "Shiksha Rojgar Notice",
     noticeShareText,
-    chooserTitle = "Share Notice"
+    imageUrl,
+    "Share Notice"
 )
 
             } catch (_: Exception) {
