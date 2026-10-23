@@ -2076,6 +2076,32 @@ val textColorValue = try {
                                         "pageTitle",
                                         "📌 Important Information"
                                     )
+                                    
+                        else -> {
+                            val pageId = doc.getString("target")
+                                ?.trim()
+                                .orEmpty()
+
+                            if (pageId.isNotBlank()) {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        ContentPageActivity::class.java
+                                    ).apply {
+                                        putExtra("pageId", pageId)
+                                        putExtra("pageTitle", label)
+                                        putExtra("activeSection", "MORE")
+                                    }
+                                )
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "इस पेज की ID उपलब्ध नहीं है।",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        
                                 }
                             )
                         }
