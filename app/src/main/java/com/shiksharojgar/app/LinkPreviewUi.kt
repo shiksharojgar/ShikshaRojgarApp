@@ -326,19 +326,15 @@ val shareButton = TextView(context).apply {
         cornerRadius = dp(context, 8).toFloat()
     }
     setOnClickListener {
-        context.startActivity(
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        "${title.text}\n$url"
-                    )
-                },
-                "पोस्ट शेयर करें"
-            )
+        ShareHelper.shareImageOrText(
+            context,
+            title.text.toString(),
+            "${title.text}\n$url",
+            chooserTitle = "पोस्ट शेयर करें"
         )
     }
+
+    
 }
 
 buttonsRow.addView(
