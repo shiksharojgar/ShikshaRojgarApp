@@ -1169,7 +1169,8 @@ append(doc.id)
     this@NoticeActivity,
     "Shiksha Rojgar Notice / Update",
     categoryNoticeShareText,
-    chooserTitle = "Share Notice / Update"
+    imageUrl,
+    "Share Notice / Update"
 )
                             } catch (_: Exception) {
                                 Toast.makeText(
