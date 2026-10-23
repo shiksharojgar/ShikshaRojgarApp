@@ -126,10 +126,7 @@ onShare = {
     )
 },
 
-                    startActivity(
-                        Intent.createChooser(shareIntent, "ग्रुप शेयर करें")
-                    )
-                },
+                    
                                 onMenu = {
                     CommonPageUi.showAccountMenu(this)
                 }
