@@ -302,36 +302,29 @@ root.addView(
 private fun shareContentPage(
     pageTitle: String
 ) {
+    val shareText = buildString {
+        append("📱 Shiksha Rojgar App")
+        append("\n📌 ")
+        append(pageTitle)
 
-    val shareText =
-        """
-        📱 Shiksha Rojgar App 📌 Imp Info
+        append("\n\n✅ शिक्षा रोजगार की Official Website 🌐")
+        append("\nhttps://www.shiksharojgar.com/")
 
-        $pageTitle
-
-        Shiksha Rojgar App
-        https://shiksha-rojgar.web.app/
-
-        ऐप में देखें:
-        shiksharojgar://channel
-        """.trimIndent()
-
-    val intent =
-        Intent(Intent.ACTION_SEND).apply {
-
-            type = "text/plain"
-
-            putExtra(
-                Intent.EXTRA_TEXT,
-                shareText
-            )
-        }
-
-    startActivity(
-        Intent.createChooser(
-            intent,
-            "Share"
+        append(
+            "\n\n☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+                "डाउनलोड इंस्टॉल करें !"
         )
+        append(
+            "\nhttps://www.shiksharojgar.com/2026/09/" +
+                "shiksha-rojgar-android-app-latest.html"
+        )
+    }
+
+    ShareHelper.shareImageOrText(
+        this,
+        pageTitle,
+        shareText,
+        chooserTitle = "पेज शेयर करें"
     )
 }
     /*
