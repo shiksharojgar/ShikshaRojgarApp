@@ -464,20 +464,15 @@ private fun shareContentPage(
                         }
 
                 val rawBody = d.get("body")
-val mapBody = d.data?.get("body")
+val body = d.getString("body").orEmpty()
 val body = when {
     rawBody is String -> rawBody
     mapBody is String -> mapBody
     else -> ""
 }
 
-val debugInfo = buildString {
-    appendLine("Page ID: $pageId")
-    appendLine("Document exists: ${d.exists()}")
-    appendLine("Fields: ${d.data?.keys?.joinToString()}")
-    appendLine("get(body) type: ${rawBody?.javaClass?.simpleName ?: "null"}")
-    appendLine("data body type: ${mapBody?.javaClass?.simpleName ?: "null"}")
-    appendLine("Body length: ${body.length}")
+text = body.ifBlank {
+    "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
 }
 
 
