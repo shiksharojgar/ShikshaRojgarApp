@@ -2180,32 +2180,19 @@ val textColorValue = try {
                         .show()
                 }
 
+                
                 "share" -> {
+                    val shareText =
+                        if (content.isNotBlank()) content else url
 
-                    context.startActivity(
-                        Intent.createChooser(
-                            Intent(
-                                Intent.ACTION_SEND
-                            ).apply {
-
-                                type =
-                                    "text/plain"
-
-                                putExtra(
-                                    Intent.EXTRA_TEXT,
-                                    if (
-                                        content.isNotBlank()
-                                    ) {
-                                        content
-                                    } else {
-                                        url
-                                    }
-                                )
-                            },
-                            "Share"
-                        )
+                    ShareHelper.shareImageOrText(
+                        context,
+                        "Shiksha Rojgar App",
+                        shareText,
+                        chooserTitle = "Share"
                     )
                 }
+
 
                 "external" -> {
 
