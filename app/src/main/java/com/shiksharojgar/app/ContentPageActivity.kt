@@ -464,7 +464,7 @@ private fun shareContentPage(
                         }
 
                                 val body = d.getString("body").orEmpty()
-}
+
 
                 val image =
                     d.getString("imageUrl")
