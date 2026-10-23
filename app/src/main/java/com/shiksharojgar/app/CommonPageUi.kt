@@ -2076,7 +2076,9 @@ val textColorValue = try {
                                         "pageTitle",
                                         "📌 Important Information"
                                     )
-                                    
+                                                            }
+                            )
+                        }        
                         else -> {
                             val pageId = doc.getString("target")
                                 ?.trim()
@@ -2101,10 +2103,7 @@ val textColorValue = try {
                                 ).show()
                             }
                         }
-                        
-                                }
-                            )
-                        }
+                         
                     }
                 }
 
