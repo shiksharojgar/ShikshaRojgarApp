@@ -245,30 +245,14 @@ ViewCompat.setOnApplyWindowInsetsListener(
                     append("शिक्षा से सफलता तक, हर कदम आपके साथ!")
                 }
 
-                val shareIntent = Intent(
-                    Intent.ACTION_SEND
-                ).apply {
-                    type = "text/plain"
-                    putExtra(
-                        Intent.EXTRA_SUBJECT,
-                        fallbackTitle
-                    )
-                    putExtra(
-                        Intent.EXTRA_TITLE,
-                        fallbackTitle
-                    )
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        shareText
-                    )
-                }
-
-                startActivity(
-                    Intent.createChooser(
-                        shareIntent,
-                        "वेबसाइट पेज शेयर करें"
-                    )
+                
+                ShareHelper.shareImageOrText(
+                    this@WebViewActivity,
+                    fallbackTitle,
+                    shareText,
+                    chooserTitle = "वेबसाइट पेज शेयर करें"
                 )
+
             }
         }
 
