@@ -2081,8 +2081,9 @@ val textColorValue = try {
                         }        
                         else -> {
                             val pageId = doc.getString("target")
-                                ?.trim()
-                                .orEmpty()
+?.trim()
+?.lowercase()
+.orEmpty()
 
                             if (pageId.isNotBlank()) {
                                 context.startActivity(
