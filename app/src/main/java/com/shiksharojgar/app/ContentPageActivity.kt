@@ -904,17 +904,12 @@ private fun shareContentPage(
                                     appendLine("App Download: https://www.shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
                                 }
 
-                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, shareText)
-                                }
-
-                                startActivity(
-                                    Intent.createChooser(
-                                        shareIntent,
-                                        "पोस्ट शेयर करें"
-                                    )
-                                )
+                                ShareHelper.shareImageOrText(
+    this@ContentPageActivity,
+    title,
+    shareText,
+    chooserTitle = "पोस्ट शेयर करें"
+)
                             }
                         }
                     )
