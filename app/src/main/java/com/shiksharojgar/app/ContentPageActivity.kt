@@ -529,9 +529,9 @@ private fun shareContentPage(
                     TextView(this).apply {
 
                         text =
-                            body.ifBlank {
-                                "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
-                            }
+    body.ifBlank {
+        "सामग्री नहीं मिली।\n\nPage ID: $pageId\nDocument exists: ${d.exists()}\nBody length: ${body.length}"
+    }
 
                         textSize = 16f
 
