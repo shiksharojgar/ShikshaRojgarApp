@@ -1079,10 +1079,7 @@ append(doc.id)
                             append("*")
                         }
 
-                        if (imageUrl.isNotBlank()) {
-                            append("\n\n🖼️ फोटो देखें 👇\n")
-                            append(imageUrl)
-                        }
+                        
 
                         if (body.isNotBlank()) {
                             append("\n\n")
