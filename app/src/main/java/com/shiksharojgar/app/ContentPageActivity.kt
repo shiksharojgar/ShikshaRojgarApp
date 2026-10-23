@@ -908,7 +908,8 @@ private fun shareContentPage(
     this@ContentPageActivity,
     title,
     shareText,
-    chooserTitle = "पोस्ट शेयर करें"
+    imageUrl,
+    "पोस्ट शेयर करें"
 )
                             }
                         }
