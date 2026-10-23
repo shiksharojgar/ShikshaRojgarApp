@@ -146,13 +146,7 @@ setOnClickListener {
 }
 
 
-            context.startActivity(
-                Intent.createChooser(
-                    shareIntent,
-                    "पोस्ट शेयर करें"
-                )
-            )
-        }
+            
     }
 
     buttonsRow.addView(
