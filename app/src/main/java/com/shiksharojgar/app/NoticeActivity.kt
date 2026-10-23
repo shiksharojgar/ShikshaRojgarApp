@@ -1164,21 +1164,12 @@ append(doc.id)
 
                         setOnClickListener {
                             try {
-                                val shareIntent =
-                                    Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/plain"
-                                        putExtra(
-                                            Intent.EXTRA_TEXT,
-                                            categoryNoticeShareText
-                                        )
-                                    }
-
-                                startActivity(
-                                    Intent.createChooser(
-                                        shareIntent,
-                                        "Share Notice / Update"
-                                    )
-                                )
+                                ShareHelper.shareImageOrText(
+    this@NoticeActivity,
+    "Shiksha Rojgar Notice / Update",
+    categoryNoticeShareText,
+    chooserTitle = "Share Notice / Update"
+)
                             } catch (_: Exception) {
                                 Toast.makeText(
                                     this@NoticeActivity,
