@@ -463,7 +463,7 @@ private fun shareContentPage(
                             fallback
                         }
 
-                val body = d.getString("body").orEmpty()से जोड़ी नहीं गई है।"
+                                val body = d.getString("body").orEmpty()
 }
 
                 val image =
