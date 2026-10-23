@@ -728,7 +728,7 @@ card.addView(
             try {
 
                 ShareHelper.shareImageOrText(
-    this,
+        this@NoticeActivity,,
     "Shiksha Rojgar Notice",
     noticeShareText,
     imageUrl,
