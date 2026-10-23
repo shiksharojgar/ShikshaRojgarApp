@@ -3524,22 +3524,13 @@ moreShikshaButton.setOnClickListener {
 
         AnalyticsTracker.appShare(this)
 
-        startActivity(
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-
-                    type = "text/plain"
-
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        text
-                    )
-                },
-                "Share Shiksha Rojgar"
-            )
-        )
+        ShareHelper.shareImageOrText(
+    this,
+    "Shiksha Rojgar App",
+    text,
+    chooserTitle = "Share Shiksha Rojgar"
+)
     }
-
     // ============================================================
     // OPEN URL
     // ============================================================
