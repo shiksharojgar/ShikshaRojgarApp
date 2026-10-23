@@ -847,15 +847,15 @@ private fun shareContentPage(
                             setOnClickListener {
                                 val shareText = buildString {
     val categoryHeader = when (pageId) {
-        "career", "career_tools" ->
-            "📱 Shiksha Rojgar App 🛠️ Career / Useful Tools"
+    "career", "career_guide", "career_tools" ->
+        "📱 Shiksha Rojgar App 🛠️ Career / Useful Tools"
 
-        "study_material" ->
-            "📱 Shiksha Rojgar App 📚 Study / Syllabus"
+    "study_material" ->
+        "📱 Shiksha Rojgar App 📚 Study / Syllabus"
 
-        else ->
-            "📱 Shiksha Rojgar App 📌 Imp Info"
-    }
+    else ->
+        "📱 Shiksha Rojgar App 📌 Imp Info"
+}
 
     append("*")
     append(categoryHeader)
