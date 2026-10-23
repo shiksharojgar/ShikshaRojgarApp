@@ -135,18 +135,16 @@ fun addPostPreview(
             setColor(Color.rgb(22, 163, 74))
             cornerRadius = dp(context, 8).toFloat()
         }
-        setOnClickListener {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(
-                    Intent.EXTRA_SUBJECT,
-                    post.title
-                )
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    "${post.title}\n${post.url}"
-                )
-            }
+        
+setOnClickListener {
+    ShareHelper.shareImageOrText(
+        context,
+        post.title,
+        "${post.title}\n${post.url}",
+        chooserTitle = "पोस्ट शेयर करें"
+    )
+}
+
 
             context.startActivity(
                 Intent.createChooser(
