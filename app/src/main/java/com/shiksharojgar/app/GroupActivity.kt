@@ -115,14 +115,17 @@ listenToMemberCount()
             CommonPageUi.createHeader(
                 context = this,
                 onBack = { finish() },
-                onShare = {
-                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            "📱 Shiksha Rojgar App 👥 शिक्षा रोजगार ग्रुप\nhttps://shiksha-rojgar.web.app/"
-                        )
-                    }
+                
+onShare = {
+    ShareHelper.shareImageOrText(
+        this@GroupActivity,
+        "शिक्षा रोजगार ग्रुप",
+        "📱 Shiksha Rojgar App 👥 शिक्षा रोजगार ग्रुप\n" +
+            "https://shiksha-rojgar.web.app/",
+        chooserTitle = "ग्रुप शेयर करें"
+    )
+},
+
                     startActivity(
                         Intent.createChooser(shareIntent, "ग्रुप शेयर करें")
                     )
