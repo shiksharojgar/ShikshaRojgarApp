@@ -660,7 +660,7 @@ val noticeShareText =
 
         append("*📱 Shiksha Rojgar App 🔔 नोटिस अपडेट*")
 
-        append("\n\n*पोस्ट देखें 👇*")
+        append("\n*पोस्ट देखें 👇*")
 
         if (linkUrl.isNotBlank()) {
             append("\n")
@@ -688,17 +688,12 @@ val noticeShareText =
         }
 
         append("\n\n*✅ शिक्षा रोजगार की Official Website 🌐*")
-        append("\nhttps://www.shiksharojgar.com/")
+append("\nhttps://www.shiksharojgar.com/")
 
-        append(
-            "\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
-                "डाउनलोड इंस्टॉल करें !*"
-        )
-
-        append(
-            "\nhttps://www.shiksharojgar.com/2026/09/" +
-                "shiksha-rojgar-android-app-latest.html"
-        )
+append(
+    "\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+        "डाउनलोड इंस्टॉल करें !*"
+)
     }
 
 card.addView(
