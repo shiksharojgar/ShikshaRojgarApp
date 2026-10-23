@@ -3802,34 +3802,13 @@ ShareHelper.shareImageOrText(
                 "🌐 Website:\n" +
                 "https://www.shiksharojgar.com/"
 
-        try {
+        ShareHelper.shareImageOrText(
+            this@ChannelActivity,
+            "शिक्षा रोजगार चैनल",
+            text,
+            chooserTitle = "Share Channel"
+        )
 
-            startActivity(
-                Intent.createChooser(
-                    Intent(
-                        Intent.ACTION_SEND
-                    ).apply {
-
-                        type =
-                            "text/plain"
-
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            text
-                        )
-                    },
-                    "Share Channel"
-                )
-            )
-
-        } catch (_: Exception) {
-
-            Toast.makeText(
-                this,
-                "Share करने के लिए कोई app उपलब्ध नहीं है",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
     }
 
     private fun goHome() {
