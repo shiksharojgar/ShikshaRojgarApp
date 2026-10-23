@@ -463,19 +463,8 @@ private fun shareContentPage(
                             fallback
                         }
 
-                val rawBody = d.get("body")
-val body = d.getString("body").orEmpty()
-val body = when {
-    rawBody is String -> rawBody
-    mapBody is String -> mapBody
-    else -> ""
+                val body = d.getString("body").orEmpty()से जोड़ी नहीं गई है।"
 }
-
-text = body.ifBlank {
-    "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
-}
-
-
 
                 val image =
                     d.getString("imageUrl")
@@ -538,10 +527,9 @@ text = body.ifBlank {
                 bodyBox.addView(
                     TextView(this).apply {
 
-                        text =
-    body.ifBlank {
-        debugInfo
-    }
+                        text = body.ifBlank {
+    "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
+}
 
                         textSize = 16f
 
