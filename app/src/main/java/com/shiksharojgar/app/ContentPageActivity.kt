@@ -888,9 +888,7 @@ private fun shareContentPage(
                                         appendLine("📄 ${fileName.ifBlank { "फाइल / PDF" }}: $fileUrl")
                                     }
 
-                                    if (imageUrl.isNotBlank()) {
-                                        appendLine("🖼️ फोटो: $imageUrl")
-                                    }
+                                    
 
                                     appendLine()
                                     appendLine("Official Website: https://www.shiksharojgar.com/")
