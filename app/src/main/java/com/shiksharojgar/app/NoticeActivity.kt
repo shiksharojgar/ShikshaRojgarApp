@@ -727,23 +727,12 @@ card.addView(
 
             try {
 
-                val shareIntent =
-                    Intent(Intent.ACTION_SEND).apply {
-
-                        type = "text/plain"
-
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            noticeShareText
-                        )
-                    }
-
-                startActivity(
-                    Intent.createChooser(
-                        shareIntent,
-                        "Share Notice"
-                    )
-                )
+                ShareHelper.shareImageOrText(
+    this,
+    "Shiksha Rojgar Notice",
+    noticeShareText,
+    chooserTitle = "Share Notice"
+)
 
             } catch (_: Exception) {
 
