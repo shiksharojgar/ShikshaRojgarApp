@@ -63,9 +63,9 @@ class VideoActivity : AppCompatActivity() {
         scroll.addView(videoList)
 
         root.addView(
-            scroll,
-            LinearLayout.LayoutParams(0, 0, 1f)
-        )
+    scroll,
+    LinearLayout.LayoutParams(-1, 0, 1f)
+)
 
         root.addView(
             CommonPageUi.createBottomBar(
@@ -138,17 +138,18 @@ class VideoActivity : AppCompatActivity() {
                     )
                 }
             }
-            .addOnFailureListener {
-                videoList.removeAllViews()
+            ..addOnFailureListener { error ->
+    videoList.removeAllViews()
 
-                videoList.addView(
-                    TextView(this).apply {
-                        text = "वीडियो लोड नहीं हुए। इंटरनेट कनेक्शन जाँचें।"
-                        textSize = 15f
-                        setPadding(dp(12), dp(20), dp(12), dp(20))
-                    }
-                )
-            }
+    videoList.addView(
+        TextView(this).apply {
+            text = "वीडियो लोड नहीं हुए।\n${error.message ?: "कृपया इंटरनेट और Firestore अनुमति जाँचें।"}"
+            textSize = 15f
+            setTextColor(Color.rgb(180, 25, 25))
+            setPadding(dp(12), dp(20), dp(12), dp(20))
+        }
+    )
+}
     }
 
     private fun addVideoCard(
