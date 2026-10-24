@@ -907,6 +907,7 @@ if (fileUrl.isNotBlank()) {
                         card.addView(
                             Button(this).apply {
                                 text = "🔗 $label"
+                                styleCategoryButton(this, "#1565C0")
                                 setOnClickListener {
                                     val url = if (
                                         rawUrl.startsWith("http://") ||
