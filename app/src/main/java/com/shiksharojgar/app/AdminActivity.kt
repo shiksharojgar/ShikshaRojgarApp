@@ -6701,9 +6701,7 @@ private fun showCategoryPostManager(
                         )
                     }
 
-                    itemBox.addView(
-                        TextView(this).apply {
-                            // ADMIN POST DATE + TIME
+                    
 val adminDateTime = if (post.createdAt > 0L) {
     java.text.SimpleDateFormat(
         "dd MMM yyyy, hh:mm a",
@@ -6713,6 +6711,7 @@ val adminDateTime = if (post.createdAt > 0L) {
     "पुरानी पोस्ट • दिनांक उपलब्ध नहीं"
 }
 
+// पहले दिनांक और समय दिखेगा
 itemBox.addView(
     TextView(this).apply {
         text = "📅 $adminDateTime"
@@ -6721,13 +6720,18 @@ itemBox.addView(
         setPadding(0, dp(4), 0, dp(8))
     }
 )
-                            text = post.title.ifBlank {
-                                "बिना शीर्षक वाली पोस्ट"
-                            }
-                            textSize = 16f
-                            setTypeface(null, Typeface.BOLD)
-                        }
-                    )
+
+// उसके नीचे पोस्ट का शीर्षक
+itemBox.addView(
+    TextView(this).apply {
+        text = post.title.ifBlank {
+            "बिना शीर्षक वाली पोस्ट"
+        }
+        textSize = 16f
+        setTypeface(null, Typeface.BOLD)
+    }
+)
+
 
                     if (post.body.isNotBlank()) {
                         itemBox.addView(
