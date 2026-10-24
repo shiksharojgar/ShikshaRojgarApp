@@ -14,41 +14,84 @@ object AnalyticsTracker {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    fun appIdentity(context: Context) {
-        val uid = auth.currentUser?.uid ?: return
-        val installRef = db.collection("app_installs").document(uid)
-        installRef.get().addOnSuccessListener { existing ->
-            if (!existing.exists()) {
-                installRef.set(
-                    mapOf("uid" to uid, "firstSeenAt" to System.currentTimeMillis()),
-                    com.google.firebase.firestore.SetOptions.merge()
-                )
-                db.document("channel_config/main").update(
-                    "totalAppUsers", FieldValue.increment(1)
-                )
-            } else {
-                installRef.set(
-                    mapOf("uid" to uid, "lastSeenAt" to System.currentTimeMillis()),
-                    com.google.firebase.firestore.SetOptions.merge()
-                )
-            }
+    
+fun appIdentity(context: Context) {
+    val prefs = context.getSharedPreferences(
+        "sr_analytics",
+        Context.MODE_PRIVATE
+    )
+
+    // एक इंस्टॉलेशन के लिए स्थायी ID।
+    // ऐप अपडेट पर यही ID बनी रहेगी।
+    var installId = prefs.getString("install_id", null)
+
+    if (installId.isNullOrBlank()) {
+        installId = java.util.UUID.randomUUID().toString()
+        prefs.edit().putString("install_id", installId).apply()
+    }
+
+    val stableInstallId = installId
+
+    // Firebase Auth तैयार होने के बाद ही रिकॉर्ड करें।
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) {
+            android.util.Log.w(
+                "AnalyticsTracker",
+                "Install count: Firebase sign-in failed"
+            )
+            return@ensureSignedIn
         }
-        val day = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
-        val dayRef = db.collection("app_usage").document(uid).collection("days").document(day)
-        dayRef.get().addOnSuccessListener { existing ->
-            if (!existing.exists()) {
-                dayRef.set(mapOf("uid" to uid, "day" to day, "lastSeenAt" to System.currentTimeMillis()))
-                db.document("channel_config/main").update(
-                    "totalActiveUserDays", FieldValue.increment(1)
+
+        val uid = auth.currentUser?.uid ?: return@ensureSignedIn
+
+        val installRef = db.collection("app_installs")
+            .document(stableInstallId)
+
+        val configRef = db.document("channel_config/main")
+        val now = System.currentTimeMillis()
+
+        db.runTransaction { transaction ->
+            val installSnapshot = transaction.get(installRef)
+
+            if (!installSnapshot.exists()) {
+                val configSnapshot = transaction.get(configRef)
+                val currentCount =
+                    configSnapshot.getLong("totalAppUsers") ?: 0L
+
+                transaction.set(
+                    installRef,
+                    mapOf(
+                        "installId" to stableInstallId,
+                        "uid" to uid,
+                        "firstSeenAt" to now,
+                        "lastSeenAt" to now
+                    )
                 )
-            } else {
-                dayRef.set(
-                    mapOf("uid" to uid, "day" to day, "lastSeenAt" to System.currentTimeMillis()),
+
+                transaction.set(
+                    configRef,
+                    mapOf("totalAppUsers" to currentCount + 1L),
                     com.google.firebase.firestore.SetOptions.merge()
                 )
+            } else {
+                transaction.update(
+                    installRef,
+                    "lastSeenAt",
+                    now
+                )
             }
+
+            null
+        }.addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "Install count update failed",
+                error
+            )
         }
     }
+}
+
 
     fun appOpen(context: Context) {
         val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
