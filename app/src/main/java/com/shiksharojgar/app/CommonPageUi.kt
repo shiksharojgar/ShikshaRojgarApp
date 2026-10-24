@@ -2041,6 +2041,14 @@ val textColorValue = try {
                                 )
                             )
                         }
+                        "videos" -> {
+    context.startActivity(
+        Intent(
+            context,
+            VideoActivity::class.java
+        )
+    )
+                        }
                         "group" -> {
                             context.startActivity(
                                 Intent(
