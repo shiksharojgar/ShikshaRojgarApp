@@ -89,6 +89,35 @@ fun appIdentity(context: Context) {
                 error
             )
         }
+        
+        val day = SimpleDateFormat(
+            "yyyy-MM-dd",
+            Locale.US
+        ).format(Date())
+
+        val dayRef = db.collection("app_usage")
+            .document(uid)
+            .collection("days")
+            .document(day)
+
+        dayRef.set(
+            mapOf(
+                "uid" to uid,
+                "day" to day,
+                "lastSeenAt" to System.currentTimeMillis()
+            ),
+            com.google.firebase.firestore.SetOptions.merge()
+        ).addOnSuccessListener {
+            dayRef.get().addOnSuccessListener { daySnapshot ->
+                if (!daySnapshot.exists()) {
+                    db.document("channel_config/main").update(
+                        "totalActiveUserDays",
+                        com.google.firebase.firestore.FieldValue.increment(1)
+                    )
+                }
+            }
+        }
+        
     }
 }
 
