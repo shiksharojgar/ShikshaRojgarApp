@@ -138,7 +138,7 @@ class VideoActivity : AppCompatActivity() {
                     )
                 }
             }
-            ..addOnFailureListener { error ->
+            .addOnFailureListener { error ->
     videoList.removeAllViews()
 
     videoList.addView(
