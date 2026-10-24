@@ -218,10 +218,7 @@ fun uniquePostShare(context: Context, postId: String) {
         uniqueAction("post_views", safeId(postId), postId, context, "viewCount")
     }
 
-    fun uniquePostShare(context: Context, postId: String) {
-        event(context, "post_share", mapOf("post_id" to postId))
-        uniqueAction("post_shares", safeId(postId), postId, context, "shareCount")
-    }
+
 
     private fun safeId(value: String): String = java.util.UUID.nameUUIDFromBytes(value.toByteArray()).toString()
 
