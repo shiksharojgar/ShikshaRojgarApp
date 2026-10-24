@@ -6703,6 +6703,24 @@ private fun showCategoryPostManager(
 
                     itemBox.addView(
                         TextView(this).apply {
+                            // ADMIN POST DATE + TIME
+val adminDateTime = if (post.createdAt > 0L) {
+    java.text.SimpleDateFormat(
+        "dd MMM yyyy, hh:mm a",
+        java.util.Locale("hi", "IN")
+    ).format(java.util.Date(post.createdAt))
+} else {
+    "पुरानी पोस्ट • दिनांक उपलब्ध नहीं"
+}
+
+itemBox.addView(
+    TextView(this).apply {
+        text = "📅 $adminDateTime"
+        textSize = 12f
+        setTextColor(Color.rgb(14, 91, 215))
+        setPadding(0, dp(4), 0, dp(8))
+    }
+)
                             text = post.title.ifBlank {
                                 "बिना शीर्षक वाली पोस्ट"
                             }
