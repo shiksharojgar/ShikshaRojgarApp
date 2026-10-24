@@ -803,7 +803,7 @@ val categoryButtonScroll = HorizontalScrollView(this).apply {
     isFillViewport = false
     addView(
         categoryButtonRow,
-        HorizontalScrollView.LayoutParams(
+        android.widget.FrameLayout.LayoutParams(
             -2,
             -2
         )
