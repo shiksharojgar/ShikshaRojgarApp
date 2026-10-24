@@ -817,25 +817,30 @@ fun styleCategoryButton(
                         card.addView(websiteButton)
                     }
 
-                    if (fileUrl.isNotBlank()) {
-                        val pdfButton = Button(this).apply {
-                            text = "📄 " + fileName.ifBlank {
-                                "PDF / अध्ययन सामग्री खोलें"
-                                styleCategoryButton(this, "#6A1B9A")
-                            }
-                            setOnClickListener {
-                                runCatching {
-                                    startActivity(
-                                        Intent(
-                                            Intent.ACTION_VIEW,
-                                            android.net.Uri.parse(fileUrl)
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                        card.addView(pdfButton)
-                    }
+                    
+if (fileUrl.isNotBlank()) {
+    val pdfButton = Button(this).apply {
+        text = "📄 " + fileName.ifBlank {
+            "PDF / अध्ययन सामग्री खोलें"
+        }
+
+        styleCategoryButton(this, "#6A1B9A")
+
+        setOnClickListener {
+            runCatching {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        android.net.Uri.parse(fileUrl)
+                    )
+                )
+            }
+        }
+    }
+
+    card.addView(pdfButton)
+}
+
 
                     // अतिरिक्त URL बटन
                     if (extraUrl.isNotBlank()) {
