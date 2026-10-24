@@ -19,6 +19,13 @@
             android:name=".WebViewActivity"
             android:exported="false" />
         <activity
+    android:name=".VideoActivity"
+    android:exported="false" />
+
+<activity
+    android:name=".VideoAdminActivity"
+    android:exported="false" />
+        <activity
     android:name=".ShikshaPostsActivity"
     android:exported="false" />
 
