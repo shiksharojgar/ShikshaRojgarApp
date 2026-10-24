@@ -958,7 +958,7 @@ val noticeButtonScroll = HorizontalScrollView(this@NoticeActivity).apply {
     isFillViewport = false
     addView(
         noticeButtonRow,
-        HorizontalScrollView.LayoutParams(
+        android.widget.FrameLayout.LayoutParams(
             -2,
             -2
         )
