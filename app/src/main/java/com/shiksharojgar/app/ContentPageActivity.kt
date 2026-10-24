@@ -635,11 +635,11 @@ val categoryStyle = when (categoryKey) {
 
 val categoryStrip = TextView(this).apply {
     text = categoryStyle.first
-    textSize = 13f
+    textSize = 11f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.WHITE)
     gravity = Gravity.CENTER_VERTICAL
-    setPadding(dp(12), dp(9), dp(12), dp(9))
+    setPadding(dp(12), dp(4), dp(12), dp(4))
 
     background =
         android.graphics.drawable.GradientDrawable().apply {
