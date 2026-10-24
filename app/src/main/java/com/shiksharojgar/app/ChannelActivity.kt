@@ -1868,7 +1868,14 @@ if (
                     LinearLayout.VERTICAL
 
                 background =
-                    GradientFactory.roundedWhite()
+    android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.WHITE)
+        setStroke(
+            dp(2),
+            Color.rgb(25, 118, 210)
+        )
+        cornerRadius = dp(8).toFloat()
+    }
 
                 setPadding(
                     dp(14),
