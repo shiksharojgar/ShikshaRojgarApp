@@ -1039,9 +1039,9 @@ LinearLayout.LayoutParams(
                     }
                     .forEach { postButton ->
 
-                        card.addView(
-                            TextView(this).apply {
-                                text = postButton.label
+                        noticeButtonRow.addView(
+    TextView(this).apply {
+        text = postButton.label
                                 gravity = Gravity.CENTER
                                 textSize = 14f
                                 typeface = Typeface.DEFAULT_BOLD
@@ -1094,11 +1094,11 @@ LinearLayout.LayoutParams(
                                 }
                             },
                             LinearLayout.LayoutParams(
-                                -1,
-                                dp(42)
-                            ).apply {
-                                bottomMargin = dp(8)
-                            }
+    -2,
+    dp(42)
+).apply {
+    marginEnd = dp(8)
+}
                         )
                     }
                 // 📤 CATEGORY NOTICE SHARE BUTTON
