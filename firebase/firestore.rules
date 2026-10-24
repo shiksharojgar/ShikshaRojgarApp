@@ -59,6 +59,45 @@ function isAdmin() {
     }
 
 
+    match /app_installs/{installId} {
+      // इंस्टॉलेशन रिकॉर्ड पढ़ने के लिए लॉगिन जरूरी है।
+      allow read: if signedIn();
+
+      // पहली बार इंस्टॉलेशन ID का रिकॉर्ड बनाना।
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          "installId",
+          "uid",
+          "firstSeenAt",
+          "lastSeenAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "installId",
+          "uid",
+          "firstSeenAt",
+          "lastSeenAt"
+        ])
+        && request.resource.data.installId == installId
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.firstSeenAt is int
+        && request.resource.data.lastSeenAt is int;
+
+      // केवल आखिरी बार खुलने का समय बदला जा सकता है।
+      // UID और पहली बार का समय नहीं बदलेगा।
+      allow update: if signedIn()
+        && resource.data.installId == installId
+        && request.resource.data.installId == installId
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.firstSeenAt
+          == resource.data.firstSeenAt
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(["lastSeenAt"])
+        && request.resource.data.lastSeenAt is int;
+
+      allow delete: if isAdmin();
+    }
+
     // =====================================================
     // CHANNEL CONFIG
     // =====================================================
