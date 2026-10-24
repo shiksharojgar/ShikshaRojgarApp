@@ -864,7 +864,11 @@ private fun loadCommonNoticePosts() {
                 val card = LinearLayout(this).apply {
     orientation = LinearLayout.VERTICAL
     setPadding(dp(14), dp(14), dp(14), dp(14))
-    setBackgroundColor(Color.WHITE)
+    background = android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.WHITE)
+        setStroke(dp(2), Color.rgb(211, 47, 47))
+        cornerRadius = dp(8).toFloat()
+    }
     tag = doc.id
 }
 val noticeStrip = TextView(this).apply {
