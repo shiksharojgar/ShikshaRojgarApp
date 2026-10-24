@@ -611,13 +611,11 @@ private fun shareContentPage(
 
                 posts.forEach { doc ->
 
-                    val card = LinearLayout(this).apply {
-                        orientation = LinearLayout.VERTICAL
-                        setPadding(
-                            dp(12), dp(12), dp(12), dp(12)
-                        )
-                        setBackgroundColor(Color.WHITE)
-                    }
+                    background = android.graphics.drawable.GradientDrawable().apply {
+    setColor(Color.WHITE)
+    setStroke(dp(2), Color.rgb(25, 118, 210))
+    cornerRadius = dp(8).toFloat()
+}
 
 val categoryStyle = when (categoryKey) {
     "notice" ->
