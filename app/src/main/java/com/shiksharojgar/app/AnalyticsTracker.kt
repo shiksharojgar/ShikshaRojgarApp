@@ -149,10 +149,69 @@ fun appIdentity(context: Context) {
         uniqueAction("feed_post_views", safeId(postId), postId, context, null)
     }
 
-    fun uniqueFeedPostShare(context: Context, postId: String) {
-        event(context, "feed_post_share", mapOf("post_id" to postId))
-        uniqueAction("feed_post_shares", safeId(postId), postId, context, null)
+    
+fun uniquePostShare(context: Context, postId: String) {
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) {
+            android.util.Log.w(
+                "AnalyticsTracker",
+                "Share count: Firebase sign-in failed"
+            )
+            return@ensureSignedIn
+        }
+
+        val postRef = db.collection("channel_posts")
+            .document(postId)
+
+        val configRef = db.document("channel_config/main")
+
+        db.runTransaction { tx ->
+            val postSnapshot = tx.get(postRef)
+
+            if (!postSnapshot.exists()) {
+                return@runTransaction null
+            }
+
+            val configSnapshot = tx.get(configRef)
+
+            val currentPostShares =
+                postSnapshot.getLong("shareCount") ?: 0L
+
+            val currentTotalShares =
+                configSnapshot.getLong("totalPostShares") ?: 0L
+
+            // हर Share बटन टैप पर एक गिनती बढ़ेगी।
+            tx.update(
+                postRef,
+                "shareCount",
+                currentPostShares + 1L
+            )
+
+            tx.set(
+                configRef,
+                mapOf(
+                    "totalPostShares" to currentTotalShares + 1L
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            null
+        }.addOnSuccessListener {
+            event(
+                context,
+                "post_share",
+                mapOf("post_id" to postId)
+            )
+        }.addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "Share count update failed for post $postId",
+                error
+            )
+        }
     }
+}
+
 
     fun uniquePostView(context: Context, postId: String) {
         event(context, "post_view", mapOf("post_id" to postId))
