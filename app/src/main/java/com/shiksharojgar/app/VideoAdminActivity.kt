@@ -19,6 +19,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class VideoAdminActivity : AppCompatActivity() {
 
@@ -155,52 +157,27 @@ content.addView(
         )
 
         setContentView(root)
-        val previewWatcher = object : TextWatcher {
-    override fun beforeTextChanged(
-        s: CharSequence?,
-        start: Int,
-        count: Int,
-        after: Int
-    ) = Unit
 
-    override fun onTextChanged(
-        s: CharSequence?,
-        start: Int,
-        before: Int,
-        count: Int
-    ) {
-        if (thumbnailField.hasFocus()) {
-            selectedGalleryUri = null
-        }
-        updateThumbnailPreview()
-    }
+ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+    val statusBarHeight =
+        insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
 
-    override fun afterTextChanged(s: Editable?) = Unit
+    val navigationBarHeight =
+        insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+    view.setPadding(
+        0,
+        statusBarHeight,
+        0,
+        navigationBarHeight
+    )
+
+    insets
 }
 
-thumbnailField.addTextChangedListener(previewWatcher)
+ViewCompat.requestApplyInsets(root)
 
-urlField.addTextChangedListener(object : TextWatcher {
-    override fun beforeTextChanged(
-        s: CharSequence?,
-        start: Int,
-        count: Int,
-        after: Int
-    ) = Unit
-
-    override fun onTextChanged(
-        s: CharSequence?,
-        start: Int,
-        before: Int,
-        count: Int
-    ) {
-        updateThumbnailPreview()
-    }
-
-    override fun afterTextChanged(s: Editable?) = Unit
-})
-        loadPosts()
-    }
+loadVideos()
 
     private fun field(hintText: String): EditText {
         return EditText(this).apply {
