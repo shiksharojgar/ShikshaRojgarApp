@@ -694,6 +694,15 @@ allow create, delete: if isAdmin();
       allow delete: if false;
     }
 
+// VIDEO POSTS
+match /video_posts/{videoId} {
+
+  // सभी यूज़र वीडियो सूची देख सकते हैं।
+  allow read: if true;
+
+  // केवल अधिकृत Admin पोस्ट जोड़, बदल और हटा सकता है।
+  allow create, update, delete: if isAdmin();
+}
 
     // HEADER WEBSITE LINKS
     match /header_website_links/{linkId} {
