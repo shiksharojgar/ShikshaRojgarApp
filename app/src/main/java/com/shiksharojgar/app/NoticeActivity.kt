@@ -946,6 +946,24 @@ text = formatPostBody(body)
                         }
                     )
                 }
+       
+val noticeButtonRow = LinearLayout(this@NoticeActivity).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
+
+val noticeButtonScroll = HorizontalScrollView(this@NoticeActivity).apply {
+    isHorizontalScrollBarEnabled = false
+    isFillViewport = false
+    addView(
+        noticeButtonRow,
+        HorizontalScrollView.LayoutParams(
+            -2,
+            -2
+        )
+    )
+}
+         
 // 🌐 Notice पोस्ट में वेबसाइट और YouTube लिंक प्रीव्यू
 val noticePreviewLinks = buildString {
     appendLine(title)
