@@ -45,7 +45,7 @@ exports.repairChannelCounters = onSchedule({schedule:'every 60 minutes',timeZone
     const id = post.id;
     const [views, shares, likes, comments] = await Promise.all([
       db.collection('post_views').doc(id).collection('users').count().get(),
-      db.collection('post_shares').doc(id).collection('users').count().get(),
+      db.collection('post_shares').doc(id).collection('events').count().get(),
       db.collection('channel_likes').doc(id).collection('users').count().get(),
       db.collection('channel_posts').doc(id).collection('comments').count().get()
     ]);
