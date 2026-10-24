@@ -650,7 +650,7 @@ val dateTimeText = if (createdAt > 0L) {
 
 card.addView(
     TextView(this).apply {
-        text = "📌 $title  •  $dateTimeText"
+        text = "📅 $dateTimeText"
         textSize = 11f
         typeface = Typeface.DEFAULT_BOLD
         setTextColor(Color.rgb(14, 91, 215))
@@ -672,17 +672,17 @@ card.addView(
                         val imageView = ImageView(this).apply {
                             adjustViewBounds = true
                             scaleType = ImageView.ScaleType.FIT_CENTER
-adjustViewBounds = true
                         }
 
                         card.addView(
                             imageView,
                             LinearLayout.LayoutParams(
-                                -1, dp(220)
-                            ).apply {
-                                topMargin = dp(8)
-                                bottomMargin = dp(8)
-                            }
+    -1,
+    -2
+).apply {
+    topMargin = dp(8)
+    bottomMargin = dp(8)
+}
                         )
 
                         
