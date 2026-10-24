@@ -71,7 +71,7 @@ class GroupAdminActivity : AppCompatActivity() {
     }
     private lateinit var listBox: LinearLayout
     private lateinit var statusView: TextView
-
+private var showingApprovedPosts = false
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }
@@ -122,7 +122,52 @@ class GroupAdminActivity : AppCompatActivity() {
         )
 
         root.addView(header)
+val postTabs = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    setPadding(dp(10), dp(8), dp(10), dp(4))
+}
 
+val pendingTab = TextView(this).apply {
+    text = "🕒 Pending पोस्ट"
+    gravity = Gravity.CENTER
+    textSize = 14f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    setPadding(dp(8), dp(12), dp(8), dp(12))
+    setBackgroundColor(Color.rgb(25, 118, 210))
+    setOnClickListener {
+        showingApprovedPosts = false
+        loadPendingPosts()
+    }
+}
+
+val approvedTab = TextView(this).apply {
+    text = "📢 स्वीकृत पोस्ट"
+    gravity = Gravity.CENTER
+    textSize = 14f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    setPadding(dp(8), dp(12), dp(8), dp(12))
+    setBackgroundColor(Color.rgb(22, 163, 74))
+    setOnClickListener {
+        showingApprovedPosts = true
+        loadApprovedPosts()
+    }
+}
+
+postTabs.addView(
+    pendingTab,
+    LinearLayout.LayoutParams(0, -2, 1f)
+)
+
+postTabs.addView(
+    approvedTab,
+    LinearLayout.LayoutParams(0, -2, 1f).apply {
+        marginStart = dp(8)
+    }
+)
+
+root.addView(postTabs)
         statusView = TextView(this).apply {
             text = "Pending पोस्ट लोड हो रही हैं..."
             textSize = 15f
@@ -154,7 +199,13 @@ class GroupAdminActivity : AppCompatActivity() {
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.rgb(25, 118, 210))
             setPadding(dp(12), dp(14), dp(12), dp(14))
-            setOnClickListener { loadPendingPosts() }
+            setOnClickListener {
+    if (showingApprovedPosts) {
+        loadApprovedPosts()
+    } else {
+        loadPendingPosts()
+    }
+}
         }
 
         root.addView(
@@ -200,8 +251,52 @@ class GroupAdminActivity : AppCompatActivity() {
 }
         )
     }
+private fun loadApprovedPosts() {
+    listBox.removeAllViews()
+    statusView.text = "स्वीकृत पोस्ट लोड हो रही हैं..."
 
-    private fun addPostCard(post: GroupPost) {
+    db.collection("group_posts")
+        .whereEqualTo("status", "approved")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            listBox.removeAllViews()
+
+            val posts = snapshot.documents.map { doc ->
+                GroupPost(
+                    id = doc.id,
+                    uid = doc.getString("uid").orEmpty(),
+                    displayName = doc.getString("displayName").orEmpty(),
+                    body = doc.getString("body").orEmpty(),
+                    status = doc.getString("status") ?: "approved",
+                    createdAt = doc.getTimestamp("createdAt")
+                        ?.toDate()?.time ?: 0L,
+                    approvedAt = doc.getTimestamp("approvedAt")
+                        ?.toDate()?.time ?: 0L,
+                    expiresAt = doc.getTimestamp("expiresAt")
+                        ?.toDate()?.time ?: 0L
+                )
+            }.sortedByDescending { it.approvedAt }
+
+            statusView.text = "कुल स्वीकृत पोस्ट: ${posts.size}"
+
+            if (posts.isEmpty()) {
+                showMessage("अभी कोई स्वीकृत पोस्ट उपलब्ध नहीं है।")
+                return@addOnSuccessListener
+            }
+
+            posts.forEach { post ->
+                addPostCard(post, isApprovedList = true)
+            }
+        }
+        .addOnFailureListener { error ->
+            statusView.text =
+                "❌ स्वीकृत पोस्ट लोड नहीं हुई:\n${error.message}"
+        }
+}
+    private fun addPostCard(
+    post: GroupPost,
+    isApprovedList: Boolean = false
+) {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(14), dp(14), dp(14))
@@ -289,7 +384,9 @@ class GroupAdminActivity : AppCompatActivity() {
             }
         )
 
-        card.addView(buttons)
+        if (!isApprovedList) {
+    card.addView(buttons)
+}
         val deleteButton = TextView(this).apply {
             text = "🗑️ पोस्ट हमेशा के लिए डिलीट करें"
             gravity = Gravity.CENTER
@@ -404,7 +501,11 @@ class GroupAdminActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (success) {
                             showMessage("पोस्ट डिलीट हो गई।")
-                            loadPendingPosts()
+                            if (showingApprovedPosts) {
+    loadApprovedPosts()
+} else {
+    loadPendingPosts()
+}
                         } else {
                             showMessage(
                                 error ?: "पोस्ट डिलीट नहीं हो सकी।"
