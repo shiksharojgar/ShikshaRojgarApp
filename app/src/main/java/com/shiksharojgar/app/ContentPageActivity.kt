@@ -636,7 +636,27 @@ private fun shareContentPage(
                     val extraUrl =
                         doc.getString("extraUrl").orEmpty()
 
+// CHANNEL STYLE: CATEGORY + DATE + TIME
+val createdAt = doc.getLong("createdAt") ?: 0L
 
+val dateTimeText = if (createdAt > 0L) {
+    java.text.SimpleDateFormat(
+        "dd MMM yyyy, hh:mm a",
+        java.util.Locale("hi", "IN")
+    ).format(java.util.Date(createdAt))
+} else {
+    "दिनांक उपलब्ध नहीं"
+}
+
+card.addView(
+    TextView(this).apply {
+        text = "📌 $title  •  $dateTimeText"
+        textSize = 11f
+        typeface = Typeface.DEFAULT_BOLD
+        setTextColor(Color.rgb(14, 91, 215))
+        setPadding(0, 0, 0, dp(8))
+    }
+)
                     if (title.isNotBlank()) {
                         card.addView(
                             TextView(this).apply {
@@ -652,6 +672,7 @@ private fun shareContentPage(
                         val imageView = ImageView(this).apply {
                             adjustViewBounds = true
                             scaleType = ImageView.ScaleType.FIT_CENTER
+adjustViewBounds = true
                         }
 
                         card.addView(
