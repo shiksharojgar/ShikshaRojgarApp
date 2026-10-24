@@ -619,6 +619,45 @@ private fun shareContentPage(
                         setBackgroundColor(Color.WHITE)
                     }
 
+val categoryStyle = when (categoryKey) {
+    "notice" ->
+        "📢  NOTICE / नोटिस" to "#D32F2F"
+
+    "study_material" ->
+        "📚  STUDY MATERIAL / पढ़ाई" to "#2E7D32"
+
+    "career_guide" ->
+        "🎯  CAREER / JOBS" to "#EF6C00"
+
+    else ->
+        "📌  IMPORTANT INFORMATION" to "#6A1B9A"
+}
+
+val categoryStrip = TextView(this).apply {
+    text = categoryStyle.first
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    gravity = Gravity.CENTER_VERTICAL
+    setPadding(dp(12), dp(9), dp(12), dp(9))
+
+    background =
+        android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.parseColor(categoryStyle.second))
+            cornerRadius = dp(10).toFloat()
+        }
+}
+
+card.addView(
+    categoryStrip,
+    LinearLayout.LayoutParams(
+        -1,
+        -2
+    ).apply {
+        bottomMargin = dp(10)
+    }
+)
+
                     val title = doc.getString("title").orEmpty()
                     val body = doc.getString("body").orEmpty()
                     val description =
