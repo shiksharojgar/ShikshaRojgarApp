@@ -775,9 +775,29 @@ card.addView(
                         )
                     }
 
+fun styleCategoryButton(
+    button: Button,
+    colorHex: String
+) {
+    button.setTextColor(Color.WHITE)
+    button.textSize = 14f
+    button.typeface = Typeface.DEFAULT_BOLD
+    button.isAllCaps = false
+    button.background =
+        android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.parseColor(colorHex))
+            cornerRadius = dp(12).toFloat()
+            setStroke(dp(1), Color.WHITE)
+        }
+    button.setPadding(
+        dp(12), dp(10), dp(12), dp(10)
+    )
+}
+
                     if (websiteUrl.isNotBlank()) {
                         val websiteButton = Button(this).apply {
                             text = "🌐 वेबसाइट खोलें"
+                            styleCategoryButton(this, "#00897B")
                             setOnClickListener {
                                 val url = if (
                                     websiteUrl.startsWith("http://") ||
@@ -801,6 +821,7 @@ card.addView(
                         val pdfButton = Button(this).apply {
                             text = "📄 " + fileName.ifBlank {
                                 "PDF / अध्ययन सामग्री खोलें"
+                                styleCategoryButton(this, "#6A1B9A")
                             }
                             setOnClickListener {
                                 runCatching {
@@ -821,6 +842,7 @@ card.addView(
                         card.addView(
                             Button(this).apply {
                                 text = "🔗 अतिरिक्त लिंक खोलें"
+                                styleCategoryButton(this, "#EF6C00")
                                 setOnClickListener {
                                     val url = if (
                                         extraUrl.startsWith("http://") ||
@@ -903,7 +925,8 @@ card.addView(
                     card.addView(
                         Button(this).apply {
                             text = "📤 Share ↗️"
-
+                            styleCategoryButton(this, "#D32F2F")
+                            
                             setOnClickListener {
                                 val shareText = buildString {
     val categoryHeader = when (pageId) {
