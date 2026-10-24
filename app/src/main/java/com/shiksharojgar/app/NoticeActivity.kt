@@ -1183,7 +1183,7 @@ append(doc.id)
                         )
                     }
 
-                card.addView(
+                noticeButtonRow.addView(
                     TextView(this@NoticeActivity).apply {
 
                         text = "📤 Share ↗️"
@@ -1217,8 +1217,23 @@ append(doc.id)
                                 ).show()
                             }
                         }
+                                       },
+                    LinearLayout.LayoutParams(
+                        -2,
+                        dp(42)
+                    ).apply {
+                        marginEnd = dp(8)
                     }
                 )
+                card.addView(
+    noticeButtonScroll,
+    LinearLayout.LayoutParams(
+        -1,
+        -2
+    ).apply {
+        topMargin = dp(8)
+    }
+)
                 listBox.addView(
                     card,
                     LinearLayout.LayoutParams(
