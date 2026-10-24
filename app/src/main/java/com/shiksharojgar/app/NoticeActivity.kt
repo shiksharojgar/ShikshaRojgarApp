@@ -984,7 +984,7 @@ LinkPreviewUi.addPreviews(
 )
 
                 if (websiteUrl.isNotBlank()) {
-                    card.addView(
+                    noticeButtonRow.addView(
                         TextView(this).apply {
                             text = "🌐 वेबसाइट खोलें"
                             textSize = 16f
@@ -1022,6 +1022,13 @@ LinkPreviewUi.addPreviews(
                                 }
                             }
                         }
+                        ,
+LinearLayout.LayoutParams(
+    -2,
+    dp(42)
+).apply {
+    marginEnd = dp(8)
+}
                     )
                 }
                 customButtons
