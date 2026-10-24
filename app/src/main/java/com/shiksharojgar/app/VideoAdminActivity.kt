@@ -177,7 +177,8 @@ ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
 
 ViewCompat.requestApplyInsets(root)
 
-loadVideos()
+loadPosts()
+}
 
     private fun field(hintText: String): EditText {
         return EditText(this).apply {
