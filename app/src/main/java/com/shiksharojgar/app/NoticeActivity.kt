@@ -866,7 +866,26 @@ private fun loadCommonNoticePosts() {
     setBackgroundColor(Color.WHITE)
     tag = doc.id
 }
+val noticeStrip = TextView(this).apply {
+    text = "📢 NOTICE / नोटिस अपडेट"
+    textSize = 12f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.WHITE)
+    gravity = Gravity.CENTER_VERTICAL
+    setPadding(dp(10), dp(4), dp(10), dp(4))
 
+    background = android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.rgb(211, 47, 47))
+        cornerRadius = dp(6).toFloat()
+    }
+}
+
+card.addView(
+    noticeStrip,
+    LinearLayout.LayoutParams(-1, -2).apply {
+        bottomMargin = dp(8)
+    }
+)
                 card.addView(
                     TextView(this).apply {
                         text = title
@@ -886,8 +905,9 @@ private fun loadCommonNoticePosts() {
                     card.addView(
                         image,
                         LinearLayout.LayoutParams(
-                            -1,
-                            dp(220)
+    -1,
+    -2
+
                         ).apply {
                             bottomMargin = dp(10)
                         }
