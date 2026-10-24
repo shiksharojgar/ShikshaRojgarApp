@@ -2304,7 +2304,24 @@ fixed.addView(
     }
 )
 
-
+// VIDEO POST MANAGEMENT
+fixed.addView(
+    adminActionButton("🎬 वीडियो पोस्ट मैनेज करें") {
+        startActivity(
+            android.content.Intent(
+                this@AdminActivity,
+                VideoAdminActivity::class.java
+            )
+        )
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(44)
+    ).apply {
+        topMargin = dp(3)
+        bottomMargin = dp(5)
+    }
+)
 // =========================================================
 // HOME CONTENT CARD
 // =========================================================
