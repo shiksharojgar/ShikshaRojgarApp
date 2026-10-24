@@ -571,12 +571,19 @@ if (!user.isEmailVerified) {
         post: GroupPost,
         isPending: Boolean
     ) {
-        
         val card = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(14), dp(12), dp(14), dp(12))
-            setBackgroundColor(Color.WHITE)
+    orientation = LinearLayout.VERTICAL
+    setPadding(dp(14), dp(12), dp(14), dp(12))
+    background =
+        android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.WHITE)
+            setStroke(
+                dp(2),
+                Color.rgb(22, 131, 74)
+            )
+            cornerRadius = dp(8).toFloat()
         }
+}
 
         // पोस्ट के ऊपर हरी लाइन
         val greenLine = View(this).apply {
