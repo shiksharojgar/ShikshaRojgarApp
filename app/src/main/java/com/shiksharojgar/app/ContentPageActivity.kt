@@ -793,7 +793,22 @@ fun styleCategoryButton(
         dp(12), dp(10), dp(12), dp(10)
     )
 }
+val categoryButtonRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
 
+val categoryButtonScroll = HorizontalScrollView(this).apply {
+    isHorizontalScrollBarEnabled = false
+    isFillViewport = false
+    addView(
+        categoryButtonRow,
+        HorizontalScrollView.LayoutParams(
+            -2,
+            -2
+        )
+    )
+}
                     if (websiteUrl.isNotBlank()) {
                         val websiteButton = Button(this).apply {
                             text = "🌐 वेबसाइट खोलें"
