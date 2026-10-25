@@ -1085,7 +1085,34 @@ pinOrder = d.getLong("pinOrder") ?: 0L
                 )
             }
     }
+    // ---------------------------------------------------------
+    // PIN / UNPIN POST
+    // ---------------------------------------------------------
 
+    fun setPinned(
+        postId: String,
+        pinned: Boolean,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val updates = mapOf(
+            "pinned" to pinned,
+            "pinOrder" to if (pinned) {
+                System.currentTimeMillis()
+            } else {
+                0L
+            }
+        )
+
+        db.collection("channel_posts")
+            .document(postId)
+            .update(updates)
+            .addOnSuccessListener {
+                onResult(true, null)
+            }
+            .addOnFailureListener { error ->
+                onResult(false, error.message)
+            }
+    }
     // ---------------------------------------------------------
     // DELETE POST
     // ---------------------------------------------------------
