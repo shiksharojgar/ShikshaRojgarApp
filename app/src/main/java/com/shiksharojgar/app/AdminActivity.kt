@@ -2215,6 +2215,19 @@ homeManagement.addView(
 )
 
 
+homeManagement.addView(
+    adminActionButton("🏫 स्कूल पेज सेटिंग और स्लाइडर फोटो") {
+        showCategoryPageLayoutEditor(
+            "school",
+            "स्कूल शिक्षा"
+        )
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(44)
+    )
+)
+
 // =========================================================
 // MORE MENU CARD
 // =========================================================
