@@ -368,6 +368,7 @@ private fun saveVideoRecord(
 }
   
         
+
 private fun updateThumbnailPreview() {
     val custom = thumbnailField.text.toString().trim()
 
@@ -375,8 +376,10 @@ private fun updateThumbnailPreview() {
         youtubeThumbnail(urlField.text.toString().trim()).orEmpty()
     }
 
-    if (selectedGalleryUri != null) {
-        thumbnailPreview.setImageURI(selectedGalleryUri)
+    val galleryUri = selectedGalleryUri
+
+    if (galleryUri != null) {
+        thumbnailPreview.setImageURI(galleryUri)
         return
     }
 
@@ -385,12 +388,67 @@ private fun updateThumbnailPreview() {
         return
     }
 
-    ChannelRepository.loadImage(source) { bitmap, _ ->
-        if (!isFinishing && bitmap != null) {
-            thumbnailPreview.setImageBitmap(bitmap)
+    if (source.startsWith("firestore-media://")) {
+        ChannelRepository.loadImage(source) { bitmap, error ->
+            if (isFinishing) return@loadImage
+
+            if (bitmap != null) {
+                thumbnailPreview.setImageBitmap(bitmap)
+            } else {
+                thumbnailPreview.setImageDrawable(null)
+                Toast.makeText(
+                    this,
+                    "सेव की गई इमेज लोड नहीं हुई: ${error.orEmpty()}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
+        return
     }
+
+    Thread {
+        var bitmap: android.graphics.Bitmap? = null
+
+        try {
+            val connection = java.net.URL(source)
+                .openConnection() as java.net.HttpURLConnection
+
+            connection.connectTimeout = 15000
+            connection.readTimeout = 20000
+            connection.instanceFollowRedirects = true
+            connection.setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0"
+            )
+
+            try {
+                connection.inputStream.use {
+                    bitmap = android.graphics.BitmapFactory.decodeStream(it)
+                }
+            } finally {
+                connection.disconnect()
+            }
+        } catch (_: Exception) {
+            // नीचे यूज़र को प्रीव्यू न मिलने की स्थिति दिखेगी।
+        }
+
+        runOnUiThread {
+            if (isFinishing) return@runOnUiThread
+
+            if (bitmap != null) {
+                thumbnailPreview.setImageBitmap(bitmap)
+            } else {
+                thumbnailPreview.setImageDrawable(null)
+                Toast.makeText(
+                    this,
+                    "इमेज नहीं मिली। दूसरी लिंक दें या Gallery से फोटो चुनें।",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }.start()
 }
+
 
 private fun youtubeThumbnail(url: String): String? {
     val id = Regex(
@@ -463,6 +521,8 @@ private fun youtubeThumbnail(url: String): String? {
                                 thumbnailField.setText(
                                     document.getString("thumbnailUrl").orEmpty()
                                 )
+                                selectedGalleryUri = null
+updateThumbnailPreview()
 
                                 Toast.makeText(
                                     this@VideoAdminActivity,
