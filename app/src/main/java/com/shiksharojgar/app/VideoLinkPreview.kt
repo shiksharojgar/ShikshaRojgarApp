@@ -12,7 +12,7 @@ data class VideoLinkPreview(
     val imageUrl: String = ""
 )
 
-object VideoLinkPreview {
+object VideoLinkPreviewFetcher {
 
     fun fetch(
         link: String,
