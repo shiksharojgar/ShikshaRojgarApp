@@ -446,39 +446,34 @@ allow create, delete: if isAdmin();
               'shareCount'
             ]) &&
 
-          (
-            request.resource.data.likeCount ==
-              resource.data.likeCount + 1 ||
-
-            request.resource.data.likeCount ==
-              resource.data.likeCount - 1 ||
-
-            request.resource.data.likeCount ==
-              resource.data.likeCount
+                    (
+            request.resource.data.get('likeCount', 0) ==
+              resource.data.get('likeCount', 0) + 1 ||
+            request.resource.data.get('likeCount', 0) ==
+              resource.data.get('likeCount', 0) - 1 ||
+            request.resource.data.get('likeCount', 0) ==
+              resource.data.get('likeCount', 0)
           ) &&
 
           (
-            request.resource.data.commentCount ==
-              resource.data.commentCount + 1 ||
-
-            request.resource.data.commentCount ==
-              resource.data.commentCount
+            request.resource.data.get('commentCount', 0) ==
+              resource.data.get('commentCount', 0) + 1 ||
+            request.resource.data.get('commentCount', 0) ==
+              resource.data.get('commentCount', 0)
           ) &&
 
           (
-            request.resource.data.viewCount ==
-              resource.data.viewCount + 1 ||
-
-            request.resource.data.viewCount ==
-              resource.data.viewCount
+            request.resource.data.get('viewCount', 0) ==
+              resource.data.get('viewCount', 0) + 1 ||
+            request.resource.data.get('viewCount', 0) ==
+              resource.data.get('viewCount', 0)
           ) &&
 
           (
-            request.resource.data.shareCount ==
-              resource.data.shareCount + 1 ||
-
-            request.resource.data.shareCount ==
-              resource.data.shareCount
+            request.resource.data.get('shareCount', 0) ==
+              resource.data.get('shareCount', 0) + 1 ||
+            request.resource.data.get('shareCount', 0) ==
+              resource.data.get('shareCount', 0)
           )
         );
     }
