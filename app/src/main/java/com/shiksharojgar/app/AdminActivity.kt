@@ -2225,26 +2225,53 @@ val pageSettings = listOf(
     Triple("admit_card", "🎫 Admit Card पेज सेटिंग", "#C62828")
 )
 
-pageSettings.forEach { item ->
-    val pageId = item.first
-    val pageLabel = item.second
-    val pageColor = android.graphics.Color.parseColor(item.third)
 
-    val settingsButton = adminActionButton(pageLabel) {
-        showCategoryPageLayoutEditor(pageId, pageLabel)
+pageSettings.chunked(3).forEach { rowItems ->
+
+    val settingsRow = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
     }
 
-    settingsButton.setBackgroundTintList(
-        android.content.res.ColorStateList.valueOf(pageColor)
-    )
+    rowItems.forEachIndexed { index, item ->
+        val pageId = item.first
+        val pageLabel = item.second
+        val pageColor =
+            android.graphics.Color.parseColor(item.third)
+
+        val settingsButton = adminActionButton(pageLabel) {
+            showCategoryPageLayoutEditor(pageId, pageLabel)
+        }
+
+        settingsButton.setBackgroundTintList(
+            android.content.res.ColorStateList.valueOf(pageColor)
+        )
+
+        settingsRow.addView(
+            settingsButton,
+            LinearLayout.LayoutParams(
+                0,
+                dp(48),
+                1f
+            ).apply {
+                if (index > 0) {
+                    leftMargin = dp(4)
+                }
+            }
+        )
+    }
 
     homeManagement.addView(
-        settingsButton,
-        LinearLayout.LayoutParams(-1, dp(44)).apply {
+        settingsRow,
+        LinearLayout.LayoutParams(
+            -1,
+            dp(52)
+        ).apply {
             bottomMargin = dp(5)
         }
     )
 }
+
 
 
 // =========================================================
