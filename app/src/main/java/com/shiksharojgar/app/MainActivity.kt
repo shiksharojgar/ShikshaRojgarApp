@@ -1345,6 +1345,8 @@ private fun loadFloatingNoticePhoto() {
     scaleType = ImageView.ScaleType.FIT_CENTER
     setBackgroundColor(android.graphics.Color.TRANSPARENT)
     adjustViewBounds = true
+                    maxWidth = imageSize
+maxHeight = imageSize
     clipToOutline = false
     elevation = 0f
 }
@@ -1379,14 +1381,17 @@ minWidth = 0
                     elevation = 14 * density
 
                     addView(
-                        imageView,
-                        LinearLayout.LayoutParams(imageSize, imageSize)
-                    )
+    imageView,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
 
                     addView(
                         titleView,
                         LinearLayout.LayoutParams(
-                            textWidth,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                         ).apply {
                             topMargin = gap
@@ -1484,7 +1489,7 @@ minWidth = 0
                         }
 
                         imageView.setImageBitmap(bitmap)
-                        imageView.setImageBitmap(bitmap)
+                        
 floatingNoticeImage = content
 root.addView(content, params)
 
