@@ -6934,6 +6934,43 @@ itemBox.addView(
 
                     itemBox.addView(deleteButton)
 
+                    val pinButton = Button(this).apply {
+                        text = if (post.pinned) {
+                            "📌 Unpin करें"
+                        } else {
+                            "📌 Pin to Top"
+                        }
+
+                        setOnClickListener {
+                            val newPinnedState = !post.pinned
+
+                            CategoryPostRepository.setPinned(
+                                post.id,
+                                newPinnedState
+                            ) { success, error ->
+                                runOnUiThread {
+                                    if (success) {
+                                        toast(
+                                            if (newPinnedState) {
+                                                "पोस्ट Pin हो गई"
+                                            } else {
+                                                "पोस्ट Unpin हो गई"
+                                            }
+                                        )
+                                    } else {
+                                        toast(
+                                            "Pin बदल नहीं हुआ: ${
+                                                error ?: "त्रुटि"
+                                            }"
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    itemBox.addView(pinButton)
+                    
                     listBox.addView(
                         itemBox,
                         LinearLayout.LayoutParams(
