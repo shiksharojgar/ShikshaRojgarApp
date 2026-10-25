@@ -595,11 +595,16 @@ val subHeading = TextView(this).apply {
 
 listLayout.addView(subHeading)
 
+
 subCategoryLayout = LinearLayout(this).apply {
     orientation = LinearLayout.VERTICAL
 }
 
+subCategoryRow = null
+subCategoryRowCount = 0
+
 listLayout.addView(subCategoryLayout)
+
 
 // 3. नई पोस्ट का अलग हिस्सा
 val postsHeading = TextView(this).apply {
@@ -845,27 +850,14 @@ private fun loadSubCategories(
         .addOnSuccessListener { result ->
 
             subCategoryLayout.removeAllViews()
+            subCategoryRow = null
+subCategoryRowCount = 0
 
             val items = result.documents.sortedBy {
                 it.getLong("position") ?: 0L
             }
 
-            if (items.isEmpty()) {
-                val empty = TextView(this).apply {
-                    text = "अभी कोई Sub-Category उपलब्ध नहीं है।"
-                    textSize = 16f
-                    gravity = Gravity.CENTER
-                    setPadding(
-                        dp(16),
-                        dp(24),
-                        dp(16),
-                        dp(24)
-                    )
-                }
-
-                subCategoryLayout.addView(empty)
-                return@addOnSuccessListener
-            }
+            
             if (items.isEmpty()) {
                 val defaults = when (categoryId.lowercase()) {
                     "school" -> listOf(
@@ -1220,78 +1212,75 @@ card.addView(row)
      * SUB CATEGORY BUTTON
      * =========================================================
      */
-    private fun addSubCategoryButton(
-        name: String,
-        icon: String,
-        url: String,
-        pageType: String,
-        index: Int
-    ) {
+    
+private var subCategoryRow: LinearLayout? = null
+private var subCategoryRowCount = 0
 
-        val button =
-            TextView(this).apply {
+private fun addSubCategoryButton(
+    name: String,
+    icon: String,
+    url: String,
+    pageType: String,
+    index: Int
+) {
+    if (subCategoryRow == null || subCategoryRowCount >= 2) {
+        subCategoryRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
 
-                text =
-                    if (icon.isNotBlank()) {
-                        "$icon  $name"
-                    } else {
-                        name
-                    }
-
-                textSize = 17f
-
-                setTextColor(
-                    Color.WHITE
-                )
-
-                gravity =
-                    Gravity.CENTER_VERTICAL
-
-                setTypeface(
-                    null,
-                    Typeface.BOLD
-                )
-
-                setPadding(
-                    dp(18),
-                    0,
-                    dp(18),
-                    0
-                )
-
-                background =
-                    GradientDrawable().apply {
-
-                        setColor(
-    this@HomeCategoryActivity.colors[
-        index % this@HomeCategoryActivity.colors.size
-    ]
-)
-
-                        cornerRadius =
-                            dp(12).toFloat()
-                    }
-
-                setOnClickListener {
-
-                    openSubCategory(
-                        url,
-                        pageType,
-                        name
-                    )
-                }
-            }
+        subCategoryRowCount = 0
 
         subCategoryLayout.addView(
-    button,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(58)
-    ).apply {
-        bottomMargin = dp(12)
+            subCategoryRow,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(10)
+            }
+        )
     }
-)
+
+    val button = TextView(this).apply {
+        text = if (icon.isNotBlank()) "$icon\n$name" else name
+        textSize = 15f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        typeface = Typeface.DEFAULT_BOLD
+        setPadding(dp(6), dp(10), dp(6), dp(10))
+        minHeight = dp(68)
+
+        background = GradientDrawable().apply {
+            setColor(
+                this@HomeCategoryActivity.colors[
+                    index % this@HomeCategoryActivity.colors.size
+                ]
+            )
+            cornerRadius = dp(14).toFloat()
+            setStroke(dp(1), Color.WHITE)
+        }
+
+        setOnClickListener {
+            openSubCategory(url, pageType, name)
+        }
     }
+
+    subCategoryRow?.addView(
+        button,
+        LinearLayout.LayoutParams(
+            0,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            1f
+        ).apply {
+            marginStart = dp(4)
+            marginEnd = dp(4)
+        }
+    )
+
+    subCategoryRowCount++
+}
+
 
     /*
      * =========================================================
