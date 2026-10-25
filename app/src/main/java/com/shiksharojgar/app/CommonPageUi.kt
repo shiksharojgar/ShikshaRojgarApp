@@ -155,26 +155,52 @@ fun showAnchoredOptions(
         }
     }
 
+    
     val width = minOf(
         dp(context, 280),
         (context.resources.displayMetrics.widthPixels * 0.82f).toInt()
     )
 
+    // ड्रॉपडाउन की वास्तविक सामग्री के अनुसार ऊँचाई मापें।
+    list.measure(
+        View.MeasureSpec.makeMeasureSpec(
+            width,
+            View.MeasureSpec.EXACTLY
+        ),
+        View.MeasureSpec.makeMeasureSpec(
+            0,
+            View.MeasureSpec.UNSPECIFIED
+        )
+    )
+
+    val maxPopupHeight = minOf(
+        dp(context, 420),
+        (context.resources.displayMetrics.heightPixels * 0.60f).toInt()
+    )
+
+    val popupHeight = minOf(
+        list.measuredHeight,
+        maxPopupHeight
+    ).coerceAtLeast(dp(context, 1))
+
     popup = PopupWindow(
         list,
         width,
-        minOf(
-            dp(context, 420),
-            (context.resources.displayMetrics.heightPixels * 0.60f).toInt()
-        ),
+        popupHeight,
         true
     ).apply {
-        setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         elevation = dp(context, 12).toFloat()
         isOutsideTouchable = true
     }
 
-    popup.showAsDropDown(anchor, 0, -dp(context, 3), Gravity.END)
+    popup.showAsDropDown(
+        anchor,
+        0,
+        -dp(context, 3),
+        Gravity.END
+    )
+
 }
 
     /*
