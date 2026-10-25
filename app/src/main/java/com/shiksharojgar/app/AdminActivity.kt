@@ -2273,6 +2273,75 @@ pageSettings.chunked(3).forEach { rowItems ->
 }
 
 
+val categoryPostActionsRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+}
+
+categoryPostActionsRow.addView(
+    adminActionButton("➕ पोस्ट जोड़ें") {
+        showCommonPostCreator()
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(48),
+        1f
+    ).apply {
+        rightMargin = dp(4)
+    }
+)
+
+categoryPostActionsRow.addView(
+    adminActionButton("📋 पोस्ट मैनेज करें") {
+        val categoryLabels = arrayOf(
+            "👩‍🏫 Teacher",
+            "🎓 Student",
+            "🏫 School",
+            "💼 Vacancy",
+            "🏆 Result",
+            "🎫 Admit Card"
+        )
+
+        val categoryKeys = arrayOf(
+            "teacher",
+            "student",
+            "school",
+            "vacancy",
+            "result",
+            "admit_card"
+        )
+
+        AlertDialog.Builder(this@AdminActivity)
+            .setTitle("पोस्ट मैनेज करने के लिए पेज चुनें")
+            .setItems(categoryLabels) { _, which ->
+                showCategoryPostManager(
+                    categoryKeys[which],
+                    categoryLabels[which]
+                )
+            }
+            .setNegativeButton("बंद करें", null)
+            .show()
+    },
+    LinearLayout.LayoutParams(
+        0,
+        dp(48),
+        1f
+    ).apply {
+        leftMargin = dp(4)
+    }
+)
+
+homeManagement.addView(
+    categoryPostActionsRow,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(54)
+    ).apply {
+        topMargin = dp(4)
+        bottomMargin = dp(8)
+    }
+)
+
 
 // =========================================================
 // MORE MENU CARD
