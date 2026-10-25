@@ -213,10 +213,68 @@ fun uniquePostShare(context: Context, postId: String) {
 }
 
 
-    fun uniquePostView(context: Context, postId: String) {
-        event(context, "post_view", mapOf("post_id" to postId))
-        uniqueAction("post_views", safeId(postId), postId, context, "viewCount")
+    
+fun uniquePostView(context: Context, postId: String) {
+    event(
+        context,
+        "post_view",
+        mapOf("post_id" to postId)
+    )
+
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) {
+            android.util.Log.w(
+                "AnalyticsTracker",
+                "View count: Firebase sign-in failed"
+            )
+            return@ensureSignedIn
+        }
+
+        val postRef = db.collection("channel_posts")
+            .document(postId)
+
+        val configRef = db.document("channel_config/main")
+
+        db.runTransaction { tx ->
+            val postSnapshot = tx.get(postRef)
+
+            if (!postSnapshot.exists()) {
+                return@runTransaction null
+            }
+
+            val configSnapshot = tx.get(configRef)
+
+            val currentViews =
+                postSnapshot.getLong("viewCount") ?: 0L
+
+            val totalViews =
+                configSnapshot.getLong("totalPostViews") ?: 0L
+
+            tx.update(
+                postRef,
+                "viewCount",
+                currentViews + 1L
+            )
+
+            tx.set(
+                configRef,
+                mapOf(
+                    "totalPostViews" to totalViews + 1L
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            null
+        }.addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "View count update failed for $postId",
+                error
+            )
+        }
     }
+}
+
 
 
 
