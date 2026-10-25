@@ -303,36 +303,70 @@ if (thumbnailUrl.isNotBlank()) {
         )
     }
 
-    private fun youtubeThumbnail(url: String): String? {
-        val id = Regex(
-            """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed|shorts)/)([A-Za-z0-9_-]{11})"""
-        ).find(url)?.groupValues?.getOrNull(1)
+    
+private fun loadThumbnail(
+    imageView: ImageView,
+    imageUrl: String
+) {
+    val videoId = Regex(
+        """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed|shorts/|live/))([A-Za-z0-9_-]{11})"""
+    ).find(imageUrl)?.groupValues?.getOrNull(1)
 
-        return id?.let {
-            "https://img.youtube.com/vi/$it/hqdefault.jpg"
+    val urls = buildList {
+        add(imageUrl)
+        if (videoId != null) {
+            add("https://img.youtube.com/vi/$videoId/hqdefault.jpg")
+            add("https://img.youtube.com/vi/$videoId/sddefault.jpg")
+            add("https://img.youtube.com/vi/$videoId/mqdefault.jpg")
         }
-    }
+    }.distinct()
 
-    private fun loadThumbnail(
-        imageView: ImageView,
-        imageUrl: String
-    ) {
-        Thread {
+    Thread {
+        var bitmap: android.graphics.Bitmap? = null
+
+        for (source in urls) {
+            var connection: java.net.HttpURLConnection? = null
+
             try {
-                val bitmap = URL(imageUrl).openStream().use {
-                    BitmapFactory.decodeStream(it)
-                }
+                connection = URL(source).openConnection()
+                    as java.net.HttpURLConnection
 
-                runOnUiThread {
-                    if (!isFinishing && bitmap != null) {
-                        imageView.setImageBitmap(bitmap)
+                connection.connectTimeout = 15000
+                connection.readTimeout = 20000
+                connection.instanceFollowRedirects = true
+                connection.setRequestProperty(
+                    "User-Agent",
+                    "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36"
+                )
+
+                if (connection.responseCode in 200..299) {
+                    connection.inputStream.use {
+                        bitmap = BitmapFactory.decodeStream(it)
                     }
                 }
             } catch (_: Exception) {
-                // थंबनेल न मिले तो कार्ड और Open बटन फिर भी दिखेंगे।
+                // अगला thumbnail URL आज़माएँ।
+            } finally {
+                connection?.disconnect()
             }
-        }.start()
-    }
+
+            if (bitmap != null) break
+        }
+
+        runOnUiThread {
+            if (!isFinishing && bitmap != null) {
+                imageView.setImageBitmap(bitmap)
+            } else if (!isFinishing) {
+                Toast.makeText(
+                    this,
+                    "वीडियो की इमेज लोड नहीं हुई। Gallery से फोटो चुनें।",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }.start()
+}
+
 
     private fun openVideo(url: String) {
         try {
