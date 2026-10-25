@@ -18,5 +18,7 @@ data class ChannelPost(
         val shareCount: Long = 0L,
        val buttons: List<CategoryPostButton> = emptyList(),
     val websiteUrl: String = "",
-    val extraUrl: String = ""
+    val extraUrl: String = "",
+        val pinned: Boolean = false,
+    val pinOrder: Long = 0L
 )
