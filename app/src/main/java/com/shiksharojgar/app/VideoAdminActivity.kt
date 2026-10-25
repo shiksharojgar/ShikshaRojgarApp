@@ -155,13 +155,16 @@ content.addView(
                     descriptionField.setText(preview.description)
                 }
 
-                if (selectedGalleryUri == null &&
-                    thumbnailField.text.toString().isBlank() &&
-                    preview.imageUrl.isNotBlank()
-                ) {
-                    thumbnailField.setText(preview.imageUrl)
-                    updateThumbnailPreview()
-                }
+                if (selectedGalleryUri == null) {
+    val imageUrl = preview.imageUrl.ifBlank {
+        youtubeThumbnail(link).orEmpty()
+    }
+
+    if (imageUrl.isNotBlank()) {
+        thumbnailField.setText(imageUrl)
+        updateThumbnailPreview()
+    }
+}
 
                 Toast.makeText(
                     this@VideoAdminActivity,
