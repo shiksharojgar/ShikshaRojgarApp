@@ -103,16 +103,23 @@ object VideoLinkPreviewFetcher {
                     }
                 }
 
-                var image = meta("og:image").ifBlank {
-                    meta("twitter:image")
-                }
+                
+var image = if (!youtubeId.isNullOrBlank()) {
+    "https://img.youtube.com/vi/$youtubeId/hqdefault.jpg"
+} else {
+    meta("og:image").ifBlank {
+        meta("twitter:image")
+    }
+}
 
-                if (image.isNotBlank()) {
-                    image = Uri.parse(URL(URL(link), image).toString())
-                        .toString()
-                } else if (!youtubeId.isNullOrBlank()) {
-                    image = "https://img.youtube.com/vi/$youtubeId/hqdefault.jpg"
-                }
+if (image.isNotBlank() && youtubeId.isNullOrBlank()) {
+    image = try {
+        URL(URL(link), image).toString()
+    } catch (_: Exception) {
+        ""
+    }
+}
+
 
                 val result = VideoLinkPreview(
                     title = pageTitle.trim(),
