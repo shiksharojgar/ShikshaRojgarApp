@@ -218,7 +218,7 @@ if (thumbnailUrl.isNotBlank()) {
         loadThumbnail(thumbnail, thumbnailUrl)
     }
 } else {
-    VideoLinkPreview.fetch(url) { preview, _ ->
+    VideoLinkPreviewFetcher.fetch (url) { preview, _ ->
         val imageUrl = preview?.imageUrl.orEmpty()
 
         if (imageUrl.isNotBlank() && !isFinishing) {
