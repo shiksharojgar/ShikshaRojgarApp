@@ -1696,19 +1696,26 @@ private fun showMoreMenu(
 )
             )
 
-            val popup = PopupWindow(
-                scrollView,
-                popupWidth,
-                popupHeight,
-                true
-            ).apply {
-                setBackgroundDrawable(
-                    ColorDrawable(Color.WHITE)
-                )
-                elevation = dp(context, 12).toFloat()
-                isOutsideTouchable = true
-                isFocusable = true
-            }
+            
+val maxPopupHeight = minOf(
+    dp(context, 420),
+    (screenHeight * 0.60f).toInt()
+)
+
+val popup = PopupWindow(
+    scrollView,
+    popupWidth,
+    LinearLayout.LayoutParams.WRAP_CONTENT,
+    true
+).apply {
+    setBackgroundDrawable(
+        ColorDrawable(Color.TRANSPARENT)
+    )
+    elevation = dp(context, 12).toFloat()
+    isOutsideTouchable = true
+    isFocusable = true
+}
+
 
             val menuStack =
                 mutableListOf<Pair<List<com.google.firebase.firestore.DocumentSnapshot>, String>>()
