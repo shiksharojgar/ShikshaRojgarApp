@@ -1975,15 +1975,36 @@ val textColorValue = try {
                 menuType == "section" || parentId.isBlank()
             }
 
-            renderMenu(rootItems, "☰ More")
+            
+renderMenu(rootItems, "☰ More")
 
-            if (anchor.isAttachedToWindow) {
-                popup.showAsDropDown(
-                    anchor,
-                    0,
-                    -dp(context, 3),
-                    Gravity.END
-                )
+scrollView.measure(
+    View.MeasureSpec.makeMeasureSpec(
+        popupWidth,
+        View.MeasureSpec.EXACTLY
+    ),
+    View.MeasureSpec.makeMeasureSpec(
+        0,
+        View.MeasureSpec.UNSPECIFIED
+    )
+)
+
+val actualPopupHeight = minOf(
+    scrollView.measuredHeight,
+    maxPopupHeight
+).coerceAtLeast(dp(context, 1))
+
+popup.height = actualPopupHeight
+
+if (anchor.isAttachedToWindow) {
+    popup.showAsDropDown(
+        anchor,
+        0,
+        -dp(context, 3),
+        Gravity.END
+    )
+}
+
             } else {
                 Toast.makeText(
                     context,
