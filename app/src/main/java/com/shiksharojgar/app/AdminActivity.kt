@@ -3288,26 +3288,7 @@ val sliderImage3Field = EditText(this).apply {
     setText(snapshot.getString("sliderImage3") ?: "")
 }
 
-val sliderImage1Field = EditText(this).apply {
-    hint = "स्लाइड 1 फोटो का HTTPS URL"
-    setSingleLine(true)
-    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-    setText(snapshot.getString("sliderImage1") ?: "")
-}
 
-val sliderImage2Field = EditText(this).apply {
-    hint = "स्लाइड 2 फोटो का HTTPS URL"
-    setSingleLine(true)
-    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-    setText(snapshot.getString("sliderImage2") ?: "")
-}
-
-val sliderImage3Field = EditText(this).apply {
-    hint = "स्लाइड 3 फोटो का HTTPS URL"
-    setSingleLine(true)
-    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-    setText(snapshot.getString("sliderImage3") ?: "")
-}
 
             val layoutOptions = listOf(
                 "सामान्य कार्ड" to "standard",
