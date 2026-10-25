@@ -40,6 +40,42 @@ private val sliderHandler =
     android.os.Handler(android.os.Looper.getMainLooper())
 
 private var sliderIndex = 0
+    private var customSliderImageUrls: List<String> = emptyList()
+
+private fun showSchoolSliderImage(index: Int) {
+    if (customSliderImageUrls.isEmpty()) {
+        categoryBannerImageView.setImageResource(
+            sliderImages[index.coerceIn(0, sliderImages.lastIndex)]
+        )
+        return
+    }
+
+    val imageUrl = customSliderImageUrls[
+        index.coerceIn(0, customSliderImageUrls.lastIndex)
+    ]
+
+    if (!imageUrl.startsWith("https://")) return
+
+    Thread {
+        try {
+            val connection = URL(imageUrl).openConnection()
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+
+            val bitmap = connection.getInputStream().use {
+                BitmapFactory.decodeStream(it)
+            }
+
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && bitmap != null) {
+                    categoryBannerImageView.setImageBitmap(bitmap)
+                }
+            }
+        } catch (_: Exception) {
+            // फोटो लोड न होने पर वर्तमान फोटो बनी रहेगी।
+        }
+    }.start()
+}
 
 private val sliderImages = intArrayOf(
     R.drawable.home_teacher,
@@ -59,7 +95,11 @@ private val sliderRunnable = object : Runnable {
         )
 
         if (image != null) {
-            image.setImageResource(sliderImages[sliderIndex])
+            if (customSliderImageUrls.isNotEmpty()) {
+    showSchoolSliderImage(sliderIndex)
+} else {
+    image.setImageResource(sliderImages[sliderIndex])
+}
         }
 
         sliderHandler.postDelayed(this, 4500L)
@@ -126,6 +166,20 @@ private fun loadCategoryPageSettings(
                 snapshot.getString("layoutStyle") ?: "standard"
 
             customBannerImageUrl = imageUrl
+            customSliderImageUrls = listOf(
+    snapshot.getString("sliderImage1").orEmpty(),
+    snapshot.getString("sliderImage2").orEmpty(),
+    snapshot.getString("sliderImage3").orEmpty()
+).filter { it.startsWith("https://") }
+
+if (categoryId.equals("school", ignoreCase = true) &&
+    customSliderImageUrls.isNotEmpty()
+) {
+    sliderHandler.removeCallbacks(sliderRunnable)
+    sliderIndex = 0
+    showSchoolSliderImage(sliderIndex)
+    sliderHandler.postDelayed(sliderRunnable, 4500L)
+}
 
             if (imageUrl.startsWith("https://")) {
                 sliderHandler.removeCallbacks(sliderRunnable)
