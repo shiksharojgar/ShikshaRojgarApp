@@ -982,25 +982,36 @@ if (post.imageUrl.isNotBlank()) {
 
     row.addView(image, imageParams)
 
-    Thread {
-        try {
+    
+Thread {
+    val bitmap = try {
+        if (post.imageUrl.startsWith("firestore-media://")) {
+            ChannelRepository.loadImage(post.imageUrl)
+        } else if (
+            post.imageUrl.startsWith("https://") ||
+            post.imageUrl.startsWith("http://")
+        ) {
             val connection = URL(post.imageUrl).openConnection()
             connection.connectTimeout = 10000
             connection.readTimeout = 10000
 
-            val bitmap = connection.getInputStream().use {
+            connection.getInputStream().use {
                 BitmapFactory.decodeStream(it)
             }
-
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed && bitmap != null) {
-                    image.setImageBitmap(bitmap)
-                }
-            }
-        } catch (_: Exception) {
-            // फोटो लोड न होने पर पोस्ट का टेक्स्ट दिखता रहेगा।
+        } else {
+            null
         }
-    }.start()
+    } catch (_: Exception) {
+        null
+    }
+
+    runOnUiThread {
+        if (!isFinishing && !isDestroyed && bitmap != null) {
+            image.setImageBitmap(bitmap)
+        }
+    }
+}.start()
+
 }
 
 
