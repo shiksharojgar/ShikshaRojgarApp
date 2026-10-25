@@ -983,39 +983,40 @@ if (post.imageUrl.isNotBlank()) {
     row.addView(image, imageParams)
 
     
-Thread {
-    val bitmap = try {
-        if (post.imageUrl.startsWith("firestore-media://")) {
-            ChannelRepository.loadImage(post.imageUrl)
-        } else if (
-            post.imageUrl.startsWith("https://") ||
-            post.imageUrl.startsWith("http://")
-        ) {
-            val connection = URL(post.imageUrl).openConnection()
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-
-            connection.getInputStream().use {
-                BitmapFactory.decodeStream(it)
+    if (post.imageUrl.startsWith("firestore-media://")) {
+        ChannelRepository.loadImage(post.imageUrl) { bitmap, _ ->
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && bitmap != null) {
+                    image.setImageBitmap(bitmap)
+                }
             }
-        } else {
-            null
         }
-    } catch (_: Exception) {
-        null
+    } else if (
+        post.imageUrl.startsWith("https://") ||
+        post.imageUrl.startsWith("http://")
+    ) {
+        Thread {
+            val bitmap = try {
+                val connection = URL(post.imageUrl).openConnection()
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
+
+                connection.getInputStream().use {
+                    BitmapFactory.decodeStream(it)
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && bitmap != null) {
+                    image.setImageBitmap(bitmap)
+                }
+            }
+        }.start()
     }
 
-    runOnUiThread {
-        if (!isFinishing && !isDestroyed && bitmap != null) {
-            image.setImageBitmap(bitmap)
-        }
-    }
-}.start()
-
-}
-
-
-                    
+}              
 
                 val textColumn = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
