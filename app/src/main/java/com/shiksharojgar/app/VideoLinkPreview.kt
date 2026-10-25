@@ -134,7 +134,7 @@ if (image.isNotBlank() && youtubeId.isNullOrBlank()) {
                 }
             } catch (e: Exception) {
                 val youtubeId = Regex(
-                    """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed|shorts)/)([A-Za-z0-9_-]{11})"""
+                    """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed/|shorts/|live/)([A-Za-z0-9_-]{11})"""
                 ).find(link)?.groupValues?.getOrNull(1)
 
                 val fallback = if (youtubeId != null) {
