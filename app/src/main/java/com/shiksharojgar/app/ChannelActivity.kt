@@ -2561,6 +2561,58 @@ notificationTargetPostId?.let { targetId ->
 }
             }
 
+if (!likedState.containsKey(p.id)) {
+    like.isEnabled = false
+
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) {
+            runOnUiThread {
+                like.isEnabled = true
+            }
+            return@ensureSignedIn
+        }
+
+        ChannelRepository.isLiked(p.id) { liked ->
+            runOnUiThread {
+                likedState[p.id] = liked
+                like.isEnabled = true
+
+                val count =
+                    likeOverrides[p.id] ?: p.likeCount
+
+                like.text = "👍 Like $count"
+
+                like.setTextColor(
+                    if (liked) {
+                        Color.WHITE
+                    } else {
+                        Color.rgb(14, 91, 215)
+                    }
+                )
+
+                like.background =
+                    if (liked) {
+                        GradientFactory.gradient(
+                            "#2563EB",
+                            "#38BDF8"
+                        )
+                    } else {
+                        android.graphics.drawable
+                            .GradientDrawable()
+                            .apply {
+                                setColor(Color.WHITE)
+                                cornerRadius = dp(20).toFloat()
+                                setStroke(
+                                    dp(1),
+                                    Color.rgb(14, 91, 215)
+                                )
+                            }
+                    }
+            }
+        }
+    }
+}
+
         actions.addView(
             like,
             LinearLayout.LayoutParams(
