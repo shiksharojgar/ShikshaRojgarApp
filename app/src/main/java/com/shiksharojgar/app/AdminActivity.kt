@@ -6461,21 +6461,26 @@ box.addView(formatRow)
         }
         box.addView(bloggerUrlField)
 
-        box.addView(
-            TextView(this).apply {
-                text = "Blogger लिंक से इमेज, टाइटल और विवरण लाने की सुविधा अगले चरण में जोड़ी जाएगी।"
-                textSize = 12f
-                setTextColor(Color.DKGRAY)
-            }
-        )
+        
+box.addView(
+    TextView(this).apply {
+        text = "Blogger का पूरा लिंक डालकर 🔎 जानकारी लाएँ दबाएँ। उपलब्ध टाइटल, विवरण और इमेज URL फ़ॉर्म में भर जाएँगे।"
+        textSize = 12f
+        setTextColor(Color.DKGRAY)
+    }
+)
 
-        val bloggerImageUrlField = EditText(this).apply {
-            hint = "🖼️ Blogger पोस्ट की इमेज URL"
-            setSingleLine(true)
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                android.text.InputType.TYPE_TEXT_VARIATION_URI
-        }
-        box.addView(bloggerImageUrlField)
+
+        
+val bloggerImageUrlField = EditText(this).apply {
+    hint = "🖼️ Blogger पोस्ट की इमेज URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+        android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(existingPost?.imageUrl.orEmpty())
+}
+box.addView(bloggerImageUrlField)
+
 
         val fetchBloggerButton = Button(this).apply {
             text = "🔎 Blogger से जानकारी लाएँ"
