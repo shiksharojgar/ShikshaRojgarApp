@@ -3262,11 +3262,52 @@ private fun showCategoryPageLayoutEditor(
             }
 
             val imageUrlField = EditText(this).apply {
-                hint = "फोटो का सीधा HTTPS URL"
-                setSingleLine(true)
-                inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-                setText(snapshot.getString("imageUrl") ?: "")
-            }
+    hint = "मुख्य बैनर फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("imageUrl") ?: "")
+}
+            val sliderImage1Field = EditText(this).apply {
+    hint = "स्लाइड 1 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage1") ?: "")
+}
+
+val sliderImage2Field = EditText(this).apply {
+    hint = "स्लाइड 2 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage2") ?: "")
+}
+
+val sliderImage3Field = EditText(this).apply {
+    hint = "स्लाइड 3 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage3") ?: "")
+}
+
+val sliderImage1Field = EditText(this).apply {
+    hint = "स्लाइड 1 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage1") ?: "")
+}
+
+val sliderImage2Field = EditText(this).apply {
+    hint = "स्लाइड 2 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage2") ?: "")
+}
+
+val sliderImage3Field = EditText(this).apply {
+    hint = "स्लाइड 3 फोटो का HTTPS URL"
+    setSingleLine(true)
+    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+    setText(snapshot.getString("sliderImage3") ?: "")
+}
 
             val layoutOptions = listOf(
                 "सामान्य कार्ड" to "standard",
@@ -3319,7 +3360,29 @@ private fun showCategoryPageLayoutEditor(
                 imageUrlField,
                 LinearLayout.LayoutParams(-1, dp(52))
             )
+form.addView(TextView(this).apply {
+    text = "स्लाइड 1 फोटो URL"
+})
+form.addView(
+    sliderImage1Field,
+    LinearLayout.LayoutParams(-1, dp(52))
+)
 
+form.addView(TextView(this).apply {
+    text = "स्लाइड 2 फोटो URL"
+})
+form.addView(
+    sliderImage2Field,
+    LinearLayout.LayoutParams(-1, dp(52))
+)
+
+form.addView(TextView(this).apply {
+    text = "स्लाइड 3 फोटो URL"
+})
+form.addView(
+    sliderImage3Field,
+    LinearLayout.LayoutParams(-1, dp(52))
+)
             form.addView(TextView(this).apply {
                 text = "लेआउट चुनें"
             })
@@ -3352,6 +3415,13 @@ private fun showCategoryPageLayoutEditor(
                             descriptionField.text.toString().trim()
                         val imageUrl =
                             imageUrlField.text.toString().trim()
+                        val sliderImage1 =
+    sliderImage1Field.text.toString().trim()
+val sliderImage2 =
+    sliderImage2Field.text.toString().trim()
+val sliderImage3 =
+    sliderImage3Field.text.toString().trim()
+    
                         val style = layoutOptions[
                             layoutSpinner.selectedItemPosition
                                 .coerceIn(0, layoutOptions.lastIndex)
@@ -3377,6 +3447,9 @@ private fun showCategoryPageLayoutEditor(
                             "title" to pageTitle,
                             "description" to description,
                             "imageUrl" to imageUrl,
+                            "sliderImage1" to sliderImage1,
+"sliderImage2" to sliderImage2,
+"sliderImage3" to sliderImage3,
                             "layoutStyle" to style,
                             "updatedAt" to
                                 com.google.firebase.firestore.FieldValue
