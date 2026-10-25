@@ -6443,7 +6443,31 @@ box.addView(formatRow)
                         setText(existingPost?.websiteUrl.orEmpty())
         }
         box.addView(websiteUrlField)
+
         
+        val bloggerUrlField = EditText(this).apply {
+            hint = "📰 Blogger पोस्ट का पूरा लिंक (वैकल्पिक)"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+            setText(
+                if (existingPost?.websiteUrl.orEmpty().contains("blogger.com")) {
+                    existingPost?.websiteUrl.orEmpty()
+                } else {
+                    ""
+                }
+            )
+        }
+        box.addView(bloggerUrlField)
+
+        box.addView(
+            TextView(this).apply {
+                text = "Blogger लिंक से इमेज, टाइटल और विवरण लाने की सुविधा अगले चरण में जोड़ी जाएगी।"
+                textSize = 12f
+                setTextColor(Color.DKGRAY)
+            }
+        )
+
         val existingButton = existingPost?.buttons?.firstOrNull()
 
         val customButtonLabelField = EditText(this).apply {
