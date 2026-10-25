@@ -156,6 +156,7 @@ fun showAnchoredOptions(
     }
 
     
+    
     val width = minOf(
         dp(context, 280),
         (context.resources.displayMetrics.widthPixels * 0.82f).toInt()
@@ -200,6 +201,7 @@ fun showAnchoredOptions(
         -dp(context, 3),
         Gravity.END
     )
+
 
 }
 
