@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     private val liveHandler = Handler(Looper.getMainLooper())
-    private var floatingNoticeImage: ImageView? = null
+    private var floatingNoticeImage: View? = null
    private var noticeCardView: View? = null
 private var importantInfoUnreadBadge: TextView? = null
     
@@ -1292,280 +1292,244 @@ floatingNoticeHandler.removeCallbacks(
     // LIVE BREAKING
     // ============================================================
 
-private fun loadFloatingNoticePhoto() {
 
-    val root =
-        findViewById<android.view.ViewGroup>(
-            android.R.id.content
-        )
+private fun loadFloatingNoticePhoto() {
+    val root = findViewById<android.view.ViewGroup>(android.R.id.content)
 
     floatingNoticeImage?.let {
+        it.clearAnimation()
         root.removeView(it)
         floatingNoticeImage = null
     }
 
-    val noticeCard =
-        noticeCardView
-            ?: return
+    val noticeCard = noticeCardView ?: return
 
     FirebaseFirestore.getInstance()
         .collection("home_notices")
-        .whereEqualTo(
-            "enabled",
-            true
-        )
+        .whereEqualTo("enabled", true)
         .get()
         .addOnSuccessListener { snapshot ->
 
-            val now =
-                System.currentTimeMillis()
+            val now = System.currentTimeMillis()
 
-            val notice =
-                snapshot.documents
-                    .sortedByDescending {
-                        it.getLong(
-                            "createdAt"
-                        ) ?: 0L
-                    }
-                    .firstOrNull { doc ->
+            val notice = snapshot.documents
+                .sortedByDescending { it.getLong("createdAt") ?: 0L }
+                .firstOrNull { doc ->
+                    val startAt = doc.getLong("startAt") ?: 0L
+                    val endAt = doc.getLong("endAt") ?: 0L
+                    val imageUrl = doc.getString("imageUrl").orEmpty()
 
-                        val startAt =
-                            doc.getLong(
-                                "startAt"
-                            ) ?: 0L
+                    imageUrl.isNotBlank() &&
+                        (startAt == 0L || now >= startAt) &&
+                        (endAt == 0L || now <= endAt)
+                } ?: return@addOnSuccessListener
 
-                        val endAt =
-                            doc.getLong(
-                                "endAt"
-                            ) ?: 0L
+            val imageUrl = notice.getString("imageUrl").orEmpty()
+            if (imageUrl.isBlank()) return@addOnSuccessListener
 
-                        val imageUrl =
-                            doc.getString(
-                                "imageUrl"
-                            ).orEmpty()
+            val titleText = notice.getString("title")
+                ?.takeIf { it.isNotBlank() }
+                ?: "🔔 नोटिस अपडेट"
 
-                        imageUrl.isNotBlank() &&
-                        (
-                            startAt == 0L ||
-                            now >= startAt
-                        ) &&
-                        (
-                            endAt == 0L ||
-                            now <= endAt
-                        )
-                    }
-                    ?: return@addOnSuccessListener
-
-            val imageUrl =
-                notice.getString(
-                    "imageUrl"
-                ).orEmpty()
-
-            if (imageUrl.isBlank()) {
-                return@addOnSuccessListener
-            }
+            val bodyText = notice.getString("body")
+                ?.takeIf { it.isNotBlank() }
+                ?: notice.getString("description").orEmpty()
 
             noticeCard.post {
+                val density = resources.displayMetrics.density
+                val imageSize = (170 * density).toInt()
+                val textWidth = (220 * density).toInt()
+                val gap = (6 * density).toInt()
 
-                val noticeLocation =
-                    IntArray(2)
-
-                val rootLocation =
-                    IntArray(2)
-
-                noticeCard.getLocationOnScreen(
-                    noticeLocation
-                )
-
-                root.getLocationOnScreen(
-                    rootLocation
-                )
-
-                val imageView =
-                    ImageView(this).apply {
-
-                        scaleType =
-                         ImageView.ScaleType.FIT_CENTER
-
-                        background =
-                            GradientDrawable().apply {
-                                cornerRadius = 18f
-                            }
-
-                        clipToOutline = true
-
-                        elevation = 12f
+                val imageView = ImageView(this).apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    background = GradientDrawable().apply {
+                        cornerRadius = 12 * density
+                        setColor(Color.WHITE)
                     }
-
-                val size =
-                    (
-                        85 *
-                        resources.displayMetrics.density
-                    ).toInt()
-
-                val startTop =
-                    noticeLocation[1] -
-                    rootLocation[1] +
-                    noticeCard.height
-
-                val startLeft =
-                    noticeLocation[0] -
-                    rootLocation[0] +
-                    (
-                        noticeCard.width -
-                        size
-                    ) / 2
-
-                val liveLabel =
-                    findViewById<View?>(
-                        R.id.liveLabel
-                    )
-
-                var endTop =
-                    root.height -
-                    size -
-                    20
-
-                if (liveLabel != null) {
-
-                    val liveLocation =
-                        IntArray(2)
-
-                    liveLabel.getLocationOnScreen(
-                        liveLocation
-                    )
-
-                    endTop =
-                        (
-                            liveLocation[1] -
-                            rootLocation[1] -
-                            size -
-                            8
-                        )
-                            .coerceAtLeast(
-                                startTop
-                            )
+                    clipToOutline = true
+                    elevation = 12 * density
                 }
 
-                val moveDistance =
-                    (
-                        endTop -
-                        startTop
+                val titleView = TextView(this).apply {
+                    text = titleText
+                    textSize = 14f
+                    setTextColor(Color.WHITE)
+                    typeface = android.graphics.Typeface.DEFAULT_BOLD
+                    gravity = Gravity.CENTER
+                    maxLines = 2
+                    setPadding(
+                        (6 * density).toInt(),
+                        (5 * density).toInt(),
+                        (6 * density).toInt(),
+                        (5 * density).toInt()
                     )
-                        .coerceAtLeast(0)
-
-                val params =
-                    android.widget.FrameLayout.LayoutParams(
-                        size,
-                        size
-                    ).apply {
-
-                        leftMargin =
-                            startLeft
-
-                        topMargin =
-                            startTop
+                    background = GradientDrawable().apply {
+                        setColor(Color.rgb(20, 75, 145))
+                        cornerRadius = 8 * density
                     }
+                }
 
-                floatingNoticeImage =
-                    imageView
+                val content = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    clipChildren = false
+                    clipToPadding = false
+                    elevation = 14 * density
 
-                root.addView(
-                    imageView,
-                    params
+                    addView(
+                        imageView,
+                        LinearLayout.LayoutParams(imageSize, imageSize)
+                    )
+
+                    addView(
+                        titleView,
+                        LinearLayout.LayoutParams(
+                            textWidth,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            topMargin = gap
+                        }
+                    )
+
+                    if (bodyText.isNotBlank()) {
+                        addView(
+                            TextView(this@MainActivity).apply {
+                                text = bodyText
+                                textSize = 12f
+                                setTextColor(Color.WHITE)
+                                gravity = Gravity.CENTER
+                                maxLines = 3
+                                ellipsize = android.text.TextUtils.TruncateAt.END
+                                setPadding(
+                                    (7 * density).toInt(),
+                                    (4 * density).toInt(),
+                                    (7 * density).toInt(),
+                                    (4 * density).toInt()
+                                )
+                                background = GradientDrawable().apply {
+                                    setColor(Color.rgb(45, 45, 45))
+                                    cornerRadius = 7 * density
+                                }
+                            },
+                            LinearLayout.LayoutParams(
+                                textWidth,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                topMargin = gap
+                            }
+                        )
+                    }
+                }
+
+                val noticeLocation = IntArray(2)
+                val rootLocation = IntArray(2)
+                noticeCard.getLocationOnScreen(noticeLocation)
+                root.getLocationOnScreen(rootLocation)
+
+                val contentHeight = (
+                    imageSize + (90 * density).toInt()
                 )
 
-                ChannelRepository.loadImage(
-                    imageUrl
-                ) { bitmap, _ ->
+                val startTop = (
+                    noticeLocation[1] - rootLocation[1] +
+                        noticeCard.height
+                ).coerceAtLeast(0)
 
+                val startLeft = (
+                    noticeLocation[0] - rootLocation[0] +
+                        (noticeCard.width - textWidth) / 2
+                ).coerceAtLeast(0)
+
+                val liveLabel = findViewById<View?>(R.id.liveLabel)
+                var endTop = root.height - contentHeight - (20 * density).toInt()
+
+                if (liveLabel != null) {
+                    val liveLocation = IntArray(2)
+                    liveLabel.getLocationOnScreen(liveLocation)
+                    endTop = (
+                        liveLocation[1] - rootLocation[1] -
+                            contentHeight - (8 * density).toInt()
+                    ).coerceAtLeast(startTop)
+                }
+
+                val params = android.widget.FrameLayout.LayoutParams(
+                    textWidth,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    leftMargin = startLeft
+                    topMargin = startTop
+                }
+
+                floatingNoticeImage = content
+                root.addView(content, params)
+
+                ChannelRepository.loadImage(imageUrl) { bitmap, _ ->
                     if (bitmap == null) {
+                        runOnUiThread {
+                            root.removeView(content)
+                            if (floatingNoticeImage === content) {
+                                floatingNoticeImage = null
+                            }
+                        }
                         return@loadImage
                     }
 
                     runOnUiThread {
+                        if (isFinishing || isDestroyed) {
+                            root.removeView(content)
+                            return@runOnUiThread
+                        }
 
-                        imageView.setImageBitmap(
-                            bitmap
-                        )
+                        imageView.setImageBitmap(bitmap)
 
-                        val animation =
-                            android.view.animation.AnimationSet(
-                                true
-                            ).apply {
+                        val moveDistance = (endTop - startTop).coerceAtLeast(0)
 
-                                duration =
-                                    7000L
+                        val animation = android.view.animation.AnimationSet(true).apply {
+                            duration = 7000L
+                            fillAfter = false
 
-                                fillAfter =
-                                    false
-
-                                addAnimation(
-                                    android.view.animation.TranslateAnimation(
-                                        0f,
-                                        0f,
-                                        0f,
-                                        moveDistance.toFloat()
-                                    )
+                            addAnimation(
+                                android.view.animation.TranslateAnimation(
+                                    0f, 0f, 0f, moveDistance.toFloat()
                                 )
+                            )
 
-                                addAnimation(
-                                    android.view.animation.ScaleAnimation(
-                                        0.65f,
-                                        1.0f,
-                                        0.65f,
-                                        1.0f,
-                                        android.view.animation.Animation.RELATIVE_TO_SELF,
-                                        0.5f,
-                                        android.view.animation.Animation.RELATIVE_TO_SELF,
-                                        0.5f
-                                    )
+                            addAnimation(
+                                android.view.animation.ScaleAnimation(
+                                    0.65f, 1.0f, 0.65f, 1.0f,
+                                    android.view.animation.Animation.RELATIVE_TO_SELF,
+                                    0.5f,
+                                    android.view.animation.Animation.RELATIVE_TO_SELF,
+                                    0.0f
                                 )
+                            )
 
-                                addAnimation(
-                                    android.view.animation.AlphaAnimation(
-                                        0.0f,
-                                        1.0f
-                                    )
-                                )
-                            }
+                            addAnimation(
+                                android.view.animation.AlphaAnimation(0f, 1f)
+                            )
+                        }
 
                         animation.setAnimationListener(
-                            object :
-                                android.view.animation.Animation.AnimationListener {
-
+                            object : android.view.animation.Animation.AnimationListener {
                                 override fun onAnimationStart(
-                                    animation:
-                                        android.view.animation.Animation?
-                                ) {
-                                }
+                                    animation: android.view.animation.Animation?
+                                ) {}
 
                                 override fun onAnimationRepeat(
-                                    animation:
-                                        android.view.animation.Animation?
-                                ) {
-                                }
+                                    animation: android.view.animation.Animation?
+                                ) {}
 
                                 override fun onAnimationEnd(
-                                    animation:
-                                        android.view.animation.Animation?
+                                    animation: android.view.animation.Animation?
                                 ) {
-
-                                    imageView.animate()
+                                    content.animate()
                                         .alpha(0f)
                                         .setDuration(700L)
                                         .withEndAction {
-
-                                            root.removeView(
-                                                imageView
-                                            )
-
-                                            if (
-                                                floatingNoticeImage ===
-                                                imageView
-                                            ) {
-                                                floatingNoticeImage =
-                                                    null
+                                            root.removeView(content)
+                                            if (floatingNoticeImage === content) {
+                                                floatingNoticeImage = null
                                             }
                                         }
                                         .start()
@@ -1573,14 +1537,13 @@ private fun loadFloatingNoticePhoto() {
                             }
                         )
 
-                        imageView.startAnimation(
-                            animation
-                        )
+                        content.startAnimation(animation)
                     }
                 }
             }
         }
 }
+
                                
 
     private fun setupLiveBreaking() {
