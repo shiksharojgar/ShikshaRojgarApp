@@ -2215,18 +2215,37 @@ homeManagement.addView(
 )
 
 
-homeManagement.addView(
-    adminActionButton("🏫 स्कूल पेज सेटिंग और स्लाइडर फोटो") {
-        showCategoryPageLayoutEditor(
-            "school",
-            "स्कूल शिक्षा"
-        )
-    },
-    LinearLayout.LayoutParams(
-        -1,
-        dp(44)
-    )
+
+val pageSettings = listOf(
+    Triple("teacher", "👩‍🏫 Teacher पेज सेटिंग", "#1976D2"),
+    Triple("student", "🎓 Student पेज सेटिंग", "#7B1FA2"),
+    Triple("school", "🏫 School पेज सेटिंग", "#2E7D32"),
+    Triple("vacancy", "💼 Vacancy पेज सेटिंग", "#EF6C00"),
+    Triple("result", "🏆 Result पेज सेटिंग", "#00838F"),
+    Triple("admit_card", "🎫 Admit Card पेज सेटिंग", "#C62828")
 )
+
+pageSettings.forEach { item ->
+    val pageId = item.first
+    val pageLabel = item.second
+    val pageColor = android.graphics.Color.parseColor(item.third)
+
+    val settingsButton = adminActionButton(pageLabel) {
+        showCategoryPageLayoutEditor(pageId, pageLabel)
+    }
+
+    settingsButton.setBackgroundTintList(
+        android.content.res.ColorStateList.valueOf(pageColor)
+    )
+
+    homeManagement.addView(
+        settingsButton,
+        LinearLayout.LayoutParams(-1, dp(44)).apply {
+            bottomMargin = dp(5)
+        }
+    )
+}
+
 
 // =========================================================
 // MORE MENU CARD
