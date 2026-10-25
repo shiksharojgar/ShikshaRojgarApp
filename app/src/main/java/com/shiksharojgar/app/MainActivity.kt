@@ -1352,13 +1352,7 @@ private fun loadFloatingNoticePhoto() {
                 val titleView = TextView(this).apply {
                     maxWidth = textWidth
 minWidth = 0
-                    content.addView(
-    descriptionView,
-    LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.WRAP_CONTENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    )
-)
+                    
                     text = titleText
                     textSize = 14f
                     setTextColor(Color.WHITE)
@@ -1403,6 +1397,8 @@ minWidth = 0
                         addView(
                             TextView(this@MainActivity).apply {
                                 text = bodyText
+                                maxWidth = textWidth
+minWidth = 0
                                 textSize = 12f
                                 setTextColor(Color.WHITE)
                                 gravity = Gravity.CENTER
@@ -1420,7 +1416,7 @@ minWidth = 0
                                 }
                             },
                             LinearLayout.LayoutParams(
-                                textWidth,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                             ).apply {
                                 topMargin = gap
