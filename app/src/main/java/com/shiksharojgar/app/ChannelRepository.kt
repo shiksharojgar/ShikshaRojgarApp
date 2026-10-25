@@ -96,12 +96,16 @@ buttons = (d.get("buttons") as? List<*>)?.mapNotNull { raw ->
     )
 } ?: emptyList(),
 websiteUrl = d.getString("websiteUrl").orEmpty(),
-extraUrl = d.getString("extraUrl").orEmpty()
+extraUrl = d.getString("extraUrl").orEmpty(),
+pinned = d.getBoolean("pinned") ?: false,
+pinOrder = d.getLong("pinOrder") ?: 0L
 )
 
-            }.sortedBy {
-                it.createdAt
-            }
+            }.sortedWith(
+    compareByDescending<ChannelPost> { it.pinned }
+        .thenByDescending { it.pinOrder }
+        .thenByDescending { it.createdAt }
+)
         }
 
         db.collection("channel_posts")
