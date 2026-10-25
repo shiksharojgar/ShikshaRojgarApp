@@ -204,12 +204,28 @@ loadVideos()
         )
 
         val thumbnailUrl = customThumbnail.ifBlank {
-            youtubeThumbnail(url).orEmpty()
-        }
+    youtubeThumbnail(url).orEmpty()
+}
 
-        if (thumbnailUrl.isNotBlank()) {
-            loadThumbnail(thumbnail, thumbnailUrl)
+if (thumbnailUrl.isNotBlank()) {
+    if (thumbnailUrl.startsWith("firestore-media://")) {
+        ChannelRepository.loadImage(thumbnailUrl) { bitmap, _ ->
+            if (!isFinishing && bitmap != null) {
+                thumbnail.setImageBitmap(bitmap)
+            }
         }
+    } else {
+        loadThumbnail(thumbnail, thumbnailUrl)
+    }
+} else {
+    VideoLinkPreview.fetch(url) { preview, _ ->
+        val imageUrl = preview?.imageUrl.orEmpty()
+
+        if (imageUrl.isNotBlank() && !isFinishing) {
+            loadThumbnail(thumbnail, imageUrl)
+        }
+    }
+}
 
         val titleView = TextView(this).apply {
             text = title
