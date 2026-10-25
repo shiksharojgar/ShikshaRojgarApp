@@ -578,7 +578,15 @@ listLayout.addView(categoryPageDescriptionView)
 
 // 2. सब-कैटेगरी का अलग हिस्सा
 val subHeading = TextView(this).apply {
-    text = "📚 विषय और सब-कैटेगरी"
+    text = when (categoryId.lowercase()) {
+        "school" -> "📚 स्कूल शिक्षा की प्रमुख श्रेणियाँ"
+        "teacher" -> "👩‍🏫 शिक्षक जानकारी की प्रमुख श्रेणियाँ"
+        "student" -> "🎓 विद्यार्थी जानकारी की प्रमुख श्रेणियाँ"
+        "vacancy" -> "💼 भर्ती की प्रमुख श्रेणियाँ"
+        "result" -> "🏆 परिणाम की प्रमुख श्रेणियाँ"
+        "admit_card" -> "🎫 प्रवेश पत्र की प्रमुख श्रेणियाँ"
+        else -> "📚 विषय और सब-कैटेगरी"
+    }
     textSize = 18f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.rgb(25, 118, 210))
@@ -595,7 +603,15 @@ listLayout.addView(subCategoryLayout)
 
 // 3. नई पोस्ट का अलग हिस्सा
 val postsHeading = TextView(this).apply {
-    text = "📰 ताज़ा पोस्ट"
+    text = when (categoryId.lowercase()) {
+        "school" -> "🔥 ताज़ा पोस्ट"
+        "teacher" -> "🔥 शिक्षक अपडेट"
+        "student" -> "🔥 विद्यार्थी अपडेट"
+        "vacancy" -> "🔥 ताज़ा भर्तियाँ"
+        "result" -> "🔥 ताज़ा परिणाम"
+        "admit_card" -> "🔥 ताज़ा प्रवेश पत्र"
+        else -> "📰 ताज़ा पोस्ट"
+    }
     textSize = 18f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.rgb(25, 118, 210))
@@ -850,7 +866,78 @@ private fun loadSubCategories(
                 subCategoryLayout.addView(empty)
                 return@addOnSuccessListener
             }
+            if (items.isEmpty()) {
+                val defaults = when (categoryId.lowercase()) {
+                    "school" -> listOf(
+                        Triple("स्कूल समाचार", "📰", ""),
+                        Triple("शैक्षणिक कैलेंडर", "📅", ""),
+                        Triple("पाठ्यक्रम एवं पुस्तकें", "📚", ""),
+                        Triple("छात्रवृत्ति एवं योजनाएँ", "🎓", ""),
+                        Triple("परीक्षा एवं परिणाम", "📝", ""),
+                        Triple("विभागीय आदेश", "📜", "")
+                    )
 
+                    "teacher" -> listOf(
+                        Triple("शिक्षक भर्ती", "👩‍🏫", ""),
+                        Triple("स्थानांतरण एवं पदोन्नति", "🔁", ""),
+                        Triple("प्रशिक्षण एवं पाठ्यक्रम", "📚", ""),
+                        Triple("विभागीय आदेश", "📜", "")
+                    )
+
+                    "student" -> listOf(
+                        Triple("पाठ्यक्रम एवं पुस्तकें", "📚", ""),
+                        Triple("छात्रवृत्ति एवं योजनाएँ", "🎓", ""),
+                        Triple("परीक्षा एवं परिणाम", "📝", ""),
+                        Triple("अध्ययन सामग्री", "📖", "")
+                    )
+
+                    "vacancy" -> listOf(
+                        Triple("नई भर्तियाँ", "💼", ""),
+                        Triple("आवेदन एवं पात्रता", "📝", ""),
+                        Triple("भर्ती परीक्षा", "📅", ""),
+                        Triple("आधिकारिक सूचनाएँ", "📜", "")
+                    )
+
+                    "result" -> listOf(
+                        Triple("नवीनतम परिणाम", "🏆", ""),
+                        Triple("मेरिट सूची", "📋", ""),
+                        Triple("कटऑफ एवं चयन सूची", "📊", ""),
+                        Triple("आधिकारिक परिणाम लिंक", "🔗", "")
+                    )
+
+                    "admit_card" -> listOf(
+                        Triple("नवीनतम प्रवेश पत्र", "🎫", ""),
+                        Triple("परीक्षा तिथि", "📅", ""),
+                        Triple("परीक्षा केंद्र निर्देश", "📍", ""),
+                        Triple("डाउनलोड लिंक", "⬇️", "")
+                    )
+
+                    else -> emptyList()
+                }
+
+                if (defaults.isEmpty()) {
+                    subCategoryLayout.addView(
+                        TextView(this).apply {
+                            text = "अभी कोई Sub-Category उपलब्ध नहीं है।"
+                            textSize = 16f
+                            gravity = Gravity.CENTER
+                            setPadding(dp(16), dp(24), dp(16), dp(24))
+                        }
+                    )
+                } else {
+                    defaults.forEachIndexed { index, item ->
+                        addSubCategoryButton(
+                            name = item.first,
+                            icon = item.second,
+                            url = item.third,
+                            pageType = "Website",
+                            index = index
+                        )
+                    }
+                }
+
+                return@addOnSuccessListener
+            }
             items.forEachIndexed { index, doc ->
                 val name = doc.getString("name")
                     ?: "Sub-Category"
