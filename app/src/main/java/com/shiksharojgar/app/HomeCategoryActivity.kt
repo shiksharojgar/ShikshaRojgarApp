@@ -182,8 +182,13 @@ if (categoryId.equals("school", ignoreCase = true) &&
     showSchoolSliderImage(sliderIndex)
     sliderHandler.postDelayed(sliderRunnable, 4500L)
 }
-
-            if (imageUrl.startsWith("https://")) {
+if (
+    imageUrl.startsWith("https://") &&
+    !(
+        categoryId.equals("school", ignoreCase = true) &&
+        customSliderImageUrls.isNotEmpty()
+    )
+) {
                 sliderHandler.removeCallbacks(sliderRunnable)
 
                 Thread {
@@ -537,11 +542,12 @@ val next = TextView(this).apply {
     textSize = 36f
     gravity = Gravity.CENTER
     setTextColor(Color.rgb(25, 118, 210))
+
     setOnClickListener {
-        sliderIndex = (sliderIndex + 1) % sliderImages.size
-        findViewById<android.widget.ImageView>(
-            R.id.categoryBannerImage
-        )?.setImageResource(sliderImages[sliderIndex])
+        sliderIndex =
+            (sliderIndex + 1) % sliderImages.size
+
+        showSchoolSliderImage(sliderIndex)
     }
 }
 
