@@ -91,28 +91,48 @@ bodyBold = doc.getBoolean("bodyBold") ?: false,
     }
 
     // हर नई पोस्ट को अलग Firestore दस्तावेज़ में सेव करें।
-    fun savePost(
-        post: CategoryPost,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        val document = if (post.id.isBlank()) {
-            postsRef.document()
+    
+fun savePost(
+    post: CategoryPost,
+    onResult: (Boolean, String?) -> Unit
+) {
+    if (post.category.isBlank()) {
+        onResult(false, "कैटेगरी चुनना जरूरी है")
+        return
+    }
+
+    val document = if (post.id.isBlank()) {
+        postsRef.document()
+    } else {
+        postsRef.document(post.id)
+    }
+
+    val savedPost = post.copy(
+        id = document.id,
+        createdAt = if (post.createdAt > 0L) {
+            post.createdAt
         } else {
-            postsRef.document(post.id)
+            System.currentTimeMillis()
         }
+    )
 
-        val savedPost = post.copy(
-            id = document.id,
-            createdAt = if (post.createdAt > 0L) {
-                post.createdAt
-            } else {
-                System.currentTimeMillis()
+    postsRef
+        .whereEqualTo("category", savedPost.category)
+        .whereEqualTo("enabled", true)
+        .get()
+        .addOnSuccessListener { existing ->
+
+            // नई पोस्ट पर ही 7 पोस्ट की सीमा लागू करें।
+            // पुरानी पोस्ट को एडिट करने की अनुमति रहेगी।
+            if (post.id.isBlank() && existing.size() >= 7) {
+                onResult(
+                    false,
+                    "इस कैटेगरी में पहले से 7 पोस्ट हैं। नई पोस्ट जोड़ने से पहले कोई पोस्ट डिलीट करें।"
+                )
+                return@addOnSuccessListener
             }
-        )
 
-        document.set(
-            
-            mapOf(
+            val data = mapOf(
                 "category" to savedPost.category,
                 "title" to savedPost.title,
                 "body" to savedPost.body,
@@ -141,12 +161,22 @@ bodyBold = doc.getBoolean("bodyBold") ?: false,
                 "enabled" to savedPost.enabled
             )
 
-        ).addOnSuccessListener {
-            onResult(true, document.id)
-        }.addOnFailureListener { error ->
-            onResult(false, error.message)
+            document.set(data)
+                .addOnSuccessListener {
+                    onResult(true, document.id)
+                }
+                .addOnFailureListener { error ->
+                    onResult(false, error.message)
+                }
         }
-    }
+        .addOnFailureListener { error ->
+            onResult(
+                false,
+                "पोस्ट की संख्या जाँच नहीं हुई: ${error.message}"
+            )
+        }
+}
+
 
     // पोस्ट को पिन या अनपिन करें।
     fun setPinned(
