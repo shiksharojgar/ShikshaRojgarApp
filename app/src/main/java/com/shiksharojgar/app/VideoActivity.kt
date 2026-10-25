@@ -302,7 +302,15 @@ if (thumbnailUrl.isNotBlank()) {
             }
         )
     }
+    private fun youtubeThumbnail(url: String): String? {
+        val videoId = Regex(
+            """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed/|shorts/|live/))([A-Za-z0-9_-]{11})"""
+        ).find(url)?.groupValues?.getOrNull(1)
 
+        return videoId?.let {
+            "https://img.youtube.com/vi/$it/hqdefault.jpg"
+        }
+    }
     
 private fun loadThumbnail(
     imageView: ImageView,
