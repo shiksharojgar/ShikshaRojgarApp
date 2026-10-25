@@ -1342,16 +1342,23 @@ private fun loadFloatingNoticePhoto() {
                 val gap = (6 * density).toInt()
 
                 val imageView = ImageView(this).apply {
-                    scaleType = ImageView.ScaleType.FIT_CENTER
-                    background = GradientDrawable().apply {
-                        cornerRadius = 12 * density
-                        setColor(Color.WHITE)
-                    }
-                    clipToOutline = true
-                    elevation = 12 * density
-                }
+    scaleType = ImageView.ScaleType.FIT_CENTER
+    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+    adjustViewBounds = true
+    clipToOutline = false
+    elevation = 0f
+}
 
                 val titleView = TextView(this).apply {
+                    maxWidth = textWidth
+minWidth = 0
+                    content.addView(
+    descriptionView,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
                     text = titleText
                     textSize = 14f
                     setTextColor(Color.WHITE)
@@ -1461,8 +1468,7 @@ private fun loadFloatingNoticePhoto() {
                     topMargin = startTop
                 }
 
-                floatingNoticeImage = content
-                root.addView(content, params)
+                
 
                 ChannelRepository.loadImage(imageUrl) { bitmap, _ ->
                     if (bitmap == null) {
@@ -1482,6 +1488,9 @@ private fun loadFloatingNoticePhoto() {
                         }
 
                         imageView.setImageBitmap(bitmap)
+                        imageView.setImageBitmap(bitmap)
+floatingNoticeImage = content
+root.addView(content, params)
 
                         val moveDistance = (endTop - startTop).coerceAtLeast(0)
 
