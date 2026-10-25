@@ -26,9 +26,13 @@ class ShikshaMessagingService : FirebaseMessagingService() {
             sendBroadcast(Intent("com.shiksharojgar.app.CHANNEL_UNREAD_CHANGED"))
         }
 
-        val title = message.notification?.title
-            ?: message.data["title"]
-            ?: if (isChannel) "📢 Shiksha Rojgar Channel" else "Shiksha Rojgar"
+        
+        val title = if (isChannel) {
+            "शिक्षा रोजगार ऐप • शिक्षा रोजगार चैनल"
+        } else {
+            "शिक्षा रोजगार ऐप"
+        }
+
 
         val body = message.notification?.body
             ?: message.data["body"]
