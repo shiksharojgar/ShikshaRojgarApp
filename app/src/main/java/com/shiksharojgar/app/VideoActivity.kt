@@ -192,16 +192,23 @@ loadVideos()
             elevation = dp(2).toFloat()
         }
 
-        val thumbnail = ImageView(this).apply {
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setBackgroundColor(Color.rgb(24, 28, 35))
-            contentDescription = "वीडियो थंबनेल: $title"
-        }
+        
+val thumbnail = ImageView(this).apply {
+    adjustViewBounds = true
+    scaleType = ImageView.ScaleType.FIT_CENTER
+    setBackgroundColor(Color.TRANSPARENT)
+    visibility = View.GONE
+    contentDescription = "वीडियो थंबनेल: $title"
+}
 
-        card.addView(
-            thumbnail,
-            LinearLayout.LayoutParams(-1, dp(215))
-        )
+card.addView(
+    thumbnail,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+)
+
 
         val thumbnailUrl = customThumbnail.ifBlank {
     youtubeThumbnail(url).orEmpty()
@@ -209,11 +216,14 @@ loadVideos()
 
 if (thumbnailUrl.isNotBlank()) {
     if (thumbnailUrl.startsWith("firestore-media://")) {
-        ChannelRepository.loadImage(thumbnailUrl) { bitmap, _ ->
-            if (!isFinishing && bitmap != null) {
-                thumbnail.setImageBitmap(bitmap)
-            }
-        }
+        
+ChannelRepository.loadImage(thumbnailUrl) { bitmap, _ ->
+    if (!isFinishing && bitmap != null) {
+        thumbnail.setImageBitmap(bitmap)
+        thumbnail.visibility = View.VISIBLE
+    }
+}
+
     } else {
         loadThumbnail(thumbnail, thumbnailUrl)
     }
@@ -363,14 +373,15 @@ private fun loadThumbnail(
 
         runOnUiThread {
             if (!isFinishing && bitmap != null) {
-                imageView.setImageBitmap(bitmap)
-            } else if (!isFinishing) {
-                Toast.makeText(
-                    this,
-                    "वीडियो की इमेज लोड नहीं हुई। Gallery से फोटो चुनें।",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+    imageView.setImageBitmap(bitmap)
+    imageView.visibility = View.VISIBLE
+} else if (!isFinishing) {
+    Toast.makeText(
+        this,
+        "वीडियो की इमेज लोड नहीं हुई। Gallery से फोटो चुनें।",
+        Toast.LENGTH_LONG
+    ).show()
+}
         }
     }.start()
 }
