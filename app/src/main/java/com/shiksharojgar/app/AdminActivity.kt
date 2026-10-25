@@ -6688,7 +6688,12 @@ box.addView(commonPostImagePreview)
                         val description = descriptionField.text
                             .toString()
                             .trim()
-val websiteUrl = websiteUrlField.text.toString().trim()
+val bloggerUrl = bloggerUrlField.text.toString().trim()
+val bloggerImageUrl = bloggerImageUrlField.text.toString().trim()
+
+val websiteUrl = bloggerUrl.ifBlank {
+    websiteUrlField.text.toString().trim()
+}
                         val customButtonLabel = customButtonLabelField.text
     .toString()
     .trim()
@@ -6774,13 +6779,18 @@ fun savePostWithMedia(
 } else {
     emptyList<Map<String, Any>>()
 },
-            "published" to true,
+                        "published" to true,
             "postType" to if (
-                imageUrl.isNotBlank() || fileUrl.isNotBlank()
+                imageUrl.isNotBlank() ||
+                    bloggerImageUrl.isNotBlank() ||
+                    fileUrl.isNotBlank()
             ) "media" else "text",
             "category" to "शिक्षा रोजगार चैनल",
-            "imageUrl" to imageUrl,
+            "imageUrl" to imageUrl.ifBlank {
+                bloggerImageUrl
+            },
             "fileUrl" to fileUrl,
+            
             "fileName" to fileName,
             "imageMime" to (
                 selectedImage?.let {
@@ -6854,8 +6864,10 @@ fun savePostWithMedia(
                 } else {
                     emptyList()
                 },
-                imageUrl = imageUrl.ifBlank {
-                    existingPost?.imageUrl.orEmpty()
+                                imageUrl = imageUrl.ifBlank {
+                    bloggerImageUrl.ifBlank {
+                        existingPost?.imageUrl.orEmpty()
+                    }
                 },
                 imageMime = selectedImage
                     ?.let { contentResolver.getType(it) }
