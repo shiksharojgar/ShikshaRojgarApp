@@ -18,6 +18,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import java.net.URL
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class VideoActivity : AppCompatActivity() {
 
@@ -76,7 +78,28 @@ class VideoActivity : AppCompatActivity() {
         )
 
         setContentView(root)
-        loadVideos()
+        setContentView(root)
+
+ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+    val statusBarHeight =
+        insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+
+    val navigationBarHeight =
+        insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+    view.setPadding(
+        0,
+        statusBarHeight,
+        0,
+        navigationBarHeight
+    )
+
+    insets
+}
+
+ViewCompat.requestApplyInsets(root)
+loadVideos()
+        
     }
 
     private fun loadVideos() {
