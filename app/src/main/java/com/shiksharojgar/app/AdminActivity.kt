@@ -10556,7 +10556,57 @@ private fun showChannelMediaStorage() {
     )
 
     row.addView(actions)
+    // -----------------------------------------------------
+    // PIN / UNPIN CHANNEL POST
+    // -----------------------------------------------------
 
+    row.addView(
+        Button(this).apply {
+            text = if (p.pinned) {
+                "📌 Unpin करें"
+            } else {
+                "📌 Pin to Top"
+            }
+
+            textSize = 11f
+            minHeight = 0
+
+            setOnClickListener {
+                val newPinnedState = !p.pinned
+
+                ChannelRepository.setPinned(
+                    p.id,
+                    newPinnedState
+                ) { success, error ->
+                    runOnUiThread {
+                        if (success) {
+                            toast(
+                                if (newPinnedState) {
+                                    "चैनल पोस्ट Pin हो गई"
+                                } else {
+                                    "चैनल पोस्ट Unpin हो गई"
+                                }
+                            )
+
+                            loadAdminPosts()
+                        } else {
+                            toast(
+                                "Pin बदल नहीं हुआ: ${
+                                    error ?: "त्रुटि"
+                                }"
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        LinearLayout.LayoutParams(
+            dp(130),
+            dp(38)
+        ).apply {
+            topMargin = dp(4)
+        }
+    )
     // =====================================================
     // SEPARATOR
     // =====================================================
