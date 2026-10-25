@@ -115,7 +115,64 @@ content.addView(
     },
     LinearLayout.LayoutParams(-1, dp(48))
 )
+content.addView(
+    Button(this).apply {
+        text = "🔎 लिंक से जानकारी लाएँ / Preview"
 
+        setOnClickListener {
+            val link = urlField.text.toString().trim()
+
+            if (link.isBlank()) {
+                urlField.error = "पहले वीडियो लिंक डालें"
+                return@setOnClickListener
+            }
+
+            text = "जानकारी लोड हो रही है…"
+            isEnabled = false
+
+            VideoLinkPreviewFetcher.fetch (link) { preview, error ->
+                text = "🔎 लिंक से जानकारी लाएँ / Preview"
+                isEnabled = true
+
+                if (preview == null) {
+                    Toast.makeText(
+                        this@VideoAdminActivity,
+                        error ?: "लिंक की जानकारी नहीं मिली",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@fetch
+                }
+
+                if (titleField.text.toString().isBlank() &&
+                    preview.title.isNotBlank()
+                ) {
+                    titleField.setText(preview.title)
+                }
+
+                if (descriptionField.text.toString().isBlank() &&
+                    preview.description.isNotBlank()
+                ) {
+                    descriptionField.setText(preview.description)
+                }
+
+                if (selectedGalleryUri == null &&
+                    thumbnailField.text.toString().isBlank() &&
+                    preview.imageUrl.isNotBlank()
+                ) {
+                    thumbnailField.setText(preview.imageUrl)
+                    updateThumbnailPreview()
+                }
+
+                Toast.makeText(
+                    this@VideoAdminActivity,
+                    "जानकारी मिल गई हो तो जाँचकर सेव करें।",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    },
+    LinearLayout.LayoutParams(-1, dp(48))
+)
         val saveButton = Button(this).apply {
             text = "💾 वीडियो सेव / अपडेट करें"
             setOnClickListener {
@@ -334,64 +391,7 @@ private fun updateThumbnailPreview() {
         }
     }
 }
-content.addView(
-    Button(this).apply {
-        text = "🔎 लिंक से जानकारी लाएँ / Preview"
 
-        setOnClickListener {
-            val link = urlField.text.toString().trim()
-
-            if (link.isBlank()) {
-                urlField.error = "पहले वीडियो लिंक डालें"
-                return@setOnClickListener
-            }
-
-            text = "जानकारी लोड हो रही है…"
-            isEnabled = false
-
-            VideoLinkPreview.fetch(link) { preview, error ->
-                text = "🔎 लिंक से जानकारी लाएँ / Preview"
-                isEnabled = true
-
-                if (preview == null) {
-                    Toast.makeText(
-                        this@VideoAdminActivity,
-                        error ?: "लिंक की जानकारी नहीं मिली",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    return@fetch
-                }
-
-                if (titleField.text.toString().isBlank() &&
-                    preview.title.isNotBlank()
-                ) {
-                    titleField.setText(preview.title)
-                }
-
-                if (descriptionField.text.toString().isBlank() &&
-                    preview.description.isNotBlank()
-                ) {
-                    descriptionField.setText(preview.description)
-                }
-
-                if (selectedGalleryUri == null &&
-                    thumbnailField.text.toString().isBlank() &&
-                    preview.imageUrl.isNotBlank()
-                ) {
-                    thumbnailField.setText(preview.imageUrl)
-                    updateThumbnailPreview()
-                }
-
-                Toast.makeText(
-                    this@VideoAdminActivity,
-                    "जानकारी मिल गई हो तो जाँचकर सेव करें।",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    },
-    LinearLayout.LayoutParams(-1, dp(48))
-)
 private fun youtubeThumbnail(url: String): String? {
     val id = Regex(
         """(?:youtu\.be/|[?&]v=|youtube\.com/(?:embed|shorts)/)([A-Za-z0-9_-]{11})"""
