@@ -86,7 +86,9 @@ private val sliderImages = intArrayOf(
 private val sliderRunnable = object : Runnable {
     override fun run() {
         if (isFinishing || isDestroyed) return
-        if (customBannerImageUrl.isNotBlank()) return
+        if (customBannerImageUrl.isNotBlank() &&
+    customSliderImageUrls.isEmpty()
+) return
 
         sliderIndex = (sliderIndex + 1) % sliderImages.size
 
@@ -515,9 +517,7 @@ val previous = TextView(this).apply {
     setOnClickListener {
         sliderIndex =
             (sliderIndex - 1 + sliderImages.size) % sliderImages.size
-        findViewById<android.widget.ImageView>(
-            R.id.categoryBannerImage
-        )?.setImageResource(sliderImages[sliderIndex])
+        showSchoolSliderImage(sliderIndex)
     }
 }
 
