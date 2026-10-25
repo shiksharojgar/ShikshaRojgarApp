@@ -101,11 +101,11 @@ pinned = d.getBoolean("pinned") ?: false,
 pinOrder = d.getLong("pinOrder") ?: 0L
 )
 
-            }.sortedWith(
-    compareByDescending<ChannelPost> { it.pinned }
-        .thenByDescending { it.pinOrder }
-        .thenByDescending { it.createdAt }
-)
+            
+
+}.sortedBy { it.createdAt }
+
+
         }
 
         db.collection("channel_posts")
