@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.tasks.Tasks
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import java.net.URL
 
 class AdminActivity : AppCompatActivity() {
 
@@ -6467,6 +6468,129 @@ box.addView(formatRow)
                 setTextColor(Color.DKGRAY)
             }
         )
+
+        val bloggerImageUrlField = EditText(this).apply {
+            hint = "🖼️ Blogger पोस्ट की इमेज URL"
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI
+        }
+        box.addView(bloggerImageUrlField)
+
+        val fetchBloggerButton = Button(this).apply {
+            text = "🔎 Blogger से जानकारी लाएँ"
+
+            setOnClickListener {
+                val pageUrl = bloggerUrlField.text.toString().trim()
+
+                if (!pageUrl.startsWith("https://")) {
+                    bloggerUrlField.error = "पूरा HTTPS Blogger लिंक डालें"
+                    return@setOnClickListener
+                }
+
+                isEnabled = false
+                text = "जानकारी लोड हो रही है..."
+
+                Thread {
+                    val result = try {
+                        val connection = URL(pageUrl).openConnection()
+                        connection.connectTimeout = 10000
+                        connection.readTimeout = 10000
+                        connection.setRequestProperty(
+                            "User-Agent",
+                            "Mozilla/5.0"
+                        )
+
+                        val html = connection.getInputStream()
+                            .bufferedReader(Charsets.UTF_8)
+                            .use { it.readText() }
+
+                        fun getMeta(key: String): String {
+                            val tags = Regex(
+                                """(?is)<meta\b[^>]*>"""
+                            ).findAll(html)
+
+                            for (tag in tags) {
+                                val attrs = mutableMapOf<String, String>()
+                                val attrRegex = Regex(
+                                    """([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(['"])(.*?)\2"""
+                                )
+
+                                for (match in attrRegex.findAll(tag.value)) {
+                                    attrs[match.groupValues[1].lowercase()] =
+                                        match.groupValues[3]
+                                }
+
+                                val property = attrs["property"]
+                                    ?: attrs["name"]
+                                    ?: continue
+
+                                if (property.equals(key, true)) {
+                                    return attrs["content"].orEmpty()
+                                }
+                            }
+                            return ""
+                        }
+
+                        var pageTitle = getMeta("og:title")
+                        if (pageTitle.isBlank()) {
+                            pageTitle = Regex(
+                                """(?is)<title[^>]*>(.*?)</title>"""
+                            ).find(html)?.groupValues?.get(1).orEmpty()
+                        }
+
+                        val pageDescription =
+                            getMeta("og:description").ifBlank {
+                                getMeta("description")
+                            }
+
+                        val pageImage =
+                            getMeta("og:image").ifBlank {
+                                getMeta("twitter:image")
+                            }
+
+                        Triple(
+                            android.text.Html.fromHtml(
+                                pageTitle,
+                                android.text.Html.FROM_HTML_MODE_LEGACY
+                            ).toString().trim(),
+                            android.text.Html.fromHtml(
+                                pageDescription,
+                                android.text.Html.FROM_HTML_MODE_LEGACY
+                            ).toString().trim(),
+                            pageImage.trim()
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    runOnUiThread {
+                        isEnabled = true
+                        text = "🔎 Blogger से जानकारी लाएँ"
+
+                        if (result == null) {
+                            toast("Blogger जानकारी नहीं मिली। लिंक जाँचें।")
+                            return@runOnUiThread
+                        }
+
+                        if (result.first.isNotBlank()) {
+                            titleField.setText(result.first)
+                        }
+
+                        if (result.second.isNotBlank()) {
+                            descriptionField.setText(result.second)
+                        }
+
+                        if (result.third.startsWith("https://")) {
+                            bloggerImageUrlField.setText(result.third)
+                        }
+
+                        toast("मिली हुई जानकारी फ़ॉर्म में भर दी गई")
+                    }
+                }.start()
+            }
+        }
+        box.addView(fetchBloggerButton)
 
         val existingButton = existingPost?.buttons?.firstOrNull()
 
