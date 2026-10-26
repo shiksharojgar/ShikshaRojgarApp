@@ -1996,21 +1996,22 @@ val actualPopupHeight = minOf(
 
 popup.height = actualPopupHeight
 
-popup.showAsDropDown(
-    anchor,
-    0,
-    -dp(context, 3),
-    Gravity.END
-)
 
-            } else {
-                Toast.makeText(
-                    context,
-                    "More मेनू खोलने के लिए दोबारा टैप करें।",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+if (anchor.isAttachedToWindow) {
+    popup.showAsDropDown(
+        anchor,
+        0,
+        -dp(context, 3),
+        Gravity.END
+    )
+} else {
+    Toast.makeText(
+        context,
+        "More मेनू खोलने के लिए दोबारा टैप करें।",
+        Toast.LENGTH_SHORT
+    ).show()
+}
+
         .addOnFailureListener {
             Toast.makeText(
                 context,
