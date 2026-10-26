@@ -6474,12 +6474,11 @@ box.addView(
         
 
 val bloggerImageUrlField = EditText(this).apply {
-    hint = "🖼️ पोस्ट की इमेज URL"
+    hint = "🖼️ Blogger पोस्ट की इमेज URL"
     setSingleLine(true)
     inputType = android.text.InputType.TYPE_CLASS_TEXT or
         android.text.InputType.TYPE_TEXT_VARIATION_URI
     setText(existingPost?.imageUrl.orEmpty())
-    visibility = View.GONE
 }
 box.addView(bloggerImageUrlField)
 
@@ -6502,7 +6501,7 @@ val fetchBloggerButton = Button(this).apply {
         ) {
             bloggerUrlField.error =
                 "पहले पोस्ट या वीडियो का पूरा लिंक डालें"
-            return@setOnClickListener
+            return@fetch
         }
 
         isEnabled = false
