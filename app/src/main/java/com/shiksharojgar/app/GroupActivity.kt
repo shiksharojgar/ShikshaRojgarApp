@@ -133,41 +133,88 @@ onShare = {
             )
         )
         
+        
         val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14), dp(6), dp(12), dp(6))
+            background = androidx.core.content.ContextCompat
+                .getDrawable(this@GroupActivity, R.drawable.group_card_bg)
+            elevation = dp(5).toFloat()
+        }
+
+        val headerContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(12), dp(8), dp(12), dp(8))
-            setBackgroundColor(Color.rgb(3, 105, 161))
+            gravity = Gravity.CENTER_VERTICAL
         }
 
         val title = TextView(this).apply {
             text = "👥 शिक्षा रोजगार ग्रुप"
-            textSize = 17f
+            textSize = 16f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
         }
 
         val subtitle = TextView(this).apply {
-    text = "• पोस्ट करें • उपयोगी जानकारी शेयर • एक दूसरे की मदद •"
-    textSize = 13f
-    setTextColor(Color.WHITE)
-    gravity = Gravity.CENTER
-}
+            text = "• पोस्ट करें • जानकारी शेयर करें •"
+            textSize = 10f
+            setTextColor(Color.WHITE)
+            maxLines = 1
+        }
 
-memberCountView = TextView(this).apply {
-    text = "👥 0000 Members"
-    textSize = 13f
-    typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.WHITE)
-    gravity = Gravity.CENTER
-    setPadding(0, dp(4), 0, 0)
-}
+        memberCountView = TextView(this).apply {
+            text = "👥 0 Members"
+            textSize = 11f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+        }
 
-header.addView(title)
-header.addView(subtitle)
-header.addView(memberCountView)
-root.addView(header)
+        headerContent.addView(title)
+        headerContent.addView(subtitle)
+        headerContent.addView(memberCountView)
+
+        header.addView(
+            headerContent,
+            LinearLayout.LayoutParams(0, dp(60), 1f)
+        )
+
+        val joinButton = TextView(this).apply {
+            text = "👥 Join +"
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.argb(45, 255, 255, 255))
+                cornerRadius = dp(18).toFloat()
+                setStroke(dp(1), Color.argb(180, 255, 255, 255))
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                openLogin()
+            }
+        }
+
+        header.addView(
+            joinButton,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                dp(42)
+            )
+        )
+
+        root.addView(
+            header,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(76)
+            ).apply {
+                setMargins(dp(10), dp(6), dp(10), dp(6))
+            }
+        )
+
 
         loginButton = Button(this).apply {
             setOnClickListener {
