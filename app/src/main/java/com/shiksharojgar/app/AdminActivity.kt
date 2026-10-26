@@ -2366,7 +2366,16 @@ moreMenuButtonsRow.addView(
         rightMargin = dp(3)
     }
 )
-
+moreMenuButtonsRow.addView(
+    adminActionButton("🌟 सफलता की उड़ान") {
+        showSafaltaKiUdaanEditor()
+    },
+    LinearLayout.LayoutParams(
+        0,
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        1f
+    )
+)
 moreMenuButtonsRow.addView(
     adminActionButton("🌐 Website") {
         showHeaderLinkManager(
@@ -11662,6 +11671,170 @@ private fun showAdminPostPreview(
         return name
     }
     
+private fun showSafaltaKiUdaanEditor() {
+    val pageId = "safalta_ki_udaan"
+
+    val box = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(20), dp(8), dp(20), dp(8))
+    }
+
+    fun addField(
+        hintText: String,
+        initialValue: String,
+        minLines: Int = 1
+    ): EditText {
+        return EditText(this).apply {
+            hint = hintText
+            setText(initialValue)
+            textSize = 14f
+            setPadding(dp(6), dp(6), dp(6), dp(6))
+            if (minLines > 1) {
+                setSingleLine(false)
+                minLines.also { this.minLines = it }
+                gravity = Gravity.TOP
+            }
+            box.addView(
+                this,
+                LinearLayout.LayoutParams(-1, dp(if (minLines > 1) 150 else 48))
+            )
+        }
+    }
+
+    val titleField = addField(
+        "पेज का नाम",
+        "🌟 सफलता की उड़ान"
+    )
+
+    val bodyField = addField(
+        "विवरण और प्रेरणादायक सामग्री",
+        "",
+        6
+    )
+
+    val imageField = addField(
+        "फोटो का सार्वजनिक HTTPS URL",
+        ""
+    )
+
+    val loading = AlertDialog.Builder(this)
+        .setTitle("🌟 सफलता की उड़ान")
+        .setMessage("पुरानी सामग्री लोड हो रही है…")
+        .setCancelable(false)
+        .create()
+
+    loading.show()
+
+    db.collection("home_pages")
+        .document(pageId)
+        .get()
+        .addOnSuccessListener { doc ->
+            loading.dismiss()
+
+            titleField.setText(
+                doc.getString("title")
+                    ?: "🌟 सफलता की उड़ान"
+            )
+            bodyField.setText(
+                doc.getString("body").orEmpty()
+            )
+            imageField.setText(
+                doc.getString("imageUrl").orEmpty()
+            )
+
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("✏️ सामग्री बदलें")
+                .setView(box)
+                .setNegativeButton("बंद करें", null)
+                .setNeutralButton("सामग्री हटाएँ", null)
+                .setPositiveButton("सेव करें", null)
+                .create()
+
+            dialog.setOnShowListener {
+                dialog.getButton(
+                    AlertDialog.BUTTON_POSITIVE
+                ).setOnClickListener {
+                    val title = titleField.text.toString().trim()
+                    val body = bodyField.text.toString().trim()
+                    val imageUrl = imageField.text.toString().trim()
+
+                    if (title.isBlank()) {
+                        titleField.error = "नाम जरूरी है"
+                        return@setOnClickListener
+                    }
+
+                    if (
+                        imageUrl.isNotBlank() &&
+                        !imageUrl.startsWith("https://")
+                    ) {
+                        imageField.error =
+                            "फोटो का HTTPS लिंक डालें"
+                        return@setOnClickListener
+                    }
+
+                    dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                    ).isEnabled = false
+
+                    val data = hashMapOf<String, Any>(
+                        "title" to title,
+                        "body" to body,
+                        "imageUrl" to imageUrl,
+                        "updatedAt" to
+                            com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    )
+
+                    db.collection("home_pages")
+                        .document(pageId)
+                        .set(
+                            data,
+                            com.google.firebase.firestore.SetOptions.merge()
+                        )
+                        .addOnSuccessListener {
+                            toast("सफलता की उड़ान की सामग्री सेव हो गई")
+                            dialog.dismiss()
+                        }
+                        .addOnFailureListener { e ->
+                            dialog.getButton(
+                                AlertDialog.BUTTON_POSITIVE
+                            ).isEnabled = true
+                            toast("सेव नहीं हुआ: ${e.message}")
+                        }
+                }
+
+                dialog.getButton(
+                    AlertDialog.BUTTON_NEUTRAL
+                ).setOnClickListener {
+                    AlertDialog.Builder(this)
+                        .setTitle("सामग्री हटाएँ?")
+                        .setMessage(
+                            "इस पेज की सामग्री हट जाएगी। यह कार्रवाई वापस नहीं होगी।"
+                        )
+                        .setNegativeButton("रद्द करें", null)
+                        .setPositiveButton("हटाएँ") { _, _ ->
+                            db.collection("home_pages")
+                                .document(pageId)
+                                .delete()
+                                .addOnSuccessListener {
+                                    toast("सामग्री हटा दी गई")
+                                    dialog.dismiss()
+                                }
+                                .addOnFailureListener { e ->
+                                    toast("हटाया नहीं गया: ${e.message}")
+                                }
+                        }
+                        .show()
+                }
+            }
+
+            dialog.show()
+        }
+        .addOnFailureListener { e ->
+            loading.dismiss()
+            toast("सामग्री लोड नहीं हुई: ${e.message}")
+        }
+}
+
 
     // =========================================================
     // TOAST
