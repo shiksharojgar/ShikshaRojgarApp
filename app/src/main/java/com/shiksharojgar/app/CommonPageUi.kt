@@ -2141,7 +2141,37 @@ if (anchor.isAttachedToWindow) {
                                     )
                                                             }
                             )
-                        }        
+                        }   
+                        
+                        "teacher",
+                        "student",
+                        "school",
+                        "vacancy",
+                        "result",
+                        "admit_card" -> {
+
+                            val categoryId = doc.getString("target")
+                                ?.trim()
+                                ?.lowercase()
+                                .orEmpty()
+
+                            val categoryName = label
+                            val categoryIcon = doc.getString("icon")
+                                ?.trim()
+                                .orEmpty()
+
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    HomeCategoryActivity::class.java
+                                ).apply {
+                                    putExtra("categoryId", categoryId)
+                                    putExtra("categoryName", categoryName)
+                                    putExtra("categoryIcon", categoryIcon)
+                                }
+                            )
+                        }
+                        
                         else -> {
                             val pageId = doc.getString("target")
 ?.trim()
