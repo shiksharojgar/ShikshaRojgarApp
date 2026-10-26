@@ -6894,7 +6894,7 @@ fun savePostWithMedia(
                                     }
                                 }
                             }
-                        }
+                        
 
                         if (selectedImage != null) {
                             ChannelRepository.upload(
