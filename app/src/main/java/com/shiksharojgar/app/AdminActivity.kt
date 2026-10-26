@@ -6929,7 +6929,7 @@ fun savePostWithMedia(
                 dialog.show()
             }
     }
-}
+
 private fun showCategoryPostManager(
     category: String,
     categoryLabel: String,
