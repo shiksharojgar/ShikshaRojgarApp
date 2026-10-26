@@ -2011,7 +2011,7 @@ if (anchor.isAttachedToWindow) {
         Toast.LENGTH_SHORT
     ).show()
 }
-
+        }
         .addOnFailureListener {
             Toast.makeText(
                 context,
