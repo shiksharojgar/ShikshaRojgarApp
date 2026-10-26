@@ -6539,6 +6539,9 @@ val fetchBloggerButton = Button(this).apply {
 }
     
 }
+    }
+}
+
 box.addView(fetchBloggerButton)
 
 
