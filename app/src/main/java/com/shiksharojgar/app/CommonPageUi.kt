@@ -1996,14 +1996,12 @@ val actualPopupHeight = minOf(
 
 popup.height = actualPopupHeight
 
-if (anchor.isAttachedToWindow) {
-    popup.showAsDropDown(
-        anchor,
-        0,
-        -dp(context, 3),
-        Gravity.END
-    )
-}
+popup.showAsDropDown(
+    anchor,
+    0,
+    -dp(context, 3),
+    Gravity.END
+)
 
             } else {
                 Toast.makeText(
