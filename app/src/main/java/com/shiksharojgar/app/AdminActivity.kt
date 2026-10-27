@@ -1318,6 +1318,33 @@ private fun addFormattingToolbar(
             auth.currentUser
 
         val uid =
+        if (user != null && !user.isEmailVerified) {
+    user.sendEmailVerification()
+        .addOnSuccessListener {
+            auth.signOut()
+            setContentView(loginUi())
+
+            AlertDialog.Builder(this@AdminActivity)
+                .setTitle("📧 ईमेल सत्यापन जरूरी")
+                .setMessage(
+                    "एडमिन पैनल खोलने से पहले अपने पंजीकृत ईमेल पर भेजा गया सत्यापन लिंक खोलें।\n\n" +
+                    "लिंक खोलने के बाद ऐप में ईमेल और पासवर्ड से दोबारा लॉगिन करें।"
+                )
+                .setPositiveButton("ठीक है", null)
+                .show()
+        }
+        .addOnFailureListener { error ->
+            auth.signOut()
+            setContentView(loginUi())
+
+            toast(
+                "सत्यापन लिंक नहीं भेजा गया: " +
+                    (error.message ?: "फिर कोशिश करें")
+            )
+        }
+
+    return
+        }
             user?.uid
 
         if (
