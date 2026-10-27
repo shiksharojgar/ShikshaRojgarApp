@@ -2366,10 +2366,10 @@ moreMenuButtonsRow.addView(
         rightMargin = dp(3)
     }
 )
+
 moreMenuButtonsRow.addView(
     adminActionButton("🌟 सफलता की उड़ान") {
-    showSafaltaKiUdaanPages()
-},
+        showSafaltaKiUdaanPages()
     },
     LinearLayout.LayoutParams(
         0,
@@ -2377,6 +2377,7 @@ moreMenuButtonsRow.addView(
         1f
     )
 )
+
 moreMenuButtonsRow.addView(
     adminActionButton("🌐 Website") {
         showHeaderLinkManager(
@@ -11766,7 +11767,7 @@ private fun showSafaltaKiUdaanEditor(
 
     val titleField = addField(
         "पेज का नाम",
-        "🌟 सफलता की उड़ान"
+        pageTitle
     )
 
     val bodyField = addField(
@@ -11781,7 +11782,7 @@ private fun showSafaltaKiUdaanEditor(
     )
 
     val loading = AlertDialog.Builder(this)
-        .setTitle("🌟 सफलता की उड़ान")
+        .setTitle(pageTitle)
         .setMessage("पुरानी सामग्री लोड हो रही है…")
         .setCancelable(false)
         .create()
@@ -11796,7 +11797,7 @@ private fun showSafaltaKiUdaanEditor(
 
             titleField.setText(
                 doc.getString("title")
-                    ?: "🌟 सफलता की उड़ान"
+                    ?: pageTitle
             )
             bodyField.setText(
                 doc.getString("body").orEmpty()
