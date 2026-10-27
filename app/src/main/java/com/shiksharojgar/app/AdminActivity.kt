@@ -2368,7 +2368,8 @@ moreMenuButtonsRow.addView(
 )
 moreMenuButtonsRow.addView(
     adminActionButton("🌟 सफलता की उड़ान") {
-        showSafaltaKiUdaanEditor()
+    showSafaltaKiUdaanPages()
+},
     },
     LinearLayout.LayoutParams(
         0,
@@ -11670,9 +11671,71 @@ private fun showAdminPostPreview(
 
         return name
     }
-    
-private fun showSafaltaKiUdaanEditor() {
-    val pageId = "safalta_ki_udaan"
+   
+private fun showSafaltaKiUdaanPages() {
+    val pages = listOf(
+        Triple("💡 आज का विचार", "aaj_ka_vichar", Color.rgb(37, 99, 235)),
+        Triple("❓ आज का प्रश्न", "aaj_ka_prashn", Color.rgb(13, 148, 136)),
+        Triple("🏆 सफलता की कहानियाँ", "safalta_ki_kahaniyan", Color.rgb(147, 51, 234)),
+        Triple("🎓 पढ़ाई व करियर टिप्स", "padhai_career_tips", Color.rgb(234, 88, 12)),
+        Triple("👥 हमारे बारे में", "hamare_bare_mein", Color.rgb(190, 18, 60)),
+        Triple("💬 सुझाव एवं प्रतिक्रिया", "sujhav_pratikriya", Color.rgb(21, 128, 61))
+    )
+
+    val content = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(12), dp(12), dp(12), dp(12))
+    }
+
+    pages.chunked(3).forEach { rowPages ->
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        rowPages.forEach { (label, pageId, color) ->
+            val button = adminActionButton(label) {
+                showSafaltaKiUdaanEditor(pageId, label)
+            }
+
+            button.textSize = 10f
+            button.minHeight = dp(64)
+            button.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(color)
+            )
+
+            row.addView(
+                button,
+                LinearLayout.LayoutParams(
+                    0,
+                    dp(68),
+                    1f
+                ).apply {
+                    setMargins(dp(3), dp(4), dp(3), dp(4))
+                }
+            )
+        }
+
+        content.addView(
+            row,
+            LinearLayout.LayoutParams(
+                -1,
+                dp(76)
+            )
+        )
+    }
+
+    AlertDialog.Builder(this)
+        .setTitle("🌟 सफलता की उड़ान — सामग्री प्रबंधन")
+        .setView(content)
+        .setNegativeButton("बंद करें", null)
+        .show()
+}
+ 
+private fun showSafaltaKiUdaanEditor(
+    pageId: String,
+    pageTitle: String
+) {
 
     val box = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
@@ -11791,7 +11854,7 @@ private fun showSafaltaKiUdaanEditor() {
                             com.google.firebase.firestore.SetOptions.merge()
                         )
                         .addOnSuccessListener {
-                            toast("सफलता की उड़ान की सामग्री सेव हो गई")
+                            toast("$pageTitle की सामग्री सेव हो गई")
                             dialog.dismiss()
                         }
                         .addOnFailureListener { e ->
