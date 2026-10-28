@@ -338,14 +338,17 @@ pinOrder = d.getLong("pinOrder") ?: 0L
                         current + 1L
                     )
 
-                    tx.set(
-                        configRef,
-                        mapOf(
-                            "totalLikes" to total + 1L
-                        ),
-                        SetOptions.merge()
-                    )
-                }
+                    
+                    // कुल Like तभी अपडेट करें जब config दस्तावेज़ मौजूद हो।
+                    // अनुपस्थित दस्तावेज़ बनाने का प्रयास न करें।
+                    if (configSnap.exists()) {
+                        tx.update(
+                            configRef,
+                            "totalLikes",
+                            total + 1L
+                        )
+                    }
+
 
                 !liked && likeSnap.exists() -> {
 
@@ -357,16 +360,16 @@ pinOrder = d.getLong("pinOrder") ?: 0L
                         (current - 1L).coerceAtLeast(0L)
                     )
 
-                    tx.set(
-                        configRef,
-                        mapOf(
-                            "totalLikes" to
-                                    (total - 1L)
-                                        .coerceAtLeast(0L)
-                        ),
-                        SetOptions.merge()
-                    )
-                }
+                    
+                    // कुल Like शून्य से नीचे न जाए।
+                    if (configSnap.exists()) {
+                        tx.update(
+                            configRef,
+                            "totalLikes",
+                            (total - 1L).coerceAtLeast(0L)
+                        )
+                    }
+
 
                 else -> {
                     // Idempotent.
