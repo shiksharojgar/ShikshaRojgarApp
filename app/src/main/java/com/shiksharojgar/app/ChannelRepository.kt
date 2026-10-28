@@ -349,7 +349,7 @@ pinOrder = d.getLong("pinOrder") ?: 0L
                         )
                     }
 
-
+                }
                 !liked && likeSnap.exists() -> {
 
                     tx.delete(ref)
@@ -370,7 +370,7 @@ pinOrder = d.getLong("pinOrder") ?: 0L
                         )
                     }
 
-
+                }
                 else -> {
                     // Idempotent.
                 }
