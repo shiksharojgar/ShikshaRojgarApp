@@ -295,12 +295,11 @@ unreadCountAtOpen =
             val newNewest =
                 posts.lastOrNull()?.id
 
-            val shouldGoToNewest =
-    unreadCountAtOpen <= 0 &&
-        (
-            firstFeedRender ||
-                oldNewest != newNewest
-        )
+            
+val shouldGoToNewest =
+    firstFeedRender &&
+        unreadCountAtOpen <= 0
+
 alignInitialFeedAfterImages =
     shouldGoToNewest &&
     pendingPostId == null &&
