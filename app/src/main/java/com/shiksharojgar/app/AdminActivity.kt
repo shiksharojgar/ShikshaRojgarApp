@@ -3088,56 +3088,23 @@ homeContent.addView(
             )
         )
 
-        // =====================================================
+                // =====================================================
         // LOWER CHANNEL POSTS AREA — 40%
         // =====================================================
 
         channelPostsHeader = TextView(this).apply {
+            text = "📋 Channel Posts — कुल पोस्ट: गिन रहे हैं…"
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(7, 89, 133))
+            setPadding(dp(10), dp(5), dp(10), dp(4))
+            setBackgroundColor(Color.rgb(235, 241, 248))
+        }
 
-                text =
-    "📋 Channel Posts — कुल पोस्ट: गिन रहे हैं…"
-
-                textSize = 14f
-
-                typeface =
-                    Typeface.DEFAULT_BOLD
-
-                setTextColor(
-                    Color.rgb(
-                        7,
-                        89,
-                        133
-                    )
-                )
-
-                setPadding(
-                    dp(10),
-                    dp(5),
-                    dp(10),
-                    dp(4)
-                )
-
-                setBackgroundColor(
-                    Color.rgb(
-                        235,
-                        241,
-                        248
-                    )
-                )
-            },
-            channelPostsHeader = TextView(this).apply {
-    text = "📋 Channel Posts — कुल पोस्ट: गिन रहे हैं…"
-    textSize = 14f
-    typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.rgb(7, 89, 133))
-    setPadding(dp(10), dp(5), dp(10), dp(4))
-    setBackgroundColor(Color.rgb(235, 241, 248))
-}
-
-root.addView(
-    channelPostsHeader,
-    LinearLayout.LayoutParams(-1, dp(34))
-)
+        root.addView(
+            channelPostsHeader,
+            LinearLayout.LayoutParams(-1, dp(34))
+        )
         )
 
         // =====================================================
@@ -10386,7 +10353,7 @@ private fun showChannelMediaStorage() {
     // LOAD POSTS
     // =========================================================
 
-    private fun loadAdminPosts() {
+    
 private fun loadAdminPosts() {
     if (!::postsContainer.isInitialized) {
         return
