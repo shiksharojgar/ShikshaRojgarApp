@@ -155,7 +155,20 @@ postsQuery.addSnapshotListener { snap, err ->
         }
 }
     }
-
+fun countPosts(
+    onResult: (Long) -> Unit,
+    onError: (Exception) -> Unit
+) {
+    db.collection("channel_posts")
+        .count()
+        .get(com.google.firebase.firestore.AggregateSource.SERVER)
+        .addOnSuccessListener { snapshot ->
+            onResult(snapshot.count)
+        }
+        .addOnFailureListener { error ->
+            onError(error)
+        }
+}
     // ---------------------------------------------------------
     // CHANNEL CONFIG
     // ---------------------------------------------------------
