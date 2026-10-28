@@ -42,7 +42,7 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var globalSwitch: Switch
     private lateinit var postsContainer: LinearLayout
     private lateinit var postScroll: ScrollView
-
+private lateinit var channelPostsHeader: TextView
     private var globalCommentsEnabled = true
 
     private val selectedPostIds = mutableSetOf<String>()
@@ -3092,11 +3092,10 @@ homeContent.addView(
         // LOWER CHANNEL POSTS AREA — 40%
         // =====================================================
 
-        root.addView(
-            TextView(this).apply {
+        channelPostsHeader = TextView(this).apply {
 
                 text =
-                    "📋 Channel Posts — पुरानी ऊपर • नई नीचे"
+    "📋 Channel Posts — कुल पोस्ट: गिन रहे हैं…"
 
                 textSize = 14f
 
@@ -3126,10 +3125,19 @@ homeContent.addView(
                     )
                 )
             },
-            LinearLayout.LayoutParams(
-                -1,
-                dp(34)
-            )
+            channelPostsHeader = TextView(this).apply {
+    text = "📋 Channel Posts — कुल पोस्ट: गिन रहे हैं…"
+    textSize = 14f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(7, 89, 133))
+    setPadding(dp(10), dp(5), dp(10), dp(4))
+    setBackgroundColor(Color.rgb(235, 241, 248))
+}
+
+root.addView(
+    channelPostsHeader,
+    LinearLayout.LayoutParams(-1, dp(34))
+)
         )
 
         // =====================================================
@@ -4795,7 +4803,7 @@ private fun moveMoreMenuItem(
 ) {
 
     val dialog = AlertDialog.Builder(this)
-        .setTitle("🔽 MANAGE SUB-CATEGORIES")
+        .setTitle("🔽 MANAGE SUB-CATEGORIES रंगीन बटन जोडो")
         .create()
 
     val root = LinearLayout(this).apply {
@@ -10379,48 +10387,70 @@ private fun showChannelMediaStorage() {
     // =========================================================
 
     private fun loadAdminPosts() {
-
-        if (
-            !::postsContainer.isInitialized
-        ) {
-            return
+private fun loadAdminPosts() {
+    if (!::postsContainer.isInitialized) {
+        return
+    }
+ChannelRepository.countPosts(
+    { total ->
+        runOnUiThread {
+            if (
+                !isFinishing &&
+                !isDestroyed &&
+                ::channelPostsHeader.isInitialized
+            ) {
+                channelPostsHeader.text =
+                    "📋 Channel Posts — कुल पोस्ट: $total • पुरानी ऊपर • नई नीचे"
+            }
         }
+    },
+    { error ->
+        runOnUiThread {
+            if (
+                !isFinishing &&
+                !isDestroyed &&
+                ::channelPostsHeader.isInitialized
+            ) {
+                channelPostsHeader.text =
+                    "📋 Channel Posts — कुल संख्या उपलब्ध नहीं"
+            }
+        }
+    }
+)
+    selectedPostIds.clear()
+    postsContainer.removeAllViews()
 
-        selectedPostIds.clear()
+    ChannelRepository.posts(
+        { ps ->
+            runOnUiThread {
+                if (isFinishing || isDestroyed) {
+                    return@runOnUiThread
+                }
 
-        postsContainer.removeAllViews()
+                postsContainer.removeAllViews()
 
-        ChannelRepository
-            .posts(
-                { ps ->
+                ps.takeLast(100).forEach { post ->
+                    addAdminPost(post)
+                }
 
-                    ps
-                        .takeLast(100)
-                        .forEach { p ->
-
-                            addAdminPost(
-                                p
-                            )
-                        }
-
-                    postScroll.post {
-
-                        postScroll.fullScroll(
-                            View.FOCUS_DOWN
-                        )
-                    }
-                },
-                { e ->
-
+                // सूची को अपने आप नीचे न भेजें।
+                // अब एडमिन स्वयं ऊपर-नीचे स्क्रॉल कर सकेगा।
+            }
+        },
+        { error ->
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
                     toast(
                         "Posts लोड नहीं हुए: ${
-                            e.message
-                                ?: "Firestore error"
+                            error.message ?: "Firestore error"
                         }"
                     )
                 }
-            )
-    }
+            }
+        },
+        listenForUpdates = false
+    )
+}
 
     // =========================================================
     // ADD ADMIN POST
