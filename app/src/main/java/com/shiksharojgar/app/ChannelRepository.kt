@@ -43,9 +43,10 @@ object ChannelRepository {
     // ---------------------------------------------------------
 
     fun posts(
-        onResult: (List<ChannelPost>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
+    onResult: (List<ChannelPost>) -> Unit,
+    onError: (Exception) -> Unit,
+    listenForUpdates: Boolean = true
+) {
 
         fun mapPosts(
             snap: com.google.firebase.firestore.QuerySnapshot
@@ -108,34 +109,51 @@ pinOrder = d.getLong("pinOrder") ?: 0L
 
         }
 
-        db.collection("channel_posts")
-            .orderBy(
-    "createdAt",
-    Query.Direction.DESCENDING
-            )
-            .limit(100)
-            .addSnapshotListener { snap, err ->
+        val postsQuery = db.collection("channel_posts")
+    .orderBy(
+        "createdAt",
+        Query.Direction.DESCENDING
+    )
+    .limit(100)
 
-                if (err == null) {
-
-                    if (snap != null) {
-                        onResult(mapPosts(snap))
-                    }
-
-                    return@addSnapshotListener
+if (!listenForUpdates) {
+    postsQuery
+        .get()
+        .addOnSuccessListener { snap ->
+            onResult(mapPosts(snap))
+        }
+        .addOnFailureListener { error ->
+            db.collection("channel_posts")
+                .limit(100)
+                .get()
+                .addOnSuccessListener { fallback ->
+                    onResult(mapPosts(fallback))
                 }
+                .addOnFailureListener { fallbackError ->
+                    onError(fallbackError)
+                }
+        }
+    return
+}
 
-                // Fallback for older/mixed posts
-                db.collection("channel_posts")
-                    .limit(100)
-                    .get()
-                    .addOnSuccessListener { fallback ->
-                        onResult(mapPosts(fallback))
-                    }
-                    .addOnFailureListener { fallbackErr ->
-                        onError(fallbackErr)
-                    }
-            }
+postsQuery.addSnapshotListener { snap, err ->
+    if (err == null) {
+        if (snap != null) {
+            onResult(mapPosts(snap))
+        }
+        return@addSnapshotListener
+    }
+
+    db.collection("channel_posts")
+        .limit(100)
+        .get()
+        .addOnSuccessListener { fallback ->
+            onResult(mapPosts(fallback))
+        }
+        .addOnFailureListener { fallbackError ->
+            onError(fallbackError)
+        }
+}
     }
 
     // ---------------------------------------------------------
