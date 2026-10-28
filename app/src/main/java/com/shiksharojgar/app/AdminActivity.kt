@@ -10396,12 +10396,14 @@ ChannelRepository.countPosts(
 
                 postsContainer.removeAllViews()
 
-                ps.takeLast(100).forEach { post ->
+                                ps.takeLast(100).forEach { post ->
                     addAdminPost(post)
                 }
 
-                // सूची को अपने आप नीचे न भेजें।
-                // अब एडमिन स्वयं ऊपर-नीचे स्क्रॉल कर सकेगा।
+                // नई पोस्ट नीचे दिखाने के लिए सूची खोलते ही नीचे जाएँ।
+                postScroll.post {
+                    postScroll.fullScroll(android.view.View.FOCUS_DOWN)
+                }
             }
         },
         { error ->
