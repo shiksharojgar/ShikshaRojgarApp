@@ -3104,7 +3104,7 @@ homeContent.addView(
         root.addView(
             channelPostsHeader,
             LinearLayout.LayoutParams(-1, dp(34))
-        )
+        
         )
 
         // =====================================================
