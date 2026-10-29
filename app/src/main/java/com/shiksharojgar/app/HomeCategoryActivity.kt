@@ -69,6 +69,9 @@ private fun showSchoolSliderImage(index: Int) {
             runOnUiThread {
                 if (!isFinishing && !isDestroyed && bitmap != null) {
                     categoryBannerImageView.setImageBitmap(bitmap)
+                    image.setOnClickListener {
+    ZoomImageViewer.show(this@HomeCategoryActivity, bitmap)
+                    }
                 }
             }
         } catch (_: Exception) {
