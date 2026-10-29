@@ -55,6 +55,7 @@ private lateinit var memberCountView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    CommonPageUi.applyBlueStatusBar(this)
 
     setContentView(buildScreen())
 updateLoginState()
