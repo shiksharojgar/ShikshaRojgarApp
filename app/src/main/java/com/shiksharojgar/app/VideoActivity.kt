@@ -34,6 +34,7 @@ class VideoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CommonPageUi.applyBlueStatusBar(this)
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
