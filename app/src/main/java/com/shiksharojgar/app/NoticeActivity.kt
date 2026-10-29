@@ -544,6 +544,9 @@ private fun addNoticeCard(
                     image.setImageBitmap(
                         bitmap
                     )
+                    image.setOnClickListener {
+    ZoomImageViewer.show(this@NoticeActivity, bitmap)
+                    }
                 }
             }
         }
