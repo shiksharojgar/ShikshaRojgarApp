@@ -122,6 +122,7 @@ private val sliderRunnable = object : Runnable {
 
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    CommonPageUi.applyBlueStatusBar(this)
 
     val categoryId = intent.getStringExtra("categoryId") ?: ""
     val categoryName = intent.getStringExtra("categoryName") ?: "Category"
