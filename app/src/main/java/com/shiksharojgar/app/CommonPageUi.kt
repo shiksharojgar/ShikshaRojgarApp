@@ -16,8 +16,19 @@ import android.widget.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
+import android.app.Activity
+import android.graphics.Color
+import androidx.core.view.WindowCompat
 
 object CommonPageUi {
+    fun applyBlueStatusBar(activity: Activity) {
+    activity.window.statusBarColor = Color.rgb(29, 78, 216)
+
+    WindowCompat.getInsetsController(
+        activity.window,
+        activity.window.decorView
+    ).isAppearanceLightStatusBars = false
+    }
     
     fun coloredHeaderOptionsAdapter(
         context: Context,
