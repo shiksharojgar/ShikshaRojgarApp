@@ -17,7 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
 import android.app.Activity
-import android.graphics.Color
 import androidx.core.view.WindowCompat
 
 object CommonPageUi {
