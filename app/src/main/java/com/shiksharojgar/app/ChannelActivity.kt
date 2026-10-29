@@ -2880,123 +2880,32 @@ if (!likedState.containsKey(p.id)) {
     }
         
 
+private fun openImageViewer(
+    mediaRef: String,
+    mime: String,
+    postId: String
+) {
+    ChannelRepository.loadImage(mediaRef) { bitmap, error ->
+        runOnUiThread {
+            if (bitmap != null) {
+                ZoomImageViewer.show(this@ChannelActivity, bitmap)
+            } else {
+                Toast.makeText(
+                    this@ChannelActivity,
+                    error ?: "Image नहीं खुली",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+}
+
                     
                         
              
                     
                 
-    private fun openImageViewer(
-        mediaRef: String,
-        mime: String,
-        postId: String
-    ) {
-
-        val image =
-            ImageView(this).apply {
-
-                adjustViewBounds =
-                    true
-
-                scaleType =
-                    ImageView.ScaleType.FIT_CENTER
-
-                setBackgroundColor(
-                    Color.BLACK
-                )
-
-                setPadding(
-                    dp(4),
-                    dp(4),
-                    dp(4),
-                    dp(4)
-                )
-
-                maxWidth =
-                    dp(600)
-
-                maxHeight =
-                    dp(600)
-            }
-
-        val container =
-            FrameLayout(this).apply {
-
-                setBackgroundColor(
-                    Color.BLACK
-                )
-
-                setPadding(
-                    dp(6),
-                    dp(6),
-                    dp(6),
-                    dp(6)
-                )
-
-                addView(
-                    image,
-                    FrameLayout.LayoutParams(
-                        -1,
-                        -2
-                    ).apply {
-
-                        gravity =
-                            Gravity.CENTER
-
-                        width =
-                            dp(600)
-
-                        height =
-                            dp(600)
-                    }
-                )
-            }
-
-        val dialog =
-            AlertDialog.Builder(this)
-                .setView(container)
-                .setNegativeButton(
-                    "Close",
-                    null
-                )
-                .create()
-
-        dialog.window?.setBackgroundDrawable(
-            Color.BLACK.toDrawable()
-        )
-
-        ChannelRepository.loadImage(
-            mediaRef
-        ) { bitmap, error ->
-
-            runOnUiThread {
-
-                if (bitmap != null) {
-
-                    image.setImageBitmap(
-                        bitmap
-                    )
-
-                    dialog.show()
-
-                } else {
-
-                    Toast.makeText(
-                        this,
-                        error
-                            ?: "Image नहीं खुली",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-
-        /*
-         * Allow tap on image to close.
-         */
-        image.setOnClickListener {
-            dialog.dismiss()
-        }
-    }
+    
 
         private fun toggleLike(
         p: ChannelPost,
