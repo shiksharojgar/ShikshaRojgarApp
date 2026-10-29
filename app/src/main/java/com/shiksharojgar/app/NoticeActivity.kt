@@ -29,6 +29,7 @@ private var pendingNoticeId: String? = null
     
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    CommonPageUi.applyBlueStatusBar(this)
 
     setContentView(buildUi())
 
