@@ -173,7 +173,7 @@ private fun samePostContent(
         savedInstanceState: Bundle?
     ) {
         super.onCreate(savedInstanceState)
-
+CommonPageUi.applyBlueStatusBar(this)
         
 
         pendingPostId =
