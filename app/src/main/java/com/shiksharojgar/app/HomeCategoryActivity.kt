@@ -1017,8 +1017,14 @@ private fun loadCategoryPosts(categoryId: String) {
             }
 
             posts.forEach { post ->
-                
-val isLargeImage = categoryLayoutStyle == "large_image"
+
+    // पोस्ट दिखने पर View Count रिकॉर्ड करें।
+    AnalyticsTracker.uniqueCategoryPostView(
+        this@HomeCategoryActivity,
+        post.id
+    )
+
+    val isLargeImage = categoryLayoutStyle == "large_image"
 val isCompact = categoryLayoutStyle == "compact"
 
 val card = LinearLayout(this).apply {
