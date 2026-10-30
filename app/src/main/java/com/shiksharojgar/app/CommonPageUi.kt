@@ -18,16 +18,79 @@ import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
 import android.app.Activity
 import androidx.core.view.WindowCompat
+import android.os.Build
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 object CommonPageUi {
     fun applyBlueStatusBar(activity: Activity) {
-    activity.window.statusBarColor = Color.rgb(29, 78, 216)
+    val window = activity.window
+    val blue = Color.rgb(29, 78, 216)
+
+    window.statusBarColor =
+        if (Build.VERSION.SDK_INT >= 35) {
+            Color.TRANSPARENT
+        } else {
+            blue
+        }
 
     WindowCompat.getInsetsController(
-        activity.window,
-        activity.window.decorView
+        window,
+        window.decorView
     ).isAppearanceLightStatusBars = false
+
+    if (Build.VERSION.SDK_INT >= 35) {
+        val decor = window.decorView as? ViewGroup
+            ?: return
+
+        val tag = "sr_blue_status_bar_overlay"
+
+        var strip = decor.findViewWithTag<View>(tag)
+
+        if (strip == null) {
+            strip = View(activity).apply {
+                this.tag = tag
+                setBackgroundColor(blue)
+                isClickable = false
+                importantForAccessibility =
+                    View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+
+            decor.addView(
+                strip,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
+                    Gravity.TOP
+                )
+            )
+        }
+
+        val statusStrip = strip
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+            decor
+        ) { _, insets ->
+            val height = insets.getInsets(
+                WindowInsetsCompat.Type.statusBars()
+            ).top
+
+            val params =
+                statusStrip.layoutParams as FrameLayout.LayoutParams
+
+            if (params.height != height) {
+                params.height = height
+                statusStrip.layoutParams = params
+            }
+
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(decor)
     }
+}
     
     fun coloredHeaderOptionsAdapter(
         context: Context,
