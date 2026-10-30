@@ -154,9 +154,17 @@ object ZoomImageViewer {
 
         dialog.setContentView(container)
         dialog.setOnKeyListener { _, keyCode, event ->
-            keyCode == android.view.KeyEvent.KEYCODE_BACK &&
-                event.action == android.view.KeyEvent.ACTION_UP
+    if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+        if (event.action == android.view.KeyEvent.ACTION_UP &&
+            !event.isCanceled
+        ) {
+            dialog.dismiss()
         }
+        true
+    } else {
+        false
+    }
+}
         dialog.show()
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.BLACK))
