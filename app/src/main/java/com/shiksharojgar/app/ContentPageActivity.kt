@@ -735,23 +735,13 @@ card.addView(
                             runOnUiThread {
                                 if (bitmap != null) {
                                     imageView.setImageBitmap(bitmap)
-
-                                    imageView.setOnClickListener {
-                                        val largeImage =
-                                            ImageView(this).apply {
-                                                setImageBitmap(bitmap)
-                                                adjustViewBounds = true
-                                                scaleType =
-                                                    ImageView.ScaleType.FIT_CENTER
-                                                setBackgroundColor(Color.BLACK)
-                                            }
-
-                                        AlertDialog.Builder(this)
-                                            .setTitle("🖼️ पोस्ट की फोटो")
-                                            .setView(largeImage)
-                                            .setPositiveButton("बंद करें", null)
-                                            .show()
-                                    }
+                                
+                         imageView.setOnClickListener {
+    ZoomImageViewer.show(
+        this@ContentPageActivity,
+        bitmap
+    )
+}
                                 }
                             }
                         }
