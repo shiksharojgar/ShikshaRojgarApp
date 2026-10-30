@@ -133,50 +133,54 @@ fun savePost(
                 )
                 return@addOnSuccessListener
             }
+            document.get()
+                .addOnSuccessListener { current ->
 
-            val data = mapOf(
-                "category" to savedPost.category,
-                "title" to savedPost.title,
-                "body" to savedPost.body,
-                "description" to savedPost.description,
-                "websiteUrl" to savedPost.websiteUrl,
-                "bodyBold" to savedPost.bodyBold,
-                "bodyHighlight" to savedPost.bodyHighlight,
-                "bodyColor" to savedPost.bodyColor,
-                "buttons" to savedPost.buttons.map { button ->
-                    mapOf(
-                        "label" to button.label,
-                        "url" to button.url,
-                        "backgroundColor" to button.backgroundColor,
-                        "textColor" to button.textColor,
-                        "enabled" to button.enabled
+                    val data = mapOf(
+                        "category" to savedPost.category,
+                        "title" to savedPost.title,
+                        "body" to savedPost.body,
+                        "description" to savedPost.description,
+                        "websiteUrl" to savedPost.websiteUrl,
+                        "bodyBold" to savedPost.bodyBold,
+                        "bodyHighlight" to savedPost.bodyHighlight,
+                        "bodyColor" to savedPost.bodyColor,
+                        "buttons" to savedPost.buttons.map { button ->
+                            mapOf(
+                                "label" to button.label,
+                                "url" to button.url,
+                                "backgroundColor" to button.backgroundColor,
+                                "textColor" to button.textColor,
+                                "enabled" to button.enabled
+                            )
+                        },
+                        "imageUrl" to savedPost.imageUrl,
+                        "fileUrl" to savedPost.fileUrl,
+                        "fileName" to savedPost.fileName,
+                        "imageMime" to savedPost.imageMime,
+                        "fileMime" to savedPost.fileMime,
+                        "createdAt" to savedPost.createdAt,
+                        "pinned" to savedPost.pinned,
+                        "pinOrder" to savedPost.pinOrder,
+                        "enabled" to savedPost.enabled,
+                        "viewCount" to (current.getLong("viewCount") ?: 0L),
+                        "shareCount" to (current.getLong("shareCount") ?: 0L)
                     )
-                },
-                "imageUrl" to savedPost.imageUrl,
-                "fileUrl" to savedPost.fileUrl,
-                "fileName" to savedPost.fileName,
-                "imageMime" to savedPost.imageMime,
-                "fileMime" to savedPost.fileMime,
-                "createdAt" to savedPost.createdAt,
-                "pinned" to savedPost.pinned,
-                "pinOrder" to savedPost.pinOrder,
-                "enabled" to savedPost.enabled
-            )
 
-            document.set(data)
-                .addOnSuccessListener {
-                    onResult(true, document.id)
+                    document.set(data)
+                        .addOnSuccessListener {
+                            onResult(true, document.id)
+                        }
+                        .addOnFailureListener { error ->
+                            onResult(false, error.message)
+                        }
                 }
                 .addOnFailureListener { error ->
-                    onResult(false, error.message)
+                    onResult(
+                        false,
+                        "पुरानी पोस्ट की गिनती पढ़ने में समस्या: ${error.message}"
+                    )
                 }
-        }
-        .addOnFailureListener { error ->
-            onResult(
-                false,
-                "पोस्ट की संख्या जाँच नहीं हुई: ${error.message}"
-            )
-        }
 }
 
 
