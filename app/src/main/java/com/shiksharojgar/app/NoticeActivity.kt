@@ -723,11 +723,15 @@ card.addView(
             dp(12)
         )
 
-        setOnClickListener {
+                                setOnClickListener {
+                            // हर Share टैप पर Share Count बढ़ाएँ।
+                            AnalyticsTracker.recordCategoryPostShare(
+                                this@NoticeActivity,
+                                doc.id
+                            )
 
-            try {
-
-                ShareHelper.shareImageOrText(
+                            try {
+                                ShareHelper.shareImageOrText(
         this@NoticeActivity,
     "Shiksha Rojgar Notice",
     noticeShareText,
