@@ -144,10 +144,55 @@ fun appIdentity(context: Context) {
     fun offlineDownload(context: Context, postId: String) = event(context, "offline_download", mapOf("post_id" to postId))
     fun channelFollow(context: Context, followed: Boolean) = event(context, "channel_follow", mapOf("followed" to followed.toString()))
 
-    fun uniqueFeedPostView(context: Context, postId: String) {
-        event(context, "feed_post_view", mapOf("post_id" to postId))
-        uniqueAction("feed_post_views", safeId(postId), postId, context, null)
+    fun uniqueCategoryPostView(context: Context, postId: String) {
+    if (postId.isBlank()) return
+
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) return@ensureSignedIn
+
+        val uid = auth.currentUser?.uid ?: return@ensureSignedIn
+
+        val postRef = db.collection("category_posts")
+            .document(postId)
+
+        val viewRef = postRef.collection("viewers")
+            .document(uid)
+
+        db.runTransaction { tx ->
+            val viewSnapshot = tx.get(viewRef)
+            val postSnapshot = tx.get(postRef)
+
+            if (!postSnapshot.exists() || viewSnapshot.exists()) {
+                return@runTransaction null
+            }
+
+            val currentViews =
+                postSnapshot.getLong("viewCount") ?: 0L
+
+            tx.set(
+                viewRef,
+                mapOf(
+                    "uid" to uid,
+                    "at" to System.currentTimeMillis()
+                )
+            )
+
+            tx.update(
+                postRef,
+                "viewCount",
+                currentViews + 1L
+            )
+
+            null
+        }.addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "Category post view update failed: $postId",
+                error
+            )
+        }
     }
+}
 
     
 fun uniquePostShare(context: Context, postId: String) {
