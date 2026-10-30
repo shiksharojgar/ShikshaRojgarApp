@@ -836,7 +836,13 @@ private fun loadCommonNoticePosts() {
                 }
             }
 
-            posts.forEach { doc ->
+                        posts.forEach { doc ->
+
+                // Notice पोस्ट का View Count रिकॉर्ड करें।
+                AnalyticsTracker.uniqueCategoryPostView(
+                    this@NoticeActivity,
+                    doc.id
+                )
 
                 val title = doc.getString("title")
                     .orEmpty()
