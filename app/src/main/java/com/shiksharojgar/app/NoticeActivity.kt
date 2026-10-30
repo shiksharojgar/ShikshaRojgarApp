@@ -925,8 +925,15 @@ card.addView(
                     ChannelRepository.loadImage(imageUrl) { bitmap, _ ->
                         runOnUiThread {
                             if (bitmap != null) {
-                                image.setImageBitmap(bitmap)
-                            }
+    image.setImageBitmap(bitmap)
+
+    image.setOnClickListener {
+        ZoomImageViewer.show(
+            this@NoticeActivity,
+            bitmap
+        )
+    }
+}
                         }
                     }
                 }
