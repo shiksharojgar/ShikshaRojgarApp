@@ -609,7 +609,15 @@ private fun shareContentPage(
                     }
                 )
 
-                posts.forEach { doc ->
+                                posts.forEach { doc ->
+
+                    // पोस्ट का View Count रिकॉर्ड करें।
+                    AnalyticsTracker.uniqueCategoryPostView(
+                        this@ContentPageActivity,
+                        doc.id
+                    )
+
+                    val card = LinearLayout(this).apply {
 
     val card = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
