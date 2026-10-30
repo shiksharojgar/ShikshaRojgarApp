@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.Tasks
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.net.URL
+import androidx.activity.OnBackPressedCallback
 
 class AdminActivity : AppCompatActivity() {
 
@@ -185,9 +186,33 @@ if (uri != null) {
         savedInstanceState: Bundle?
     ) {
 
-        super.onCreate(savedInstanceState)
+        
 
         auth.useAppLanguage()
+        super.onCreate(savedInstanceState)
+
+// एडमिन पैनल से बाहर जाने पर पुष्टि
+if (auth.currentUser != null) {
+    onBackPressedDispatcher.addCallback(
+        this,
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                AlertDialog.Builder(this@AdminActivity)
+                    .setTitle("⚠️ पुष्टि करें")
+                    .setMessage(
+                        "क्या आप एडमिन पैनल से बाहर जाना चाहते हैं?"
+                    )
+                    .setNegativeButton("नहीं", null)
+                    .setPositiveButton("हाँ") { _, _ ->
+                        finish()
+                    }
+                    .show()
+            }
+        }
+    )
+}
+
+auth.useAppLanguage()
 
         window.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
@@ -11044,18 +11069,8 @@ private fun showAdminPostPreview(
                     previewImage.setImageBitmap(bitmap)
 
                     previewImage.setOnClickListener {
-                        val largeImage = ImageView(this).apply {
-                            setImageBitmap(bitmap)
-                            adjustViewBounds = true
-                            scaleType = ImageView.ScaleType.FIT_CENTER
-                        }
-
-                        AlertDialog.Builder(this)
-                            .setTitle("🖼️ Post Photo")
-                            .setView(largeImage)
-                            .setPositiveButton("बंद करें", null)
-                            .show()
-                    }
+    ZoomImageViewer.show(this@AdminActivity, bitmap)
+}
                 } else {
                     previewImage.setImageDrawable(null)
                     previewImage.contentDescription =
@@ -11278,18 +11293,8 @@ private fun showAdminPostPreview(
                     if (bitmap != null) {
                         deletePreviewImage.setImageBitmap(bitmap)
                         deletePreviewImage.setOnClickListener {
-                            val largePhoto = ImageView(this).apply {
-                                setImageBitmap(bitmap)
-                                adjustViewBounds = true
-                                scaleType = ImageView.ScaleType.FIT_CENTER
-                            }
-
-                            AlertDialog.Builder(this)
-                                .setTitle("🖼️ Post Photo")
-                                .setView(largePhoto)
-                                .setPositiveButton("बंद करें", null)
-                                .show()
-                        }
+    ZoomImageViewer.show(this@AdminActivity, bitmap)
+}
                     }
                 }
             }
@@ -11515,18 +11520,8 @@ private fun showAdminPostPreview(
                     if (bitmap != null) {
                         existingPhoto.setImageBitmap(bitmap)
                         existingPhoto.setOnClickListener {
-                            val largePhoto = ImageView(this).apply {
-                                setImageBitmap(bitmap)
-                                adjustViewBounds = true
-                                scaleType = ImageView.ScaleType.FIT_CENTER
-                            }
-
-                            AlertDialog.Builder(this)
-                                .setTitle("🖼️ Channel Post Photo")
-                                .setView(largePhoto)
-                                .setPositiveButton("बंद करें", null)
-                                .show()
-                        }
+    ZoomImageViewer.show(this@AdminActivity, bitmap)
+}
                     }
                 }
             }
