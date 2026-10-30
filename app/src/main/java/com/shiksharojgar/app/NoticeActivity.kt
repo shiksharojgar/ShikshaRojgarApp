@@ -1127,6 +1127,38 @@ LinearLayout.LayoutParams(
 }
                         )
                     }
+
+                                    // यूज़र को Share Count दिखाएँ, View Count नहीं।
+                var displayedShareCount =
+                    doc.getLong("shareCount") ?: 0L
+
+                val shareCountLabel =
+                    TextView(this@NoticeActivity).apply {
+                        text = "📤 साझा: $displayedShareCount"
+                        textSize = 13f
+                        setTextColor(Color.rgb(71, 85, 105))
+                        gravity = Gravity.CENTER
+                        setPadding(
+                            dp(8),
+                            dp(8),
+                            dp(8),
+                            dp(8)
+                        )
+                    }
+
+                noticeButtonRow.addView(
+                    shareCountLabel,
+                    LinearLayout.LayoutParams(-2, dp(42))
+                )
+
+                                            AnalyticsTracker.recordCategoryPostShare(
+                                this@NoticeActivity,
+                                doc.id
+                            )
+                                                                        displayedShareCount++
+                            shareCountLabel.text =
+                                "📤 साझा: $displayedShareCount"
+                         
                 // 📤 CATEGORY NOTICE SHARE BUTTON
 
                 val categoryNoticeShareText =
