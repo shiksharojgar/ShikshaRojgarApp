@@ -194,7 +194,44 @@ fun appIdentity(context: Context) {
     }
 }
 
-    
+ fun recordCategoryPostShare(
+    context: Context,
+    postId: String
+) {
+    if (postId.isBlank()) return
+
+    ChannelRepository.ensureSignedIn { connected ->
+        if (!connected) return@ensureSignedIn
+
+        val postRef = db.collection("category_posts")
+            .document(postId)
+
+        db.runTransaction { tx ->
+            val postSnapshot = tx.get(postRef)
+
+            if (!postSnapshot.exists()) {
+                return@runTransaction null
+            }
+
+            val currentShares =
+                postSnapshot.getLong("shareCount") ?: 0L
+
+            tx.update(
+                postRef,
+                "shareCount",
+                currentShares + 1L
+            )
+
+            null
+        }.addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "Category post share failed: $postId",
+                error
+            )
+        }
+    }
+}   
 fun uniquePostShare(context: Context, postId: String) {
     ChannelRepository.ensureSignedIn { connected ->
         if (!connected) {
