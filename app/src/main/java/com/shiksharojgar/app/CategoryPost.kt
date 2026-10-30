@@ -17,13 +17,13 @@ data class CategoryPost(
     val fileName: String = "",
     val imageMime: String = "image/jpeg",
     val fileMime: String = "application/pdf",
-    val createdAt: Long = 0L,
+        val createdAt: Long = 0L,
     val pinned: Boolean = false,
     val pinOrder: Long = 0L,
-    val enabled: Boolean = true
-        val enabled: Boolean = true,
+    val enabled: Boolean = true,
     val viewCount: Long = 0L,
     val shareCount: Long = 0L
+
 )
 
 data class CategoryPostButton(
