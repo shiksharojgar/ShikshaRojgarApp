@@ -235,15 +235,29 @@ function isAdmin() {
 
   allow create, delete: if isAdmin();
 
-  allow update: if isAdmin() || (
+    allow update: if isAdmin() || (
     signedIn()
-    && request.resource.data.diff(resource.data)
-      .affectedKeys().hasOnly(["viewCount"])
-    && request.resource.data.viewCount is int
-    && request.resource.data.viewCount ==
-      (resource.data.viewCount is int
-        ? resource.data.viewCount
-        : 0) + 1
+    && (
+      (
+        request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly(["viewCount"])
+        && request.resource.data.viewCount is int
+        && request.resource.data.viewCount ==
+          (resource.data.viewCount is int
+            ? resource.data.viewCount
+            : 0) + 1
+      )
+      ||
+      (
+        request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly(["shareCount"])
+        && request.resource.data.shareCount is int
+        && request.resource.data.shareCount ==
+          (resource.data.shareCount is int
+            ? resource.data.shareCount
+            : 0) + 1
+      )
+    )
   );
 
   match /viewers/{uid} {
