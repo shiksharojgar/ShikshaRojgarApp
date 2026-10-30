@@ -617,7 +617,7 @@ private fun shareContentPage(
                         doc.id
                     )
 
-                    val card = LinearLayout(this).apply {
+                    
 
     val card = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
