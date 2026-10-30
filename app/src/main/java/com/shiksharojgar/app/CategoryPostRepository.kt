@@ -75,7 +75,9 @@ bodyBold = doc.getBoolean("bodyBold") ?: false,
                         createdAt = doc.getLong("createdAt") ?: 0L,
                         pinned = doc.getBoolean("pinned") ?: false,
                         pinOrder = doc.getLong("pinOrder") ?: 0L,
-                        enabled = doc.getBoolean("enabled") ?: true
+                                                enabled = doc.getBoolean("enabled") ?: true,
+                        viewCount = doc.getLong("viewCount") ?: 0L,
+                        shareCount = doc.getLong("shareCount") ?: 0L
                     )
 
                 }
