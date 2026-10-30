@@ -1068,6 +1068,12 @@ if (post.imageUrl.isNotBlank()) {
             runOnUiThread {
                 if (!isFinishing && !isDestroyed && bitmap != null) {
                     image.setImageBitmap(bitmap)
+                    image.setOnClickListener {
+    ZoomImageViewer.show(
+        this@HomeCategoryActivity,
+        bitmap
+    )
+                    }
                 }
             }
         }
@@ -1091,6 +1097,12 @@ if (post.imageUrl.isNotBlank()) {
             runOnUiThread {
                 if (!isFinishing && !isDestroyed && bitmap != null) {
                     image.setImageBitmap(bitmap)
+                    image.setOnClickListener {
+    ZoomImageViewer.show(
+        this@HomeCategoryActivity,
+        bitmap
+    )
+                    }
                 }
             }
         }.start()
