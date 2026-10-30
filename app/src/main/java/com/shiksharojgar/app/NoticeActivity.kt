@@ -1151,13 +1151,7 @@ LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams(-2, dp(42))
                 )
 
-                                            AnalyticsTracker.recordCategoryPostShare(
-                                this@NoticeActivity,
-                                doc.id
-                            )
-                                                                        displayedShareCount++
-                            shareCountLabel.text =
-                                "📤 साझा: $displayedShareCount"
+                                            
                          
                 // 📤 CATEGORY NOTICE SHARE BUTTON
 
@@ -1261,10 +1255,14 @@ append(doc.id)
                                                 setOnClickListener {
 
                             // हर Share टैप पर Share Count बढ़ाएँ।
-                            AnalyticsTracker.recordCategoryPostShare(
+                                                        AnalyticsTracker.recordCategoryPostShare(
                                 this@NoticeActivity,
                                 doc.id
                             )
+
+                            displayedShareCount++
+                            shareCountLabel.text =
+                                "📤 साझा: $displayedShareCount"
 
                             try {
                                 ShareHelper.shareImageOrText(
