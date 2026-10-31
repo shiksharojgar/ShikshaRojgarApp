@@ -22,7 +22,8 @@ data class CategoryPost(
     val pinOrder: Long = 0L,
     val enabled: Boolean = true,
     val viewCount: Long = 0L,
-    val shareCount: Long = 0L
+    val shareCount: Long = 0L,
+    val likeCount: Long = 0L
 
 )
 
