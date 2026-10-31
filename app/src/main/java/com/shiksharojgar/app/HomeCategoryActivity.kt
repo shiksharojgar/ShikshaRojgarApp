@@ -1220,6 +1220,168 @@ if (post.imageUrl.isNotBlank()) {
 )
 
 card.addView(row)
+// Like और Share बटन की एक लाइन
+val actionRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+    setPadding(dp(4), dp(10), dp(4), dp(2))
+}
+
+var currentLiked = false
+var currentLikeCount = post.likeCount
+
+val likeButton = TextView(this).apply {
+    text = "♥️"
+    textSize = 21f
+    setTextColor(Color.GRAY)
+    setPadding(dp(6), dp(4), dp(4), dp(4))
+}
+
+val likeCountView = TextView(this).apply {
+    text = currentLikeCount.toString()
+    textSize = 14f
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(2), 0, dp(12), 0)
+}
+
+val shareButton = TextView(this).apply {
+    text = "Share ↗"
+    textSize = 14f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(25, 100, 180))
+    setPadding(dp(8), dp(6), dp(4), dp(6))
+}
+
+val shareCountView = TextView(this).apply {
+    text = post.shareCount.toString()
+    textSize = 14f
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(3), 0, dp(6), 0)
+}
+
+// पहले से Like किया है या नहीं, Firestore से जाँचें।
+CategoryPostRepository.isLiked(post.id) { liked ->
+    runOnUiThread {
+        if (!isFinishing && !isDestroyed) {
+            currentLiked = liked
+            likeButton.text = if (liked) "❤️" else "♥️"
+            likeButton.setTextColor(
+                if (liked) Color.RED else Color.GRAY
+            )
+        }
+    }
+}
+
+// Like / Unlike
+likeButton.setOnClickListener {
+    likeButton.isEnabled = false
+
+    val newLiked = !currentLiked
+
+    CategoryPostRepository.setLiked(
+        post.id,
+        newLiked
+    ) { success ->
+
+        runOnUiThread {
+            likeButton.isEnabled = true
+
+            if (success) {
+                currentLiked = newLiked
+
+                currentLikeCount = (
+                    currentLikeCount +
+                    if (newLiked) 1L else -1L
+                ).coerceAtLeast(0L)
+
+                likeButton.text =
+                    if (currentLiked) "❤️" else "♥️"
+
+                likeButton.setTextColor(
+                    if (currentLiked) Color.RED else Color.GRAY
+                )
+
+                likeCountView.text =
+                    currentLikeCount.toString()
+
+            } else {
+                Toast.makeText(
+                    this@HomeCategoryActivity,
+                    "Like सेव नहीं हुआ। इंटरनेट जाँचें।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+}
+
+// Share और Share Count
+shareButton.setOnClickListener {
+
+    val shareUrl = post.websiteUrl.ifBlank {
+        post.fileUrl
+    }
+
+    val shareText = buildString {
+        append("पोस्ट देखें 👇\n")
+        append(post.title)
+
+        val description = post.description.ifBlank {
+            post.body
+        }
+
+        if (description.isNotBlank()) {
+            append("\n")
+            append(description)
+        }
+
+        if (shareUrl.isNotBlank()) {
+            append("\n")
+            append(shareUrl)
+        }
+    }
+
+    CategoryPostRepository.increaseShareCount(post.id) { success ->
+
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) {
+
+                if (success) {
+                    shareCountView.text =
+                        ((shareCountView.text.toString().toLongOrNull() ?: 0L) + 1L)
+                            .toString()
+                } else {
+                    Toast.makeText(
+                        this@HomeCategoryActivity,
+                        "Share संख्या सेव नहीं हुई।",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                val shareIntent = Intent(
+                    Intent.ACTION_SEND
+                ).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+
+                startActivity(
+                    Intent.createChooser(
+                        shareIntent,
+                        "पोस्ट शेयर करें"
+                    )
+                )
+            }
+        }
+    }
+}
+
+actionRow.addView(likeButton)
+actionRow.addView(likeCountView)
+actionRow.addView(shareButton)
+actionRow.addView(shareCountView)
+
+card.addView(actionRow)
 
                 card.setOnClickListener {
                     val url = post.websiteUrl.ifBlank {
