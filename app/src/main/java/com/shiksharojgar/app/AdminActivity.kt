@@ -78,7 +78,27 @@ private val pickCategorySlider3 =
             toast("स्लाइड 3 फोटो चुनी गई")
         }
     }
+// HOME PAGE IMAGE SLIDER PICKER
 
+private val homeSliderUris = mutableListOf<Uri>()
+
+private val pickHomeSliderImages =
+    registerForActivityResult(
+        ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+
+        homeSliderUris.clear()
+
+        if (uris.isNotEmpty()) {
+            homeSliderUris.addAll(uris.take(5))
+
+            toast(
+                "${homeSliderUris.size} फोटो चुनी गईं। अब सेव करें।"
+            )
+        } else {
+            toast("कोई फोटो नहीं चुनी गई")
+        }
+    }
     private val selectedImageUris = mutableListOf<Uri>()
 
     private var imagePreviewContainer: LinearLayout? = null
