@@ -11983,51 +11983,92 @@ box.addView(
                     AlertDialog.BUTTON_POSITIVE
                 ).setOnClickListener {
                     val title = titleField.text.toString().trim()
-                    val body = bodyField.text.toString().trim()
-                    val imageUrl = imageField.text.toString().trim()
+val body = bodyField.text.toString().trim()
 
-                    if (title.isBlank()) {
-                        titleField.error = "नाम जरूरी है"
-                        return@setOnClickListener
-                    }
+val selectedGalleryUri = pageImageUri
 
-                    if (
-                        imageUrl.isNotBlank() &&
-                        !imageUrl.startsWith("https://")
-                    ) {
-                        imageField.error =
-                            "फोटो का HTTPS लिंक डालें"
-                        return@setOnClickListener
-                    }
+val typedImageUrl =
+    if (selectedGalleryUri != null) {
+        ""
+    } else {
+        imageField.text.toString().trim()
+    }
 
-                    dialog.getButton(
-                        AlertDialog.BUTTON_POSITIVE
-                    ).isEnabled = false
+if (title.isBlank()) {
+    titleField.error = "नाम जरूरी है"
+    return@setOnClickListener
+}
 
-                    val data = hashMapOf<String, Any>(
-                        "title" to title,
-                        "body" to body,
-                        "imageUrl" to imageUrl,
-                        "updatedAt" to
-                            com.google.firebase.firestore.FieldValue.serverTimestamp()
-                    )
+if (
+    typedImageUrl.isNotBlank() &&
+    !typedImageUrl.startsWith("https://")
+) {
+    imageField.error = "फोटो का HTTPS लिंक डालें"
+    return@setOnClickListener
+}
 
-                    db.collection("home_pages")
-                        .document(pageId)
-                        .set(
-                            data,
-                            com.google.firebase.firestore.SetOptions.merge()
-                        )
-                        .addOnSuccessListener {
-                            toast("$pageTitle की सामग्री सेव हो गई")
-                            dialog.dismiss()
-                        }
-                        .addOnFailureListener { e ->
-                            dialog.getButton(
-                                AlertDialog.BUTTON_POSITIVE
-                            ).isEnabled = true
-                            toast("सेव नहीं हुआ: ${e.message}")
-                        }
+val saveButton =
+    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+saveButton.isEnabled = false
+
+fun savePage(finalImageUrl: String) {
+
+    val data = hashMapOf<String, Any>(
+        "title" to title,
+        "body" to body,
+        "imageUrl" to finalImageUrl,
+        "updatedAt" to
+            com.google.firebase.firestore.FieldValue.serverTimestamp()
+    )
+
+    db.collection("home_pages")
+        .document(pageId)
+        .set(
+            data,
+            com.google.firebase.firestore.SetOptions.merge()
+        )
+        .addOnSuccessListener {
+            pageImageUri = null
+            toast("$pageTitle की सामग्री सेव हो गई")
+            dialog.dismiss()
+        }
+        .addOnFailureListener { e ->
+            saveButton.isEnabled = true
+            toast("सेव नहीं हुआ: ${e.message}")
+        }
+}
+
+if (selectedGalleryUri != null) {
+
+    ChannelRepository.upload(
+        selectedGalleryUri,
+        "images"
+    ) { uploadedUrl, error ->
+
+        runOnUiThread {
+
+            if (uploadedUrl.isNullOrBlank()) {
+
+                saveButton.isEnabled = true
+
+                toast(
+                    "फोटो अपलोड नहीं हुई: ${
+                        error ?: "कृपया दोबारा प्रयास करें"
+                    }"
+                )
+
+            } else {
+
+                savePage(uploadedUrl)
+            }
+        }
+    }
+
+} else {
+
+    savePage(typedImageUrl)
+}
                 }
 
                 dialog.getButton(
