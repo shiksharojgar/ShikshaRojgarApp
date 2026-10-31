@@ -2526,9 +2526,8 @@ moreMenuButtonsRow.addView(
         rightMargin = dp(3)
     }
 )
-
 val safaltaButton = adminActionButton(
-    "🌟 Hello Friends / सफलता की उड़ान"
+    "🌟 HELLO FRIENDS /\nसफलता की उड़ान"
 ) {
     showSafaltaKiUdaanPages()
 }
@@ -2539,12 +2538,22 @@ safaltaButton.backgroundTintList =
     )
 
 safaltaButton.setTextColor(Color.WHITE)
+safaltaButton.textSize = 9f
+safaltaButton.isAllCaps = false
+safaltaButton.maxLines = 2
+safaltaButton.gravity = Gravity.CENTER
+safaltaButton.includeFontPadding = false
+safaltaButton.minHeight = dp(44)
+safaltaButton.minimumHeight = dp(44)
+safaltaButton.setPadding(
+    dp(3), dp(3), dp(3), dp(3)
+)
 
 moreMenuButtonsRow.addView(
     safaltaButton,
     LinearLayout.LayoutParams(
         0,
-        LinearLayout.LayoutParams.WRAP_CONTENT,
+        dp(44),
         1f
     )
 )
