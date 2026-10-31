@@ -2405,7 +2405,16 @@ homeManagement.addView(
     }
 )
 
-
+homeManagement.addView(
+    homeCategoryControlsFrame,
+    LinearLayout.LayoutParams(
+        -1,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        topMargin = dp(5)
+        bottomMargin = dp(5)
+    }
+)
 // =========================================================
 // MORE MENU CARD
 // =========================================================
@@ -2430,7 +2439,7 @@ moreMenuButtonsRow.addView(
 )
 
 moreMenuButtonsRow.addView(
-    adminActionButton("🌟 सफलता की उड़ान") {
+    adminActionButton(" Hello Friends 🌟 सफलता की उड़ान") {
         showSafaltaKiUdaanPages()
     },
     LinearLayout.LayoutParams(
