@@ -2459,12 +2459,7 @@ moreMenuButtonsRow.addView(
         1f
     )
 )
-    LinearLayout.LayoutParams(
-        0,
-        LinearLayout.LayoutParams.WRAP_CONTENT,
-        1f
-    )
-)
+    
 
 moreMenuButtonsRow.addView(
     adminActionButton("🌐 Website") {
