@@ -11928,6 +11928,22 @@ private fun showSafaltaKiUdaanEditor(
         "फोटो का सार्वजनिक HTTPS URL",
         ""
     )
+    
+pageImageUri = null
+pageImageField = imageField
+
+val galleryButton = Button(this).apply {
+    text = "🖼️ मोबाइल गैलरी से फोटो चुनें"
+    setOnClickListener {
+        pageImageUri = null
+        pickPageImage.launch("image/*")
+    }
+}
+
+box.addView(
+    galleryButton,
+    LinearLayout.LayoutParams(-1, dp(48))
+)
 
     val loading = AlertDialog.Builder(this)
         .setTitle(pageTitle)
