@@ -2354,7 +2354,7 @@ val homeCategoryControlsFrame = LinearLayout(this).apply {
 }
 
 
-homeManagement.addView(
+homeCategoryControlsFrame.addView
     adminActionButton(
         "🔽  MANAGE SUB-CATEGORIES रंगीन बटन जोड़े"
     ) {
@@ -2413,8 +2413,8 @@ pageSettings.chunked(3).forEach { rowItems ->
         )
     }
 
-    homeManagement.addView(
-        settingsRow,
+    homeCategoryControlsFrame.addView(
+    settingsRow,
         LinearLayout.LayoutParams(
             -1,
             dp(52)
@@ -2483,7 +2483,7 @@ categoryPostActionsRow.addView(
     }
 )
 
-homeManagement.addView(
+homeCategoryControlsFrame.addView(
     categoryPostActionsRow,
     LinearLayout.LayoutParams(
         -1,
