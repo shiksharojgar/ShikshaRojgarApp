@@ -115,7 +115,7 @@ private val sliderRunnable = object : Runnable {
 
         sliderHandler.postDelayed(this, 4500L)
     }
-}‌
+}
 
 
     private val colors = listOf(
