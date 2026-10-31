@@ -52,17 +52,19 @@ object CommonPageUi {
     insetsController.isAppearanceLightStatusBars = false
     insetsController.isAppearanceLightNavigationBars = false
 
-    if (Build.VERSION.SDK_INT >= 35) {
+        if (Build.VERSION.SDK_INT >= 35) {
         val decor = window.decorView as? ViewGroup
             ?: return
 
-        val tag = "sr_blue_status_bar_overlay"
+        // ऊपर Status Bar की नीली पट्टी
+        val statusTag = "sr_blue_status_bar_overlay"
 
-        var strip = decor.findViewWithTag<View>(tag)
+        var statusStrip =
+            decor.findViewWithTag<View>(statusTag)
 
-        if (strip == null) {
-            strip = View(activity).apply {
-                this.tag = tag
+        if (statusStrip == null) {
+            statusStrip = View(activity).apply {
+                tag = statusTag
                 setBackgroundColor(blue)
                 isClickable = false
                 importantForAccessibility =
@@ -70,7 +72,7 @@ object CommonPageUi {
             }
 
             decor.addView(
-                strip,
+                statusStrip,
                 FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     0,
@@ -79,21 +81,63 @@ object CommonPageUi {
             )
         }
 
-        val statusStrip = strip
+        // नीचे Navigation Bar की नीली पट्टी
+        val navigationTag =
+            "sr_blue_navigation_bar_overlay"
+
+        var navigationStrip =
+            decor.findViewWithTag<View>(navigationTag)
+
+        if (navigationStrip == null) {
+            navigationStrip = View(activity).apply {
+                tag = navigationTag
+                setBackgroundColor(blue)
+                isClickable = false
+                importantForAccessibility =
+                    View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+
+            decor.addView(
+                navigationStrip,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
+                    Gravity.BOTTOM
+                )
+            )
+        }
+
+        val topStrip = statusStrip
+        val bottomStrip = navigationStrip
 
         ViewCompat.setOnApplyWindowInsetsListener(
             decor
         ) { _, insets ->
-            val height = insets.getInsets(
+
+            // Status Bar की ऊँचाई
+            val statusHeight = insets.getInsets(
                 WindowInsetsCompat.Type.statusBars()
             ).top
 
-            val params =
-                statusStrip.layoutParams as FrameLayout.LayoutParams
+            val topParams =
+                topStrip.layoutParams as FrameLayout.LayoutParams
 
-            if (params.height != height) {
-                params.height = height
-                statusStrip.layoutParams = params
+            if (topParams.height != statusHeight) {
+                topParams.height = statusHeight
+                topStrip.layoutParams = topParams
+            }
+
+            // Navigation Bar की ऊँचाई
+            val navigationHeight = insets.getInsets(
+                WindowInsetsCompat.Type.navigationBars()
+            ).bottom
+
+            val bottomParams =
+                bottomStrip.layoutParams as FrameLayout.LayoutParams
+
+            if (bottomParams.height != navigationHeight) {
+                bottomParams.height = navigationHeight
+                bottomStrip.layoutParams = bottomParams
             }
 
             insets
