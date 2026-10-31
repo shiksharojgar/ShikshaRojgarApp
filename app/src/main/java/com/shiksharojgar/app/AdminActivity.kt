@@ -2251,13 +2251,23 @@ homeManagement.addView(
     adminSectionNote(
         "Home के मुख्य buttons और उनके अंदर के sub-buttons यहाँ से manage करें।"
     )
+    val homeCategoryControlsFrame = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+    setPadding(dp(8), dp(8), dp(8), dp(8))
+
+    background = android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.TRANSPARENT)
+        cornerRadius = dp(12).toFloat()
+        setStroke(dp(1), Color.rgb(160, 180, 195))
+    }
+}
 )
 
 
 
 homeManagement.addView(
     adminActionButton(
-        "🔽  MANAGE SUB-CATEGORIES"
+        "🔽  MANAGE SUB-CATEGORIES रंगीन बटन जोड़े"
     ) {
         showHomeSubCategoryManager("")
     },
