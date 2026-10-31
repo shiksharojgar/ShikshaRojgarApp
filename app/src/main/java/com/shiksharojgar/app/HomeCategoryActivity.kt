@@ -511,28 +511,83 @@ categoryPageTitleView = TextView(this).apply {
             
         // 1. पूरी स्क्रीन चौड़ाई वाला HD इमेज स्लाइडर
 
-val banner = LinearLayout(this).apply {
-    orientation = LinearLayout.HORIZONTAL
-    gravity = Gravity.CENTER
+val banner = FrameLayout(this).apply {
+    background = GradientDrawable().apply {
+        setColor(Color.WHITE)
+        cornerRadius = dp(16).toFloat()
+    }
+    clipToOutline = true
     setPadding(0, dp(4), 0, dp(8))
 }
 
 categoryBannerImageView = ImageView(this).apply {
     id = R.id.categoryBannerImage
     setImageResource(sliderImages[0])
-
     scaleType = ImageView.ScaleType.FIT_CENTER
     adjustViewBounds = true
-
     contentDescription = "कैटेगरी बैनर फोटो"
 }
 
 banner.addView(
     categoryBannerImageView,
-    LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
+    FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.WRAP_CONTENT
     )
+)
+
+val previousButton = Button(this).apply {
+    text = "‹"
+    textSize = 30f
+    setTextColor(Color.WHITE)
+    background = GradientDrawable().apply {
+        setColor(0x99000000.toInt())
+        cornerRadius = dp(8).toFloat()
+    }
+    minWidth = 0
+    minHeight = 0
+    setPadding(0, 0, 0, 0)
+    setOnClickListener {
+        showCategorySlide(sliderIndex - 1)
+    }
+}
+
+val nextButton = Button(this).apply {
+    text = "›"
+    textSize = 30f
+    setTextColor(Color.WHITE)
+    background = GradientDrawable().apply {
+        setColor(0x99000000.toInt())
+        cornerRadius = dp(8).toFloat()
+    }
+    minWidth = 0
+    minHeight = 0
+    setPadding(0, 0, 0, 0)
+    setOnClickListener {
+        showCategorySlide(sliderIndex + 1)
+    }
+}
+
+banner.addView(
+    previousButton,
+    FrameLayout.LayoutParams(
+        dp(40),
+        dp(48),
+        Gravity.CENTER_VERTICAL or Gravity.START
+    ).apply {
+        marginStart = dp(8)
+    }
+)
+
+banner.addView(
+    nextButton,
+    FrameLayout.LayoutParams(
+        dp(40),
+        dp(48),
+        Gravity.CENTER_VERTICAL or Gravity.END
+    ).apply {
+        marginEnd = dp(8)
+    }
 )
 
 listLayout.addView(
