@@ -51,6 +51,15 @@ object CommonPageUi {
     insetsController.isAppearanceLightStatusBars = false
     insetsController.isAppearanceLightNavigationBars = false
 
+    val insetsController =
+        WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        )
+
+    insetsController.isAppearanceLightStatusBars = false
+    insetsController.isAppearanceLightNavigationBars = false
+
     if (Build.VERSION.SDK_INT >= 35) {
         val decor = window.decorView as? ViewGroup
             ?: return
