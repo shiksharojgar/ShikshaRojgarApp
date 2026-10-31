@@ -36,10 +36,20 @@ object CommonPageUi {
             blue
         }
 
-    WindowCompat.getInsetsController(
-        window,
-        window.decorView
-    ).isAppearanceLightStatusBars = false
+    window.navigationBarColor = blue
+
+    if (Build.VERSION.SDK_INT >= 29) {
+        window.isNavigationBarContrastEnforced = false
+    }
+
+    val insetsController =
+        WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        )
+
+    insetsController.isAppearanceLightStatusBars = false
+    insetsController.isAppearanceLightNavigationBars = false
 
     if (Build.VERSION.SDK_INT >= 35) {
         val decor = window.decorView as? ViewGroup
