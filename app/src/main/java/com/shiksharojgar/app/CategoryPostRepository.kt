@@ -77,7 +77,8 @@ bodyBold = doc.getBoolean("bodyBold") ?: false,
                         pinOrder = doc.getLong("pinOrder") ?: 0L,
                                                 enabled = doc.getBoolean("enabled") ?: true,
                         viewCount = doc.getLong("viewCount") ?: 0L,
-                        shareCount = doc.getLong("shareCount") ?: 0L
+shareCount = doc.getLong("shareCount") ?: 0L,
+likeCount = doc.getLong("likeCount") ?: 0L
                     )
 
                 }
@@ -163,8 +164,9 @@ fun savePost(
                         "pinned" to savedPost.pinned,
                         "pinOrder" to savedPost.pinOrder,
                         "enabled" to savedPost.enabled,
-                        "viewCount" to (current.getLong("viewCount") ?: 0L),
-                        "shareCount" to (current.getLong("shareCount") ?: 0L)
+                    "viewCount" to (current.getLong("viewCount") ?: 0L),
+"shareCount" to (current.getLong("shareCount") ?: 0L),
+"likeCount" to (current.getLong("likeCount") ?: 0L)
                     )
 
                     document.set(data)
