@@ -1128,6 +1128,97 @@ LinearLayout.LayoutParams(
                         )
                     }
 
+                    // Like / Unlike और Like Count
+var currentLiked = false
+var currentLikeCount = doc.getLong("likeCount") ?: 0L
+
+val noticeLikeButton = TextView(this@NoticeActivity).apply {
+    text = "♥️"
+    textSize = 20f
+    gravity = Gravity.CENTER
+    setTextColor(Color.GRAY)
+    setPadding(dp(8), dp(8), dp(4), dp(8))
+    isEnabled = false
+}
+
+val noticeLikeCount = TextView(this@NoticeActivity).apply {
+    text = currentLikeCount.toString()
+    textSize = 14f
+    gravity = Gravity.CENTER
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(2), dp(8), dp(10), dp(8))
+}
+
+// पहले से Like है या नहीं, जाँचें।
+CategoryPostRepository.isLiked(doc.id) { liked ->
+    runOnUiThread {
+        if (!isFinishing && !isDestroyed) {
+            currentLiked = liked
+
+            noticeLikeButton.text =
+                if (liked) "❤️" else "♥️"
+
+            noticeLikeButton.setTextColor(
+                if (liked) Color.RED else Color.GRAY
+            )
+
+            noticeLikeButton.isEnabled = true
+        }
+    }
+}
+
+// Like / Unlike
+noticeLikeButton.setOnClickListener {
+    noticeLikeButton.isEnabled = false
+
+    val newLiked = !currentLiked
+
+    CategoryPostRepository.setLiked(
+        doc.id,
+        newLiked
+    ) { success ->
+        runOnUiThread {
+            noticeLikeButton.isEnabled = true
+
+            if (success) {
+                currentLiked = newLiked
+
+                currentLikeCount = (
+                    currentLikeCount +
+                        if (newLiked) 1L else -1L
+                ).coerceAtLeast(0L)
+
+                noticeLikeButton.text =
+                    if (currentLiked) "❤️" else "♥️"
+
+                noticeLikeButton.setTextColor(
+                    if (currentLiked) Color.RED else Color.GRAY
+                )
+
+                noticeLikeCount.text =
+                    currentLikeCount.toString()
+            } else {
+                Toast.makeText(
+                    this@NoticeActivity,
+                    "Like सेव नहीं हुआ। इंटरनेट जाँचें।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+}
+
+// Share Count से पहले Like बटन और संख्या जोड़ें।
+noticeButtonRow.addView(
+    noticeLikeButton,
+    LinearLayout.LayoutParams(-2, dp(42))
+)
+
+noticeButtonRow.addView(
+    noticeLikeCount,
+    LinearLayout.LayoutParams(-2, dp(42))
+)
+
                                     // यूज़र को Share Count दिखाएँ, View Count नहीं।
                 var displayedShareCount =
                     doc.getLong("shareCount") ?: 0L
