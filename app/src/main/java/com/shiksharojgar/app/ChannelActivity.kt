@@ -2501,8 +2501,9 @@ notificationTargetPostId?.let { targetId ->
 
                 setTextColor(
                     if (currentLiked) {
-                        Color.WHITE
-                    } else {
+    Color.rgb(7, 89, 133)
+}
+                    else {
                         Color.rgb(
                             14,
                             91,
@@ -2515,8 +2516,8 @@ notificationTargetPostId?.let { targetId ->
                     if (currentLiked) {
 
                         GradientFactory.gradient(
-                            "#2563EB",
-                            "#38BDF8"
+                            "#7DD3FC",
+                            "#BAE6FD"
                         )
 
                     } else {
@@ -2638,7 +2639,7 @@ if (!likedState.containsKey(p.id)) {
             TextView(this).apply {
 
                 text =
-                    "↗ Share $shownShares"
+    "Share ↗️ $shownShares"
 
                 gravity =
                     Gravity.CENTER
