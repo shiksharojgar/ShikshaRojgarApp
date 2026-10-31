@@ -80,20 +80,11 @@ override fun onBindViewHolder(
         container = holder.previewContainer,
         post = p
     ) {
-        AnalyticsTracker.uniqueFeedPostView(
-            holder.itemView.context,
-            p.url
-        )
-        onClick(p)
+                onClick(p)
     }
 
     // कार्ड पर टैप करने पर भी पोस्ट खुले।
-    holder.itemView.setOnClickListener {
-        AnalyticsTracker.uniqueFeedPostView(
-            holder.itemView.context,
-            p.url
-        )
-        onClick(p)
+ 
     }
 }
 
