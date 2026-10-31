@@ -2745,13 +2745,131 @@ homeContent.addView(
 
         homeContent.addView(pageManager)
 
-// HOME PAGE IMAGE SLIDER BUTTON
+// HOME PAGE IMAGE SLIDER EDITOR
 homeContent.addView(
     adminActionButton("🖼️ Home Image Slider (3–5 Photos)") {
+
         homeSliderUris.clear()
-        pickHomeSliderImages.launch("image/*")
+
+        val editorLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(12), dp(16), dp(8))
+        }
+
+        val infoText = TextView(this).apply {
+            text = "होम पेज के लिए गैलरी से 3 से 5 फोटो चुनें।"
+            textSize = 15f
+        }
+
+        val statusText = TextView(this).apply {
+            text = "अभी कोई फोटो नहीं चुनी गई।"
+            textSize = 14f
+            setPadding(0, dp(12), 0, dp(12))
+        }
+
+        homeSliderStatus = statusText
+
+        val selectButton = Button(this).apply {
+            text = "📷 गैलरी से फोटो चुनें"
+            setOnClickListener {
+                homeSliderUris.clear()
+                pickHomeSliderImages.launch("image/*")
+            }
+        }
+
+        editorLayout.addView(infoText)
+        editorLayout.addView(statusText)
+        editorLayout.addView(selectButton)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Home Page Image Slider")
+            .setView(editorLayout)
+            .setNegativeButton("बंद करें", null)
+            .setPositiveButton("सेव करें", null)
+            .create()
+
+        dialog.setOnShowListener {
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
+
+                if (homeSliderUris.size !in 3..5) {
+                    toast("कृपया 3 से 5 फोटो चुनें।")
+                    return@setOnClickListener
+                }
+
+                val saveButton =
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+                saveButton.isEnabled = false
+                statusText.text = "फोटो अपलोड हो रही हैं..."
+
+                val uploadedUrls = mutableListOf<String>()
+
+                fun uploadNext(index: Int) {
+
+                    if (index >= homeSliderUris.size) {
+
+                        val sliderData = hashMapOf<String, Any>(
+                            "imageUrls" to uploadedUrls,
+                            "updatedAt" to
+                                com.google.firebase.firestore.FieldValue.serverTimestamp()
+                        )
+
+                        db.collection("app_settings")
+                            .document("home_image_slider")
+                            .set(sliderData)
+                            .addOnSuccessListener {
+
+                                toast("Home Slider की फोटो सेव हो गईं।")
+                                homeSliderStatus = null
+                                dialog.dismiss()
+                            }
+                            .addOnFailureListener { error ->
+
+                                saveButton.isEnabled = true
+                                statusText.text = "सेव नहीं हुआ: ${error.message}"
+                            }
+
+                        return
+                    }
+
+                    statusText.text =
+                        "फोटो ${index + 1}/${homeSliderUris.size} अपलोड हो रही है..."
+
+                    ChannelRepository.upload(
+                        homeSliderUris[index],
+                        "images"
+                    ) { uploadedUrl, error ->
+
+                        runOnUiThread {
+
+                            if (uploadedUrl.isNullOrBlank()) {
+
+                                saveButton.isEnabled = true
+                                statusText.text =
+                                    "फोटो ${index + 1} अपलोड नहीं हुई: ${
+                                        error ?: "दोबारा प्रयास करें"
+                                    }"
+
+                                return@runOnUiThread
+                            }
+
+                            uploadedUrls.add(uploadedUrl)
+                            uploadNext(index + 1)
+                        }
+                    }
+                }
+
+                uploadNext(0)
+            }
+        }
+
+        dialog.show()
     }
 )
+
 
 homeContent.addView(
     adminSectionTitle(
