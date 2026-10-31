@@ -778,12 +778,12 @@ if (!user.isEmailVerified) {
             var isLiked = false
 
             val likeButton = Button(this).apply {
-                text = "👍 Like $likeCount"
-                textSize = 12f
-                isAllCaps = false
-                minWidth = 0
-                setPadding(dp(2), 0, dp(2), 0)
-            }
+    text = "👍 Like $likeCount"
+    textSize = 12f
+    isAllCaps = false
+    minWidth = 0
+    setPadding(dp(2), 0, dp(2), 0)
+}
 
             val shareButton = Button(this).apply {
                 text = "↗️ Share $shareCount"
@@ -890,7 +890,16 @@ if (!user.isEmailVerified) {
 
                         isLiked = likeDocument.exists()
 
-                        likeButton.text = if (isLiked) {
+                        likeButton.text = if (isLiked) 
+                        likeButton.backgroundTintList =
+    android.content.res.ColorStateList.valueOf(
+        if (isLiked) {
+            Color.rgb(125, 211, 252)
+        } else {
+            Color.WHITE
+        }
+    )
+                        {
                             "👍 Liked $likeCount"
                         } else {
                             "👍 Like $likeCount"
