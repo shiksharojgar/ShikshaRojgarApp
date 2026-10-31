@@ -114,6 +114,36 @@ private var homeCarouselLoading = false
         }
     }
 
+    private fun showHomeCarouselAt(index: Int) {
+    val imageView = findViewById<ImageView>(R.id.homeCarouselImage)
+
+    if (homeCarouselUrls.isNotEmpty()) {
+        val count = homeCarouselUrls.size
+        homeCarouselRemoteIndex = (index % count + count) % count
+
+        if (homeCarouselLoading) return
+
+        homeCarouselLoading = true
+
+        ChannelRepository.loadImage(
+            homeCarouselUrls[homeCarouselRemoteIndex]
+        ) { bitmap, _ ->
+            homeCarouselLoading = false
+
+            if (bitmap != null) {
+                imageView.setImageBitmap(bitmap)
+            }
+        }
+    } else if (homeCarouselImages.isNotEmpty()) {
+        val count = homeCarouselImages.size
+        homeCarouselIndex = (index % count + count) % count
+
+        imageView.setImageResource(
+            homeCarouselImages[homeCarouselIndex]
+        )
+    }
+}
+    
         private fun loadHomeSliderSettings() {
 
     FirebaseFirestore.getInstance()
@@ -286,6 +316,23 @@ private var allVacancyPosts: List<Post> = emptyList()
         )
 
         setContentView(R.layout.activity_main)
+        findViewById<android.widget.Button>(R.id.homeSliderPrevious)
+    .setOnClickListener {
+        if (homeCarouselUrls.isNotEmpty()) {
+            showHomeCarouselAt(homeCarouselRemoteIndex - 1)
+        } else {
+            showHomeCarouselAt(homeCarouselIndex - 1)
+        }
+    }
+
+findViewById<android.widget.Button>(R.id.homeSliderNext)
+    .setOnClickListener {
+        if (homeCarouselUrls.isNotEmpty()) {
+            showHomeCarouselAt(homeCarouselRemoteIndex + 1)
+        } else {
+            showHomeCarouselAt(homeCarouselIndex + 1)
+        }
+    }
         enlargeHeaderIcon(findViewById(R.id.loginButton))
 enlargeHeaderIcon(findViewById(R.id.websiteButton))
 enlargeHeaderIcon(findViewById(R.id.contactButton))
