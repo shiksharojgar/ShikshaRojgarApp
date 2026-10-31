@@ -37,7 +37,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 class MainActivity : AppCompatActivity() {
     // Home Photo Auto Slider
     private var homeCarouselIndex = 0
+private var homeCarouselUrls: List<String> = emptyList()
 
+private var homeCarouselRemoteIndex = 0
+
+private var homeCarouselLoading = false
+    
     private val homeCarouselImages = intArrayOf(
         R.drawable.home_teacher,
         R.drawable.home_student,
@@ -76,6 +81,48 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+
+        private fun loadHomeSliderSettings() {
+
+    FirebaseFirestore.getInstance()
+        .collection("app_settings")
+        .document("home_image_slider")
+        .get()
+        .addOnSuccessListener { document ->
+
+            val urls = document.get("imageUrls")
+                as? List<*>
+
+            homeCarouselUrls = urls
+                ?.filterIsInstance<String>()
+                ?.filter { it.isNotBlank() }
+                ?: emptyList()
+
+            homeCarouselRemoteIndex = 0
+
+            if (homeCarouselUrls.isNotEmpty()) {
+
+                val imageView =
+                    findViewById<ImageView>(
+                        R.id.homeCarouselImage
+                    )
+
+                homeCarouselLoading = true
+
+                ChannelRepository.loadImage(
+                    homeCarouselUrls[0]
+                ) { bitmap, _ ->
+
+                    homeCarouselLoading = false
+
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap)
+                    }
+                }
+            }
+        }
+}
+        
     private val liveHandler = Handler(Looper.getMainLooper())
     private var floatingNoticeImage: View? = null
    private var noticeCardView: View? = null
