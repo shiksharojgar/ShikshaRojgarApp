@@ -234,8 +234,7 @@ function isAdmin() {
   allow read: if true;
 
   allow create, delete: if isAdmin();
-
-    allow update: if isAdmin() || (
+allow update: if isAdmin() || (
     signedIn()
     && (
       (
@@ -257,9 +256,41 @@ function isAdmin() {
             ? resource.data.shareCount
             : 0) + 1
       )
+      ||
+      (
+        request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly(["likeCount"])
+        && request.resource.data.likeCount is int
+        && (
+          request.resource.data.likeCount ==
+            (resource.data.get("likeCount", 0) + 1)
+          ||
+          (
+            request.resource.data.likeCount >= 0
+            && request.resource.data.likeCount ==
+              (resource.data.get("likeCount", 0) - 1)
+          )
+        )
+      )
     )
   );
+// COMMON CATEGORY LIKES
+match /category_likes/{postId}/users/{uid} {
 
+  allow read: if signedIn()
+    && request.auth.uid == uid;
+
+  allow create: if signedIn()
+    && request.auth.uid == uid
+    && request.resource.data.keys().hasOnly(["uid", "at"])
+    && request.resource.data.uid == uid
+    && request.resource.data.at is int;
+
+  allow delete: if signedIn()
+    && request.auth.uid == uid;
+
+  allow update: if false;
+}
   match /viewers/{uid} {
     allow read: if signedIn()
       && request.auth.uid == uid;
