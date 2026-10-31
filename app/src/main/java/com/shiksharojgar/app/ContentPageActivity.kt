@@ -945,12 +945,235 @@ if (fileUrl.isNotBlank()) {
                         )
                     }
 
-                                        // यूज़र को Share Count दिखाएँ; View Count छिपा रहेगा।
-                    var displayedShareCount =
-                        doc.getLong("shareCount") ?: 0L
+                                        // Like और Share की एक ही लाइन
+val actionRow = LinearLayout(this).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+    setPadding(0, dp(8), 0, dp(4))
+}
+
+var currentLiked = false
+var currentLikeCount = doc.getLong("likeCount") ?: 0L
+var displayedShareCount = doc.getLong("shareCount") ?: 0L
+
+val likeButton = TextView(this).apply {
+    text = "♥️"
+    textSize = 21f
+    setTextColor(Color.GRAY)
+    setPadding(dp(6), dp(5), dp(4), dp(5))
+}
+
+val likeCountLabel = TextView(this).apply {
+    text = currentLikeCount.toString()
+    textSize = 14f
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(2), 0, dp(12), 0)
+}
+
+val shareButton = TextView(this).apply {
+    text = "📤 Share ↗️"
+    textSize = 14f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(7, 89, 133))
+    setPadding(dp(8), dp(6), dp(4), dp(6))
+}
+
+val shareCountLabel = TextView(this).apply {
+    text = displayedShareCount.toString()
+    textSize = 14f
+    setTextColor(Color.DKGRAY)
+    setPadding(dp(3), 0, dp(6), 0)
+}
+
+// पहले से Like की स्थिति जाँचें।
+likeButton.isEnabled = false
+
+CategoryPostRepository.isLiked(doc.id) { liked ->
+    runOnUiThread {
+        if (!isFinishing && !isDestroyed) {
+            currentLiked = liked
+
+            likeButton.text =
+                if (liked) "❤️" else "♥️"
+
+            likeButton.setTextColor(
+                if (liked) Color.RED else Color.GRAY
+            )
+
+            likeButton.isEnabled = true
+        }
+    }
+}
+
+// Like / Unlike
+likeButton.setOnClickListener {
+    likeButton.isEnabled = false
+
+    val newLiked = !currentLiked
+
+    CategoryPostRepository.setLiked(
+        doc.id,
+        newLiked
+    ) { success ->
+
+        runOnUiThread {
+            likeButton.isEnabled = true
+
+            if (success) {
+                currentLiked = newLiked
+
+                currentLikeCount = (
+                    currentLikeCount +
+                        if (newLiked) 1L else -1L
+                ).coerceAtLeast(0L)
+
+                likeButton.text =
+                    if (currentLiked) "❤️" else "♥️"
+
+                likeButton.setTextColor(
+                    if (currentLiked) Color.RED else Color.GRAY
+                )
+
+                likeCountLabel.text =
+                    currentLikeCount.toString()
+
+            } else {
+                Toast.makeText(
+                    this@ContentPageActivity,
+                    "Like सेव नहीं हुआ। इंटरनेट जाँचें।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+}
+
+// पोस्ट शेयर करने का पूरा टेक्स्ट
+val shareText = buildString {
+
+    val categoryHeader = when (pageId) {
+        "career", "career_guide", "career_tools" ->
+            "📱 Shiksha Rojgar App 🛠️ Career / Useful Tools"
+
+        "study_material" ->
+            "📱 Shiksha Rojgar App 📚 Study / Syllabus"
+
+        else ->
+            "📱 Shiksha Rojgar App 📌 Imp Info"
+    }
+
+    append("*")
+    append(categoryHeader)
+    append("*")
+
+    append("\n*पोस्ट देखें 👇*")
+    append("\n")
+    append(CommonShareBuilder.directPostUrl(doc.id))
+
+    if (title.isNotBlank()) {
+        append("\n\n*")
+        append(title.trim())
+        append("*")
+    }
+
+    if (body.isNotBlank()) {
+        append("\n\n")
+        append(body.trim())
+    }
+
+    if (description.isNotBlank()) {
+        append("\n\n")
+        append(description.trim())
+    }
+
+    if (websiteUrl.isNotBlank()) {
+        val url = if (
+            websiteUrl.startsWith("http://") ||
+            websiteUrl.startsWith("https://")
+        ) websiteUrl else "https://$websiteUrl"
+
+        append("\n\n🌐 वेबसाइट लिंक 👇\n")
+        append(url)
+    }
+
+    if (extraUrl.isNotBlank()) {
+        val url = if (
+            extraUrl.startsWith("http://") ||
+            extraUrl.startsWith("https://")
+        ) extraUrl else "https://$extraUrl"
+
+        append("\n\n🔗 अतिरिक्त लिंक 👇\n")
+        append(url)
+    }
+
+    customButtons.forEach { (label, rawUrl) ->
+        val url = if (
+            rawUrl.startsWith("http://") ||
+            rawUrl.startsWith("https://")
+        ) rawUrl else "https://$rawUrl"
+
+        append("\n\n🔗 ")
+        append(label)
+        append(" 👇\n")
+        append(url)
+    }
+
+    if (fileUrl.isNotBlank()) {
+        append("\n\n📄 ")
+        append(fileName.ifBlank { "फाइल / PDF" })
+        append(" 👇\n")
+        append(fileUrl)
+    }
+
+    append("\n\n*✅ शिक्षा रोजगार की Official Website 🌐*")
+    append("\nhttps://www.shiksharojgar.com/")
+
+    append(
+        "\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App " +
+            "डाउनलोड इंस्टॉल करें !*"
+    )
+}
+
+// Share और Share Count
+shareButton.setOnClickListener {
+
+    AnalyticsTracker.recordCategoryPostShare(
+        this@ContentPageActivity,
+        doc.id
+    )
+
+    displayedShareCount++
+
+    shareCountLabel.text =
+        displayedShareCount.toString()
+
+    try {
+        ShareHelper.shareImageOrText(
+            this@ContentPageActivity,
+            title,
+            shareText,
+            imageUrl,
+            "पोस्ट शेयर करें"
+        )
+    } catch (_: Exception) {
+        Toast.makeText(
+            this@ContentPageActivity,
+            "पोस्ट शेयर नहीं हो सकी।",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+}
+
+// सभी बटन एक ही लाइन में
+actionRow.addView(likeButton)
+actionRow.addView(likeCountLabel)
+actionRow.addView(shareButton)
+actionRow.addView(shareCountLabel)
+
+card.addView(actionRow)
 
                     val shareCountLabel = TextView(this).apply {
-                        text = "📤 साझा Share ↗️: $displayedShareCount"
+                        text = "📤 Share ↗️: $displayedShareCount"
                         textSize = 13f
                         setTextColor(Color.rgb(71, 85, 105))
                         setPadding(0, dp(8), 0, dp(8))
@@ -974,7 +1197,7 @@ if (fileUrl.isNotBlank()) {
 
                                 displayedShareCount++
                                 shareCountLabel.text =
-                                    "📤 साझा Share ↗️: $displayedShareCount"
+                                    "📤 Share ↗️: $displayedShareCount"
 
                                 val shareText = buildString {
     val categoryHeader = when (pageId) {
