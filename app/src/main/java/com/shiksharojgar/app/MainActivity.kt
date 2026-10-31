@@ -305,6 +305,7 @@ private var allVacancyPosts: List<Post> = emptyList()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+            CommonPageUi.applyBlueStatusBar(this)
 
         androidx.core.content.ContextCompat.registerReceiver(
             this,
