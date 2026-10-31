@@ -2886,7 +2886,20 @@ homeContent.addView(
             }
         }
 
-        dialog.show()
+                dialog.show()
+    }.apply {
+        textSize = 13f
+        isAllCaps = false
+        minHeight = dp(48)
+        minimumHeight = dp(48)
+        setPadding(dp(10), dp(4), dp(10), dp(4))
+    },
+    LinearLayout.LayoutParams(
+        -1,
+        dp(50)
+    ).apply {
+        topMargin = dp(5)
+        bottomMargin = dp(8)
     }
 )
 
