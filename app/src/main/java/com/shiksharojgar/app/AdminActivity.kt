@@ -9748,57 +9748,7 @@ categoryShares.add(
 }
 
 
-\n" +
 
-                        "↗ Channel Post Shares: ${
-                            d.getLong(
-                                "totalPostShares"
-                            ) ?: 0
-                        }\n" +
-
-                        "👍 Channel Likes: ${
-                            d.getLong(
-                                "totalLikes"
-                            ) ?: 0
-                        }\n" +
-
-                        "💬 Channel Comments: ${
-                            d.getLong(
-                                "totalComments"
-                            ) ?: 0
-                        }\n\n" +
-
-                        "📱 App First-use / Install Users: ${
-                            d.getLong(
-                                "totalAppUsers"
-                            ) ?: 0
-                        }\n" +
-
-                        "📈 Active User-Days: ${
-                            d.getLong(
-                                "totalActiveUserDays"
-                            ) ?: 0
-                        }\n\n" +
-
-                        "Analytics अब channel_config/main के aggregate counters से पढ़े जा रहे हैं।\n\n" +
-
-                        "नोट: Website से APK file download और APK install अलग metrics हैं।"
-
-                dialog.setMessage(
-                    msg
-                )
-            }
-            .addOnFailureListener { e ->
-
-                dialog.setMessage(
-                    "Channel analytics पढ़ा नहीं जा सका: " +
-                        (
-                            e.message
-                                ?: "Firestore error"
-                            )
-                )
-            }
-    }
 
     // =========================================================
     // NEW POST
