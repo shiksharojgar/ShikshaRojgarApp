@@ -105,23 +105,17 @@ private val sliderImages = intArrayOf(
 private val sliderRunnable = object : Runnable {
     override fun run() {
         if (isFinishing || isDestroyed) return
-        if (customBannerImageUrl.isNotBlank() &&
-    customSliderImageUrls.isEmpty()
-) return
+
+        if (
+            customBannerImageUrl.isNotBlank() &&
+            customSliderImageUrls.isEmpty()
+        ) return
 
         showCategorySlide(sliderIndex + 1)
 
-         {
-            if (customSliderImageUrls.isNotEmpty()) {
-    showSchoolSliderImage(sliderIndex)
-} else {
-    image.setImageResource(sliderImages[sliderIndex])
-}
-        }
-
         sliderHandler.postDelayed(this, 4500L)
     }
-}
+}‌
 
 
     private val colors = listOf(
