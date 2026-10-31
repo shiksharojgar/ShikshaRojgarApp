@@ -508,60 +508,43 @@ categoryPageTitleView = TextView(this).apply {
                 )
             }
 
-        // 1. ऊपर HD स्लाइडर के लिए जगह
+            
+        // 1. पूरी स्क्रीन चौड़ाई वाला HD इमेज स्लाइडर
+
 val banner = LinearLayout(this).apply {
     orientation = LinearLayout.HORIZONTAL
-    gravity = Gravity.CENTER_VERTICAL
-    setPadding(dp(4), dp(4), dp(4), dp(8))
-}
-
-val previous = TextView(this).apply {
-    text = "‹"
-    textSize = 36f
     gravity = Gravity.CENTER
-    setTextColor(Color.rgb(25, 118, 210))
-    setOnClickListener {
-        sliderIndex =
-            (sliderIndex - 1 + sliderImages.size) % sliderImages.size
-        showSchoolSliderImage(sliderIndex)
-    }
+    setPadding(0, dp(4), 0, dp(8))
 }
-
 
 categoryBannerImageView = ImageView(this).apply {
     id = R.id.categoryBannerImage
     setImageResource(sliderImages[0])
+
     scaleType = ImageView.ScaleType.FIT_CENTER
-    contentDescription = "कैटेगरी बैनर फोटो"
     adjustViewBounds = true
+
+    contentDescription = "कैटेगरी बैनर फोटो"
 }
-
-    
-
-val next = TextView(this).apply {
-    text = "›"
-    textSize = 36f
-    gravity = Gravity.CENTER
-    setTextColor(Color.rgb(25, 118, 210))
-
-    setOnClickListener {
-        sliderIndex =
-            (sliderIndex + 1) % sliderImages.size
-
-        showSchoolSliderImage(sliderIndex)
-    }
-}
-
-banner.addView(previous, LinearLayout.LayoutParams(dp(36), dp(140)))
 
 banner.addView(
     categoryBannerImageView,
-    LinearLayout.LayoutParams(0, dp(140), 1f)
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
 )
 
-banner.addView(next, LinearLayout.LayoutParams(dp(36), dp(140)))
-
-listLayout.addView(banner)
+listLayout.addView(
+    banner,
+    LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        marginStart = -dp(16)
+        marginEnd = -dp(16)
+    }
+)
 
 sliderHandler.removeCallbacks(sliderRunnable)
 sliderHandler.postDelayed(sliderRunnable, 4500L)
