@@ -3606,6 +3606,44 @@ form.addView(
     sliderImage3Field,
     LinearLayout.LayoutParams(-1, dp(52))
 )
+
+categoryBannerUri = null
+categorySlider1Uri = null
+categorySlider2Uri = null
+categorySlider3Uri = null
+
+fun addGalleryButton(
+    buttonText: String,
+    picker: () -> Unit
+) {
+    val button = Button(this).apply {
+        text = buttonText
+        setOnClickListener {
+            picker()
+        }
+    }
+
+    form.addView(
+        button,
+        LinearLayout.LayoutParams(-1, dp(46))
+    )
+}
+
+addGalleryButton("🖼️ बैनर फोटो गैलरी से चुनें") {
+    pickCategoryBanner.launch("image/*")
+}
+
+addGalleryButton("🖼️ स्लाइड 1 फोटो गैलरी से चुनें") {
+    pickCategorySlider1.launch("image/*")
+}
+
+addGalleryButton("🖼️ स्लाइड 2 फोटो गैलरी से चुनें") {
+    pickCategorySlider2.launch("image/*")
+}
+
+addGalleryButton("🖼️ स्लाइड 3 फोटो गैलरी से चुनें") {
+    pickCategorySlider3.launch("image/*")
+}
             form.addView(TextView(this).apply {
                 text = "लेआउट चुनें"
             })
