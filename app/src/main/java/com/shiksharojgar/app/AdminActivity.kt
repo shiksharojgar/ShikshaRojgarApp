@@ -2740,7 +2740,13 @@ homeContent.addView(
 
         homeContent.addView(pageManager)
 
-
+// HOME PAGE IMAGE SLIDER BUTTON
+homeContent.addView(
+    adminActionButton("🖼️ Home Image Slider (3–5 Photos)") {
+        homeSliderUris.clear()
+        pickHomeSliderImages.launch("image/*")
+    }
+)
 
 homeContent.addView(
     adminSectionTitle(
