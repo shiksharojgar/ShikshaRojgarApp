@@ -945,13 +945,37 @@ if (fileUrl.isNotBlank()) {
                         )
                     }
 
+                                        // यूज़र को Share Count दिखाएँ; View Count छिपा रहेगा।
+                    var displayedShareCount =
+                        doc.getLong("shareCount") ?: 0L
+
+                    val shareCountLabel = TextView(this).apply {
+                        text = "📤 साझा Share ↗️: $displayedShareCount"
+                        textSize = 13f
+                        setTextColor(Color.rgb(71, 85, 105))
+                        setPadding(0, dp(8), 0, dp(8))
+                    }
+
+                    card.addView(shareCountLabel)
+                    
                     // पोस्ट को टेक्स्ट और क्लिक करने योग्य URL के साथ शेयर करें
                     card.addView(
                         Button(this).apply {
                             text = "📤 Share ↗️"
                             styleCategoryButton(this, "#D32F2F")
                             
-                            setOnClickListener {
+                                                        setOnClickListener {
+
+                                // हर Share टैप पर संख्या बढ़ाएँ।
+                                AnalyticsTracker.recordCategoryPostShare(
+                                    this@ContentPageActivity,
+                                    doc.id
+                                )
+
+                                displayedShareCount++
+                                shareCountLabel.text =
+                                    "📤 साझा Share ↗️: $displayedShareCount"
+
                                 val shareText = buildString {
     val categoryHeader = when (pageId) {
     "career", "career_guide", "career_tools" ->
