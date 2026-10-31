@@ -9631,12 +9631,12 @@ private fun showAnalytics() {
                 .get()
                 .addOnSuccessListener { categorySnapshot ->
 
-                    val channelViews = mutableListOf<String>()
-                    val channelShares = mutableListOf<String>()
-                    val channelLikes = mutableListOf<String>()
+                    val channelViews = mutableListOf<Pair<Long, String>>()
+val channelShares = mutableListOf<Pair<Long, String>>()
+val channelLikes = mutableListOf<Pair<Long, String>>()
 
-                    val categoryViews = mutableListOf<String>()
-                    val categoryShares = mutableListOf<String>()
+val categoryViews = mutableListOf<Pair<Long, String>>()
+val categoryShares = mutableListOf<Pair<Long, String>>()
 
                     val categoryTotals = mutableMapOf<String, Int>()
 
@@ -9653,9 +9653,9 @@ private fun showAnalytics() {
                         val shares = doc.getLong("shareCount") ?: 0L
                         val likes = doc.getLong("likeCount") ?: 0L
 
-                        channelViews.add("👁 $views — $title")
-                        channelShares.add("↗ $shares — $title")
-                        channelLikes.add("👍 $likes — $title")
+                        channelViews.add(Pair(views, title))
+channelShares.add(Pair(shares, title))
+channelLikes.add(Pair(likes, title))
                     }
 
                     for (doc in categorySnapshot.documents) {
@@ -9676,8 +9676,13 @@ private fun showAnalytics() {
                         categoryTotals[category] =
                             (categoryTotals[category] ?: 0) + 1
 
-                        categoryViews.add("👁 $views — [$category] $title")
-                        categoryShares.add("↗ $shares — [$category] $title")
+                        categoryViews.add(
+    Pair(views, "[$category] $title")
+)
+
+categoryShares.add(
+    Pair(shares, "[$category] $title")
+)
                     }
 
                     val categorySummary = categoryTotals.entries
