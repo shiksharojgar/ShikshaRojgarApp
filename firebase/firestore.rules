@@ -413,7 +413,32 @@ function isAdmin() {
           signedIn()
           && resource.data.uid == request.auth.uid
         );
-    }
+
+      // Group Likes: Admin सभी की गिनती पढ़ सकता है,
+      // सामान्य यूज़र केवल अपना Like पढ़/बना/हटा सकता है।
+      match /likes/{uid} {
+        allow read: if isAdmin()
+          || (signedIn() && request.auth.uid == uid);
+
+        allow create, delete: if signedIn()
+          && request.auth.uid == uid;
+
+        allow update: if false;
+      }
+
+      // Group Shares: Admin रिपोर्ट के लिए सभी रिकॉर्ड पढ़ सकता है,
+      // सामान्य यूज़र केवल अपना Share रिकॉर्ड पढ़/बना सकता है।
+      match /shares/{uid} {
+        allow read: if isAdmin()
+          || (signedIn() && request.auth.uid == uid);
+
+        allow create: if signedIn()
+          && request.auth.uid == uid;
+
+        allow update, delete: if false;
+      }
+   
+}
 
 
     // =====================================================
