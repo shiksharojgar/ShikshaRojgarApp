@@ -53,34 +53,66 @@ private var homeCarouselLoading = false
         Handler(Looper.getMainLooper())
 
     private val homeCarouselRunnable =
-        object : Runnable {
+    object : Runnable {
 
-            override fun run() {
+        override fun run() {
 
-                val carouselImage =
-                    findViewById<ImageView?>(
-                        R.id.homeCarouselImage
-                    )
+            val carouselImage =
+                findViewById<ImageView?>(
+                    R.id.homeCarouselImage
+                )
 
-                if (
-                    carouselImage != null &&
-                    homeCarouselImages.isNotEmpty()
-                ) {
+            if (carouselImage != null) {
+
+                if (homeCarouselUrls.isNotEmpty()) {
+
+                    if (!homeCarouselLoading) {
+
+                        homeCarouselRemoteIndex =
+                            (homeCarouselRemoteIndex + 1) %
+                                homeCarouselUrls.size
+
+                        homeCarouselLoading = true
+
+                        val imageUrl =
+                            homeCarouselUrls[
+                                homeCarouselRemoteIndex
+                            ]
+
+                        ChannelRepository.loadImage(
+                            imageUrl
+                        ) { bitmap, _ ->
+
+                            homeCarouselLoading = false
+
+                            if (bitmap != null) {
+                                carouselImage.setImageBitmap(
+                                    bitmap
+                                )
+                            }
+                        }
+                    }
+
+                } else if (homeCarouselImages.isNotEmpty()) {
+
                     homeCarouselIndex =
                         (homeCarouselIndex + 1) %
                             homeCarouselImages.size
 
                     carouselImage.setImageResource(
-                        homeCarouselImages[homeCarouselIndex]
+                        homeCarouselImages[
+                            homeCarouselIndex
+                        ]
                     )
                 }
-
-                homeCarouselHandler.postDelayed(
-                    this,
-                    4500L
-                )
             }
+
+            homeCarouselHandler.postDelayed(
+                this,
+                4500L
+            )
         }
+    }
 
         private fun loadHomeSliderSettings() {
 
