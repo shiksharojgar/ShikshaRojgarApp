@@ -232,7 +232,7 @@
     </LinearLayout>
 
 </FrameLayout>
-        <!-- Home Photo Auto Slider -->
+                <!-- Home Photo Auto Slider -->
         <FrameLayout
             android:id="@+id/homePhotoCarousel"
             android:layout_width="match_parent"
@@ -251,7 +251,35 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="शिक्षा रोजगार: शिक्षक, विद्यार्थी और परीक्षा तैयारी" />
 
-        </FrameLayout>243: <LinearLayout
+            <Button
+                android:id="@+id/homeSliderPrevious"
+                android:layout_width="40dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical|start"
+                android:text="‹"
+                android:textSize="30sp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#99000000"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp" />
+
+            <Button
+                android:id="@+id/homeSliderNext"
+                android:layout_width="40dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical|end"
+                android:text="›"
+                android:textSize="30sp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#99000000"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp" />
+
+        </FrameLayout>
+         
+         <LinearLayout
      android:layout_width="match_parent"
      android:layout_height="wrap_content"
      android:orientation="horizontal"
