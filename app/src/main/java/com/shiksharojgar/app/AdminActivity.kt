@@ -34,6 +34,50 @@ class AdminActivity : AppCompatActivity() {
 
     private var pageImageUri: Uri? = null
     private var pageImageField: EditText? = null
+    private var categoryBannerUri: Uri? = null
+private var categorySlider1Uri: Uri? = null
+private var categorySlider2Uri: Uri? = null
+private var categorySlider3Uri: Uri? = null
+
+private val pickCategoryBanner =
+    registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        categoryBannerUri = uri
+        if (uri != null) {
+            toast("बैनर फोटो चुनी गई")
+        }
+    }
+
+private val pickCategorySlider1 =
+    registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        categorySlider1Uri = uri
+        if (uri != null) {
+            toast("स्लाइड 1 फोटो चुनी गई")
+        }
+    }
+
+private val pickCategorySlider2 =
+    registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        categorySlider2Uri = uri
+        if (uri != null) {
+            toast("स्लाइड 2 फोटो चुनी गई")
+        }
+    }
+
+private val pickCategorySlider3 =
+    registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        categorySlider3Uri = uri
+        if (uri != null) {
+            toast("स्लाइड 3 फोटो चुनी गई")
+        }
+    }
 
     private val selectedImageUris = mutableListOf<Uri>()
 
