@@ -3,6 +3,7 @@ package com.shiksharojgar.app
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.auth.FirebaseAuth
 
 object CategoryPostRepository {
 
@@ -233,5 +234,139 @@ fun savePost(
             }
         }
     }
+    // किसी पोस्ट पर Like / Unlike सुरक्षित करें।
+    fun setLiked(
+        postId: String,
+        liked: Boolean,
+        onResult: (Boolean) -> Unit
+    ) {
+        if (postId.isBlank()) {
+            onResult(false)
+            return
+        }
 
+        ChannelRepository.ensureSignedIn { signedIn ->
+
+            if (!signedIn) {
+                onResult(false)
+                return@ensureSignedIn
+            }
+
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (uid.isNullOrBlank()) {
+                onResult(false)
+                return@ensureSignedIn
+            }
+
+            val likeRef = db.collection("category_likes")
+                .document(postId)
+                .collection("users")
+                .document(uid)
+
+            val postRef = postsRef.document(postId)
+
+            db.runTransaction { transaction ->
+
+                val likeSnapshot = transaction.get(likeRef)
+                val postSnapshot = transaction.get(postRef)
+
+                if (!postSnapshot.exists()) {
+                    throw IllegalStateException("पोस्ट उपलब्ध नहीं है")
+                }
+
+                val currentCount =
+                    (postSnapshot.getLong("likeCount") ?: 0L)
+                        .coerceAtLeast(0L)
+
+                if (liked && !likeSnapshot.exists()) {
+                    transaction.set(
+                        likeRef,
+                        mapOf(
+                            "uid" to uid,
+                            "at" to System.currentTimeMillis()
+                        )
+                    )
+
+                    transaction.update(
+                        postRef,
+                        "likeCount",
+                        currentCount + 1L
+                    )
+
+                } else if (!liked && likeSnapshot.exists()) {
+                    transaction.delete(likeRef)
+
+                    transaction.update(
+                        postRef,
+                        "likeCount",
+                        (currentCount - 1L).coerceAtLeast(0L)
+                    )
+                }
+
+                null
+
+            }.addOnSuccessListener {
+                onResult(true)
+            }.addOnFailureListener {
+                onResult(false)
+            }
+        }
+    }
+
+    // जाँचें कि वर्तमान यूज़र ने पोस्ट Like की है या नहीं।
+    fun isLiked(
+        postId: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        ChannelRepository.ensureSignedIn { signedIn ->
+
+            if (!signedIn) {
+                onResult(false)
+                return@ensureSignedIn
+            }
+
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (uid.isNullOrBlank()) {
+                onResult(false)
+                return@ensureSignedIn
+            }
+
+            db.collection("category_likes")
+                .document(postId)
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener {
+                    onResult(it.exists())
+                }
+                .addOnFailureListener {
+                    onResult(false)
+                }
+        }
+    }
+
+    // प्रत्येक Share दबाने पर संख्या एक बढ़ाएँ।
+    fun increaseShareCount(
+        postId: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        if (postId.isBlank()) {
+            onResult(false)
+            return
+        }
+
+        postsRef.document(postId)
+            .update(
+                "shareCount",
+                com.google.firebase.firestore.FieldValue.increment(1L)
+            )
+            .addOnSuccessListener {
+                onResult(true)
+            }
+            .addOnFailureListener {
+                onResult(false)
+            }
+    }
 }
