@@ -3674,75 +3674,135 @@ addGalleryButton("🖼️ स्लाइड 3 फोटो गैलरी स�
                             titleField.text.toString().trim()
                         val description =
                             descriptionField.text.toString().trim()
-                        val imageUrl =
-                            imageUrlField.text.toString().trim()
-                        val sliderImage1 =
-    sliderImage1Field.text.toString().trim()
-val sliderImage2 =
-    sliderImage2Field.text.toString().trim()
-val sliderImage3 =
+                        val imageUrls = listOf(
+    imageUrlField.text.toString().trim(),
+    sliderImage1Field.text.toString().trim(),
+    sliderImage2Field.text.toString().trim(),
     sliderImage3Field.text.toString().trim()
-    
-                        val style = layoutOptions[
-                            layoutSpinner.selectedItemPosition
-                                .coerceIn(0, layoutOptions.lastIndex)
-                        ].second
+)
 
-                        if (pageTitle.isBlank()) {
-                            titleField.error = "शीर्षक लिखें"
-                            return@setOnClickListener
-                        }
+val selectedUris = listOf(
+    categoryBannerUri,
+    categorySlider1Uri,
+    categorySlider2Uri,
+    categorySlider3Uri
+)
 
-                        if (
-                            imageUrl.isNotBlank() &&
-                            !imageUrl.startsWith("https://", true)
-                        ) {
-                            imageUrlField.error =
-                                "फोटो का HTTPS URL डालें"
-                            return@setOnClickListener
-                        }
+val imageFields = listOf(
+    imageUrlField,
+    sliderImage1Field,
+    sliderImage2Field,
+    sliderImage3Field
+)
 
-                        val values = hashMapOf<String, Any>(
-                            "categoryId" to categoryId,
-                            "categoryLabel" to categoryLabel,
-                            "title" to pageTitle,
-                            "description" to description,
-                            "imageUrl" to imageUrl,
-                            "sliderImage1" to sliderImage1,
-"sliderImage2" to sliderImage2,
-"sliderImage3" to sliderImage3,
-                            "layoutStyle" to style,
-                            "updatedAt" to
-                                com.google.firebase.firestore.FieldValue
-                                    .serverTimestamp()
-                        )
+val imageKeys = listOf(
+    "imageUrl",
+    "sliderImage1",
+    "sliderImage2",
+    "sliderImage3"
+)
 
-                        dialog.getButton(
-                            AlertDialog.BUTTON_POSITIVE
-                        ).isEnabled = false
+val style = layoutOptions[
+    layoutSpinner.selectedItemPosition
+        .coerceIn(0, layoutOptions.lastIndex)
+].second
 
-                        db.collection("category_page_settings")
-                            .document(categoryId)
-                            .set(values)
-                            .addOnSuccessListener {
-                                if (!isFinishing && !isDestroyed) {
-                                    toast(
-                                        "$categoryLabel की सेटिंग सेव हो गई"
-                                    )
-                                    dialog.dismiss()
-                                }
-                            }
-                            .addOnFailureListener { error ->
-                                if (!isFinishing && !isDestroyed) {
-                                    dialog.getButton(
-                                        AlertDialog.BUTTON_POSITIVE
-                                    ).isEnabled = true
+if (pageTitle.isBlank()) {
+    titleField.error = "शीर्षक लिखें"
+    return@setOnClickListener
+}
 
-                                    toast(
-                                        "सेव नहीं हुआ: ${error.message}"
-                                    )
-                                }
-                            }
+for (i in imageUrls.indices) {
+    if (
+        selectedUris[i] == null &&
+        imageUrls[i].isNotBlank() &&
+        !imageUrls[i].startsWith("https://", true)
+    ) {
+        imageFields[i].error = "फोटो का HTTPS URL डालें"
+        return@setOnClickListener
+    }
+}
+
+val saveButton =
+    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+saveButton.isEnabled = false
+
+fun saveCategorySettings(
+    finalImages: MutableMap<String, String>
+) {
+    val values = hashMapOf<String, Any>(
+        "categoryId" to categoryId,
+        "categoryLabel" to categoryLabel,
+        "title" to pageTitle,
+        "description" to description,
+        "layoutStyle" to style,
+        "updatedAt" to
+            com.google.firebase.firestore.FieldValue.serverTimestamp()
+    )
+
+    values.putAll(finalImages)
+
+    db.collection("category_page_settings")
+        .document(categoryId)
+        .set(values)
+        .addOnSuccessListener {
+            if (!isFinishing && !isDestroyed) {
+                categoryBannerUri = null
+                categorySlider1Uri = null
+                categorySlider2Uri = null
+                categorySlider3Uri = null
+
+                toast("$categoryLabel की सेटिंग सेव हो गई")
+                dialog.dismiss()
+            }
+        }
+        .addOnFailureListener { error ->
+            if (!isFinishing && !isDestroyed) {
+                saveButton.isEnabled = true
+                toast("सेव नहीं हुआ: ${error.message}")
+            }
+        }
+}
+
+fun uploadNextImage(
+    index: Int,
+    finalImages: MutableMap<String, String>
+) {
+    if (index >= imageKeys.size) {
+        saveCategorySettings(finalImages)
+        return
+    }
+
+    val uri = selectedUris[index]
+
+    if (uri == null) {
+        finalImages[imageKeys[index]] = imageUrls[index]
+        uploadNextImage(index + 1, finalImages)
+        return
+    }
+
+    ChannelRepository.upload(uri, "images") { uploadedUrl, error ->
+        runOnUiThread {
+            if (uploadedUrl.isNullOrBlank()) {
+                saveButton.isEnabled = true
+                toast(
+                    "फोटो ${index + 1} अपलोड नहीं हुई: ${
+                        error ?: "कृपया दोबारा प्रयास करें"
+                    }"
+                )
+            } else {
+                finalImages[imageKeys[index]] = uploadedUrl
+                uploadNextImage(index + 1, finalImages)
+            }
+        }
+    }
+}
+
+uploadNextImage(
+    0,
+    mutableMapOf()
+)
                     }
             }
 
