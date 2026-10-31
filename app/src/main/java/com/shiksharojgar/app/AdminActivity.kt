@@ -9679,11 +9679,13 @@ val channelLikes = mutableListOf<Pair<Long, String>>()
 
 val categoryViews = mutableListOf<Pair<Long, String>>()
 val categoryShares = mutableListOf<Pair<Long, String>>()
+val categoryLikes = mutableListOf<Pair<Long, String>>()
 
                     val categoryTotals = mutableMapOf<String, Int>()
 
                     var totalCategoryViews = 0L
-                    var totalCategoryShares = 0L
+var totalCategoryShares = 0L
+var totalCategoryLikes = 0L
 
                     for (doc in channelSnapshot.documents) {
 
@@ -9710,11 +9712,12 @@ channelLikes.add(Pair(likes, title))
                             ?: "अन्य"
 
                         val views = doc.getLong("viewCount") ?: 0L
-                        val shares = doc.getLong("shareCount") ?: 0L
+val shares = doc.getLong("shareCount") ?: 0L
+val likes = doc.getLong("likeCount") ?: 0L
 
-                        totalCategoryViews += views
-                        totalCategoryShares += shares
-
+totalCategoryViews += views
+totalCategoryShares += shares
+totalCategoryLikes += likes
                         categoryTotals[category] =
                             (categoryTotals[category] ?: 0) + 1
 
@@ -9724,6 +9727,9 @@ channelLikes.add(Pair(likes, title))
 
 categoryShares.add(
     Pair(shares, "[$category] $title")
+)
+categoryLikes.add(
+    Pair(likes, "[$category] $title")
 )
                     }
 
@@ -9758,15 +9764,17 @@ categoryShares.add(
 
                         "📚 CATEGORY POST REPORT\n\n" +
                         "कुल पोस्ट: ${categorySnapshot.size()}\n" +
-                        "कुल Views: $totalCategoryViews\n" +
-                        "कुल Shares: $totalCategoryShares\n\n" +
+"कुल Views: $totalCategoryViews\n" +
+"कुल Likes: $totalCategoryLikes\n" +
+"कुल Shares: $totalCategoryShares\n\n" +
 
                         "CATEGORY-WISE POSTS\n" +
                         categorySummary + "\n\n" +
 
                         "👁 CATEGORY TOP 20 VIEWS\n" +
                         top20(categoryViews) + "\n\n" +
-
+"👍 CATEGORY TOP 20 LIKES\n" +
+top20(categoryLikes) + "\n\n" +
                         "↗ CATEGORY TOP 20 SHARES\n" +
                         top20(categoryShares) + "\n\n" +
 
