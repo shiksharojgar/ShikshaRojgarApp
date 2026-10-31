@@ -83,8 +83,9 @@ override fun onBindViewHolder(
                 onClick(p)
     }
 
-    // कार्ड पर टैप करने पर भी पोस्ट खुले।
- 
+        // कार्ड पर टैप करने पर भी पोस्ट खुले।
+    holder.itemView.setOnClickListener {
+        onClick(p)
     }
 }
 
