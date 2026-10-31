@@ -476,11 +476,31 @@ val buttonColor = when {
 
         setTextColor(Color.WHITE)
 
-        setBackgroundTintList(
+                setBackgroundTintList(
             android.content.res.ColorStateList.valueOf(
                 buttonColor
             )
         )
+
+        val outlinedButtons = setOf(
+            "🔽  MANAGE SUB-CATEGORIES रंगीन बटन जोड़े",
+            "👩‍🏫 Teacher पेज सेटिंग",
+            "🎓 Student पेज सेटिंग",
+            "🏫 School पेज सेटिंग",
+            "💼 Vacancy पेज सेटिंग",
+            "🏆 Result पेज सेटिंग",
+            "🎫 Admit Card पेज सेटिंग",
+            "➕ पोस्ट जोड़ें",
+            "📋 पोस्ट मैनेज करें"
+        )
+
+        if (textValue in outlinedButtons) {
+            foreground = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.TRANSPARENT)
+                setStroke(dp(1), Color.WHITE)
+                cornerRadius = dp(8).toFloat()
+            }
+        }
 
         minHeight = 0
         minimumHeight = 0
