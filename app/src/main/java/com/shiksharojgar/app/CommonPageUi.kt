@@ -42,14 +42,6 @@ object CommonPageUi {
         window.isNavigationBarContrastEnforced = false
     }
 
-    val insetsController =
-        WindowCompat.getInsetsController(
-            window,
-            window.decorView
-        )
-
-    insetsController.isAppearanceLightStatusBars = false
-    insetsController.isAppearanceLightNavigationBars = false
 
     val insetsController =
         WindowCompat.getInsetsController(
