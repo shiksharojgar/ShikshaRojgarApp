@@ -2354,7 +2354,7 @@ val homeCategoryControlsFrame = LinearLayout(this).apply {
 }
 
 
-homeCategoryControlsFrame.addView
+homeCategoryControlsFrame.addView(
     adminActionButton(
         "🔽  MANAGE SUB-CATEGORIES रंगीन बटन जोड़े"
     ) {
