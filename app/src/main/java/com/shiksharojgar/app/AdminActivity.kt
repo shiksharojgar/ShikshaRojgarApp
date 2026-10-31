@@ -2320,7 +2320,9 @@ homeManagement.addView(
     adminSectionNote(
         "Home के मुख्य buttons और उनके अंदर के sub-buttons यहाँ से manage करें।"
     )
-    val homeCategoryControlsFrame = LinearLayout(this).apply {
+)
+
+val homeCategoryControlsFrame = LinearLayout(this).apply {
     orientation = LinearLayout.VERTICAL
     setPadding(dp(8), dp(8), dp(8), dp(8))
 
@@ -2330,8 +2332,6 @@ homeManagement.addView(
         setStroke(dp(1), Color.rgb(160, 180, 195))
     }
 }
-)
-
 
 
 homeManagement.addView(
