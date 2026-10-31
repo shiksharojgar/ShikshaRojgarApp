@@ -1252,6 +1252,7 @@ private fun updateImportantInfoUnreadCount() {
     override fun onResume() {
 
         super.onResume()
+        loadHomeSliderSettings()
         homeCarouselHandler.removeCallbacks(
             homeCarouselRunnable
         )
