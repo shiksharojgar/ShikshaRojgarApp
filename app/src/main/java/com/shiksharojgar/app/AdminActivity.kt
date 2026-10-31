@@ -2438,10 +2438,27 @@ moreMenuButtonsRow.addView(
     }
 )
 
+val safaltaButton = adminActionButton(
+    "🌟 Hello Friends / सफलता की उड़ान"
+) {
+    showSafaltaKiUdaanPages()
+}
+
+safaltaButton.backgroundTintList =
+    android.content.res.ColorStateList.valueOf(
+        Color.rgb(218, 165, 32)
+    )
+
+safaltaButton.setTextColor(Color.WHITE)
+
 moreMenuButtonsRow.addView(
-    adminActionButton(" Hello Friends 🌟 सफलता की उड़ान") {
-        showSafaltaKiUdaanPages()
-    },
+    safaltaButton,
+    LinearLayout.LayoutParams(
+        0,
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        1f
+    )
+)
     LinearLayout.LayoutParams(
         0,
         LinearLayout.LayoutParams.WRAP_CONTENT,
