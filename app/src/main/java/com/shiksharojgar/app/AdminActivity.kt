@@ -9290,42 +9290,138 @@ private fun showChannelMediaStorage() {
     // ANALYTICS
     // =========================================================
 
-    private fun showAnalytics() {
+    
+private fun showAnalytics() {
 
-        val dialog =
-            AlertDialog.Builder(this)
-                .setTitle(
-                    "📊 Shiksha Rojgar Analytics"
-                )
-                .setMessage(
-                    "लोड हो रहा है…"
-                )
-                .setPositiveButton(
-                    "OK",
-                    null
-                )
-                .create()
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("📊 Shiksha Rojgar 📈 Analytics 📉")
+        .setMessage("रिपोर्ट लोड हो रही है…")
+        .setPositiveButton("OK", null)
+        .create()
 
-        dialog.show()
+    dialog.show()
 
-        db.document(
-            "channel_config/main"
-        )
-            .get()
-            .addOnSuccessListener { d ->
+    db.collection("channel_posts")
+        .get()
+        .addOnSuccessListener { channelSnapshot ->
 
-                val msg =
-                    "👥 Channel Followers: ${
-                        d.getLong(
-                            "followerCount"
-                        ) ?: 0
-                    }\n" +
+            db.collection("category_posts")
+                .get()
+                .addOnSuccessListener { categorySnapshot ->
 
-                        "👁 Channel Post Views: ${
-                            d.getLong(
-                                "totalPostViews"
-                            ) ?: 0
-                        }\n" +
+                    val channelViews = mutableListOf<String>()
+                    val channelShares = mutableListOf<String>()
+                    val channelLikes = mutableListOf<String>()
+
+                    val categoryViews = mutableListOf<String>()
+                    val categoryShares = mutableListOf<String>()
+
+                    val categoryTotals = mutableMapOf<String, Int>()
+
+                    var totalCategoryViews = 0L
+                    var totalCategoryShares = 0L
+
+                    for (doc in channelSnapshot.documents) {
+
+                        val title = doc.getString("title")
+                            ?: doc.getString("body")
+                            ?: doc.id
+
+                        val views = doc.getLong("viewCount") ?: 0L
+                        val shares = doc.getLong("shareCount") ?: 0L
+                        val likes = doc.getLong("likeCount") ?: 0L
+
+                        channelViews.add("👁 $views — $title")
+                        channelShares.add("↗ $shares — $title")
+                        channelLikes.add("👍 $likes — $title")
+                    }
+
+                    for (doc in categorySnapshot.documents) {
+
+                        val title = doc.getString("title")
+                            ?: doc.getString("body")
+                            ?: doc.id
+
+                        val category = doc.getString("category")
+                            ?: "अन्य"
+
+                        val views = doc.getLong("viewCount") ?: 0L
+                        val shares = doc.getLong("shareCount") ?: 0L
+
+                        totalCategoryViews += views
+                        totalCategoryShares += shares
+
+                        categoryTotals[category] =
+                            (categoryTotals[category] ?: 0) + 1
+
+                        categoryViews.add("👁 $views — [$category] $title")
+                        categoryShares.add("↗ $shares — [$category] $title")
+                    }
+
+                    val categorySummary = categoryTotals.entries
+                        .sortedByDescending { it.value }
+                        .joinToString("\n") {
+                            "• ${it.key}: ${it.value} पोस्ट"
+                        }
+
+                    fun top20(items: List<Pair<Long, String>>): String {
+    return items
+        .sortedByDescending { it.first }
+        .take(20)
+        .joinToString("\n") {
+            "${it.first} — ${it.second}"
+        }
+        .ifBlank { "अभी कोई रिकॉर्ड नहीं" }
+}
+
+                    val report =
+                        "📌 CHANNEL REPORT\n\n" +
+                        "कुल पोस्ट: ${channelSnapshot.size()}\n\n" +
+
+                        "👁 TOP 20 VIEWS\n" +
+                        top20(channelViews) + "\n\n" +
+
+                        "↗ TOP 20 SHARES\n" +
+                        top20(channelShares) + "\n\n" +
+
+                        "👍 TOP 20 LIKES\n" +
+                        top20(channelLikes) + "\n\n" +
+
+                        "📚 CATEGORY POST REPORT\n\n" +
+                        "कुल पोस्ट: ${categorySnapshot.size()}\n" +
+                        "कुल Views: $totalCategoryViews\n" +
+                        "कुल Shares: $totalCategoryShares\n\n" +
+
+                        "CATEGORY-WISE POSTS\n" +
+                        categorySummary + "\n\n" +
+
+                        "👁 CATEGORY TOP 20 VIEWS\n" +
+                        top20(categoryViews) + "\n\n" +
+
+                        "↗ CATEGORY TOP 20 SHARES\n" +
+                        top20(categoryShares) + "\n\n" +
+
+                        "नोट: View Count केवल Admin रिपोर्ट में दिखाया जाता है।"
+
+                    dialog.setMessage(report)
+                }
+                .addOnFailureListener { error ->
+                    dialog.setMessage(
+                        "Category रिपोर्ट नहीं पढ़ी जा सकी:\n" +
+                            (error.message ?: "Firestore Error")
+                    )
+                }
+        }
+        .addOnFailureListener { error ->
+            dialog.setMessage(
+                "Channel रिपोर्ट नहीं पढ़ी जा सकी:\n" +
+                    (error.message ?: "Firestore Error")
+            )
+        }
+}
+
+
+\n" +
 
                         "↗ Channel Post Shares: ${
                             d.getLong(
