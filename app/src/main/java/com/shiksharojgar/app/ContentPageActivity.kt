@@ -30,7 +30,8 @@ private fun dp(value: Int): Int {
 
     override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
+    CommonPageUi.applyBlueStatusBar(this)
+    
     val pageId =
         intent.getStringExtra("pageId")
             ?: "important_information"
