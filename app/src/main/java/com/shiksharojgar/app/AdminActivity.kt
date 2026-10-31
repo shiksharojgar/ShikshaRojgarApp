@@ -81,7 +81,8 @@ private val pickCategorySlider3 =
 // HOME PAGE IMAGE SLIDER PICKER
 
 private val homeSliderUris = mutableListOf<Uri>()
-
+private var homeSliderStatus: TextView? = null
+    
 private val pickHomeSliderImages =
     registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -92,9 +93,13 @@ private val pickHomeSliderImages =
         if (uris.isNotEmpty()) {
             homeSliderUris.addAll(uris.take(5))
 
-            toast(
-                "${homeSliderUris.size} फोटो चुनी गईं। अब सेव करें।"
-            )
+            homeSliderStatus?.text =
+    "${homeSliderUris.size} फोटो चुनी गई हैं।"
+
+toast(
+    "${homeSliderUris.size} फोटो चुनी गईं।"
+)
+
         } else {
             toast("कोई फोटो नहीं चुनी गई")
         }
