@@ -888,23 +888,23 @@ if (!user.isEmailVerified) {
                     .get()
                     .addOnSuccessListener { likeDocument ->
 
-                        isLiked = likeDocument.exists()
+    isLiked = likeDocument.exists()
 
-                        likeButton.text = if (isLiked) 
-                        likeButton.backgroundTintList =
-    android.content.res.ColorStateList.valueOf(
-        if (isLiked) {
-            Color.rgb(125, 211, 252)
-        } else {
-            Color.WHITE
-        }
-    )
-                        {
-                            "👍 Liked $likeCount"
-                        } else {
-                            "👍 Like $likeCount"
-                        }
-                    }
+    likeButton.text = if (isLiked) {
+        "👍 Liked $likeCount"
+    } else {
+        "👍 Like $likeCount"
+    }
+
+    likeButton.backgroundTintList =
+        android.content.res.ColorStateList.valueOf(
+            if (isLiked) {
+                Color.rgb(125, 211, 252)
+            } else {
+                Color.WHITE
+            }
+        )
+}
             }
 
             // Like / Unlike
