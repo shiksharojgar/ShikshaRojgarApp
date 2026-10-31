@@ -867,7 +867,7 @@ if (!user.isEmailVerified) {
                 .addOnSuccessListener { snapshot ->
 
                     shareCount = snapshot.size().toLong()
-                    shareButton.text = "↗️ Share $shareCount"
+                    shareButton.text = "Share ↗️ $shareCount"
                 }
                 .addOnFailureListener { error ->
                     android.util.Log.w(
@@ -890,7 +890,17 @@ if (!user.isEmailVerified) {
 
     isLiked = likeDocument.exists()
 
-    likeButton.text = if (isLiked) {
+    likeButton.text = if (isLiked) 
+    likeButton.backgroundTintList =
+    android.content.res.ColorStateList.valueOf(
+        if (isLiked) {
+            Color.rgb(125, 211, 252)
+        } else {
+            Color.WHITE
+        }
+    )
+                        
+                        {
         "👍 Liked $likeCount"
     } else {
         "👍 Like $likeCount"
@@ -956,7 +966,7 @@ if (!user.isEmailVerified) {
 
                     if (success) {
                         shareCount = count
-                        shareButton.text = "↗️ Share $shareCount"
+                        shareButton.text = ""Share ↗️ $shareCount"
                     } else {
                         android.util.Log.w(
                             "GroupActivity",
