@@ -76,6 +76,25 @@ private fun showSchoolSliderImage(index: Int) {
         }
     }.start()
 }
+private fun showCategorySlide(index: Int) {
+    val total = if (customSliderImageUrls.isNotEmpty()) {
+        customSliderImageUrls.size
+    } else {
+        sliderImages.size
+    }
+
+    if (total == 0) return
+
+    sliderIndex = ((index % total) + total) % total
+
+    if (customSliderImageUrls.isNotEmpty()) {
+        showSchoolSliderImage(sliderIndex)
+    } else {
+        categoryBannerImageView.setImageResource(
+            sliderImages[sliderIndex]
+        )
+    }
+}
 
 private val sliderImages = intArrayOf(
     R.drawable.home_teacher,
@@ -90,13 +109,9 @@ private val sliderRunnable = object : Runnable {
     customSliderImageUrls.isEmpty()
 ) return
 
-        sliderIndex = (sliderIndex + 1) % sliderImages.size
+        showCategorySlide(sliderIndex + 1)
 
-        val image = findViewById<android.widget.ImageView>(
-            R.id.categoryBannerImage
-        )
-
-        if (image != null) {
+         {
             if (customSliderImageUrls.isNotEmpty()) {
     showSchoolSliderImage(sliderIndex)
 } else {
