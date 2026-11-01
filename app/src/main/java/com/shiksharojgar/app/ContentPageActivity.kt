@@ -1023,7 +1023,7 @@ likeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 likeButton.text =
-    if (liked) "🩵 Liked" else "🧡 Like करें"
+    if (currentLiked) "🩵 Liked" else "🧡 Like करें"
 
                 likeButton.setTextColor(
     if (currentLiked) Color.rgb(2, 132, 199)
