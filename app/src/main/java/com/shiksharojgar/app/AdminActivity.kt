@@ -3575,6 +3575,30 @@ val localContactNames =
         .create()
 
     dialog.show()
+    fun showUserReadError(
+    collectionName: String,
+    error: Exception
+) {
+    val errorCode =
+        (error as? com.google.firebase.firestore.FirebaseFirestoreException)
+            ?.code
+            ?.name ?: error.javaClass.simpleName
+
+    val errorMessage =
+        error.message ?: "कोई अतिरिक्त जानकारी उपलब्ध नहीं"
+
+    summary.text =
+        "❌ यूजर डेटा पढ़ने में समस्या\n\n" +
+        "Collection: $collectionName\n\n" +
+        "Error Code: $errorCode\n\n" +
+        "विवरण: $errorMessage"
+
+    android.util.Log.e(
+        "UserManagement",
+        "Collection: $collectionName | Error: $errorCode",
+        error
+    )
+}
 
     summary.text =
         "ऐप इंस्टॉलेशन, Login और प्रोफाइल रिकॉर्ड पढ़े जा रहे हैं..."
@@ -3875,36 +3899,28 @@ card.addView(
                                     }
                                 }
                                 .addOnFailureListener { error ->
-                                    if (!isFinishing && !isDestroyed) {
-                                        summary.text =
-                                            "चैनल फॉलो रिकॉर्ड नहीं पढ़ सके:\n" +
-                                            (error.message ?: "अनुमति/नेटवर्क समस्या")
-                                    }
-                                }
+    if (!isFinishing && !isDestroyed) {
+        showUserReadError("group_profiles", error)
+    }
+}
                         }
                         .addOnFailureListener { error ->
-                            if (!isFinishing && !isDestroyed) {
-                                summary.text =
-                                    "Login रिकॉर्ड नहीं पढ़ सके:\n" +
-                                    (error.message ?: "अनुमति/नेटवर्क समस्या")
-                            }
-                        }
+    if (!isFinishing && !isDestroyed) {
+        showUserReadError("app_installs", error)
+    }
+}
                 }
                 .addOnFailureListener { error ->
-                    if (!isFinishing && !isDestroyed) {
-                        summary.text =
-                            "ऐप इंस्टॉलेशन रिकॉर्ड नहीं पढ़ सके:\n" +
-                            (error.message ?: "अनुमति/नेटवर्क समस्या")
-                    }
-                }
+    if (!isFinishing && !isDestroyed) {
+        showUserReadError("app_install_accounts", error)
+    }
+}
         }
         .addOnFailureListener { error ->
-            if (!isFinishing && !isDestroyed) {
-                summary.text =
-                    "यूजर प्रोफाइल नहीं पढ़ सके:\n" +
-                    (error.message ?: "अनुमति/नेटवर्क समस्या")
-            }
-        }
+    if (!isFinishing && !isDestroyed) {
+        showUserReadError("channel_followers", error)
+    }
+}
 }
 
 
