@@ -1064,15 +1064,7 @@ LinearLayout.LayoutParams(
                         it.url.isNotBlank()
                     }
                     .forEach { postButton ->
-categoryNoticeShareButton.text =
-    "Share ↗️ $displayedShareCount"
 
-noticeButtonRow.addView(
-    categoryNoticeShareButton,
-    LinearLayout.LayoutParams(-2, dp(42)).apply {
-        marginEnd = dp(8)
-    }
-)
                         noticeButtonRow.addView(
     TextView(this).apply {
         text = postButton.label
@@ -1140,7 +1132,7 @@ noticeButtonRow.addView(
 var currentLiked = false
 var currentLikeCount = doc.getLong("likeCount") ?: 0L
 
-val noticeLikeButton = val categoryNoticeShareButton =
+val noticeLikeButton =
     TextView(this@NoticeActivity).apply {
     text = "♥️"
     textSize = 20f
@@ -1168,7 +1160,7 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
                 if (liked) "❤️" else "♥️"
 
             noticeLikeButton.setTextColor(
-                if (liked) Color.RED else Color.GRAY
+                if (liked) Color.rgb(125, 211, 252) else Color.GRAY
             )
 
             noticeLikeButton.isEnabled = true
@@ -1322,59 +1314,59 @@ append(doc.id)
                         )
                     }
 
-                noticeButtonRow.addView(
-                    TextView(this@NoticeActivity).apply {
+                val categoryNoticeShareButton =
+    TextView(this@NoticeActivity).apply {
 
-                        text = "Share ↗️ $displayedShareCount"
-                        textSize = 15f
-                        typeface = Typeface.DEFAULT_BOLD
-                        gravity = Gravity.CENTER
+        text = "Share ↗️ $displayedShareCount"
+        textSize = 15f
+        typeface = Typeface.DEFAULT_BOLD
+        gravity = Gravity.CENTER
 
-                        setTextColor(Color.rgb(7, 89, 133))
+        setTextColor(Color.rgb(7, 89, 133))
 
-                        setPadding(
-                            dp(12),
-                            dp(12),
-                            dp(12),
-                            dp(12)
-                        )
+        setPadding(
+            dp(12),
+            dp(12),
+            dp(12),
+            dp(12)
+        )
 
-                                                setOnClickListener {
+        setOnClickListener {
 
-                            // हर Share टैप पर Share Count बढ़ाएँ।
-                                                        AnalyticsTracker.recordCategoryPostShare(
-                                this@NoticeActivity,
-                                doc.id
-                            )
+            // हर Share टैप पर Share Count बढ़ाएँ।
+            AnalyticsTracker.recordCategoryPostShare(
+                this@NoticeActivity,
+                doc.id
+            )
 
-                            displayedShareCount++
-categoryNoticeShareButton.text =
-    "Share ↗️ $displayedShareCount"
+            displayedShareCount++
+            categoryNoticeShareButton.text =
+                "Share ↗️ $displayedShareCount"
 
-                            try {
-                                ShareHelper.shareImageOrText(
-    this@NoticeActivity,
-    "Shiksha Rojgar Notice / Update",
-    categoryNoticeShareText,
-    imageUrl,
-    "Share Notice / Update"
-)
-                            } catch (_: Exception) {
-                                Toast.makeText(
-                                    this@NoticeActivity,
-                                    "Notice शेयर नहीं हो सका।",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                                       },
-                    LinearLayout.LayoutParams(
-                        -2,
-                        dp(42)
-                    ).apply {
-                        marginEnd = dp(8)
-                    }
+            try {
+                ShareHelper.shareImageOrText(
+                    this@NoticeActivity,
+                    "Shiksha Rojgar Notice / Update",
+                    categoryNoticeShareText,
+                    imageUrl,
+                    "Share Notice / Update"
                 )
+            } catch (_: Exception) {
+                Toast.makeText(
+                    this@NoticeActivity,
+                    "Notice शेयर नहीं हो सका।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+noticeButtonRow.addView(
+    categoryNoticeShareButton,
+    LinearLayout.LayoutParams(-2, dp(42)).apply {
+        marginEnd = dp(8)
+    }
+)
                 card.addView(
     noticeButtonScroll,
     LinearLayout.LayoutParams(
