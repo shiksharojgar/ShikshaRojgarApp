@@ -1064,7 +1064,15 @@ LinearLayout.LayoutParams(
                         it.url.isNotBlank()
                     }
                     .forEach { postButton ->
+categoryNoticeShareButton.text =
+    "Share ↗️ $displayedShareCount"
 
+noticeButtonRow.addView(
+    categoryNoticeShareButton,
+    LinearLayout.LayoutParams(-2, dp(42)).apply {
+        marginEnd = dp(8)
+    }
+)
                         noticeButtonRow.addView(
     TextView(this).apply {
         text = postButton.label
@@ -1132,7 +1140,8 @@ LinearLayout.LayoutParams(
 var currentLiked = false
 var currentLikeCount = doc.getLong("likeCount") ?: 0L
 
-val noticeLikeButton = TextView(this@NoticeActivity).apply {
+val noticeLikeButton = val categoryNoticeShareButton =
+    TextView(this@NoticeActivity).apply {
     text = "♥️"
     textSize = 20f
     gravity = Gravity.CENTER
@@ -1192,8 +1201,8 @@ noticeLikeButton.setOnClickListener {
                     if (currentLiked) "❤️" else "♥️"
 
                 noticeLikeButton.setTextColor(
-                    if (currentLiked) Color.RED else Color.GRAY
-                )
+    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
+)
 
                 noticeLikeCount.text =
                     currentLikeCount.toString()
@@ -1223,24 +1232,11 @@ noticeButtonRow.addView(
                 var displayedShareCount =
                     doc.getLong("shareCount") ?: 0L
 
-                val shareCountLabel =
-                    TextView(this@NoticeActivity).apply {
-                        text = "📤 साझा: $displayedShareCount"
-                        textSize = 13f
-                        setTextColor(Color.rgb(71, 85, 105))
-                        gravity = Gravity.CENTER
-                        setPadding(
-                            dp(8),
-                            dp(8),
-                            dp(8),
-                            dp(8)
-                        )
-                    }
+                
+                        
+                    
 
-                noticeButtonRow.addView(
-                    shareCountLabel,
-                    LinearLayout.LayoutParams(-2, dp(42))
-                )
+                
 
                                             
                          
@@ -1329,7 +1325,7 @@ append(doc.id)
                 noticeButtonRow.addView(
                     TextView(this@NoticeActivity).apply {
 
-                        text = "📤 Share ↗️"
+                        text = "Share ↗️ $displayedShareCount"
                         textSize = 15f
                         typeface = Typeface.DEFAULT_BOLD
                         gravity = Gravity.CENTER
@@ -1352,8 +1348,8 @@ append(doc.id)
                             )
 
                             displayedShareCount++
-                            shareCountLabel.text =
-                                "📤 साझा: $displayedShareCount"
+categoryNoticeShareButton.text =
+    "Share ↗️ $displayedShareCount"
 
                             try {
                                 ShareHelper.shareImageOrText(
