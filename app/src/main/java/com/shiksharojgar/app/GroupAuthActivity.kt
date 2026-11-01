@@ -413,6 +413,8 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
     private fun finishLogin(user: FirebaseUser) {
         user.getIdToken(true)
             .addOnSuccessListener {
+                AnalyticsTracker.appIdentity(this@GroupAuthActivity)
+                
                 setBusy(false)
                 openGroup()
             }
@@ -490,6 +492,7 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                                             mobile
                                         )
                                         .apply()
+AnalyticsTracker.appIdentity(this@GroupAuthActivity)
 
                                     setBusy(false)
                                     openGroup()
@@ -537,7 +540,7 @@ passwordToggleButton.text = "👁️ पासवर्ड दिखाएँ"
                                             mobile
                                         )
                                         .apply()
-
+AnalyticsTracker.appIdentity(this@GroupAuthActivity)
                                     setBusy(false)
                                     openGroup()
                                 }
