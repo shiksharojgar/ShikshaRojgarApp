@@ -99,6 +99,50 @@ function isAdmin() {
     }
 
     // =====================================================
+    // APP INSTALL LOGIN ACCOUNTS
+    // =====================================================
+
+    match /app_install_accounts/{linkId} {
+
+      // Login लिंक रिकॉर्ड केवल Admin पढ़ सकता है।
+      allow read: if isAdmin();
+
+      // उपयोगकर्ता केवल अपने UID का Login लिंक बना सकता है।
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          "installId",
+          "accountUid",
+          "lastLoginAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "installId",
+          "accountUid",
+          "lastLoginAt"
+        ])
+        && request.resource.data.installId is string
+        && request.resource.data.installId.size() > 0
+        && request.resource.data.accountUid == request.auth.uid
+        && linkId ==
+          request.resource.data.installId + "_" + request.auth.uid
+        && request.resource.data.lastLoginAt is int;
+
+      // उपयोगकर्ता केवल अपने Login का समय अपडेट कर सकता है।
+      allow update: if signedIn()
+        && resource.data.accountUid == request.auth.uid
+        && request.resource.data.accountUid == resource.data.accountUid
+        && request.resource.data.installId == resource.data.installId
+        && linkId ==
+          resource.data.installId + "_" + request.auth.uid
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(["lastLoginAt"])
+        && request.resource.data.lastLoginAt is int;
+
+      // Login लिंक को उपयोगकर्ता स्वयं डिलीट नहीं कर सकता।
+      allow delete: if isAdmin();
+    }
+
+    // =====================================================
     // CHANNEL CONFIG
     // =====================================================
 
