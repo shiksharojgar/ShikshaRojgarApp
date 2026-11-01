@@ -2878,7 +2878,7 @@ HomeCategory(
 
 HomeCategory(
     "important_information",
-    "Implementation Information",
+"Important Information",
     "📌",
     "",
     "important_information",
