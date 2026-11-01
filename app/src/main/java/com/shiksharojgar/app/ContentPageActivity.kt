@@ -972,18 +972,11 @@ val likeCountLabel = TextView(this).apply {
 }
 
 val shareButton = TextView(this).apply {
-    text = "📤 Share ↗️"
+    text = "Share ↗️ $displayedShareCount"
     textSize = 14f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.rgb(7, 89, 133))
     setPadding(dp(8), dp(6), dp(4), dp(6))
-}
-
-val shareCountLabel = TextView(this).apply {
-    text = displayedShareCount.toString()
-    textSize = 14f
-    setTextColor(Color.DKGRAY)
-    setPadding(dp(3), 0, dp(6), 0)
 }
 
 // पहले से Like की स्थिति जाँचें।
@@ -998,8 +991,8 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
                 if (liked) "❤️" else "♥️"
 
             likeButton.setTextColor(
-                if (liked) Color.RED else Color.GRAY
-            )
+    if (liked) Color.rgb(125, 211, 252) else Color.GRAY
+)
 
             likeButton.isEnabled = true
         }
@@ -1032,8 +1025,8 @@ likeButton.setOnClickListener {
                     if (currentLiked) "❤️" else "♥️"
 
                 likeButton.setTextColor(
-                    if (currentLiked) Color.RED else Color.GRAY
-                )
+    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
+)
 
                 likeCountLabel.text =
                     currentLikeCount.toString()
@@ -1145,8 +1138,8 @@ shareButton.setOnClickListener {
 
     displayedShareCount++
 
-    shareCountLabel.text =
-        displayedShareCount.toString()
+shareButton.text =
+    "Share ↗️ $displayedShareCount"
 
     try {
         ShareHelper.shareImageOrText(
@@ -1164,12 +1157,10 @@ shareButton.setOnClickListener {
         ).show()
     }
 }
-
 // सभी बटन एक ही लाइन में
 actionRow.addView(likeButton)
 actionRow.addView(likeCountLabel)
 actionRow.addView(shareButton)
-actionRow.addView(shareCountLabel)
 
 card.addView(actionRow)
 
