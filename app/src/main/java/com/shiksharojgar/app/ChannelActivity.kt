@@ -3099,7 +3099,7 @@ private fun sharePost(
     runOnUiThread {
 
         shareButton.text =
-            "↗ Share ${shareOverrides[p.id]}"
+    "Share ↗️ ${shareOverrides[p.id]}"
     }
 
     AnalyticsTracker.uniquePostShare(
