@@ -483,21 +483,19 @@ categoryPageTitleView = TextView(this).apply {
 
             
         // 1. पूरी स्क्रीन चौड़ाई वाला HD इमेज स्लाइडर
-
 val banner = FrameLayout(this).apply {
     background = GradientDrawable().apply {
         setColor(Color.WHITE)
         cornerRadius = dp(16).toFloat()
     }
     clipToOutline = true
-    setPadding(0, dp(4), 0, dp(8))
 }
 
 categoryBannerImageView = ImageView(this).apply {
     id = R.id.categoryBannerImage
     setImageResource(sliderImages[0])
     scaleType = ImageView.ScaleType.FIT_CENTER
-    adjustViewBounds = true
+    adjustViewBounds = false
     contentDescription = "कैटेगरी बैनर फोटो"
 }
 
@@ -505,7 +503,7 @@ banner.addView(
     categoryBannerImageView,
     FrameLayout.LayoutParams(
         FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.WRAP_CONTENT
+        FrameLayout.LayoutParams.MATCH_PARENT
     )
 )
 
