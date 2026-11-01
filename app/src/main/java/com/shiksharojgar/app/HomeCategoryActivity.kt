@@ -1244,8 +1244,10 @@ val likeCountView = TextView(this).apply {
     setPadding(dp(2), 0, dp(12), 0)
 }
 
+var displayedShareCount = post.shareCount
+
 val shareButton = TextView(this).apply {
-    text = "Share ↗️ ${post.shareCount}"
+    text = "Share ↗️ $displayedShareCount"
     textSize = 14f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.rgb(25, 100, 180))
@@ -1340,11 +1342,10 @@ shareButton.setOnClickListener {
             if (!isFinishing && !isDestroyed) {
 
                 if (success) {
-                    val updatedShareCount =
-    (post.shareCount + 1L)
+                    displayedShareCount++
 
 shareButton.text =
-    "Share ↗️ $updatedShareCount"
+    "Share ↗️ $displayedShareCount"
                 } else {
                     Toast.makeText(
                         this@HomeCategoryActivity,
