@@ -1231,9 +1231,10 @@ var currentLiked = false
 var currentLikeCount = post.likeCount
 
 val likeButton = TextView(this).apply {
-    text = "♥️"
-    textSize = 21f
-    setTextColor(Color.GRAY)
+    text = "🧡 Like करें"
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(230, 126, 34))
     setPadding(dp(6), dp(4), dp(4), dp(4))
 }
 
@@ -1259,10 +1260,13 @@ CategoryPostRepository.isLiked(post.id) { liked ->
     runOnUiThread {
         if (!isFinishing && !isDestroyed) {
             currentLiked = liked
-            likeButton.text = if (liked) "🩵" else "❤️"
-            likeButton.setTextColor(
-                if (liked) Color.rgb(125, 211, 252) else Color.GRAY
-            )
+            likeButton.text =
+    if (liked) "🩵 Liked" else "🧡 Like करें"
+
+likeButton.setTextColor(
+    if (liked) Color.rgb(2, 132, 199)
+    else Color.rgb(230, 126, 34)
+)
         }
     }
 }
@@ -1290,10 +1294,11 @@ likeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 likeButton.text =
-    if (currentLiked) "🩵" else "❤️"
+    if (currentLiked) "🩵 Liked" else "🧡 Like करें"
 
                 likeButton.setTextColor(
-                    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
+                    if (liked) Color.rgb(2, 132, 199)
+    else Color.rgb(230, 126, 34)
                 )
 
                 likeCountView.text =
