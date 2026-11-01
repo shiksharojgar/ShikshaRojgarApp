@@ -14,29 +14,24 @@ object AnalyticsTracker {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    
-
 fun appIdentity(context: Context) {
     val prefs = context.getSharedPreferences(
         "sr_analytics",
         Context.MODE_PRIVATE
     )
 
-    // एक इंस्टॉलेशन की स्थायी ID
-    var installId = prefs.getString("install_id", null)
-
-    if (installId.isNullOrBlank()) {
-        installId = java.util.UUID.randomUUID().toString()
-        prefs.edit().putString("install_id", installId).apply()
-    }
-
-    val stableInstallId = installId
+    // एक फोन/इंस्टॉलेशन की स्थायी ID
+    val stableInstallId = prefs.getString("install_id", null)
+        ?.takeIf { it.isNotBlank() }
+        ?: java.util.UUID.randomUUID().toString().also {
+            prefs.edit().putString("install_id", it).apply()
+        }
 
     ChannelRepository.ensureSignedIn { connected ->
         if (!connected) {
             android.util.Log.w(
                 "AnalyticsTracker",
-                "Install count: Firebase sign-in failed"
+                "Firebase sign-in failed"
             )
             return@ensureSignedIn
         }
@@ -45,20 +40,15 @@ fun appIdentity(context: Context) {
             ?: return@ensureSignedIn
 
         val uid = currentUser.uid
-
-        // Anonymous UID को Login अकाउंट न मानें।
-        val accountUid = if (!currentUser.isAnonymous) {
-            currentUser.uid
-        } else {
-            null
-        }
+        val isRealLogin = !currentUser.isAnonymous
+        val now = System.currentTimeMillis()
 
         val installRef = db.collection("app_installs")
             .document(stableInstallId)
 
         val configRef = db.document("channel_config/main")
-        val now = System.currentTimeMillis()
 
+        // पहला रिकॉर्ड: इस फोन पर ऐप कब पहली बार खुला।
         db.runTransaction { transaction ->
             val installSnapshot = transaction.get(installRef)
 
@@ -67,43 +57,63 @@ fun appIdentity(context: Context) {
                 val currentCount =
                     configSnapshot.getLong("totalAppUsers") ?: 0L
 
-                val installData = hashMapOf<String, Any>(
-                    "installId" to stableInstallId,
-                    "uid" to uid,
-                    "firstSeenAt" to now,
-                    "lastSeenAt" to now
+                transaction.set(
+                    installRef,
+                    mapOf(
+                        "installId" to stableInstallId,
+                        "uid" to uid,
+                        "firstSeenAt" to now,
+                        "lastSeenAt" to now
+                    )
                 )
-
-                if (accountUid != null) {
-                    installData["accountUid"] = accountUid
-                }
-
-                transaction.set(installRef, installData)
 
                 transaction.set(
                     configRef,
-                    mapOf("totalAppUsers" to currentCount + 1L),
+                    mapOf(
+                        "totalAppUsers" to currentCount + 1L
+                    ),
                     com.google.firebase.firestore.SetOptions.merge()
                 )
             } else {
-                val updates = hashMapOf<String, Any>(
-                    "lastSeenAt" to now
+                // पुराने UID और पहली बार खुलने का समय सुरक्षित रखें।
+                transaction.update(
+                    installRef,
+                    "lastSeenAt",
+                    now
                 )
-
-                if (accountUid != null) {
-                    updates["accountUid"] = accountUid
-                }
-
-                transaction.update(installRef, updates)
             }
 
             null
         }.addOnFailureListener { error ->
             android.util.Log.e(
                 "AnalyticsTracker",
-                "Install count update failed",
+                "Install record update failed",
                 error
             )
+        }
+
+        // दूसरा रिकॉर्ड: वास्तविक Login अकाउंट की जानकारी।
+        // Anonymous/Guest अकाउंट यहाँ दर्ज नहीं होगा।
+        if (isRealLogin) {
+            val linkId = "${stableInstallId}_$uid"
+
+            val accountRef = db.collection("app_install_accounts")
+                .document(linkId)
+
+            accountRef.set(
+                mapOf(
+                    "installId" to stableInstallId,
+                    "accountUid" to uid,
+                    "lastLoginAt" to now
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            ).addOnFailureListener { error ->
+                android.util.Log.e(
+                    "AnalyticsTracker",
+                    "Login link update failed",
+                    error
+                )
+            }
         }
 
         // दैनिक सक्रियता रिकॉर्ड
@@ -121,10 +131,16 @@ fun appIdentity(context: Context) {
             mapOf(
                 "uid" to uid,
                 "day" to day,
-                "lastSeenAt" to System.currentTimeMillis()
+                "lastSeenAt" to now
             ),
             com.google.firebase.firestore.SetOptions.merge()
-        )
+        ).addOnFailureListener { error ->
+            android.util.Log.e(
+                "AnalyticsTracker",
+                "Daily usage update failed",
+                error
+            )
+        }
     }
 }
 
