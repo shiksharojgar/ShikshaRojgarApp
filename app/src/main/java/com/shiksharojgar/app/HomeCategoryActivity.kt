@@ -184,9 +184,46 @@ private fun loadCategoryPageSettings(
     snapshot.getString("sliderImage3").orEmpty()
 ).filter { it.startsWith("https://") }
 
-if (categoryId.equals("school", ignoreCase = true) &&
-    customSliderImageUrls.isNotEmpty()
-) {
+if (customSliderImageUrls.isNotEmpty()) {
+    sliderHandler.removeCallbacks(sliderRunnable)
+    sliderIndex = 0
+    showCategorySlide(sliderIndex)
+    sliderHandler.postDelayed(sliderRunnable, 4500L)
+
+} else if (imageUrl.startsWith("https://")) {
+
+    sliderHandler.removeCallbacks(sliderRunnable)
+
+    Thread {
+        try {
+            val connection = URL(imageUrl).openConnection()
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+
+            val bitmap = connection.getInputStream().use {
+                BitmapFactory.decodeStream(it)
+            }
+
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed && bitmap != null) {
+                    categoryBannerImageView.setImageBitmap(bitmap)
+                }
+            }
+        } catch (_: Exception) {
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(
+                        this,
+                        "कैटेगरी की फोटो लोड नहीं हुई। फोटो URL जाँचें।",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }.start()
+}
+            
+            {
     sliderHandler.removeCallbacks(sliderRunnable)
     sliderIndex = 0
     showSchoolSliderImage(sliderIndex)
