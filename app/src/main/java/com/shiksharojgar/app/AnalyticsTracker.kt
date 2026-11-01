@@ -15,14 +15,14 @@ object AnalyticsTracker {
     private val auth = FirebaseAuth.getInstance()
 
     
+
 fun appIdentity(context: Context) {
     val prefs = context.getSharedPreferences(
         "sr_analytics",
         Context.MODE_PRIVATE
     )
 
-    // एक इंस्टॉलेशन के लिए स्थायी ID।
-    // ऐप अपडेट पर यही ID बनी रहेगी।
+    // एक इंस्टॉलेशन की स्थायी ID
     var installId = prefs.getString("install_id", null)
 
     if (installId.isNullOrBlank()) {
@@ -32,7 +32,6 @@ fun appIdentity(context: Context) {
 
     val stableInstallId = installId
 
-    // Firebase Auth तैयार होने के बाद ही रिकॉर्ड करें।
     ChannelRepository.ensureSignedIn { connected ->
         if (!connected) {
             android.util.Log.w(
@@ -42,7 +41,17 @@ fun appIdentity(context: Context) {
             return@ensureSignedIn
         }
 
-        val uid = auth.currentUser?.uid ?: return@ensureSignedIn
+        val currentUser = auth.currentUser
+            ?: return@ensureSignedIn
+
+        val uid = currentUser.uid
+
+        // Anonymous UID को Login अकाउंट न मानें।
+        val accountUid = if (!currentUser.isAnonymous) {
+            currentUser.uid
+        } else {
+            null
+        }
 
         val installRef = db.collection("app_installs")
             .document(stableInstallId)
@@ -58,15 +67,18 @@ fun appIdentity(context: Context) {
                 val currentCount =
                     configSnapshot.getLong("totalAppUsers") ?: 0L
 
-                transaction.set(
-                    installRef,
-                    mapOf(
-                        "installId" to stableInstallId,
-                        "uid" to uid,
-                        "firstSeenAt" to now,
-                        "lastSeenAt" to now
-                    )
+                val installData = hashMapOf<String, Any>(
+                    "installId" to stableInstallId,
+                    "uid" to uid,
+                    "firstSeenAt" to now,
+                    "lastSeenAt" to now
                 )
+
+                if (accountUid != null) {
+                    installData["accountUid"] = accountUid
+                }
+
+                transaction.set(installRef, installData)
 
                 transaction.set(
                     configRef,
@@ -74,11 +86,15 @@ fun appIdentity(context: Context) {
                     com.google.firebase.firestore.SetOptions.merge()
                 )
             } else {
-                transaction.update(
-                    installRef,
-                    "lastSeenAt",
-                    now
+                val updates = hashMapOf<String, Any>(
+                    "lastSeenAt" to now
                 )
+
+                if (accountUid != null) {
+                    updates["accountUid"] = accountUid
+                }
+
+                transaction.update(installRef, updates)
             }
 
             null
@@ -89,7 +105,8 @@ fun appIdentity(context: Context) {
                 error
             )
         }
-        
+
+        // दैनिक सक्रियता रिकॉर्ड
         val day = SimpleDateFormat(
             "yyyy-MM-dd",
             Locale.US
@@ -107,19 +124,10 @@ fun appIdentity(context: Context) {
                 "lastSeenAt" to System.currentTimeMillis()
             ),
             com.google.firebase.firestore.SetOptions.merge()
-        ).addOnSuccessListener {
-            dayRef.get().addOnSuccessListener { daySnapshot ->
-                if (!daySnapshot.exists()) {
-                    db.document("channel_config/main").update(
-                        "totalActiveUserDays",
-                        com.google.firebase.firestore.FieldValue.increment(1)
-                    )
-                }
-            }
-        }
-        
+        )
     }
 }
+
 
 
     fun appOpen(context: Context) {
