@@ -3664,7 +3664,7 @@ val localContactNames =
                                         }
 
                                     val registeredCount =
-    profiles.size
+    profiles.size()
 
                                     val followerCount =
                                         followerIds.count {
