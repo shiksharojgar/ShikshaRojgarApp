@@ -568,10 +568,7 @@ listLayout.addView(
     LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply {
-        marginStart = -dp(16)
-        marginEnd = -dp(16)
-    }
+    )
 )
 
 sliderHandler.removeCallbacks(sliderRunnable)
