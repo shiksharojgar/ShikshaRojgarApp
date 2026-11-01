@@ -1134,13 +1134,14 @@ var currentLikeCount = doc.getLong("likeCount") ?: 0L
 
 val noticeLikeButton =
     TextView(this@NoticeActivity).apply {
-    text = "♥️"
-    textSize = 20f
-    gravity = Gravity.CENTER
-    setTextColor(Color.GRAY)
-    setPadding(dp(8), dp(8), dp(4), dp(8))
-    isEnabled = false
-}
+        text = "🧡 Like करें"
+        textSize = 13f
+        gravity = Gravity.CENTER
+        typeface = Typeface.DEFAULT_BOLD
+        setTextColor(Color.rgb(230, 126, 34))
+        setPadding(dp(8), dp(8), dp(4), dp(8))
+        isEnabled = false
+    }
 
 val noticeLikeCount = TextView(this@NoticeActivity).apply {
     text = currentLikeCount.toString()
@@ -1157,11 +1158,12 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
             currentLiked = liked
 
             noticeLikeButton.text =
-    if (liked) "🩵" else "❤️"
+    if (liked) "🩵 Liked" else "🧡 Like करें"
 
             noticeLikeButton.setTextColor(
-                if (liked) Color.rgb(125, 211, 252) else Color.GRAY
-            )
+    if (currentLiked) Color.rgb(2, 132, 199)
+    else Color.rgb(230, 126, 34)
+)
 
             noticeLikeButton.isEnabled = true
         }
