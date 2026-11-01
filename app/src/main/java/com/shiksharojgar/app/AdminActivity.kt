@@ -3,6 +3,9 @@ package com.shiksharojgar.app
 import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
+import android.Manifest
+import android.content.pm.PackageManager
+import android.provider.ContactsContract
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.Gravity
@@ -28,6 +31,21 @@ class AdminActivity : AppCompatActivity() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+    private var contactsPermissionAsked = false
+
+private val requestContactsPermission =
+    registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+
+        if (granted) {
+            toast("Contacts की अनुमति मिल गई")
+        } else {
+            toast("Contacts की अनुमति नहीं मिली। मोबाइल नंबर ही दिखेंगे।")
+        }
+
+        showUserManagementDialog()
+    }
 
     private var imageUri: Uri? = null
     private var fileUri: Uri? = null
@@ -3443,6 +3461,59 @@ homeContent.addView(
         loadAdminPosts()
     }
 
+private fun loadLocalContactNames(): Map<String, String> {
+
+    val contactMap = mutableMapOf<String, String>()
+
+    try {
+        val cursor = contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            null,
+            null,
+            null
+        )
+
+        cursor?.use {
+            val nameIndex = it.getColumnIndex(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+            )
+
+            val numberIndex = it.getColumnIndex(
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            )
+
+            while (it.moveToNext()) {
+
+                val name = it.getString(nameIndex).orEmpty()
+                val number = it.getString(numberIndex).orEmpty()
+
+                val normalizedNumber =
+                    number.filter { ch -> ch.isDigit() }.takeLast(10)
+
+                if (
+                    normalizedNumber.length == 10 &&
+                    name.isNotBlank() &&
+                    !contactMap.containsKey(normalizedNumber)
+                ) {
+                    contactMap[normalizedNumber] = name
+                }
+            }
+        }
+
+    } catch (error: Exception) {
+        android.util.Log.e(
+            "AdminContacts",
+            "Contacts read failed",
+            error
+        )
+    }
+
+    return contactMap
+}
 
 private fun showUserManagementDialog() {
 
@@ -3450,7 +3521,29 @@ private fun showUserManagementDialog() {
         toast("पहले Admin Login करें")
         return
     }
+if (
+    checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
+    PackageManager.PERMISSION_GRANTED
+) {
+    if (!contactsPermissionAsked) {
+        contactsPermissionAsked = true
+        requestContactsPermission.launch(
+            Manifest.permission.READ_CONTACTS
+        )
+        return
+    }
+}
 
+val localContactNames =
+    if (
+        checkSelfPermission(Manifest.permission.READ_CONTACTS) ==
+        PackageManager.PERMISSION_GRANTED
+    ) {
+        loadLocalContactNames()
+    } else {
+        emptyMap()
+    }
+    
     val root = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         setPadding(dp(16), dp(12), dp(16), dp(12))
@@ -3694,12 +3787,23 @@ private fun showUserManagementDialog() {
                                             }
                                         )
 
-                                        card.addView(
-                                            TextView(this).apply {
-                                                text = "📱 मोबाइल: $mobile"
-                                                textSize = 13f
-                                            }
-                                        )
+                                        val normalizedMobile =
+    mobile.filter { it.isDigit() }.takeLast(10)
+
+val savedContactName =
+    localContactNames[normalizedMobile]
+
+card.addView(
+    TextView(this).apply {
+        text = if (!savedContactName.isNullOrBlank()) {
+            "📱 $savedContactName ($mobile)"
+        } else {
+            "📱 $mobile"
+        }
+        textSize = 13f
+        setTextColor(Color.rgb(25, 90, 130))
+    }
+)
 
                                         card.addView(
                                             TextView(this).apply {
