@@ -1157,7 +1157,7 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
             currentLiked = liked
 
             noticeLikeButton.text =
-                if (liked) "❤️" else "♥️"
+    if (liked) "🩵" else "❤️"
 
             noticeLikeButton.setTextColor(
                 if (liked) Color.rgb(125, 211, 252) else Color.GRAY
@@ -1190,7 +1190,7 @@ noticeLikeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 noticeLikeButton.text =
-                    if (currentLiked) "❤️" else "♥️"
+    if (currentLiked) "🩵" else "❤️"
 
                 noticeLikeButton.setTextColor(
     if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
