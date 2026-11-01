@@ -3664,7 +3664,7 @@ val localContactNames =
                                         }
 
                                     val registeredCount =
-                                        profiles.size()
+    profiles.size
 
                                     val followerCount =
                                         followerIds.count {
@@ -3672,7 +3672,7 @@ val localContactNames =
                                         }
 
                                     summary.text =
-                                        "📱 कुल ऐप इंस्टॉलेशन: ${installDocs.size()}\n\n" +
+                                        "📱 कुल ऐप इंस्टॉलेशन: ${installDocs.size}\n\n" +
                                         "🔐 Login वाले इंस्टॉलेशन: $loginCount\n\n" +
                                         "👤 Guest इंस्टॉलेशन: $guestCount\n\n" +
                                         "🟢 पिछले 24 घंटे में सक्रिय: $active24Hours\n\n" +
