@@ -2778,7 +2778,7 @@ homeContent.addView(
             adminActionButton("📌 महत्वपूर्ण सूचना") {
                 editHomePage(
                     "important_information",
-                    "Implementation Information"
+                    "Important Information"
                 )
             },
             LinearLayout.LayoutParams(
