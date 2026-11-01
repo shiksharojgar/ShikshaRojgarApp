@@ -1245,18 +1245,11 @@ val likeCountView = TextView(this).apply {
 }
 
 val shareButton = TextView(this).apply {
-    text = "Share ↗"
+    text = "Share ↗️ ${post.shareCount}"
     textSize = 14f
     typeface = Typeface.DEFAULT_BOLD
     setTextColor(Color.rgb(25, 100, 180))
     setPadding(dp(8), dp(6), dp(4), dp(6))
-}
-
-val shareCountView = TextView(this).apply {
-    text = post.shareCount.toString()
-    textSize = 14f
-    setTextColor(Color.DKGRAY)
-    setPadding(dp(3), 0, dp(6), 0)
 }
 
 // पहले से Like किया है या नहीं, Firestore से जाँचें।
@@ -1266,7 +1259,7 @@ CategoryPostRepository.isLiked(post.id) { liked ->
             currentLiked = liked
             likeButton.text = if (liked) "❤️" else "♥️"
             likeButton.setTextColor(
-                if (liked) Color.RED else Color.GRAY
+                if (liked) Color.rgb(125, 211, 252) else Color.GRAY
             )
         }
     }
@@ -1298,7 +1291,7 @@ likeButton.setOnClickListener {
                     if (currentLiked) "❤️" else "♥️"
 
                 likeButton.setTextColor(
-                    if (currentLiked) Color.RED else Color.GRAY
+                    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
                 )
 
                 likeCountView.text =
@@ -1347,9 +1340,11 @@ shareButton.setOnClickListener {
             if (!isFinishing && !isDestroyed) {
 
                 if (success) {
-                    shareCountView.text =
-                        ((shareCountView.text.toString().toLongOrNull() ?: 0L) + 1L)
-                            .toString()
+                    val updatedShareCount =
+    (post.shareCount + 1L)
+
+shareButton.text =
+    "Share ↗️ $updatedShareCount"
                 } else {
                     Toast.makeText(
                         this@HomeCategoryActivity,
@@ -1379,7 +1374,6 @@ shareButton.setOnClickListener {
 actionRow.addView(likeButton)
 actionRow.addView(likeCountView)
 actionRow.addView(shareButton)
-actionRow.addView(shareCountView)
 
 card.addView(actionRow)
 
