@@ -1340,8 +1340,8 @@ append(doc.id)
             )
 
             displayedShareCount++
-            categoryNoticeShareButton.text =
-                "Share ↗️ $displayedShareCount"
+            this@apply.text =
+    "Share ↗️ $displayedShareCount"
 
             try {
                 ShareHelper.shareImageOrText(
