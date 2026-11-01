@@ -1259,7 +1259,7 @@ CategoryPostRepository.isLiked(post.id) { liked ->
     runOnUiThread {
         if (!isFinishing && !isDestroyed) {
             currentLiked = liked
-            likeButton.text = if (liked) "❤️" else "♥️"
+            likeButton.text = if (liked) "🩵" else "❤️"
             likeButton.setTextColor(
                 if (liked) Color.rgb(125, 211, 252) else Color.GRAY
             )
@@ -1290,7 +1290,7 @@ likeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 likeButton.text =
-                    if (currentLiked) "❤️" else "♥️"
+    if (currentLiked) "🩵" else "❤️"
 
                 likeButton.setTextColor(
                     if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
