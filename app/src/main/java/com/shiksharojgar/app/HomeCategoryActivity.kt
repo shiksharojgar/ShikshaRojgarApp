@@ -54,27 +54,13 @@ private fun showSchoolSliderImage(index: Int) {
         index.coerceIn(0, customSliderImageUrls.lastIndex)
     ]
 
-    if (!imageUrl.startsWith("https://")) return
+    if (imageUrl.isBlank()) return
 
-    Thread {
-        try {
-            val connection = URL(imageUrl).openConnection()
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-
-            val bitmap = connection.getInputStream().use {
-                BitmapFactory.decodeStream(it)
-            }
-
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed && bitmap != null) {
-                    categoryBannerImageView.setImageBitmap(bitmap)
-                }
-            }
-        } catch (_: Exception) {
-            // फोटो लोड न होने पर वर्तमान फोटो बनी रहेगी।
+    ChannelRepository.loadImage(imageUrl) { bitmap, error ->
+        if (!isFinishing && !isDestroyed && bitmap != null) {
+            categoryBannerImageView.setImageBitmap(bitmap)
         }
-    }.start()
+    }
 }
 private fun showCategorySlide(index: Int) {
     val total = if (customSliderImageUrls.isNotEmpty()) {
@@ -178,95 +164,36 @@ private fun loadCategoryPageSettings(
                 snapshot.getString("layoutStyle") ?: "standard"
 
             customBannerImageUrl = imageUrl
-            customSliderImageUrls = listOf(
+
+customSliderImageUrls = listOf(
     snapshot.getString("sliderImage1").orEmpty(),
     snapshot.getString("sliderImage2").orEmpty(),
     snapshot.getString("sliderImage3").orEmpty()
-).filter { it.startsWith("https://") }
+).filter {
+    it.startsWith("https://") ||
+    it.startsWith("firestore-media://")
+}
+
+sliderHandler.removeCallbacks(sliderRunnable)
+sliderIndex = 0
 
 if (customSliderImageUrls.isNotEmpty()) {
-    sliderHandler.removeCallbacks(sliderRunnable)
-    sliderIndex = 0
-    showCategorySlide(sliderIndex)
+
+    showCategorySlide(0)
     sliderHandler.postDelayed(sliderRunnable, 4500L)
 
-} else if (imageUrl.startsWith("https://")) {
-
-    sliderHandler.removeCallbacks(sliderRunnable)
-
-    Thread {
-        try {
-            val connection = URL(imageUrl).openConnection()
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-
-            val bitmap = connection.getInputStream().use {
-                BitmapFactory.decodeStream(it)
-            }
-
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed && bitmap != null) {
-                    categoryBannerImageView.setImageBitmap(bitmap)
-                }
-            }
-        } catch (_: Exception) {
-            runOnUiThread {
-                if (!isFinishing && !isDestroyed) {
-                    Toast.makeText(
-                        this,
-                        "कैटेगरी की फोटो लोड नहीं हुई। फोटो URL जाँचें।",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }.start()
-}
-            
-            {
-    sliderHandler.removeCallbacks(sliderRunnable)
-    sliderIndex = 0
-    showSchoolSliderImage(sliderIndex)
-    sliderHandler.postDelayed(sliderRunnable, 4500L)
-}
-if (
-    imageUrl.startsWith("https://") &&
-    !(
-        categoryId.equals("school", ignoreCase = true) &&
-        customSliderImageUrls.isNotEmpty()
-    )
+} else if (
+    imageUrl.startsWith("https://") ||
+    imageUrl.startsWith("firestore-media://")
 ) {
-                sliderHandler.removeCallbacks(sliderRunnable)
 
-                Thread {
-                    try {
-                        val connection = URL(imageUrl).openConnection()
-                        connection.connectTimeout = 10000
-                        connection.readTimeout = 10000
-
-                        val bitmap = connection.getInputStream().use {
-                            BitmapFactory.decodeStream(it)
-                        }
-
-                        runOnUiThread {
-                            if (!isFinishing && !isDestroyed && bitmap != null) {
-                                categoryBannerImageView.setImageBitmap(bitmap)
-                            }
-                        }
-                    } catch (_: Exception) {
-                        runOnUiThread {
-                            if (!isFinishing && !isDestroyed) {
-                                Toast.makeText(
-                                    this,
-                                    "कैटेगरी की फोटो लोड नहीं हुई। फोटो URL जाँचें।",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    }
-                }.start()
-            }
-
+    ChannelRepository.loadImage(imageUrl) { bitmap, error ->
+        if (!isFinishing && !isDestroyed && bitmap != null) {
+            categoryBannerImageView.setImageBitmap(bitmap)
+        }
+    }
+}
+            {
             loadCategoryPosts(categoryId)
         }
         .addOnFailureListener {
