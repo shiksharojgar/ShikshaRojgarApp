@@ -2583,19 +2583,19 @@ if (!likedState.containsKey(p.id)) {
                 like.text = "👍 Like $count"
 
                 like.setTextColor(
-                    if (liked) {
-                        Color.WHITE
-                    } else {
-                        Color.rgb(14, 91, 215)
-                    }
-                )
+    if (liked) {
+        Color.rgb(7, 89, 133)
+    } else {
+        Color.rgb(14, 91, 215)
+    }
+)
 
-                like.background =
-                    if (liked) {
-                        GradientFactory.gradient(
-                            "#2563EB",
-                            "#38BDF8"
-                        )
+like.background =
+    if (liked) {
+        GradientFactory.gradient(
+            "#7DD3FC",
+            "#BAE6FD"
+        )
                     } else {
                         android.graphics.drawable
                             .GradientDrawable()
@@ -2962,24 +2962,20 @@ private fun openImageViewer(
                 "👍 Like $newCount"
 
             likeButton.setTextColor(
-                if (target) {
-                    Color.WHITE
-                } else {
-                    Color.rgb(
-                        14,
-                        91,
-                        215
-                    )
-                }
-            )
+    if (target) {
+        Color.rgb(7, 89, 133)
+    } else {
+        Color.rgb(14, 91, 215)
+    }
+)
 
-            likeButton.background =
-                if (target) {
+likeButton.background =
+    if (target) {
 
-                    GradientFactory.gradient(
-                        "#2563EB",
-                        "#38BDF8"
-                    )
+        GradientFactory.gradient(
+            "#7DD3FC",
+            "#BAE6FD"
+        )
 
                 } else {
 
@@ -3026,7 +3022,7 @@ private fun openImageViewer(
 
                     likeButton.setTextColor(
                         if (currentLiked) {
-                            Color.WHITE
+                            Color.rgb(7, 89, 133)
                         } else {
                             Color.rgb(
                                 14,
@@ -3040,8 +3036,8 @@ private fun openImageViewer(
                         if (currentLiked) {
 
                             GradientFactory.gradient(
-                                "#2563EB",
-                                "#38BDF8"
+                                "#7DD3FC",
+                                "#BAE6FD"
                             )
 
                         } else {
