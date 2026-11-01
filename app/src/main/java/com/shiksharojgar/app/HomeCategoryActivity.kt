@@ -193,7 +193,7 @@ if (customSliderImageUrls.isNotEmpty()) {
         }
     }
 }
-            {
+            
             loadCategoryPosts(categoryId)
         }
         .addOnFailureListener {
