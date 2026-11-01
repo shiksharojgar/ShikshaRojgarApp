@@ -1297,9 +1297,9 @@ likeButton.setOnClickListener {
     if (currentLiked) "🩵 Liked" else "🧡 Like करें"
 
                 likeButton.setTextColor(
-                    if (liked) Color.rgb(2, 132, 199)
+    if (currentLiked) Color.rgb(2, 132, 199)
     else Color.rgb(230, 126, 34)
-                )
+)
 
                 likeCountView.text =
                     currentLikeCount.toString()
