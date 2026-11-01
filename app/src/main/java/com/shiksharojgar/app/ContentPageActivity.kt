@@ -958,9 +958,10 @@ var currentLikeCount = doc.getLong("likeCount") ?: 0L
 var displayedShareCount = doc.getLong("shareCount") ?: 0L
 
 val likeButton = TextView(this).apply {
-    text = "♥️"
-    textSize = 21f
-    setTextColor(Color.GRAY)
+    text = "🧡 Like करें"
+    textSize = 13f
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(230, 126, 34))
     setPadding(dp(6), dp(5), dp(4), dp(5))
 }
 
@@ -988,7 +989,7 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
             currentLiked = liked
 
             likeButton.text =
-    if (liked) "🩵" else "❤️"
+if (liked) "🩵 Liked" else "🧡 Like करें"
 
             likeButton.setTextColor(
     if (liked) Color.rgb(125, 211, 252) else Color.GRAY
@@ -1022,10 +1023,11 @@ likeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 likeButton.text =
-    if (currentLiked) "🩵" else "❤️"
+    if (liked) "🩵 Liked" else "🧡 Like करें"
 
                 likeButton.setTextColor(
-    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
+    if (currentLiked) Color.rgb(2, 132, 199)
+    else Color.rgb(230, 126, 34)
 )
 
                 likeCountLabel.text =
