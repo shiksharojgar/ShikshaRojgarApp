@@ -1131,25 +1131,29 @@ LinearLayout.LayoutParams(
                     // Like / Unlike और Like Count
 var currentLiked = false
 var currentLikeCount = doc.getLong("likeCount") ?: 0L
-
 val noticeLikeButton =
     TextView(this@NoticeActivity).apply {
-        text = "🧡 Like करें"
+        text = "🧡 Like करें $currentLikeCount"
         textSize = 13f
         gravity = Gravity.CENTER
         typeface = Typeface.DEFAULT_BOLD
-        setTextColor(Color.rgb(230, 126, 34))
-        setPadding(dp(8), dp(8), dp(4), dp(8))
+        setTextColor(Color.rgb(210, 105, 20))
+
+        background = android.graphics.drawable.GradientDrawable(
+            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                Color.rgb(255, 248, 235),
+                Color.rgb(255, 225, 190)
+            )
+        ).apply {
+            cornerRadius = dp(10).toFloat()
+            setStroke(dp(1), Color.rgb(230, 145, 65))
+        }
+
+        elevation = dp(3).toFloat()
+        setPadding(dp(8), dp(8), dp(8), dp(8))
         isEnabled = false
     }
-
-val noticeLikeCount = TextView(this@NoticeActivity).apply {
-    text = currentLikeCount.toString()
-    textSize = 14f
-    gravity = Gravity.CENTER
-    setTextColor(Color.DKGRAY)
-    setPadding(dp(2), dp(8), dp(10), dp(8))
-}
 
 // पहले से Like है या नहीं, जाँचें।
 CategoryPostRepository.isLiked(doc.id) { liked ->
@@ -1158,7 +1162,11 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
             currentLiked = liked
 
             noticeLikeButton.text =
-    if (liked) "🩵 Liked" else "🧡 Like करें"
+    if (liked) {
+        "🩵 Liked $currentLikeCount"
+    } else {
+        "🧡 Like करें $currentLikeCount"
+    }
 
             noticeLikeButton.setTextColor(
     if (currentLiked) Color.rgb(2, 132, 199)
@@ -1192,14 +1200,16 @@ noticeLikeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 noticeLikeButton.text =
-    if (currentLiked) "🩵" else "❤️"
-
+    if (currentLiked) {
+        "🩵 Liked $currentLikeCount"
+    } else {
+        "🧡 Like करें $currentLikeCount"
+    }
                 noticeLikeButton.setTextColor(
     if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
 )
 
-                noticeLikeCount.text =
-                    currentLikeCount.toString()
+                
             } else {
                 Toast.makeText(
                     this@NoticeActivity,
@@ -1214,12 +1224,9 @@ noticeLikeButton.setOnClickListener {
 // Share Count से पहले Like बटन और संख्या जोड़ें।
 noticeButtonRow.addView(
     noticeLikeButton,
-    LinearLayout.LayoutParams(-2, dp(42))
-)
-
-noticeButtonRow.addView(
-    noticeLikeCount,
-    LinearLayout.LayoutParams(-2, dp(42))
+    LinearLayout.LayoutParams(dp(140), dp(42)).apply {
+        marginEnd = dp(8)
+    }
 )
 
                                     // यूज़र को Share Count दिखाएँ, View Count नहीं।
@@ -1320,18 +1327,31 @@ append(doc.id)
     TextView(this@NoticeActivity).apply {
 
         text = "Share ↗️ $displayedShareCount"
-        textSize = 15f
-        typeface = Typeface.DEFAULT_BOLD
-        gravity = Gravity.CENTER
+textSize = 13f
+typeface = Typeface.DEFAULT_BOLD
+gravity = Gravity.CENTER
 
-        setTextColor(Color.rgb(7, 89, 133))
+setTextColor(Color.rgb(15, 85, 145))
 
-        setPadding(
-            dp(12),
-            dp(12),
-            dp(12),
-            dp(12)
-        )
+background = android.graphics.drawable.GradientDrawable(
+    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+    intArrayOf(
+        Color.rgb(235, 247, 255),
+        Color.rgb(195, 225, 250)
+    )
+).apply {
+    cornerRadius = dp(10).toFloat()
+    setStroke(dp(1), Color.rgb(65, 145, 210))
+}
+
+elevation = dp(3).toFloat()
+
+setPadding(
+    dp(8),
+    dp(8),
+    dp(8),
+    dp(8)
+)
 
         setOnClickListener {
 
@@ -1365,9 +1385,10 @@ append(doc.id)
 
 noticeButtonRow.addView(
     categoryNoticeShareButton,
-    LinearLayout.LayoutParams(-2, dp(42)).apply {
+    LinearLayout.LayoutParams(dp(140), dp(42)).apply {
         marginEnd = dp(8)
     }
+
 )
                 card.addView(
     noticeButtonScroll,
