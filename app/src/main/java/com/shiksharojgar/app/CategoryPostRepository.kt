@@ -44,6 +44,8 @@ object CategoryPostRepository {
                     CategoryPost(
                         id = doc.id,
                         category = postCategory,
+                                                subCategoryId = doc.getString("subCategoryId").orEmpty(),
+                        subCategoryLabel = doc.getString("subCategoryLabel").orEmpty(),
                         title = doc.getString("title").orEmpty(),
                         body = doc.getString("body").orEmpty(),
                         description = doc.getString("description").orEmpty(),
@@ -128,6 +130,8 @@ fun savePost(
 
             val data = mapOf(
                 "category" to savedPost.category,
+                                "subCategoryId" to savedPost.subCategoryId,
+                "subCategoryLabel" to savedPost.subCategoryLabel,
                 "title" to savedPost.title,
                 "body" to savedPost.body,
                 "description" to savedPost.description,
