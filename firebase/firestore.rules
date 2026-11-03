@@ -268,7 +268,19 @@ function isAdmin() {
       // Only admin can add/edit/delete sub-categories
       allow create, update, delete: if isAdmin();
     }
+    // =====================================================
+    // CATEGORY SUBCATEGORIES
+    // Career Guide / Study Material
+    // =====================================================
 
+    match /category_subcategories/{subCategoryId} {
+
+      // सभी यूज़र उप-श्रेणियाँ पढ़ सकते हैं।
+      allow read: if true;
+
+      // केवल अधिकृत Admin जोड़, बदल और हटा सकता है।
+      allow create, update, delete: if isAdmin();
+    }
     // =====================================================
     // COMMON CATEGORY POSTS
     // =====================================================
