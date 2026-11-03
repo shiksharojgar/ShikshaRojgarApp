@@ -609,6 +609,105 @@ private fun shareContentPage(
                         setPadding(0, dp(20), 0, dp(10))
                     }
                 )
+                                val postCards = mutableListOf<Pair<View, String>>()
+                var selectedSubcategoryId = ""
+
+                if (
+                    categoryKey == "study_material" ||
+                    categoryKey == "career_guide"
+                ) {
+                    val filterRow = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER_VERTICAL
+                    }
+
+                    val filterScroll = HorizontalScrollView(this).apply {
+                        isHorizontalScrollBarEnabled = false
+                        addView(
+                            filterRow,
+                            android.widget.FrameLayout.LayoutParams(-2, -2)
+                        )
+                    }
+
+                    bodyBox.addView(
+                        filterScroll,
+                        LinearLayout.LayoutParams(-1, -2).apply {
+                            bottomMargin = dp(12)
+                        }
+                    )
+
+                    fun applySubcategoryFilter(id: String) {
+                        selectedSubcategoryId = id
+
+                        postCards.forEach { (postView, postId) ->
+                            postView.visibility =
+                                if (id.isBlank() || postId == id) {
+                                    View.VISIBLE
+                                } else {
+                                    View.GONE
+                                }
+                        }
+                    }
+
+                    fun addFilterButton(
+                        label: String,
+                        colorHex: String,
+                        id: String
+                    ) {
+                        val filterButton = Button(this).apply {
+                            text = label
+                            textSize = 13f
+                            isAllCaps = false
+                            setTextColor(Color.WHITE)
+                            background =
+                                android.graphics.drawable.GradientDrawable().apply {
+                                    setColor(
+                                        runCatching {
+                                            Color.parseColor(colorHex)
+                                        }.getOrDefault(Color.rgb(25, 118, 210))
+                                    )
+                                    cornerRadius = dp(18).toFloat()
+                                }
+                            setPadding(dp(12), dp(6), dp(12), dp(6))
+                            setOnClickListener {
+                                applySubcategoryFilter(id)
+                            }
+                        }
+
+                        filterRow.addView(
+                            filterButton,
+                            LinearLayout.LayoutParams(-2, -2).apply {
+                                rightMargin = dp(6)
+                            }
+                        )
+                    }
+
+                    addFilterButton("सभी पोस्ट", "#1976D2", "")
+
+                    CategorySubcategoryRepository.load(
+                        categoryKey,
+                        { items ->
+                            runOnUiThread {
+                                items.forEach { item ->
+                                    addFilterButton(
+                                        item.name,
+                                        item.color,
+                                        item.id
+                                    )
+                                }
+                            }
+                        },
+                        { error ->
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this@ContentPageActivity,
+                                    "उप-श्रेणियाँ लोड नहीं हुईं",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    )
+                }
 
                                 posts.forEach { doc ->
 
@@ -1167,7 +1266,15 @@ actionRow.addView(shareButton)
 card.addView(actionRow)
 
 
-                    
+                                      val postSubcategoryId =
+                        doc.getString("subCategoryId").orEmpty()
+
+                    postCards.add(card to postSubcategoryId)
+                    card.visibility =
+                        if (
+                            selectedSubcategoryId.isBlank() ||
+                            selectedSubcategoryId == postSubcategoryId
+                        ) View.VISIBLE else View.GONE  
                     bodyBox.addView(
                         card,
                         LinearLayout.LayoutParams(
