@@ -159,4 +159,17 @@ object CategorySubcategoryRepository {
                 onResult(false, error.message)
             }
     }
+        fun remove(
+        id: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        subcategoriesRef.document(id)
+            .update("enabled", false)
+            .addOnSuccessListener {
+                onResult(true, null)
+            }
+            .addOnFailureListener { error ->
+                onResult(false, error.message)
+            }
+    }
 }
