@@ -616,6 +616,31 @@ private fun shareContentPage(
                     categoryKey == "study_material" ||
                     categoryKey == "career_guide"
                 ) {
+                    val filterHeading = TextView(this).apply {
+                        text = "📚 उप-श्रेणी चुनें     और भी बटन →"
+                        textSize = 15f
+                        typeface = Typeface.DEFAULT_BOLD
+                        setTextColor(Color.rgb(25, 118, 210))
+                        setPadding(dp(4), dp(4), dp(4), dp(6))
+                    }
+
+                    bodyBox.addView(
+                        filterHeading,
+                        LinearLayout.LayoutParams(-1, -2)
+                    )
+
+                    val filterHint = TextView(this).apply {
+                        text = "बटन की पट्टी को उँगली से दाएँ-बाएँ स्वाइप (खिसकाए)।"
+                        textSize = 12f
+                        setTextColor(Color.DKGRAY)
+                        setPadding(dp(4), 0, dp(4), dp(10))
+                    }
+
+                    bodyBox.addView(
+                        filterHint,
+                        LinearLayout.LayoutParams(-1, -2)
+                    )
+
                     val filterRow = LinearLayout(this).apply {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = Gravity.CENTER_VERTICAL
@@ -623,6 +648,7 @@ private fun shareContentPage(
 
                     val filterScroll = HorizontalScrollView(this).apply {
                         isHorizontalScrollBarEnabled = false
+                        overScrollMode = View.OVER_SCROLL_IF_CONTENT_SCROLLS
                         addView(
                             filterRow,
                             android.widget.FrameLayout.LayoutParams(-2, -2)
@@ -636,6 +662,54 @@ private fun shareContentPage(
                         }
                     )
 
+                    val filterButtons =
+                        mutableListOf<Triple<Button, String, String>>()
+
+                    fun updateFilterButtonStyles() {
+                        filterButtons.forEach { (button, label, colorHex) ->
+                            val isSelected =
+                                button.tag == selectedSubcategoryId
+
+                            val normalColor = runCatching {
+                                Color.parseColor(colorHex)
+                            }.getOrDefault(Color.rgb(25, 118, 210))
+
+                            button.text =
+                                if (isSelected) "$label ✓" else label
+
+                            button.setTextColor(
+                                if (isSelected) {
+                                    Color.rgb(38, 50, 56)
+                                } else {
+                                    Color.WHITE
+                                }
+                            )
+
+                            button.background =
+                                android.graphics.drawable.GradientDrawable().apply {
+                                    setColor(
+                                        if (isSelected) {
+                                            Color.rgb(255, 193, 7)
+                                        } else {
+                                            normalColor
+                                        }
+                                    )
+                                    setStroke(
+                                        dp(if (isSelected) 2 else 1),
+                                        if (isSelected) {
+                                            Color.rgb(245, 158, 11)
+                                        } else {
+                                            normalColor
+                                        }
+                                    )
+                                    cornerRadius = dp(18).toFloat()
+                                }
+
+                            button.elevation =
+                                if (isSelected) dp(3).toFloat() else 0f
+                        }
+                    }
+
                     fun applySubcategoryFilter(id: String) {
                         selectedSubcategoryId = id
 
@@ -646,6 +720,19 @@ private fun shareContentPage(
                                 } else {
                                     View.GONE
                                 }
+                        }
+
+                        updateFilterButtonStyles()
+
+                        filterButtons.firstOrNull {
+                            it.first.tag == id
+                        }?.first?.let { selectedButton ->
+                            filterScroll.post {
+                                filterScroll.smoothScrollTo(
+                                    maxOf(0, selectedButton.left - dp(12)),
+                                    0
+                                )
+                            }
                         }
                     }
 
@@ -658,20 +745,18 @@ private fun shareContentPage(
                             text = label
                             textSize = 13f
                             isAllCaps = false
-                            setTextColor(Color.WHITE)
-                            background =
-                                android.graphics.drawable.GradientDrawable().apply {
-                                    setColor(
-                                        runCatching {
-                                            Color.parseColor(colorHex)
-                                        }.getOrDefault(Color.rgb(25, 118, 210))
-                                    )
-                                    cornerRadius = dp(18).toFloat()
-                                }
                             setPadding(dp(12), dp(6), dp(12), dp(6))
-                            setOnClickListener {
-                                applySubcategoryFilter(id)
-                            }
+                            tag = id
+                            minHeight = dp(42)
+                            minWidth = dp(0)
+                        }
+
+                        filterButtons.add(
+                            Triple(filterButton, label, colorHex)
+                        )
+
+                        filterButton.setOnClickListener {
+                            applySubcategoryFilter(id)
                         }
 
                         filterRow.addView(
@@ -680,9 +765,12 @@ private fun shareContentPage(
                                 rightMargin = dp(6)
                             }
                         )
+
+                        updateFilterButtonStyles()
                     }
 
                     addFilterButton("सभी पोस्ट", "#1976D2", "")
+                    applySubcategoryFilter("")
 
                     CategorySubcategoryRepository.load(
                         categoryKey,
@@ -707,6 +795,7 @@ private fun shareContentPage(
                             }
                         }
                     )
+
                 }
 
                                 posts.forEach { doc ->
