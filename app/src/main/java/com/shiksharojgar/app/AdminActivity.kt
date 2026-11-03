@@ -7813,7 +7813,9 @@ private fun showSubcategoryManager(
         .setView(scroll)
         .setNegativeButton("बंद करें", null)
         .create()
-
+        
+lateinit var loadList: () -> Unit
+    
     fun openEditDialog(item: CategorySubcategory?) {
         val nameInput = EditText(this).apply {
             hint = "उप-श्रेणी का नाम"
@@ -7890,8 +7892,8 @@ private fun showSubcategoryManager(
         editDialog.show()
     }
 
-    fun loadList() {
-        if (!dialog.isShowing) return
+    loadList = loadList@{
+        if (!dialog.isShowing) return@loadList
 
         listBox.removeAllViews()
 
