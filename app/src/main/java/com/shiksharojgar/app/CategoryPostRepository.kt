@@ -96,6 +96,7 @@ likeCount = doc.getLong("likeCount") ?: 0L
 
     // हर नई पोस्ट को अलग Firestore दस्तावेज़ में सेव करें।
     
+
 fun savePost(
     post: CategoryPost,
     onResult: (Boolean, String?) -> Unit
@@ -120,73 +121,62 @@ fun savePost(
         }
     )
 
-    postsRef
-        .whereEqualTo("category", savedPost.category)
-        .whereEqualTo("enabled", true)
-        .get()
-        .addOnSuccessListener { existing ->
+    // किसी भी कैटेगरी में 7 पोस्ट की सीमा नहीं रहेगी।
+    // पुरानी पोस्ट के Like, Share और View काउंट सुरक्षित रहेंगे।
+    document.get()
+        .addOnSuccessListener { current ->
 
-            // नई पोस्ट पर ही 7 पोस्ट की सीमा लागू करें।
-            // पुरानी पोस्ट को एडिट करने की अनुमति रहेगी।
-            if (post.id.isBlank() && existing.size() >= 7) {
-                onResult(
-                    false,
-                    "इस कैटेगरी में पहले से 7 पोस्ट हैं। नई पोस्ट जोड़ने से पहले कोई पोस्ट डिलीट करें।"
-                )
-                return@addOnSuccessListener
-            }
-            document.get()
-                .addOnSuccessListener { current ->
+            val data = mapOf(
+                "category" to savedPost.category,
+                "title" to savedPost.title,
+                "body" to savedPost.body,
+                "description" to savedPost.description,
+                "websiteUrl" to savedPost.websiteUrl,
+                "bodyBold" to savedPost.bodyBold,
+                "bodyHighlight" to savedPost.bodyHighlight,
+                "bodyColor" to savedPost.bodyColor,
 
-                    val data = mapOf(
-                        "category" to savedPost.category,
-                        "title" to savedPost.title,
-                        "body" to savedPost.body,
-                        "description" to savedPost.description,
-                        "websiteUrl" to savedPost.websiteUrl,
-                        "bodyBold" to savedPost.bodyBold,
-                        "bodyHighlight" to savedPost.bodyHighlight,
-                        "bodyColor" to savedPost.bodyColor,
-                        "buttons" to savedPost.buttons.map { button ->
-                            mapOf(
-                                "label" to button.label,
-                                "url" to button.url,
-                                "backgroundColor" to button.backgroundColor,
-                                "textColor" to button.textColor,
-                                "enabled" to button.enabled
-                            )
-                        },
-                        "imageUrl" to savedPost.imageUrl,
-                        "fileUrl" to savedPost.fileUrl,
-                        "fileName" to savedPost.fileName,
-                        "imageMime" to savedPost.imageMime,
-                        "fileMime" to savedPost.fileMime,
-                        "createdAt" to savedPost.createdAt,
-                        "pinned" to savedPost.pinned,
-                        "pinOrder" to savedPost.pinOrder,
-                        "enabled" to savedPost.enabled,
-                    "viewCount" to (current.getLong("viewCount") ?: 0L),
-"shareCount" to (current.getLong("shareCount") ?: 0L),
-"likeCount" to (current.getLong("likeCount") ?: 0L)
+                "buttons" to savedPost.buttons.map { button ->
+                    mapOf(
+                        "label" to button.label,
+                        "url" to button.url,
+                        "backgroundColor" to button.backgroundColor,
+                        "textColor" to button.textColor,
+                        "enabled" to button.enabled
                     )
+                },
 
-                    document.set(data)
-                        .addOnSuccessListener {
-                            onResult(true, document.id)
-                        }
-                        .addOnFailureListener { error ->
-                            onResult(false, error.message)
-                        }
+                "imageUrl" to savedPost.imageUrl,
+                "fileUrl" to savedPost.fileUrl,
+                "fileName" to savedPost.fileName,
+                "imageMime" to savedPost.imageMime,
+                "fileMime" to savedPost.fileMime,
+                "createdAt" to savedPost.createdAt,
+                "pinned" to savedPost.pinned,
+                "pinOrder" to savedPost.pinOrder,
+                "enabled" to savedPost.enabled,
+
+                "viewCount" to (current.getLong("viewCount") ?: 0L),
+                "shareCount" to (current.getLong("shareCount") ?: 0L),
+                "likeCount" to (current.getLong("likeCount") ?: 0L)
+            )
+
+            document.set(data)
+                .addOnSuccessListener {
+                    onResult(true, document.id)
                 }
                 .addOnFailureListener { error ->
-                    onResult(
-                        false,
-                        "पुरानी पोस्ट की गिनती पढ़ने में समस्या: ${error.message}"
-                    )
+                    onResult(false, error.message)
                 }
+        }
+        .addOnFailureListener { error ->
+            onResult(
+                false,
+                "पोस्ट की जानकारी पढ़ने में समस्या: ${error.message}"
+            )
+        }
 }
 
-}
     // पोस्ट को पिन या अनपिन करें।
     fun setPinned(
         postId: String,
