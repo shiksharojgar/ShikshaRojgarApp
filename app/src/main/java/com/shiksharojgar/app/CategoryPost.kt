@@ -24,6 +24,8 @@ data class CategoryPost(
     val viewCount: Long = 0L,
     val shareCount: Long = 0L,
     val likeCount: Long = 0L
+        val subCategoryId: String = "",
+    val subCategoryLabel: String = ""
 
 )
 
