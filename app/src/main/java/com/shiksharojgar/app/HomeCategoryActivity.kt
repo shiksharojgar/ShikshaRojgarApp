@@ -1364,9 +1364,17 @@ shareButton.text =
     }
 }
 
-actionRow.addView(likeButton)
-actionRow.addView(likeCountView)
-actionRow.addView(shareButton)
+actionRow.addView(
+    likeButton,
+    LinearLayout.LayoutParams(0, dp(42), 1f).apply {
+        marginEnd = dp(8)
+    }
+)
+
+actionRow.addView(
+    shareButton,
+    LinearLayout.LayoutParams(0, dp(42), 1f)
+)
 
 card.addView(actionRow)
 
