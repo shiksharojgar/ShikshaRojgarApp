@@ -7026,6 +7026,138 @@ val categoryChecks = categories.map { (label, key) ->
     }.also { box.addView(it) }
 }
 
+val studySubcategoryItems = mutableListOf<CategorySubcategory>()
+val careerSubcategoryItems = mutableListOf<CategorySubcategory>()
+
+val studySubcategorySpinner = Spinner(this)
+val careerSubcategorySpinner = Spinner(this)
+
+fun setupSubcategorySpinner(
+    spinner: Spinner,
+    items: MutableList<CategorySubcategory>,
+    category: String
+) {
+    CategorySubcategoryRepository.load(
+        category,
+        { loadedItems ->
+            runOnUiThread {
+                items.clear()
+                items.addAll(loadedItems)
+
+                val names = listOf("उप-श्रेणी चुनें (वैकल्पिक)") +
+                    items.map { it.name }
+
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    names
+                )
+
+                adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+                )
+
+                spinner.adapter = adapter
+
+                val oldId = if (existingPost?.category == category) {
+                    existingPost.subCategoryId
+                } else {
+                    ""
+                }
+
+                val oldIndex = items.indexOfFirst {
+                    it.id == oldId
+                }
+
+                spinner.setSelection(
+                    if (oldIndex >= 0) oldIndex + 1 else 0
+                )
+            }
+        },
+        { error ->
+            runOnUiThread {
+                toast("उप-श्रेणी लोड नहीं हुई: ${error.message}")
+            }
+        }
+    )
+}
+
+box.addView(
+    adminSectionTitle("📚", "उप-श्रेणी चुनें (वैकल्पिक)")
+)
+
+box.addView(
+    TextView(this).apply {
+        text = "📖 अध्ययन सामग्री"
+        textSize = 14f
+    }
+)
+box.addView(studySubcategorySpinner)
+
+box.addView(
+    TextView(this).apply {
+        text = "🎯 करियर गाइड"
+        textSize = 14f
+    }
+)
+box.addView(careerSubcategorySpinner)
+
+fun updateSubcategoryVisibility() {
+    val studyChecked = categoryChecks.any {
+        it.tag == "study_material" && it.isChecked
+    }
+
+    val careerChecked = categoryChecks.any {
+        it.tag == "career_guide" && it.isChecked
+    }
+
+    studySubcategorySpinner.visibility =
+        if (studyChecked) View.VISIBLE else View.GONE
+
+    careerSubcategorySpinner.visibility =
+        if (careerChecked) View.VISIBLE else View.GONE
+}
+
+categoryChecks.forEach { check ->
+    check.setOnCheckedChangeListener { _, _ ->
+        updateSubcategoryVisibility()
+    }
+}
+
+setupSubcategorySpinner(
+    studySubcategorySpinner,
+    studySubcategoryItems,
+    "study_material"
+)
+
+setupSubcategorySpinner(
+    careerSubcategorySpinner,
+    careerSubcategoryItems,
+    "career_guide"
+)
+
+updateSubcategoryVisibility()
+
+fun selectedSubcategoryFor(
+    category: String
+): CategorySubcategory? {
+    return when (category) {
+        "study_material" -> {
+            studySubcategoryItems.getOrNull(
+                studySubcategorySpinner.selectedItemPosition - 1
+            )
+        }
+
+        "career_guide" -> {
+            careerSubcategoryItems.getOrNull(
+                careerSubcategorySpinner.selectedItemPosition - 1
+            )
+        }
+
+        else -> null
+    }
+}
+
 
 box.addView(
     adminSectionNote(
@@ -7522,6 +7654,10 @@ fun savePostWithMedia(
             CategoryPost(
                 id = existingPost?.id.orEmpty(),
                 category = category,
+                subCategoryId = selectedSubcategoryFor(category)?.id
+    ?: if (existingPost?.category == category) existingPost.subCategoryId else "",
+subCategoryLabel = selectedSubcategoryFor(category)?.name
+    ?: if (existingPost?.category == category) existingPost.subCategoryLabel else "",
                 title = title,
                 body = body,
                 description = description,
