@@ -1189,29 +1189,50 @@ val actionRow = LinearLayout(this).apply {
 var currentLiked = false
 var currentLikeCount = post.likeCount
 
-val likeButton = TextView(this).apply {
-    text = "🧡 Like करें"
-    textSize = 13f
-    typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.rgb(230, 126, 34))
-    setPadding(dp(6), dp(4), dp(4), dp(4))
-}
-
-val likeCountView = TextView(this).apply {
-    text = currentLikeCount.toString()
-    textSize = 14f
-    setTextColor(Color.DKGRAY)
-    setPadding(dp(2), 0, dp(12), 0)
-}
-
 var displayedShareCount = post.shareCount
+
+val likeButton = TextView(this).apply {
+    text = "🧡 Like करें $currentLikeCount"
+    textSize = 13f
+    gravity = Gravity.CENTER
+    typeface = Typeface.DEFAULT_BOLD
+    setTextColor(Color.rgb(210, 105, 20))
+
+    background = GradientDrawable(
+        GradientDrawable.Orientation.TOP_BOTTOM,
+        intArrayOf(
+            Color.rgb(255, 248, 235),
+            Color.rgb(255, 225, 190)
+        )
+    ).apply {
+        cornerRadius = dp(10).toFloat()
+        setStroke(dp(1), Color.rgb(230, 145, 65))
+    }
+
+    elevation = dp(3).toFloat()
+    setPadding(dp(8), dp(8), dp(8), dp(8))
+}
 
 val shareButton = TextView(this).apply {
     text = "Share ↗️ $displayedShareCount"
-    textSize = 14f
+    textSize = 13f
+    gravity = Gravity.CENTER
     typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.rgb(25, 100, 180))
-    setPadding(dp(8), dp(6), dp(4), dp(6))
+    setTextColor(Color.rgb(15, 85, 145))
+
+    background = GradientDrawable(
+        GradientDrawable.Orientation.TOP_BOTTOM,
+        intArrayOf(
+            Color.rgb(235, 247, 255),
+            Color.rgb(195, 225, 250)
+        )
+    ).apply {
+        cornerRadius = dp(10).toFloat()
+        setStroke(dp(1), Color.rgb(65, 145, 210))
+    }
+
+    elevation = dp(3).toFloat()
+    setPadding(dp(8), dp(8), dp(8), dp(8))
 }
 
 // पहले से Like किया है या नहीं, Firestore से जाँचें।
@@ -1220,7 +1241,11 @@ CategoryPostRepository.isLiked(post.id) { liked ->
         if (!isFinishing && !isDestroyed) {
             currentLiked = liked
             likeButton.text =
-    if (liked) "🩵 Liked" else "🧡 Like करें"
+    if (liked) {
+        "🩵 Liked $currentLikeCount"
+    } else {
+        "🧡 Like करें $currentLikeCount"
+    }
 
 likeButton.setTextColor(
     if (liked) Color.rgb(2, 132, 199)
@@ -1253,15 +1278,18 @@ likeButton.setOnClickListener {
                 ).coerceAtLeast(0L)
 
                 likeButton.text =
-    if (currentLiked) "🩵 Liked" else "🧡 Like करें"
+    if (currentLiked) {
+        "🩵 Liked $currentLikeCount"
+    } else {
+        "🧡 Like करें $currentLikeCount"
+    }
 
                 likeButton.setTextColor(
     if (currentLiked) Color.rgb(2, 132, 199)
     else Color.rgb(230, 126, 34)
 )
 
-                likeCountView.text =
-                    currentLikeCount.toString()
+                
 
             } else {
                 Toast.makeText(
