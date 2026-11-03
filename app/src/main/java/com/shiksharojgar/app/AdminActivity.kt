@@ -3170,7 +3170,22 @@ listOf(
         actionRow,
         LinearLayout.LayoutParams(-1, -2)
     )
-
+if (
+    categoryKey == "study_material" ||
+    categoryKey == "career_guide"
+) {
+    categoryCard.addView(
+        categoryButton(
+            "⚙️ उप-श्रेणी मैनेज करें",
+            Color.rgb(103, 58, 183)
+        ) {
+            showSubcategoryManager(categoryKey, label)
+        },
+        LinearLayout.LayoutParams(-1, dp(44)).apply {
+            topMargin = dp(5)
+        }
+    )
+}
     homeContent.addView(
         categoryCard,
         LinearLayout.LayoutParams(-1, -2).apply {
@@ -7642,6 +7657,244 @@ fun savePostWithMedia(
                 dialog.show()
             }
     }
+
+private fun showSubcategoryManager(
+    category: String,
+    categoryLabel: String
+) {
+    val listBox = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(10), dp(8), dp(10), dp(8))
+    }
+
+    val scroll = ScrollView(this).apply {
+        isFillViewport = true
+        addView(listBox)
+    }
+
+    val dialog = AlertDialog.Builder(this)
+        .setTitle("⚙️ $categoryLabel — उप-श्रेणी")
+        .setView(scroll)
+        .setNegativeButton("बंद करें", null)
+        .create()
+
+    fun openEditDialog(item: CategorySubcategory?) {
+        val nameInput = EditText(this).apply {
+            hint = "उप-श्रेणी का नाम"
+            setSingleLine(true)
+            setText(item?.name.orEmpty())
+        }
+
+        val colorInput = EditText(this).apply {
+            hint = "रंग HEX कोड, जैसे #1976D2"
+            setSingleLine(true)
+            setText(item?.color ?: "#1976D2")
+        }
+
+        val form = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(8), dp(20), dp(4))
+            addView(nameInput)
+            addView(colorInput)
+        }
+
+        val editDialog = AlertDialog.Builder(this)
+            .setTitle(
+                if (item == null) "➕ नई उप-श्रेणी जोड़ें"
+                else "✏️ नाम और रंग बदलें"
+            )
+            .setView(form)
+            .setNegativeButton("रद्द करें", null)
+            .setPositiveButton("सेव करें", null)
+            .create()
+
+        editDialog.setOnShowListener {
+            editDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener {
+                    val name = nameInput.text.toString().trim()
+                    val color = colorInput.text.toString().trim()
+
+                    if (name.isEmpty()) {
+                        nameInput.error = "नाम लिखें"
+                        return@setOnClickListener
+                    }
+
+                    try {
+                        Color.parseColor(color)
+                    } catch (_: Exception) {
+                        colorInput.error = "सही HEX रंग लिखें, जैसे #1976D2"
+                        return@setOnClickListener
+                    }
+
+                    val callback: (Boolean, String?) -> Unit =
+                        { success, error ->
+                            runOnUiThread {
+                                if (success) {
+                                    editDialog.dismiss()
+                                    toast("उप-श्रेणी सेव हो गई")
+                                    loadList()
+                                } else {
+                                    toast("सेव नहीं हुई: ${error ?: "त्रुटि"}")
+                                }
+                            }
+                        }
+
+                    if (item == null) {
+                        CategorySubcategoryRepository.add(
+                            category, name, color, callback
+                        )
+                    } else {
+                        CategorySubcategoryRepository.update(
+                            item.id, name, color, callback
+                        )
+                    }
+                }
+        }
+
+        editDialog.show()
+    }
+
+    fun loadList() {
+        if (!dialog.isShowing) return
+
+        listBox.removeAllViews()
+
+        listBox.addView(
+            TextView(this).apply {
+                text = "उप-श्रेणियाँ लोड हो रही हैं…"
+                textSize = 14f
+                setPadding(0, dp(8), 0, dp(8))
+            }
+        )
+
+        CategorySubcategoryRepository.load(
+            category,
+            { items ->
+                runOnUiThread {
+                    if (!dialog.isShowing) return@runOnUiThread
+
+                    listBox.removeAllViews()
+
+                    listBox.addView(
+                        Button(this).apply {
+                            text = "➕ नया बटन जोड़ें"
+                            isAllCaps = false
+                            setOnClickListener {
+                                openEditDialog(null)
+                            }
+                        }
+                    )
+
+                    if (items.isEmpty()) {
+                        listBox.addView(
+                            TextView(this).apply {
+                                text = "अभी कोई उप-श्रेणी नहीं है।"
+                                textSize = 14f
+                                setPadding(0, dp(12), 0, dp(12))
+                            }
+                        )
+                    }
+
+                    items.forEach { item ->
+                        val row = LinearLayout(this).apply {
+                            orientation = LinearLayout.VERTICAL
+                            setPadding(dp(8), dp(6), dp(8), dp(6))
+                        }
+
+                        row.addView(
+                            TextView(this).apply {
+                                text = "●  ${item.name}   ${item.color}"
+                                textSize = 15f
+                                setTextColor(
+                                    try {
+                                        Color.parseColor(item.color)
+                                    } catch (_: Exception) {
+                                        Color.BLACK
+                                    }
+                                )
+                            }
+                        )
+
+                        val actions = LinearLayout(this).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                        }
+
+                        actions.addView(
+                            Button(this).apply {
+                                text = "✏️ नाम/रंग"
+                                isAllCaps = false
+                                setOnClickListener {
+                                    openEditDialog(item)
+                                }
+                            },
+                            LinearLayout.LayoutParams(0, dp(44), 1f)
+                        )
+
+                        actions.addView(
+                            Button(this).apply {
+                                text = "🗑️ हटाएँ"
+                                isAllCaps = false
+                                setOnClickListener {
+                                    AlertDialog.Builder(this@AdminActivity)
+                                        .setTitle("उप-श्रेणी हटाएँ?")
+                                        .setMessage(
+                                            "इस बटन को हटाया जाएगा। इससे जुड़ी पुरानी पोस्ट डिलीट नहीं होंगी।"
+                                        )
+                                        .setNegativeButton("रद्द करें", null)
+                                        .setPositiveButton("हटाएँ") { _, _ ->
+                                            CategorySubcategoryRepository.remove(
+                                                item.id
+                                            ) { success, error ->
+                                                runOnUiThread {
+                                                    if (success) {
+                                                        toast("उप-श्रेणी हट गई")
+                                                        loadList()
+                                                    } else {
+                                                        toast(
+                                                            "हटाई नहीं गई: ${error ?: "त्रुटि"}"
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .show()
+                                }
+                            },
+                            LinearLayout.LayoutParams(0, dp(44), 1f)
+                        )
+
+                        row.addView(actions)
+                        listBox.addView(row)
+
+                        listBox.addView(
+                            View(this).apply {
+                                setBackgroundColor(Color.LTGRAY)
+                            },
+                            LinearLayout.LayoutParams(-1, dp(1))
+                        )
+                    }
+                }
+            },
+            { error ->
+                runOnUiThread {
+                    if (dialog.isShowing) {
+                        listBox.removeAllViews()
+                        listBox.addView(
+                            TextView(this).apply {
+                                text = "लोड नहीं हुआ: ${error.message ?: "त्रुटि"}"
+                                setTextColor(Color.RED)
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+    dialog.show()
+    loadList()
+}
+
 
 private fun showCategoryPostManager(
     category: String,
