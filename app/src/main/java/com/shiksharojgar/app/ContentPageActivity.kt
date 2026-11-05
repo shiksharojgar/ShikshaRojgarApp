@@ -731,9 +731,10 @@ if (posts.isEmpty()) {
                 var selectedSubcategoryId = ""
 
                 if (
-                    categoryKey == "study_material" ||
-                    categoryKey == "career_guide"
-                ) {
+    categoryKey == "study_material" ||
+    categoryKey == "career_guide" ||
+    categoryKey == "important_information"
+) {
                     val filterHeading = TextView(this).apply {
                         text = "📚 उप-श्रेणी चुनें     और भी बटन →"
                         textSize = 15f
