@@ -6529,31 +6529,77 @@ val selectedNoticeImage =
             dialog.getButton(
                 AlertDialog.BUTTON_POSITIVE
             ).isEnabled = false
+val saveSubCategory = {
 
-            doc.set(data)
-                .addOnSuccessListener {
+    doc.set(data)
+        .addOnSuccessListener {
 
-                    toast(
-                        "Sub-Category save हो गई"
-                    )
+            toast(
+                "Sub-Category save हो गई"
+            )
 
-                    dialog.dismiss()
+            dialog.dismiss()
 
-                    onSaved()
-                }
-                .addOnFailureListener { e ->
+            onSaved()
+        }
+        .addOnFailureListener { e ->
 
-                    dialog.getButton(
-                        AlertDialog.BUTTON_POSITIVE
-                    ).isEnabled = true
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = true
 
-                    toast(
-                        "Save failed: ${
-                            e.message
-                                ?: "Firestore error"
-                        }"
-                    )
-                }
+            toast(
+                "Save failed: ${
+                    e.message ?: "Firestore error"
+                }"
+            )
+        }
+}
+
+if (pageType == "PDF") {
+
+    val selectedPdf = subCategoryPdfUri
+
+    if (selectedPdf == null) {
+
+        dialog.getButton(
+            AlertDialog.BUTTON_POSITIVE
+        ).isEnabled = true
+
+        toast("पहले PDF चुनें")
+
+        return@setOnClickListener
+    }
+
+    toast("PDF अपलोड हो रही है...")
+
+    ChannelRepository.upload(
+        selectedPdf,
+        "subcategory_pdfs"
+    ) { pdfUrl, error ->
+
+        if (pdfUrl == null) {
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = true
+
+            toast(
+                error ?: "PDF अपलोड नहीं हुई"
+            )
+
+        } else {
+
+            data["pdfUrl"] = pdfUrl
+
+            saveSubCategory()
+        }
+    }
+
+} else {
+
+    saveSubCategory()
+}
         }
     }
 
