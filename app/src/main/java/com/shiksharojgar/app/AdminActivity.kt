@@ -7049,6 +7049,40 @@ box.addView(
     adminSectionTitle("📚", "उप-श्रेणी चुनें (वैकल्पिक)")
 )
 
+fun setSubcategorySpinnerAdapter(category: String) {
+    val items = subcategoryItems[category] ?: return
+    val spinner = subcategorySpinners[category] ?: return
+
+    val names = listOf("उप-श्रेणी चुनें (वैकल्पिक)") +
+        items.map { it.name }
+
+    val adapter = ArrayAdapter(
+        this,
+        android.R.layout.simple_spinner_item,
+        names
+    )
+
+    adapter.setDropDownViewResource(
+        android.R.layout.simple_spinner_dropdown_item
+    )
+
+    spinner.adapter = adapter
+
+    val oldId = if (existingPost?.category == category) {
+        existingPost.subCategoryId
+    } else {
+        ""
+    }
+
+    val oldIndex = items.indexOfFirst {
+        it.id == oldId
+    }
+
+    spinner.setSelection(
+        if (oldIndex >= 0) oldIndex + 1 else 0
+    )
+}
+
 fun setupHomeSubcategorySpinner(category: String) {
 
     val items = subcategoryItems[category] ?: return
@@ -7102,39 +7136,7 @@ fun setupHomeSubcategorySpinner(category: String) {
     }
 }
 
-fun setSubcategorySpinnerAdapter(category: String) {
-    val items = subcategoryItems[category] ?: return
-    val spinner = subcategorySpinners[category] ?: return
 
-    val names = listOf("उप-श्रेणी चुनें (वैकल्पिक)") +
-        items.map { it.name }
-
-    val adapter = ArrayAdapter(
-        this,
-        android.R.layout.simple_spinner_item,
-        names
-    )
-
-    adapter.setDropDownViewResource(
-        android.R.layout.simple_spinner_dropdown_item
-    )
-
-    spinner.adapter = adapter
-
-    val oldId = if (existingPost?.category == category) {
-        existingPost.subCategoryId
-    } else {
-        ""
-    }
-
-    val oldIndex = items.indexOfFirst {
-        it.id == oldId
-    }
-
-    spinner.setSelection(
-        if (oldIndex >= 0) oldIndex + 1 else 0
-    )
-}
 
 val categoryLabels = mapOf(
     "teacher" to "👩‍🏫 Teacher",
