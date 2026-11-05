@@ -3172,7 +3172,8 @@ listOf(
     )
 if (
     categoryKey == "study_material" ||
-    categoryKey == "career_guide"
+    categoryKey == "career_guide" ||
+    categoryKey == "important_information"
 ) {
     categoryCard.addView(
         categoryButton(
@@ -7035,6 +7036,7 @@ val subcategoryCategories = listOf(
     "admit_card",
     "study_material",
     "career_guide"
+    "important_information"
 )
 
 val subcategoryItems = mutableMapOf<String, MutableList<CategorySubcategory>>()
