@@ -188,7 +188,30 @@ if (uri != null) {
                 toast("पोस्ट की PDF/File चुन ली गई")
             }
         }
-        
+
+        // SUB-CATEGORY PDF PICKER
+
+private var subCategoryPdfUri: Uri? = null
+private var subCategoryPdfStatus: TextView? = null
+
+private val pickSubCategoryPdf =
+    registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+
+        subCategoryPdfUri = uri
+
+        subCategoryPdfStatus?.text =
+            if (uri != null) {
+                "✅ PDF चुनी गई है"
+            } else {
+                "कोई PDF नहीं चुनी गई"
+            }
+
+        if (uri != null) {
+            toast("Sub-Category PDF चुनी गई")
+        }
+    }
     // =========================================================
     // IMAGE PICKER
     // =========================================================
@@ -6247,7 +6270,33 @@ private fun showAddSubCategoryDialog(
             dp(48)
         )
     )
+subCategoryPdfUri = null
 
+val pdfButton =
+    Button(this).apply {
+        text = "📄 PDF चुनें"
+        setOnClickListener {
+            pickSubCategoryPdf.launch(
+                arrayOf("application/pdf")
+            )
+        }
+    }
+
+box.addView(
+    pdfButton,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
+
+subCategoryPdfStatus =
+    TextView(this).apply {
+        text = "कोई PDF नहीं चुनी गई"
+        textSize = 12f
+    }
+
+box.addView(subCategoryPdfStatus)
     val iconField =
         EditText(this).apply {
 
@@ -6287,7 +6336,38 @@ private fun showAddSubCategoryDialog(
             dp(48)
         )
     )
+subCategoryPdfUri = null
 
+val pdfButton =
+    Button(this).apply {
+        text = "📄 नई PDF चुनें"
+        setOnClickListener {
+            pickSubCategoryPdf.launch(
+                arrayOf("application/pdf")
+            )
+        }
+    }
+
+box.addView(
+    pdfButton,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
+
+subCategoryPdfStatus =
+    TextView(this).apply {
+        text =
+            if (doc.getString("pdfUrl").isNullOrBlank()) {
+                "कोई PDF संलग्न नहीं है"
+            } else {
+                "✅ पहले से PDF संलग्न है"
+            }
+        textSize = 12f
+    }
+
+box.addView(subCategoryPdfStatus)
     val pageTypeLabel =
         TextView(this).apply {
 
