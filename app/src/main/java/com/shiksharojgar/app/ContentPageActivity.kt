@@ -554,27 +554,70 @@ private fun shareContentPage(
     }
         private fun loadCategoryPosts(pageId: String) {
 
-        val categoryKey = when (pageId) {
-            "notices", "notice" -> "notice"
-            "important_information" -> "important_information"
-            "study_material" -> "study_material"
-            "career", "career_guide" -> "career_guide"
-            else -> return
-        }
+            val categoryKey = when (pageId) {
+        "notices", "notice" -> "notice"
+        "important_information" -> "important_information"
+        "study_material" -> "study_material"
+        "career", "career_guide" -> "career_guide"
+
+        "teacher" -> "teacher"
+        "student" -> "student"
+        "school" -> "school"
+        "vacancy" -> "vacancy"
+        "result" -> "result"
+        "admit_card" -> "admit_card"
+
+        else -> return
+    }
 
         db.collection("category_posts")
             .whereEqualTo("category", categoryKey)
             .get()
             .addOnSuccessListener { snapshot ->
 
-                val posts = snapshot.documents.filter {
-                    it.getBoolean("enabled") ?: true
-                }.sortedByDescending {
-                    it.getLong("createdAt") ?: 0L
-                }
+                val requestedSubCategoryId =
+    intent.getStringExtra("subCategoryId").orEmpty()
 
-                if (posts.isEmpty()) return@addOnSuccessListener
-                
+val homeCategoryIds = setOf(
+    "teacher",
+    "student",
+    "school",
+    "vacancy",
+    "result",
+    "admit_card"
+)
+
+val posts = snapshot.documents.filter { doc ->
+
+    val isEnabled = doc.getBoolean("enabled") ?: true
+
+    val matchesSubCategory =
+        pageId !in homeCategoryIds ||
+        (
+            requestedSubCategoryId.isNotBlank() &&
+            doc.getString("subCategoryId").orEmpty() ==
+                requestedSubCategoryId
+        )
+
+    isEnabled && matchesSubCategory
+
+}.sortedByDescending {
+    it.getLong("createdAt") ?: 0L
+}
+
+if (posts.isEmpty()) {
+    bodyBox.addView(
+        TextView(this).apply {
+            text = "इस उप-श्रेणी की पोस्ट अभी उपलब्ध नहीं हैं। Admin Panel से इसी उप-श्रेणी में पोस्ट जोड़ें।"
+            textSize = 15f
+            setTextColor(Color.DKGRAY)
+            setPadding(
+                dp(8), dp(18), dp(8), dp(18)
+            )
+        }
+    )
+    return@addOnSuccessListener
+}
                 if (categoryKey == "important_information") {
                     val newestTime = posts
                         .mapNotNull {
