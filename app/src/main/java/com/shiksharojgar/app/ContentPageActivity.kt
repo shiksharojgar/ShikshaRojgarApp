@@ -593,15 +593,7 @@ private fun shareContentPage(
     
     
 
-        bodyBox.addView(
-            websiteButton,
-            LinearLayout.LayoutParams(-1, -2).apply {
-                setMargins(
-                    dp(8), dp(8), dp(8), dp(12)
-                )
-            }
-        )
-    }
+        
         db.collection("category_posts")
             .whereEqualTo("category", categoryKey)
             .get()
