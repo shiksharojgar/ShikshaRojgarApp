@@ -1494,7 +1494,8 @@ private fun addSubCategoryButton(
      * OPEN SUB CATEGORY
      * =========================================================
      */
-    private fun openSubCategory(
+    
+private fun openSubCategory(
     url: String,
     pageType: String,
     name: String,
@@ -1502,51 +1503,74 @@ private fun addSubCategoryButton(
     parentCategoryId: String = ""
 ) {
     try {
-        val pageIntent = Intent(
-            this,
-            ContentPageActivity::class.java
-        ).apply {
+        when (pageType.trim().lowercase()) {
 
-            putExtra(
-                "pageId",
-                parentCategoryId
-            )
+            "website",
+            "website / url",
+            "external link" -> {
 
-            putExtra(
-                "pageTitle",
-                name
-            )
+                if (url.isBlank()) {
+                    Toast.makeText(
+                        this,
+                        "इस बटन का Website URL उपलब्ध नहीं है।",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
 
-            putExtra(
-                "activeSection",
-                "HOME"
-            )
+                val websiteUrl =
+                    if (
+                        url.startsWith("http://", true) ||
+                        url.startsWith("https://", true)
+                    ) {
+                        url
+                    } else {
+                        "https://$url"
+                    }
 
-            putExtra(
-                "subCategoryId",
-                subCategoryId
-            )
+                startActivity(
+                    Intent(
+                        this,
+                        WebViewActivity::class.java
+                    ).putExtra("url", websiteUrl)
+                )
+            }
 
-            putExtra(
-                "subCategoryLabel",
-                name
-            )
+            "app page" -> {
 
-            putExtra(
-                "subCategoryWebsiteUrl",
-                url
-            )
+                val pageIntent = Intent(
+                    this,
+                    ContentPageActivity::class.java
+                ).apply {
+                    putExtra("pageId", parentCategoryId)
+                    putExtra("pageTitle", name)
+                    putExtra("activeSection", "HOME")
+                    putExtra("subCategoryId", subCategoryId)
+                    putExtra("subCategoryLabel", name)
+                    putExtra("subCategoryPageType", pageType)
+                }
 
-            putExtra(
-                "subCategoryPageType",
-                pageType
-            )
+                startActivity(pageIntent)
+            }
+
+            "pdf" -> {
+                Toast.makeText(
+                    this,
+                    "PDF Viewer अगली प्रक्रिया में जोड़ा जाएगा।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            else -> {
+                Toast.makeText(
+                    this,
+                    "इस Sub-Category का Page Type सही नहीं है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
-        startActivity(pageIntent)
-
     } catch (e: Exception) {
-
         Toast.makeText(
             this,
             "पेज खुल नहीं सका: ${e.message}",
@@ -1554,6 +1578,7 @@ private fun addSubCategoryButton(
         ).show()
     }
 }
+
 
     private fun applyCategoryLikeStyle(
     button: TextView,
