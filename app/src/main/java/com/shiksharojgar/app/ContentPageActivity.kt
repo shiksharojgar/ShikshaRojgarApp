@@ -1237,23 +1237,11 @@ fun applyCategoryLikeStyle(button: TextView, liked: Boolean) {
     )
 
     button.background =
-        if (liked) {
-            android.graphics.drawable.GradientDrawable(
-                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.rgb(125, 211, 252),
-                    Color.rgb(186, 230, 253)
-                )
-            ).apply {
-                cornerRadius = dp(24).toFloat()
-            }
-        } else {
-            android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.WHITE)
-                cornerRadius = dp(24).toFloat()
-                setStroke(dp(1), Color.rgb(14, 91, 215))
-            }
-        }
+    android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.WHITE)
+        cornerRadius = dp(24).toFloat()
+        setStroke(dp(1), Color.rgb(14, 91, 215))
+    }
 
     button.elevation = 0f
     button.setPadding(dp(12), dp(8), dp(12), dp(8))
