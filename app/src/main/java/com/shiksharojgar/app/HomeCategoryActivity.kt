@@ -1420,7 +1420,7 @@ private fun addSubCategoryButton(
     pageType: String,
     index: Int,
     subCategoryId: String = "",
-    parentCategoryId: String = categoryId
+    parentCategoryId: String = ""
 ) {
     if (subCategoryRow == null || subCategoryRowCount >= 2) {
         subCategoryRow = LinearLayout(this).apply {
@@ -1497,7 +1497,7 @@ private fun addSubCategoryButton(
     pageType: String,
     name: String,
     subCategoryId: String = "",
-    parentCategoryId: String = categoryId
+    parentCategoryId: String = ""
 ) {
     try {
         val pageIntent = Intent(
