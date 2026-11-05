@@ -6337,33 +6337,7 @@ box.addView(subCategoryPdfStatus)
         )
     )
 
-subCategoryPdfUri = null
 
-val pdfButton =
-    Button(this).apply {
-        text = "📄 PDF चुनें"
-        setOnClickListener {
-            pickSubCategoryPdf.launch(
-                arrayOf("application/pdf")
-            )
-        }
-    }
-
-box.addView(
-    pdfButton,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(48)
-    )
-)
-
-subCategoryPdfStatus =
-    TextView(this).apply {
-        text = "कोई PDF नहीं चुनी गई"
-        textSize = 12f
-    }
-
-box.addView(subCategoryPdfStatus)
 
     val pageTypeLabel =
         TextView(this).apply {
