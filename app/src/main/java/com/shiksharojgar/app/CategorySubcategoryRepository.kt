@@ -50,11 +50,13 @@ object CategorySubcategoryRepository {
         onError: (Exception) -> Unit
     ) {
         if (
-            category != "study_material" &&
-            category != "career_guide"
-        ) {
-            onResult(emptyList())
-            return
+    category != "study_material" &&
+    category != "career_guide" &&
+    category != "important_information"
+) {
+    onResult(emptyList())
+    return
+}
         }
 
         subcategoriesRef
@@ -63,6 +65,10 @@ object CategorySubcategoryRepository {
             .addOnSuccessListener { snapshot ->
 
                 if (snapshot.isEmpty) {
+                    if (defaultItems(category).isEmpty()) {
+    onResult(emptyList())
+    return@addOnSuccessListener
+                    }
                     val batch = db.batch()
 
                     defaultItems(category).forEachIndexed { index, item ->
