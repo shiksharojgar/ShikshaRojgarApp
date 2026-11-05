@@ -950,7 +950,9 @@ subCategoryRowCount = 0
 
                 val pageType = doc.getString("pageType")
                     ?: "Website"
-
+                
+val pdfUrl = doc.getString("pdfUrl") ?: ""
+                
                 addSubCategoryButton(
     name = name,
     icon = icon,
@@ -958,6 +960,7 @@ subCategoryRowCount = 0
     pageType = pageType,
     index = index,
     subCategoryId = doc.id,
+                    pdfUrl = pdfUrl,
     parentCategoryId = categoryId
 )
             }
@@ -1422,6 +1425,7 @@ private fun addSubCategoryButton(
     pageType: String,
     index: Int,
     subCategoryId: String = "",
+    
     parentCategoryId: String = ""
 ) {
     if (subCategoryRow == null || subCategoryRowCount >= 2) {
@@ -1500,6 +1504,7 @@ private fun openSubCategory(
     pageType: String,
     name: String,
     subCategoryId: String = "",
+    pdfUrl,
     parentCategoryId: String = ""
 ) {
     try {
