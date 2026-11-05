@@ -57,7 +57,7 @@ object CategorySubcategoryRepository {
     onResult(emptyList())
     return
 }
-        }
+        
 
         subcategoriesRef
             .whereEqualTo("category", category)
