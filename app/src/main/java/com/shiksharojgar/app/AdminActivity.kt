@@ -7026,96 +7026,152 @@ val categoryChecks = categories.map { (label, key) ->
     }.also { box.addView(it) }
 }
 
-val studySubcategoryItems = mutableListOf<CategorySubcategory>()
-val careerSubcategoryItems = mutableListOf<CategorySubcategory>()
+val subcategoryCategories = listOf(
+    "teacher",
+    "student",
+    "school",
+    "vacancy",
+    "result",
+    "admit_card",
+    "study_material",
+    "career_guide"
+)
 
-val studySubcategorySpinner = Spinner(this)
-val careerSubcategorySpinner = Spinner(this)
+val subcategoryItems = mutableMapOf<String, MutableList<CategorySubcategory>>()
+val subcategorySpinners = mutableMapOf<String, Spinner>()
 
-fun setupSubcategorySpinner(
-    spinner: Spinner,
-    items: MutableList<CategorySubcategory>,
-    category: String
-) {
-    CategorySubcategoryRepository.load(
-        category,
-        { loadedItems ->
-            runOnUiThread {
-                items.clear()
-                items.addAll(loadedItems)
-
-                val names = listOf("उप-श्रेणी चुनें (वैकल्पिक)") +
-                    items.map { it.name }
-
-                val adapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    names
-                )
-
-                adapter.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item
-                )
-
-                spinner.adapter = adapter
-
-                val oldId = if (existingPost?.category == category) {
-                    existingPost.subCategoryId
-                } else {
-                    ""
-                }
-
-                val oldIndex = items.indexOfFirst {
-                    it.id == oldId
-                }
-
-                spinner.setSelection(
-                    if (oldIndex >= 0) oldIndex + 1 else 0
-                )
-            }
-        },
-        { error ->
-            runOnUiThread {
-                toast("उप-श्रेणी लोड नहीं हुई: ${error.message}")
-            }
-        }
-    )
+subcategoryCategories.forEach { category ->
+    subcategoryItems[category] = mutableListOf()
+    subcategorySpinners[category] = Spinner(this)
 }
 
 box.addView(
     adminSectionTitle("📚", "उप-श्रेणी चुनें (वैकल्पिक)")
 )
 
-box.addView(
-    TextView(this).apply {
-        text = "📖 अध्ययन सामग्री"
-        textSize = 14f
-    }
-)
-box.addView(studySubcategorySpinner)
+fun setupHomeSubcategorySpinner(category: String) {
 
-box.addView(
-    TextView(this).apply {
-        text = "🎯 करियर गाइड"
-        textSize = 14f
+    val items = subcategoryItems[category] ?: return
+    val spinner = subcategorySpinners[category] ?: return
+
+    if (category == "study_material" || category == "career_guide") {
+        CategorySubcategoryRepository.load(
+            category,
+            { loadedItems ->
+                runOnUiThread {
+                    items.clear()
+                    items.addAll(loadedItems)
+                    setSubcategorySpinnerAdapter(category)
+                }
+            },
+            { error ->
+                runOnUiThread {
+                    toast("उप-श्रेणी लोड नहीं हुई: ${error.message}")
+                }
+            }
+        )
+    } else {
+        db.collection("home_subcategories")
+            .whereEqualTo("parentId", category)
+            .whereEqualTo("enabled", true)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                items.clear()
+
+                snapshot.documents
+                    .sortedBy {
+                        it.getLong("position") ?: 0L
+                    }
+                    .forEach { doc ->
+                        items.add(
+                            CategorySubcategory(
+                                id = doc.id,
+                                category = category,
+                                name = doc.getString("name").orEmpty(),
+                                order = doc.getLong("position") ?: 0L,
+                                enabled = true
+                            )
+                        )
+                    }
+
+                setSubcategorySpinnerAdapter(category)
+            }
+            .addOnFailureListener { error ->
+                toast("उप-श्रेणी लोड नहीं हुई: ${error.message}")
+            }
     }
+}
+
+fun setSubcategorySpinnerAdapter(category: String) {
+    val items = subcategoryItems[category] ?: return
+    val spinner = subcategorySpinners[category] ?: return
+
+    val names = listOf("उप-श्रेणी चुनें (वैकल्पिक)") +
+        items.map { it.name }
+
+    val adapter = ArrayAdapter(
+        this,
+        android.R.layout.simple_spinner_item,
+        names
+    )
+
+    adapter.setDropDownViewResource(
+        android.R.layout.simple_spinner_dropdown_item
+    )
+
+    spinner.adapter = adapter
+
+    val oldId = if (existingPost?.category == category) {
+        existingPost.subCategoryId
+    } else {
+        ""
+    }
+
+    val oldIndex = items.indexOfFirst {
+        it.id == oldId
+    }
+
+    spinner.setSelection(
+        if (oldIndex >= 0) oldIndex + 1 else 0
+    )
+}
+
+val categoryLabels = mapOf(
+    "teacher" to "👩‍🏫 Teacher",
+    "student" to "🎓 Student",
+    "school" to "🏫 School",
+    "vacancy" to "💼 Vacancy",
+    "result" to "🏆 Result",
+    "admit_card" to "🎫 Admit Card",
+    "study_material" to "📚 अध्ययन सामग्री",
+    "career_guide" to "🎯 करियर गाइड"
 )
-box.addView(careerSubcategorySpinner)
+
+subcategoryCategories.forEach { category ->
+    box.addView(
+        TextView(this).apply {
+            text = categoryLabels[category] ?: category
+            textSize = 14f
+            setPadding(0, dp(6), 0, dp(2))
+        }
+    )
+
+    box.addView(
+        subcategorySpinners[category]!!
+    )
+
+    setupHomeSubcategorySpinner(category)
+}
 
 fun updateSubcategoryVisibility() {
-    val studyChecked = categoryChecks.any {
-        it.tag == "study_material" && it.isChecked
+    subcategoryCategories.forEach { category ->
+        val checked = categoryChecks.any {
+            it.tag == category && it.isChecked
+        }
+
+        subcategorySpinners[category]?.visibility =
+            if (checked) View.VISIBLE else View.GONE
     }
-
-    val careerChecked = categoryChecks.any {
-        it.tag == "career_guide" && it.isChecked
-    }
-
-    studySubcategorySpinner.visibility =
-        if (studyChecked) View.VISIBLE else View.GONE
-
-    careerSubcategorySpinner.visibility =
-        if (careerChecked) View.VISIBLE else View.GONE
 }
 
 categoryChecks.forEach { check ->
@@ -7124,23 +7180,19 @@ categoryChecks.forEach { check ->
     }
 }
 
-setupSubcategorySpinner(
-    studySubcategorySpinner,
-    studySubcategoryItems,
-    "study_material"
-)
-
-setupSubcategorySpinner(
-    careerSubcategorySpinner,
-    careerSubcategoryItems,
-    "career_guide"
-)
-
 updateSubcategoryVisibility()
 
 fun selectedSubcategoryFor(
     category: String
 ): CategorySubcategory? {
+
+    val items = subcategoryItems[category] ?: return null
+    val spinner = subcategorySpinners[category] ?: return null
+
+    return items.getOrNull(
+        spinner.selectedItemPosition - 1
+    )
+}
     return when (category) {
         "study_material" -> {
             studySubcategoryItems.getOrNull(
