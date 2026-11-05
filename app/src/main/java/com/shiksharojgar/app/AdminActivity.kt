@@ -7147,18 +7147,19 @@ val categoryLabels = mapOf(
     "career_guide" to "🎯 करियर गाइड"
 )
 
-subcategoryCategories.forEach { category ->
-    box.addView(
-        TextView(this).apply {
-            text = categoryLabels[category] ?: category
-            textSize = 14f
-            setPadding(0, dp(6), 0, dp(2))
-        }
-    )
+val subcategoryLabelViews = mutableMapOf<String, TextView>()
 
-    box.addView(
-        subcategorySpinners[category]!!
-    )
+subcategoryCategories.forEach { category ->
+    val labelView = TextView(this).apply {
+        text = categoryLabels[category] ?: category
+        textSize = 14f
+        setPadding(0, dp(6), 0, dp(2))
+    }
+
+    subcategoryLabelViews[category] = labelView
+    box.addView(labelView)
+
+    box.addView(subcategorySpinners[category]!!)
 
     setupHomeSubcategorySpinner(category)
 }
@@ -7169,8 +7170,11 @@ fun updateSubcategoryVisibility() {
             it.tag == category && it.isChecked
         }
 
-        subcategorySpinners[category]?.visibility =
-            if (checked) View.VISIBLE else View.GONE
+        val visibility =
+    if (checked) View.VISIBLE else View.GONE
+
+subcategoryLabelViews[category]?.visibility = visibility
+subcategorySpinners[category]?.visibility = visibility
     }
 }
 
