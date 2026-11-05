@@ -6336,11 +6336,12 @@ box.addView(subCategoryPdfStatus)
             dp(48)
         )
     )
+
 subCategoryPdfUri = null
 
 val pdfButton =
     Button(this).apply {
-        text = "📄 नई PDF चुनें"
+        text = "📄 PDF चुनें"
         setOnClickListener {
             pickSubCategoryPdf.launch(
                 arrayOf("application/pdf")
@@ -6358,16 +6359,12 @@ box.addView(
 
 subCategoryPdfStatus =
     TextView(this).apply {
-        text =
-            if (doc.getString("pdfUrl").isNullOrBlank()) {
-                "कोई PDF संलग्न नहीं है"
-            } else {
-                "✅ पहले से PDF संलग्न है"
-            }
+        text = "कोई PDF नहीं चुनी गई"
         textSize = 12f
     }
 
 box.addView(subCategoryPdfStatus)
+
     val pageTypeLabel =
         TextView(this).apply {
 
