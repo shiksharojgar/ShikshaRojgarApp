@@ -1195,46 +1195,26 @@ var displayedShareCount = post.shareCount
 
 val likeButton = TextView(this).apply {
     text = "🧡 Like करें $currentLikeCount"
-    textSize = 13f
-    gravity = Gravity.CENTER
-    typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.rgb(210, 105, 20))
-
-    background = GradientDrawable(
-        GradientDrawable.Orientation.TOP_BOTTOM,
-        intArrayOf(
-            Color.rgb(255, 248, 235),
-            Color.rgb(255, 225, 190)
-        )
-    ).apply {
-        cornerRadius = dp(10).toFloat()
-        setStroke(dp(1), Color.rgb(230, 145, 65))
-    }
-
-    elevation = dp(3).toFloat()
-    setPadding(dp(8), dp(8), dp(8), dp(8))
+    applyCategoryLikeStyle(this, false)
 }
 
 val shareButton = TextView(this).apply {
-    text = "Share ↗️ $displayedShareCount"
-    textSize = 13f
+    text = "📤 Share ↗️ $displayedShareCount"
+    textSize = 16f
     gravity = Gravity.CENTER
+    includeFontPadding = false
+    maxLines = 1
     typeface = Typeface.DEFAULT_BOLD
-    setTextColor(Color.rgb(15, 85, 145))
+    setTextColor(Color.rgb(14, 91, 215))
 
-    background = GradientDrawable(
-        GradientDrawable.Orientation.TOP_BOTTOM,
-        intArrayOf(
-            Color.rgb(235, 247, 255),
-            Color.rgb(195, 225, 250)
-        )
-    ).apply {
-        cornerRadius = dp(10).toFloat()
-        setStroke(dp(1), Color.rgb(65, 145, 210))
+    background = GradientDrawable().apply {
+        setColor(Color.WHITE)
+        cornerRadius = dp(24).toFloat()
+        setStroke(dp(1), Color.rgb(14, 91, 215))
     }
 
-    elevation = dp(3).toFloat()
-    setPadding(dp(8), dp(8), dp(8), dp(8))
+    elevation = 0f
+    setPadding(dp(12), dp(8), dp(12), dp(8))
 }
 
 // पहले से Like किया है या नहीं, Firestore से जाँचें।
@@ -1249,10 +1229,7 @@ CategoryPostRepository.isLiked(post.id) { liked ->
         "🧡 Like करें $currentLikeCount"
     }
 
-likeButton.setTextColor(
-    if (liked) Color.rgb(2, 132, 199)
-    else Color.rgb(230, 126, 34)
-)
+applyCategoryLikeStyle(likeButton, liked)
         }
     }
 }
@@ -1286,12 +1263,7 @@ likeButton.setOnClickListener {
         "🧡 Like करें $currentLikeCount"
     }
 
-                likeButton.setTextColor(
-    if (currentLiked) Color.rgb(2, 132, 199)
-    else Color.rgb(230, 126, 34)
-)
-
-                
+                applyCategoryLikeStyle(likeButton, currentLiked)
 
             } else {
                 Toast.makeText(
@@ -1339,7 +1311,7 @@ shareButton.setOnClickListener {
                     displayedShareCount++
 
 shareButton.text =
-    "Share ↗️ $displayedShareCount"
+"📤 Share ↗️ $displayedShareCount"
                 } else {
                     Toast.makeText(
                         this@HomeCategoryActivity,
@@ -1368,14 +1340,14 @@ shareButton.text =
 
 actionRow.addView(
     likeButton,
-    LinearLayout.LayoutParams(0, dp(42), 1f).apply {
+    LinearLayout.LayoutParams(0, dp(46), 1f).apply {
         marginEnd = dp(8)
     }
 )
 
 actionRow.addView(
     shareButton,
-    LinearLayout.LayoutParams(0, dp(42), 1f)
+    LinearLayout.LayoutParams(0, dp(46), 1f)
 )
 
 card.addView(actionRow)
@@ -1581,6 +1553,44 @@ private fun addSubCategoryButton(
     }
 }
 
+    private fun applyCategoryLikeStyle(
+    button: TextView,
+    liked: Boolean
+) {
+    button.textSize = 16f
+    button.gravity = Gravity.CENTER
+    button.includeFontPadding = false
+    button.maxLines = 1
+    button.typeface = Typeface.DEFAULT_BOLD
+
+    button.setTextColor(
+        if (liked) Color.rgb(7, 89, 133)
+        else Color.rgb(14, 91, 215)
+    )
+
+    button.background =
+        if (liked) {
+            GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(
+                    Color.rgb(125, 211, 252),
+                    Color.rgb(186, 230, 253)
+                )
+            ).apply {
+                cornerRadius = dp(24).toFloat()
+            }
+        } else {
+            GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadius = dp(24).toFloat()
+                setStroke(dp(1), Color.rgb(14, 91, 215))
+            }
+        }
+
+    button.elevation = 0f
+    button.setPadding(dp(12), dp(8), dp(12), dp(8))
+}
+    
     /*
      * =========================================================
      * DP
