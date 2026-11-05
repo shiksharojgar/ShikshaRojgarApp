@@ -1325,7 +1325,7 @@ append(doc.id)
                 val categoryNoticeShareButton =
     TextView(this@NoticeActivity).apply {
 
-        text = "📤 Share ↗️ $displayedShareCount"
+        text = "Share ↗️ $displayedShareCount"
         textSize = 16f
         typeface = Typeface.DEFAULT_BOLD
         gravity = Gravity.CENTER
