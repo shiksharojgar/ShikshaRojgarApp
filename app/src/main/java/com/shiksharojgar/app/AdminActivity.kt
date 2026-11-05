@@ -6320,11 +6320,11 @@ private fun showAddSubCategoryDialog(
         Spinner(this)
 
     val pageTypes =
-        arrayOf(
-            "Website",
-            "App Page",
-            "External Link"
-        )
+    arrayOf(
+        "App Page",
+        "Website / URL",
+        "PDF"
+    )
 
     pageTypeSpinner.adapter =
         ArrayAdapter(
@@ -6630,12 +6630,12 @@ private fun showEditSubCategoryDialog(
         pageTypeLabel
     )
 
-    val pageTypes =
-        arrayOf(
-            "Website",
-            "App Page",
-            "External Link"
-        )
+val pageTypes =
+    arrayOf(
+        "App Page",
+        "Website / URL",
+        "PDF"
+    )
 
     val pageTypeSpinner =
         Spinner(this)
