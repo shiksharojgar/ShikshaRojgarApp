@@ -7193,22 +7193,7 @@ fun selectedSubcategoryFor(
         spinner.selectedItemPosition - 1
     )
 }
-    return when (category) {
-        "study_material" -> {
-            studySubcategoryItems.getOrNull(
-                studySubcategorySpinner.selectedItemPosition - 1
-            )
-        }
-
-        "career_guide" -> {
-            careerSubcategoryItems.getOrNull(
-                careerSubcategorySpinner.selectedItemPosition - 1
-            )
-        }
-
-        else -> null
-    }
-}
+    
 
 
 box.addView(
