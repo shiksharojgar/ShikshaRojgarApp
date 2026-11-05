@@ -552,6 +552,27 @@ private fun shareContentPage(
                 )
             }
     }
+
+    private fun styleCategoryButton(
+    button: Button,
+    colorHex: String
+) {
+    button.setTextColor(Color.WHITE)
+    button.textSize = 14f
+    button.typeface = Typeface.DEFAULT_BOLD
+    button.isAllCaps = false
+
+    button.background =
+        android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.parseColor(colorHex))
+            cornerRadius = dp(12).toFloat()
+            setStroke(dp(1), Color.WHITE)
+        }
+
+    button.setPadding(
+        dp(12), dp(10), dp(12), dp(10)
+    )
+}
         private fun loadCategoryPosts(pageId: String) {
 
             val categoryKey = when (pageId) {
@@ -1083,24 +1104,7 @@ card.addView(
                         )
                     }
 
-fun styleCategoryButton(
-    button: Button,
-    colorHex: String
-) {
-    button.setTextColor(Color.WHITE)
-    button.textSize = 14f
-    button.typeface = Typeface.DEFAULT_BOLD
-    button.isAllCaps = false
-    button.background =
-        android.graphics.drawable.GradientDrawable().apply {
-            setColor(Color.parseColor(colorHex))
-            cornerRadius = dp(12).toFloat()
-            setStroke(dp(1), Color.WHITE)
-        }
-    button.setPadding(
-        dp(12), dp(10), dp(12), dp(10)
-    )
-}
+
 val categoryButtonRow = LinearLayout(this).apply {
     orientation = LinearLayout.HORIZONTAL
     gravity = Gravity.CENTER_VERTICAL
