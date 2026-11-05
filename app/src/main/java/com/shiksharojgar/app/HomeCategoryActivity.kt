@@ -926,12 +926,13 @@ subCategoryRowCount = 0
                 } else {
                     defaults.forEachIndexed { index, item ->
                         addSubCategoryButton(
-                            name = item.first,
-                            icon = item.second,
-                            url = item.third,
-                            pageType = "Website",
-                            index = index
-                        )
+    name = item.first,
+    icon = item.second,
+    url = item.third,
+    pageType = "Website",
+    index = index,
+    parentCategoryId = categoryId
+)
                     }
                 }
 
@@ -1359,10 +1360,11 @@ card.addView(actionRow)
 
                     if (url.isNotBlank()) {
                         openSubCategory(
-                            url = url,
-                            pageType = "Website",
-                            name = post.title
-                        )
+    url = url,
+    pageType = "Website",
+    name = post.title,
+    parentCategoryId = categoryId
+)
                     } else {
                         Toast.makeText(
                             this,
