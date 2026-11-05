@@ -6698,7 +6698,48 @@ private fun showEditSubCategoryDialog(
             dp(48)
         )
     )
+// EDIT SUB-CATEGORY PDF PICKER
 
+subCategoryPdfUri = null
+
+val oldPdfUrl =
+    doc.getString("pdfUrl").orEmpty()
+
+val editPdfButton =
+    Button(this).apply {
+
+        text = "📄 नई PDF चुनें"
+
+        setOnClickListener {
+
+            pickSubCategoryPdf.launch(
+                arrayOf("application/pdf")
+            )
+        }
+    }
+
+box.addView(
+    editPdfButton,
+    LinearLayout.LayoutParams(
+        -1,
+        dp(48)
+    )
+)
+
+subCategoryPdfStatus =
+    TextView(this).apply {
+
+        text =
+            if (oldPdfUrl.isNotBlank()) {
+                "✅ पहले से PDF संलग्न है"
+            } else {
+                "कोई PDF संलग्न नहीं है"
+            }
+
+        textSize = 12f
+    }
+
+box.addView(subCategoryPdfStatus)
     val pageTypeLabel =
         TextView(this).apply {
 
@@ -6745,8 +6786,15 @@ val pageTypes =
         )
 
     val oldPageType =
-        doc.getString("pageType")
-            ?: "Website"
+    when (doc.getString("pageType")) {
+        "Website",
+        "External Link",
+        "Website / URL" -> "Website / URL"
+
+        "PDF" -> "PDF"
+
+        else -> "App Page"
+    }
 
     val oldPageIndex =
         pageTypes.indexOf(oldPageType)
