@@ -590,51 +590,8 @@ private fun shareContentPage(
 
         else -> return
     }
-    // उप-श्रेणी की अलग वेबसाइट
-    val subCategoryWebsiteUrl =
-        intent.getStringExtra("subCategoryWebsiteUrl").orEmpty()
-
-    if (
-        pageId in setOf(
-            "teacher",
-            "student",
-            "school",
-            "vacancy",
-            "result",
-            "admit_card"
-        ) &&
-        subCategoryWebsiteUrl.isNotBlank()
-    ) {
-        val websiteButton = Button(this).apply {
-            text = "🌐 इस उप-श्रेणी की वेबसाइट खोलें"
-            styleCategoryButton(this, "#00897B")
-
-            setOnClickListener {
-                val url = if (
-                    subCategoryWebsiteUrl.startsWith("http://") ||
-                    subCategoryWebsiteUrl.startsWith("https://")
-                ) {
-                    subCategoryWebsiteUrl
-                } else {
-                    "https://$subCategoryWebsiteUrl"
-                }
-
-                try {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            android.net.Uri.parse(url)
-                        )
-                    )
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        this@ContentPageActivity,
-                        "वेबसाइट नहीं खुल सकी।",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
+    
+    
 
         bodyBox.addView(
             websiteButton,
