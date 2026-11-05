@@ -35,6 +35,10 @@
             android:name=".ContentPageActivity"
             android:exported="false" />
 
+        <activity
+    android:name=".PdfViewerActivity"
+    android:exported="false" />
+        
         <service
             android:name=".ShikshaMessagingService"
             android:exported="false">
