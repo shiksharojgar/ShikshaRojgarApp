@@ -908,6 +908,81 @@ fun countPosts(
     }
 
     // ---------------------------------------------------------
+// LOAD PDF FILE FOR IN-APP VIEWER
+// ---------------------------------------------------------
+
+fun loadPdfFile(
+    context: Context,
+    mediaRef: String,
+    done: (File?, String?) -> Unit
+) {
+
+    Thread {
+
+        try {
+
+            val outputFile =
+                File.createTempFile(
+                    "shiksha_pdf_",
+                    ".pdf",
+                    context.cacheDir
+                )
+
+            if (
+                mediaRef.startsWith(
+                    "firestore-media://"
+                )
+            ) {
+
+                val mediaId =
+                    mediaRef.removePrefix(
+                        "firestore-media://"
+                    )
+
+                readMediaToFile(
+                    mediaId,
+                    outputFile
+                )
+
+            } else {
+
+                val connection =
+                    URL(mediaRef)
+                        .openConnection()
+                            as HttpURLConnection
+
+                connection.connectTimeout = 20000
+                connection.readTimeout = 30000
+                connection.instanceFollowRedirects = true
+
+                connection.inputStream.use { input ->
+                    outputFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                connection.disconnect()
+            }
+
+            runOnMain {
+
+                done(outputFile, null)
+            }
+
+        } catch (e: Exception) {
+
+            runOnMain {
+
+                done(
+                    null,
+                    e.message ?: "PDF पढ़ी नहीं जा सकी"
+                )
+            }
+        }
+
+    }.start()
+}
+    // ---------------------------------------------------------
     // OPEN MEDIA
     // ---------------------------------------------------------
 
