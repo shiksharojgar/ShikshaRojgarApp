@@ -951,12 +951,14 @@ subCategoryRowCount = 0
                     ?: "Website"
 
                 addSubCategoryButton(
-                    name = name,
-                    icon = icon,
-                    url = url,
-                    pageType = pageType,
-                    index = index
-                )
+    name = name,
+    icon = icon,
+    url = url,
+    pageType = pageType,
+    index = index,
+    subCategoryId = doc.id,
+    parentCategoryId = categoryId
+)
             }
         }
         .addOnFailureListener { e ->
@@ -1444,7 +1446,9 @@ private fun addSubCategoryButton(
     icon: String,
     url: String,
     pageType: String,
-    index: Int
+    index: Int,
+    subCategoryId: String = "",
+    parentCategoryId: String = categoryId
 ) {
     if (subCategoryRow == null || subCategoryRowCount >= 2) {
         subCategoryRow = LinearLayout(this).apply {
@@ -1485,7 +1489,13 @@ private fun addSubCategoryButton(
         }
 
         setOnClickListener {
-            openSubCategory(url, pageType, name)
+            openSubCategory(
+    url,
+    pageType,
+    name,
+    subCategoryId,
+    parentCategoryId
+)
         }
     }
 
@@ -1511,45 +1521,65 @@ private fun addSubCategoryButton(
      * =========================================================
      */
     private fun openSubCategory(
-        url: String,
-        pageType: String,
-        name: String
-    ) {
+    url: String,
+    pageType: String,
+    name: String,
+    subCategoryId: String = "",
+    parentCategoryId: String = categoryId
+) {
+    try {
+        val pageIntent = Intent(
+            this,
+            ContentPageActivity::class.java
+        ).apply {
 
-        if (url.isBlank()) {
-
-            Toast.makeText(
-                this,
-                "$name का URL अभी उपलब्ध नहीं है।",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
-        }
-
-        try {
-
-            startActivity(
-                Intent(
-                    this,
-                    WebViewActivity::class.java
-                ).putExtra(
-                    "url",
-                    url
-                )
+            putExtra(
+                "pageId",
+                parentCategoryId
             )
 
-        } catch (
-            e: Exception
-        ) {
+            putExtra(
+                "pageTitle",
+                name
+            )
 
-            Toast.makeText(
-                this,
-                "Page open नहीं हो सका।",
-                Toast.LENGTH_SHORT
-            ).show()
+            putExtra(
+                "activeSection",
+                "HOME"
+            )
+
+            putExtra(
+                "subCategoryId",
+                subCategoryId
+            )
+
+            putExtra(
+                "subCategoryLabel",
+                name
+            )
+
+            putExtra(
+                "subCategoryWebsiteUrl",
+                url
+            )
+
+            putExtra(
+                "subCategoryPageType",
+                pageType
+            )
         }
+
+        startActivity(pageIntent)
+
+    } catch (e: Exception) {
+
+        Toast.makeText(
+            this,
+            "पेज खुल नहीं सका: ${e.message}",
+            Toast.LENGTH_LONG
+        ).show()
     }
+}
 
     /*
      * =========================================================
