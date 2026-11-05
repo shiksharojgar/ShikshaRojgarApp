@@ -6951,35 +6951,82 @@ val pageTypes =
                 AlertDialog.BUTTON_POSITIVE
             ).isEnabled = false
 
-            db.collection(
-                "home_subcategories"
+            val saveEditSubCategory = {
+
+    db.collection(
+        "home_subcategories"
+    )
+        .document(documentId)
+        .set(
+            data,
+            com.google.firebase.firestore.SetOptions.merge()
+        )
+        .addOnSuccessListener {
+
+            toast("Sub-Category update हो गई")
+
+            dialog.dismiss()
+        }
+        .addOnFailureListener { e ->
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).isEnabled = true
+
+            toast(
+                "Update failed: ${
+                    e.message ?: "Firestore error"
+                }"
             )
-                .document(documentId)
-                .set(
-                    data,
-                    com.google.firebase.firestore.SetOptions.merge()
-                )
-                .addOnSuccessListener {
+        }
+}
 
-                    toast(
-                        "Sub-Category update हो गई"
-                    )
+if (pageType == "PDF") {
 
-                    dialog.dismiss()
-                }
-                .addOnFailureListener { e ->
+    val selectedPdf = subCategoryPdfUri
 
-                    dialog.getButton(
-                        AlertDialog.BUTTON_POSITIVE
-                    ).isEnabled = true
+    if (selectedPdf != null) {
 
-                    toast(
-                        "Update failed: ${
-                            e.message
-                                ?: "Firestore error"
-                        }"
-                    )
-                }
+        toast("नई PDF अपलोड हो रही है...")
+
+        ChannelRepository.upload(
+            selectedPdf,
+            "subcategory_pdfs"
+        ) { pdfUrl, error ->
+
+            if (pdfUrl == null) {
+
+                dialog.getButton(
+                    AlertDialog.BUTTON_POSITIVE
+                ).isEnabled = true
+
+                toast(error ?: "PDF अपलोड नहीं हुई")
+
+            } else {
+
+                data["pdfUrl"] = pdfUrl
+
+                saveEditSubCategory()
+            }
+        }
+
+    } else if (oldPdfUrl.isNotBlank()) {
+
+        saveEditSubCategory()
+
+    } else {
+
+        dialog.getButton(
+            AlertDialog.BUTTON_POSITIVE
+        ).isEnabled = true
+
+        toast("PDF प्रकार के लिए पहले PDF चुनें")
+    }
+
+} else {
+
+    saveEditSubCategory()
+}
         }
     }
 
