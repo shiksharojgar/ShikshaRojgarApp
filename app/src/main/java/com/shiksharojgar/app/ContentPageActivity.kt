@@ -1505,14 +1505,14 @@ shareButton.text =
 // सभी बटन एक ही लाइन में
 actionRow.addView(
     likeButton,
-    LinearLayout.LayoutParams(0, dp(42), 1f).apply {
+    LinearLayout.LayoutParams(0, dp(46), 1f).apply {
         marginEnd = dp(8)
     }
 )
 
 actionRow.addView(
     shareButton,
-    LinearLayout.LayoutParams(0, dp(42), 1f)
+    LinearLayout.LayoutParams(0, dp(46), 1f)
 )
 
 card.addView(actionRow)
