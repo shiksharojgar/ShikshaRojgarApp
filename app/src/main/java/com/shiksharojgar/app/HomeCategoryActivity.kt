@@ -1424,8 +1424,8 @@ private fun addSubCategoryButton(
     url: String,
     pageType: String,
     index: Int,
-    subCategoryId: String = "",
-    
+        subCategoryId: String = "",
+    pdfUrl: String = "",
     parentCategoryId: String = ""
 ) {
     if (subCategoryRow == null || subCategoryRowCount >= 2) {
@@ -1472,6 +1472,7 @@ private fun addSubCategoryButton(
     pageType,
     name,
     subCategoryId,
+    pdfUrl,
     parentCategoryId
 )
         }
@@ -1504,7 +1505,7 @@ private fun openSubCategory(
     pageType: String,
     name: String,
     subCategoryId: String = "",
-    pdfUrl,
+    pdfUrl: String = "",
     parentCategoryId: String = ""
 ) {
     try {
@@ -1557,14 +1558,48 @@ private fun openSubCategory(
 
                 startActivity(pageIntent)
             }
+"pdf" -> {
 
-            "pdf" -> {
-                Toast.makeText(
+    if (pdfUrl.isBlank()) {
+        Toast.makeText(
+            this,
+            "इस Sub-Category की PDF उपलब्ध नहीं है।",
+            Toast.LENGTH_SHORT
+        ).show()
+        return
+    }
+
+    Toast.makeText(
+        this,
+        "PDF खुल रही है...",
+        Toast.LENGTH_SHORT
+    ).show()
+
+    ChannelRepository.loadPdfFile(
+        this,
+        pdfUrl
+    ) { pdfFile, error ->
+
+        if (pdfFile == null) {
+            Toast.makeText(
+                this,
+                error ?: "PDF नहीं खुल सकी।",
+                Toast.LENGTH_LONG
+            ).show()
+
+        } else {
+            startActivity(
+                Intent(
                     this,
-                    "PDF Viewer अगली प्रक्रिया में जोड़ा जाएगा।",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+                    PdfViewerActivity::class.java
+                ).putExtra(
+                    "pdfFilePath",
+                    pdfFile.absolutePath
+                )
+            )
+        }
+    }
+}
 
             else -> {
                 Toast.makeText(
