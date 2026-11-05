@@ -515,7 +515,7 @@ val buttonColor = when {
         if (textValue in outlinedButtons) {
             foreground = android.graphics.drawable.GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
-                setStroke(dp(2), Color.WHITE)
+                setStroke(dp(4), Color.WHITE)
                 cornerRadius = dp(8).toFloat()
             }
         }
