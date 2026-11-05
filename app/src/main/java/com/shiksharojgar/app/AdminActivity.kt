@@ -7226,8 +7226,8 @@ val subcategoryCategories = listOf(
     "vacancy",
     "result",
     "admit_card",
-    "study_material",
-    "career_guide"
+        "study_material",
+    "career_guide",
     "important_information"
 )
 
