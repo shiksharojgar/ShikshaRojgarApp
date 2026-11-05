@@ -919,17 +919,36 @@ if (posts.isEmpty()) {
     }
 
 val categoryStyle = when (categoryKey) {
+
     "notice" ->
-        "📢  NOTICE / नोटिस" to "#D32F2F"
+        "📢 NOTICE / नोटिस अपडेट" to "#D32F2F"
 
     "study_material" ->
-        "📚  STUDY MATERIAL / पढ़ाई" to "#2E7D32"
+        "📚 STUDY MATERIAL / पढ़ाई" to "#2E7D32"
 
     "career_guide" ->
-        "🎯  CAREER / JOBS" to "#EF6C00"
+        "🎯 CAREER / JOBS" to "#EF6C00"
+
+    "teacher" ->
+        "👩‍🏫 TEACHER / शिक्षक" to "#1976D2"
+
+    "student" ->
+        "🎓 STUDENT / विद्यार्थी" to "#7B1FA2"
+
+    "school" ->
+        "🏫 SCHOOL / विद्यालय" to "#2E7D32"
+
+    "vacancy" ->
+        "💼 VACANCY / भर्ती" to "#EF6C00"
+
+    "result" ->
+        "🏆 RESULT / परिणाम" to "#00838F"
+
+    "admit_card" ->
+        "🎫 ADMIT CARD / प्रवेश पत्र" to "#C62828"
 
     else ->
-        "📌  IMPORTANT INFORMATION" to "#6A1B9A"
+        "📌 IMPORTANT INFORMATION" to "#6A1B9A"
 }
 
 val categoryStrip = TextView(this).apply {
