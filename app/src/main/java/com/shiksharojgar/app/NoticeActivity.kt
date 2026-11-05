@@ -1134,6 +1134,10 @@ var currentLikeCount = doc.getLong("likeCount") ?: 0L
 val noticeLikeButton =
     TextView(this@NoticeActivity).apply {
         text = "🧡 Like करें $currentLikeCount"
+        applyCategoryLikeStyle(this, false)
+        isEnabled = false
+    }
+        text = "🧡 Like करें $currentLikeCount"
         textSize = 13f
         gravity = Gravity.CENTER
         typeface = Typeface.DEFAULT_BOLD
@@ -1168,10 +1172,7 @@ CategoryPostRepository.isLiked(doc.id) { liked ->
         "🧡 Like करें $currentLikeCount"
     }
 
-            noticeLikeButton.setTextColor(
-    if (currentLiked) Color.rgb(2, 132, 199)
-    else Color.rgb(230, 126, 34)
-)
+            applyCategoryLikeStyle(noticeLikeButton, liked)
 
             noticeLikeButton.isEnabled = true
         }
@@ -1205,9 +1206,7 @@ noticeLikeButton.setOnClickListener {
     } else {
         "🧡 Like करें $currentLikeCount"
     }
-                noticeLikeButton.setTextColor(
-    if (currentLiked) Color.rgb(125, 211, 252) else Color.GRAY
-)
+                applyCategoryLikeStyle(noticeLikeButton, currentLiked)
 
                 
             } else {
@@ -1224,7 +1223,7 @@ noticeLikeButton.setOnClickListener {
 // Share Count से पहले Like बटन और संख्या जोड़ें।
 noticeButtonRow.addView(
     noticeLikeButton,
-    LinearLayout.LayoutParams(dp(140), dp(42)).apply {
+    LinearLayout.LayoutParams(dp(160), dp(46)).apply {
         marginEnd = dp(8)
     }
 )
@@ -1326,32 +1325,23 @@ append(doc.id)
                 val categoryNoticeShareButton =
     TextView(this@NoticeActivity).apply {
 
-        text = "Share ↗️ $displayedShareCount"
-textSize = 13f
-typeface = Typeface.DEFAULT_BOLD
-gravity = Gravity.CENTER
+        text = "📤 Share ↗️ $displayedShareCount"
+        textSize = 16f
+        typeface = Typeface.DEFAULT_BOLD
+        gravity = Gravity.CENTER
+        includeFontPadding = false
+        maxLines = 1
 
-setTextColor(Color.rgb(15, 85, 145))
+        setTextColor(Color.rgb(14, 91, 215))
 
-background = android.graphics.drawable.GradientDrawable(
-    android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-    intArrayOf(
-        Color.rgb(235, 247, 255),
-        Color.rgb(195, 225, 250)
-    )
-).apply {
-    cornerRadius = dp(10).toFloat()
-    setStroke(dp(1), Color.rgb(65, 145, 210))
-}
+        background = android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = dp(24).toFloat()
+            setStroke(dp(1), Color.rgb(14, 91, 215))
+        }
 
-elevation = dp(3).toFloat()
-
-setPadding(
-    dp(8),
-    dp(8),
-    dp(8),
-    dp(8)
-)
+        elevation = 0f
+        setPadding(dp(12), dp(8), dp(12), dp(8))
 
         setOnClickListener {
 
@@ -1385,7 +1375,7 @@ setPadding(
 
 noticeButtonRow.addView(
     categoryNoticeShareButton,
-    LinearLayout.LayoutParams(dp(140), dp(42)).apply {
+    LinearLayout.LayoutParams(dp(160), dp(46)).apply {
         marginEnd = dp(8)
     }
 
@@ -1491,6 +1481,44 @@ private fun formatPostBody(value: String): CharSequence {
     }
 
     return result
+}
+
+private fun applyCategoryLikeStyle(
+    button: TextView,
+    liked: Boolean
+) {
+    button.textSize = 16f
+    button.gravity = Gravity.CENTER
+    button.includeFontPadding = false
+    button.maxLines = 1
+    button.typeface = Typeface.DEFAULT_BOLD
+
+    button.setTextColor(
+        if (liked) Color.rgb(7, 89, 133)
+        else Color.rgb(14, 91, 215)
+    )
+
+    button.background =
+        if (liked) {
+            android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(
+                    Color.rgb(125, 211, 252),
+                    Color.rgb(186, 230, 253)
+                )
+            ).apply {
+                cornerRadius = dp(24).toFloat()
+            }
+        } else {
+            android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadius = dp(24).toFloat()
+                setStroke(dp(1), Color.rgb(14, 91, 215))
+            }
+        }
+
+    button.elevation = 0f
+    button.setPadding(dp(12), dp(8), dp(12), dp(8))
 }
 // ============================================================
 // DP
