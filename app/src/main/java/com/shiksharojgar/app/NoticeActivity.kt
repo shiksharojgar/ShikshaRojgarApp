@@ -1137,27 +1137,7 @@ val noticeLikeButton =
         applyCategoryLikeStyle(this, false)
         isEnabled = false
     }
-        text = "🧡 Like करें $currentLikeCount"
-        textSize = 13f
-        gravity = Gravity.CENTER
-        typeface = Typeface.DEFAULT_BOLD
-        setTextColor(Color.rgb(210, 105, 20))
-
-        background = android.graphics.drawable.GradientDrawable(
-            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.rgb(255, 248, 235),
-                Color.rgb(255, 225, 190)
-            )
-        ).apply {
-            cornerRadius = dp(10).toFloat()
-            setStroke(dp(1), Color.rgb(230, 145, 65))
-        }
-
-        elevation = dp(3).toFloat()
-        setPadding(dp(8), dp(8), dp(8), dp(8))
-        isEnabled = false
-    }
+        
 
 // पहले से Like है या नहीं, जाँचें।
 CategoryPostRepository.isLiked(doc.id) { liked ->
