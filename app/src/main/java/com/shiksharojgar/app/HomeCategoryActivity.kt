@@ -119,9 +119,41 @@ override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     CommonPageUi.applyBlueStatusBar(this)
 
-    val categoryId = intent.getStringExtra("categoryId") ?: ""
-    val categoryName = intent.getStringExtra("categoryName") ?: "Category"
-    val categoryIcon = intent.getStringExtra("categoryIcon") ?: ""
+val route = intent.data
+    ?.takeIf {
+        it.scheme == "shiksharojgar" &&
+        it.host == "open"
+    }
+    ?.lastPathSegment
+    .orEmpty()
+
+val routeCategoryId = when (route) {
+    "important-information" -> "important_information"
+    "study-material" -> "study_material"
+    "career-guide" -> "career_guide"
+    "admit-card" -> "admit_card"
+    else -> route
+}
+
+val categoryId =
+    intent.getStringExtra("categoryId")
+        ?: routeCategoryId
+
+val categoryName = intent.getStringExtra("categoryName")
+    ?: when (categoryId) {
+        "teacher" -> "Teacher"
+        "student" -> "Student"
+        "school" -> "School"
+        "vacancy" -> "Vacancy"
+        "result" -> "Result"
+        "admit_card" -> "Admit Card"
+        "important_information" -> "Important Information"
+        "career_guide" -> "Career Guide"
+        "study_material" -> "Study Material"
+        else -> "Category"
+    }
+
+val categoryIcon = intent.getStringExtra("categoryIcon") ?: ""
 
     setContentView(buildUi(categoryName, categoryIcon, categoryId))
 
