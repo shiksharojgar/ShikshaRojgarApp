@@ -7282,7 +7282,11 @@ fun setupHomeSubcategorySpinner(category: String) {
     val items = subcategoryItems[category] ?: return
     val spinner = subcategorySpinners[category] ?: return
 
-    if (category == "study_material" || category == "career_guide") {
+if (
+    category == "study_material" ||
+    category == "career_guide" ||
+    category == "important_information"
+) {
         CategorySubcategoryRepository.load(
             category,
             { loadedItems ->
@@ -7340,7 +7344,8 @@ val categoryLabels = mapOf(
     "result" to "🏆 Result",
     "admit_card" to "🎫 Admit Card",
     "study_material" to "📚 अध्ययन सामग्री",
-    "career_guide" to "🎯 करियर गाइड"
+    "career_guide" to "🎯 करियर गाइड",
+    "important_information" to "📌 महत्वपूर्ण सूचना"
 )
 
 val subcategoryLabelViews = mutableMapOf<String, TextView>()
