@@ -1104,13 +1104,38 @@ if (fileUrl.isNotBlank()) {
         styleCategoryButton(this, "#6A1B9A")
 
         setOnClickListener {
-            runCatching {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        android.net.Uri.parse(fileUrl)
+            isEnabled = false
+            text = "⏳ PDF खुल रही है..."
+
+            ChannelRepository.loadPdfFile(
+                this@ContentPageActivity,
+                fileUrl
+            ) { pdfFile, error ->
+
+                isEnabled = true
+                text = "📄 " + fileName.ifBlank {
+                    "PDF / अध्ययन सामग्री खोलें"
+                }
+
+                if (pdfFile != null) {
+                    startActivity(
+                        Intent(
+                            this@ContentPageActivity,
+                            PdfViewerActivity::class.java
+                        ).putExtra(
+                            "pdfFilePath",
+                            pdfFile.absolutePath
+                        )
                     )
-                )
+                } else {
+                    Toast.makeText(
+                        this@ContentPageActivity,
+                        "PDF नहीं खुल सकी: ${
+                            error ?: "अज्ञात त्रुटि"
+                        }",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
