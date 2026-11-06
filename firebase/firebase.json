@@ -28,6 +28,14 @@
         "source": "/teacher",
         "destination": "/link-router.html"
       },
+            {
+        "source": "/notice",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/notice/**",
+        "destination": "/link-router.html"
+      },
       {
         "source": "/teacher/**",
         "destination": "/link-router.html"
