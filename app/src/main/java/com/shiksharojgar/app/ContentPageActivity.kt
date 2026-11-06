@@ -1374,7 +1374,7 @@ val shareText = buildString {
 
     append("\n*पोस्ट देखें 👇*")
     append("\n")
-    append(CommonShareBuilder.directPostUrl(doc.id))
+    append(CommonShareBuilder.directPostUrl(doc.id, pageId))
 
     if (title.isNotBlank()) {
         append("\n\n*")
