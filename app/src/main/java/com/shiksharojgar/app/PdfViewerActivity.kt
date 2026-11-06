@@ -46,6 +46,34 @@ class PdfViewerActivity : Activity() {
             LinearLayout.LayoutParams(-1, dp(58))
         )
 
+val pdfName = filePath?.let { File(it).name }
+    ?.takeIf { it.isNotBlank() }
+    ?: "PDF फाइल"
+
+val pdfTitleBar = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+    setPadding(dp(16), dp(10), dp(16), dp(10))
+    setBackgroundColor(Color.WHITE)
+}
+
+pdfTitleBar.addView(TextView(this).apply {
+    text = "📄 PDF देखें"
+    textSize = 17f
+    setTextColor(Color.rgb(25, 65, 110))
+    setTypeface(null, android.graphics.Typeface.BOLD)
+})
+
+pdfTitleBar.addView(TextView(this).apply {
+    text = pdfName
+    textSize = 13f
+    setTextColor(Color.DKGRAY)
+    maxLines = 2
+})
+
+root.addView(
+    pdfTitleBar,
+    LinearLayout.LayoutParams(-1, ViewGroup.LayoutParams.WRAP_CONTENT)
+)
         // PDF SCROLL AREA
         val scrollView = ScrollView(this)
 
