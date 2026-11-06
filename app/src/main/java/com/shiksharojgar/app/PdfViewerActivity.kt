@@ -45,7 +45,7 @@ class PdfViewerActivity : Activity() {
             header,
             LinearLayout.LayoutParams(-1, dp(58))
         )
-
+val filePath = intent.getStringExtra("pdfFilePath")
 val pdfName = filePath?.let { File(it).name }
     ?.takeIf { it.isNotBlank() }
     ?: "PDF फाइल"
@@ -109,7 +109,7 @@ root.addView(
 
         setContentView(root)
 
-        val filePath = intent.getStringExtra("pdfFilePath")
+        
 
         if (filePath.isNullOrBlank()) {
             showError(pagesLayout, "PDF फाइल उपलब्ध नहीं है।")
