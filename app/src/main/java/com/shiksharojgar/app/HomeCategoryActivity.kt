@@ -1321,9 +1321,16 @@ likeButton.setOnClickListener {
 // Share और Share Count
 shareButton.setOnClickListener {
 
-    val shareUrl = post.websiteUrl.ifBlank {
-        post.fileUrl
-    }
+    val shareSlug = when (categoryId.lowercase()) {
+    "admit_card" -> "admit-card"
+    "important_information" -> "important-information"
+    "study_material" -> "study-material"
+    "career", "career_guide" -> "career-guide"
+    else -> categoryId.lowercase()
+}
+
+val shareUrl =
+    "https://shiksha-rojgar.web.app/$shareSlug?post=${android.net.Uri.encode(post.id)}"
 
     val shareText = buildString {
         append("पोस्ट देखें 👇\n")
@@ -1338,10 +1345,14 @@ shareButton.setOnClickListener {
             append(description)
         }
 
-        if (shareUrl.isNotBlank()) {
-            append("\n")
-            append(shareUrl)
-        }
+        append("\n\n")
+append(shareUrl)
+
+append("\n\nOfficial Website")
+append("\nhttps://shiksharojgar.com")
+
+append("\n\nApp Download")
+append("\nhttps://shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
     }
 
     CategoryPostRepository.increaseShareCount(post.id) { success ->
