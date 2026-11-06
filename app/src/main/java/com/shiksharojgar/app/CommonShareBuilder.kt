@@ -60,7 +60,7 @@ object CommonShareBuilder {
      */
 fun directPostUrl(
     postId: String,
-    pageId: String
+    pageId: String = "channel"
 ): String {
 
     val section = when (pageId.lowercase()) {
@@ -74,7 +74,7 @@ fun directPostUrl(
         "vacancy" -> "vacancy"
         "result" -> "result"
         "admit_card" -> "admit-card"
-        else -> "important-information"
+        else -> "channel"
     }
 
     return "https://shiksha-rojgar.web.app/$section" +
