@@ -1322,37 +1322,50 @@ likeButton.setOnClickListener {
 shareButton.setOnClickListener {
 
     val shareSlug = when (categoryId.lowercase()) {
-    "admit_card" -> "admit-card"
-    "important_information" -> "important-information"
-    "study_material" -> "study-material"
-    "career", "career_guide" -> "career-guide"
-    else -> categoryId.lowercase()
-}
+        "admit_card" -> "admit-card"
+        "important_information" -> "important-information"
+        "study_material" -> "study-material"
+        "career", "career_guide" -> "career-guide"
+        else -> categoryId.lowercase()
+    }
 
-val shareUrl =
-    "https://shiksha-rojgar.web.app/$shareSlug?post=${android.net.Uri.encode(post.id)}"
+    val shareUrl =
+        "https://shiksha-rojgar.web.app/$shareSlug?post=${android.net.Uri.encode(post.id)}"
+
+    val categoryLabel = when (categoryId.lowercase()) {
+        "teacher" -> "Teacher"
+        "student" -> "Student"
+        "school" -> "School"
+        "vacancy" -> "Vacancy"
+        "result" -> "Result"
+        "admit_card" -> "Admit Card"
+        else -> categoryId.replace("_", " ")
+    }
 
     val shareText = buildString {
-        append("पोस्ट देखें 👇\n")
-        append(post.title)
+
+        append("*📱 Shiksha Rojgar App 🐦 $categoryLabel*")
+
+        append("\n\n*पोस्ट देखें 👇*")
+
+        append("\n$shareUrl")
+
+        append("\n\n*${post.title}*")
 
         val description = post.description.ifBlank {
             post.body
         }
 
         if (description.isNotBlank()) {
-            append("\n")
+            append("\n\n")
             append(description)
         }
 
-        append("\n\n")
-append(shareUrl)
+        append("\n\n*✅ शिक्षा रोजगार की Official Website 🌐*")
+        append("\nhttps://www.shiksharojgar.com/")
 
-append("\n\nOfficial Website")
-append("\nhttps://shiksharojgar.com")
-
-append("\n\nApp Download")
-append("\nhttps://shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
+        append("\n\n*☝️ यहां क्लिक करके 📱 Shiksha Rojgar App डाउनलोड इंस्टॉल करें !*")
+        append("\nhttps://shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.html")
     }
 
     CategoryPostRepository.increaseShareCount(post.id) { success ->
@@ -1363,8 +1376,9 @@ append("\nhttps://shiksharojgar.com/2026/09/shiksha-rojgar-android-app-latest.ht
                 if (success) {
                     displayedShareCount++
 
-shareButton.text =
-"📤 Share ↗️ $displayedShareCount"
+                    shareButton.text =
+                        "📤 Share ↗️ $displayedShareCount"
+
                 } else {
                     Toast.makeText(
                         this@HomeCategoryActivity,
@@ -1373,19 +1387,45 @@ shareButton.text =
                     ).show()
                 }
 
-                val shareIntent = Intent(
-                    Intent.ACTION_SEND
-                ).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, shareText)
-                }
+                val imageRef = post.imageUrl
+                val pdfRef = post.fileUrl
 
-                startActivity(
-                    Intent.createChooser(
-                        shareIntent,
-                        "पोस्ट शेयर करें"
-                    )
-                )
+                when {
+                    imageRef.isNotBlank() -> {
+
+                        ShareHelper.shareImageOrText(
+                            this@HomeCategoryActivity,
+                            post.title,
+                            shareText,
+                            imageRef,
+                            "पोस्ट शेयर करें"
+                        )
+                    }
+
+                    pdfRef.isNotBlank() -> {
+
+                        ShareHelper.sharePdf(
+                            this@HomeCategoryActivity,
+                            post.title,
+                            shareText,
+                            pdfRef,
+                            post.fileName,
+                            post.fileMime,
+                            "PDF शेयर करें"
+                        )
+                    }
+
+                    else -> {
+
+                        ShareHelper.shareImageOrText(
+                            this@HomeCategoryActivity,
+                            post.title,
+                            shareText,
+                            "",
+                            "पोस्ट शेयर करें"
+                        )
+                    }
+                }
             }
         }
     }
