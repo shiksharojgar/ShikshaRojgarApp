@@ -16,6 +16,14 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+            {
+        "source": "/group",
+        "destination": "/link-router.html"
+      },
+      {
+        "source": "/group/**",
+        "destination": "/link-router.html"
+      },
       {
         "source": "/teacher",
         "destination": "/link-router.html"
