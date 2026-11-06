@@ -142,7 +142,21 @@
         </activity>
 
         <activity
-            android:name=".HomeCategoryActivity" />
+    android:name=".HomeCategoryActivity"
+    android:exported="true">
+
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+            android:scheme="shiksharojgar"
+            android:host="open" />
+    </intent-filter>
+
+</activity>
 <activity
     android:name=".NoticeActivity"
     android:exported="true">
