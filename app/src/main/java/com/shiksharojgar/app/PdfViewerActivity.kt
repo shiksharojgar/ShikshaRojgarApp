@@ -1,3 +1,4 @@
+
 package com.shiksharojgar.app
 
 import android.app.Activity
@@ -23,33 +24,34 @@ class PdfViewerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        CommonPageUi.applyBlueStatusBar(this)
+
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.rgb(245, 245, 245))
+            setBackgroundColor(Color.rgb(248, 250, 252))
         }
 
-        val header = TextView(this).apply {
-            text = "📄 PDF देखें"
-            textSize = 19f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(18, 14, 18, 14)
-            setBackgroundColor(Color.rgb(25, 90, 160))
-        }
+        // APP HEADER
+        val header = CommonPageUi.createHeader(
+            this,
+            onBack = { finish() },
+            onShare = {},
+            onMenu = {
+                CommonPageUi.showAccountMenu(this)
+            }
+        )
 
         root.addView(
             header,
-            LinearLayout.LayoutParams(
-                -1,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            LinearLayout.LayoutParams(-1, dp(58))
         )
 
+        // PDF SCROLL AREA
         val scrollView = ScrollView(this)
 
         val pagesLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(8, 10, 8, 10)
+            setPadding(dp(8), dp(10), dp(8), dp(10))
         }
 
         scrollView.addView(pagesLayout)
@@ -60,6 +62,20 @@ class PdfViewerActivity : Activity() {
                 -1,
                 0,
                 1f
+            )
+        )
+
+        // BOTTOM NAVIGATION
+        val bottomBar = CommonPageUi.createBottomBar(
+            this,
+            CommonPageUi.Section.MORE
+        )
+
+        root.addView(
+            bottomBar,
+            LinearLayout.LayoutParams(
+                -1,
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
 
@@ -97,14 +113,17 @@ class PdfViewerActivity : Activity() {
         }
     }
 
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+
     private fun renderPdfPages(
         pagesLayout: LinearLayout
     ) {
         val renderer = pdfRenderer ?: return
 
         val screenWidth =
-            resources.displayMetrics.widthPixels -
-                (resources.displayMetrics.density * 24).toInt()
+            resources.displayMetrics.widthPixels - dp(24)
 
         try {
             for (pageIndex in 0 until renderer.pageCount) {
@@ -138,7 +157,7 @@ class PdfViewerActivity : Activity() {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     adjustViewBounds = true
                     setBackgroundColor(Color.WHITE)
-                    elevation = 3f
+                    elevation = dp(3).toFloat()
                 }
 
                 pagesLayout.addView(
@@ -147,7 +166,7 @@ class PdfViewerActivity : Activity() {
                         -1,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     ).apply {
-                        bottomMargin = 16
+                        bottomMargin = dp(16)
                     }
                 )
             }
@@ -172,7 +191,7 @@ class PdfViewerActivity : Activity() {
                 textSize = 16f
                 setTextColor(Color.RED)
                 gravity = Gravity.CENTER
-                setPadding(20, 30, 20, 30)
+                setPadding(dp(20), dp(30), dp(20), dp(30))
             }
         )
     }
