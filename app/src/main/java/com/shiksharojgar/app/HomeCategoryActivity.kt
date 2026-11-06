@@ -23,6 +23,8 @@ class HomeCategoryActivity : AppCompatActivity() {
     private lateinit var listLayout: LinearLayout
 private lateinit var subCategoryLayout: LinearLayout
 private lateinit var postsLayout: LinearLayout
+    private lateinit var categoryScrollView: ScrollView
+private var pendingPostId: String = ""
 private lateinit var unreadBadge: TextView
 
 private var categoryPostsListener:
@@ -117,6 +119,10 @@ private val sliderRunnable = object : Runnable {
 
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    pendingPostId = intent.data
+    ?.getQueryParameter("post")
+    ?.takeIf { it.isNotBlank() }
+    ?: intent.getStringExtra("postId").orEmpty()
     CommonPageUi.applyBlueStatusBar(this)
 
 val route = intent.data
@@ -493,8 +499,8 @@ categoryPageTitleView = TextView(this).apply {
          * SUB CATEGORY CONTENT
          * =====================================================
          */
-        val scroll =
-            ScrollView(this).apply {
+        categoryScrollView =
+    ScrollView(this).apply {
 
                 isFillViewport = true
             }
@@ -670,10 +676,10 @@ postsLayout = LinearLayout(this).apply {
 
 listLayout.addView(postsLayout)
 
-scroll.addView(listLayout)
+categoryScrollView.addView(listLayout)
 
         root.addView(
-            scroll,
+            categoryScrollView,
             LinearLayout.LayoutParams(
                 -1,
                 0,
@@ -1418,6 +1424,16 @@ card.addView(actionRow)
                         bottomMargin = dp(12)
                     }
                 )
+                if (
+    pendingPostId.isNotBlank() &&
+    post.id == pendingPostId
+) {
+    categoryScrollView.post {
+        val targetY = postsLayout.top + card.top
+        categoryScrollView.smoothScrollTo(0, targetY)
+        pendingPostId = ""
+    }
+                }
             }
         },
         onError = { error ->
