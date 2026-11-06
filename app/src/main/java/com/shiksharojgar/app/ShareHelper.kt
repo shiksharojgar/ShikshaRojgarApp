@@ -260,6 +260,85 @@ context.startActivity(
     }
 
     
+fun sharePdf(
+    context: Context,
+    title: String,
+    text: String,
+    pdfRef: String,
+    fileName: String = "document.pdf",
+    mimeType: String = "application/pdf",
+    chooserTitle: String = "PDF शेयर करें"
+) {
+    if (pdfRef.isBlank()) {
+        shareText(context, title, text, chooserTitle)
+        return
+    }
+
+    ChannelRepository.loadPdfFile(
+        context,
+        pdfRef
+    ) { sourceFile, error ->
+
+        if (sourceFile == null || !sourceFile.exists()) {
+            shareText(context, title, text, chooserTitle)
+            return@loadPdfFile
+        }
+
+        Thread {
+            try {
+                val dir = File(context.cacheDir, "shared_media")
+                dir.mkdirs()
+
+                val safeName = fileName
+                    .replace(Regex("[^A-Za-z0-9._-]"), "_")
+                    .ifBlank { "document.pdf" }
+
+                val outputFile = File(
+                    dir,
+                    "share_${System.currentTimeMillis()}_$safeName"
+                )
+
+                sourceFile.copyTo(outputFile, overwrite = true)
+
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "com.shiksharojgar.app.fileprovider",
+                    outputFile
+                )
+
+                Handler(Looper.getMainLooper()).post {
+                    try {
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = mimeType.ifBlank { "application/pdf" }
+
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_TEXT, text)
+                            putExtra(Intent.EXTRA_TITLE, title)
+
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                            clipData = ClipData.newRawUri(
+                                "Shiksha Rojgar PDF",
+                                uri
+                            )
+                        }
+
+                        context.startActivity(
+                            Intent.createChooser(intent, chooserTitle)
+                        )
+                    } catch (_: Exception) {
+                        shareText(context, title, text, chooserTitle)
+                    }
+                }
+            } catch (_: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    shareText(context, title, text, chooserTitle)
+                }
+            }
+        }.start()
+    }
+}
+
     private fun shareText(
         context: Context,
         title: String,
