@@ -58,17 +58,28 @@ object CommonShareBuilder {
      * DIRECT POST URL
      * ============================================================
      */
-    fun directPostUrl(
-        postId: String
-    ): String {
+fun directPostUrl(
+    postId: String,
+    pageId: String
+): String {
 
-        if (postId.isBlank()) {
-            return "https://shiksha-rojgar.web.app/channel"
-        }
-
-        return "https://shiksha-rojgar.web.app/channel" +
-            "?post=${Uri.encode(postId)}"
+    val section = when (pageId.lowercase()) {
+        "school" -> "school"
+        "study_material" -> "study-material"
+        "career", "career_guide", "career_tools" -> "career-guide"
+        "important_information" -> "important-information"
+        "notices", "notice" -> "notice"
+        "teacher" -> "teacher"
+        "student" -> "student"
+        "vacancy" -> "vacancy"
+        "result" -> "result"
+        "admit_card" -> "admit-card"
+        else -> "important-information"
     }
+
+    return "https://shiksha-rojgar.web.app/$section" +
+        "?post=${Uri.encode(postId)}"
+}
 
     /**
      * ============================================================
