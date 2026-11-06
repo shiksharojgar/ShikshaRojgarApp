@@ -15,6 +15,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 import java.io.File
 import java.io.IOException
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class PdfViewerActivity : Activity() {
 
@@ -108,7 +110,23 @@ root.addView(
         )
 
         setContentView(root)
+ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
 
+    val systemBars = insets.getInsets(
+        WindowInsetsCompat.Type.systemBars()
+    )
+
+    view.setPadding(
+        systemBars.left,
+        systemBars.top,
+        systemBars.right,
+        systemBars.bottom
+    )
+
+    insets
+}
+
+ViewCompat.requestApplyInsets(root)
         
 
         if (filePath.isNullOrBlank()) {
