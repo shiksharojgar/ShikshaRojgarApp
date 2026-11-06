@@ -189,7 +189,33 @@
         section = (params.get("section") || "channel").toLowerCase();
       }
 
-      const route = routes[section] || routes["channel"];
+      const aliases = {
+  "career": "career-guide",
+  "career_guide": "career-guide",
+  "admit_card": "admit-card",
+  "study_material": "study-material",
+  "important_information": "important-information",
+  "notices": "notice"
+};
+
+section = aliases[section] || section;
+
+const route = routes[section];
+
+if (!route) {
+  document.getElementById("sectionName").textContent =
+    "कैटेगरी लिंक उपलब्ध नहीं है";
+
+  document.getElementById("postInfo").textContent =
+    "कृपया सही कैटेगरी लिंक खोलें।";
+
+  document.getElementById("openApp").style.display = "none";
+
+  document.getElementById("status").textContent =
+    "गलत लिंक को Channel में नहीं भेजा गया है।";
+
+  return;
+}
       const postId = params.get("post") || params.get("postId") || "";
 
       document.getElementById("sectionName").textContent = route.name;
