@@ -50,7 +50,7 @@ private fun handleNoticeDeepLink(intent: Intent?) {
     val noticeId = uri.getQueryParameter("post")
         ?: uri.pathSegments.lastOrNull()
 
-    if (noticeId.isNullOrBlank() || noticeId == "notice") {
+if (noticeId.isNullOrBlank() || noticeId == "notice" || noticeId == "post") {
         return
     }
 
