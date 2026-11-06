@@ -642,7 +642,7 @@ fun countPosts(
                                                 buffer.copyOf(read)
                                             }
 
-                                        Tasks.await(
+                                                                                Tasks.await(
                                             mediaRef
                                                 .collection("chunks")
                                                 .document(index.toString())
@@ -652,7 +652,7 @@ fun countPosts(
                                                         "data" to Blob.fromBytes(bytes)
                                                     )
                                                 ),
-                                            60,
+                                            120,
                                             TimeUnit.SECONDS
                                         )
 
