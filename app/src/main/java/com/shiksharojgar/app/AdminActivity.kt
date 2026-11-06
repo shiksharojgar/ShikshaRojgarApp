@@ -2390,7 +2390,7 @@ val homeCategoryControlsFrame = LinearLayout(this).apply {
     background = android.graphics.drawable.GradientDrawable().apply {
         setColor(Color.TRANSPARENT)
         cornerRadius = dp(12).toFloat()
-        setStroke(dp(1), Color.rgb(160, 180, 195))
+        setStroke(dp(2), Color.rgb(25, 118, 210))
     }
 }
 
@@ -2466,74 +2466,94 @@ pageSettings.chunked(3).forEach { rowItems ->
 }
 
 
-val categoryPostActionsRow = LinearLayout(this).apply {
-    orientation = LinearLayout.HORIZONTAL
-    gravity = Gravity.CENTER_VERTICAL
+
+val categoryPostActions = listOf(
+    Triple("👩‍🏫 Teacher", "teacher", Color.rgb(2, 132, 199)),
+    Triple("🎓 Student", "student", Color.rgb(13, 148, 136)),
+    Triple("🏫 School", "school", Color.rgb(22, 125, 75)),
+    Triple("💼 Vacancy", "vacancy", Color.rgb(217, 119, 6)),
+    Triple("🏆 Result", "result", Color.rgb(194, 65, 12)),
+    Triple("🎫 Admit Card", "admit_card", Color.rgb(79, 70, 229))
+)
+
+// POST CREATE — छह अलग बटन
+homeCategoryControlsFrame.addView(
+    adminSectionTitle("➕", "POST CREATE — पोस्ट बनाएं")
+)
+
+categoryPostActions.chunked(3).forEach { items ->
+
+    val row = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    items.forEachIndexed { index, item ->
+        val (label, categoryKey, color) = item
+
+        val button = adminActionButton("➕ $label") {
+            showCommonPostCreator(categoryKey)
+        }
+
+        button.textSize = 10f
+        button.isAllCaps = false
+        button.setBackgroundTintList(
+            android.content.res.ColorStateList.valueOf(color)
+        )
+
+        row.addView(
+            button,
+            LinearLayout.LayoutParams(0, dp(48), 1f).apply {
+                if (index > 0) leftMargin = dp(4)
+            }
+        )
+    }
+
+    homeCategoryControlsFrame.addView(
+        row,
+        LinearLayout.LayoutParams(-1, dp(52))
+    )
 }
 
-categoryPostActionsRow.addView(
-    adminActionButton("➕ पोस्ट जोड़ें") {
-        showCommonPostCreator()
-    },
-    LinearLayout.LayoutParams(
-        0,
-        dp(48),
-        1f
-    ).apply {
-        rightMargin = dp(4)
-    }
-)
-
-categoryPostActionsRow.addView(
-    adminActionButton("📋 पोस्ट मैनेज करें") {
-        val categoryLabels = arrayOf(
-            "👩‍🏫 Teacher",
-            "🎓 Student",
-            "🏫 School",
-            "💼 Vacancy",
-            "🏆 Result",
-            "🎫 Admit Card"
-        )
-
-        val categoryKeys = arrayOf(
-            "teacher",
-            "student",
-            "school",
-            "vacancy",
-            "result",
-            "admit_card"
-        )
-
-        AlertDialog.Builder(this@AdminActivity)
-            .setTitle("पोस्ट मैनेज करने के लिए पेज चुनें")
-            .setItems(categoryLabels) { _, which ->
-                showCategoryPostManager(
-                    categoryKeys[which],
-                    categoryLabels[which]
-                )
-            }
-            .setNegativeButton("बंद करें", null)
-            .show()
-    },
-    LinearLayout.LayoutParams(
-        0,
-        dp(48),
-        1f
-    ).apply {
-        leftMargin = dp(4)
-    }
-)
-
+// POST MANAGEMENT — छह अलग बटन
 homeCategoryControlsFrame.addView(
-    categoryPostActionsRow,
-    LinearLayout.LayoutParams(
-        -1,
-        dp(54)
-    ).apply {
-        topMargin = dp(4)
-        bottomMargin = dp(8)
-    }
+    adminSectionTitle("📋", "POST MANAGEMENT — पोस्ट मैनेज करें")
 )
+
+categoryPostActions.chunked(3).forEach { items ->
+
+    val row = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    items.forEachIndexed { index, item ->
+        val (label, categoryKey, color) = item
+
+        val button = adminActionButton("📋 $label") {
+            showCategoryPostManager(categoryKey, label)
+        }
+
+        button.textSize = 10f
+        button.isAllCaps = false
+        button.setBackgroundTintList(
+            android.content.res.ColorStateList.valueOf(color)
+        )
+
+        row.addView(
+            button,
+            LinearLayout.LayoutParams(0, dp(36), 1f).apply {
+                if (index > 0) leftMargin = dp(4)
+            }
+        )
+    }
+
+    homeCategoryControlsFrame.addView(
+        row,
+        LinearLayout.LayoutParams(-1, dp(52))
+    )
+}
+
 
 homeManagement.addView(
     homeCategoryControlsFrame,
