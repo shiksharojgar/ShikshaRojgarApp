@@ -1357,16 +1357,39 @@ likeButton.setOnClickListener {
 // पोस्ट शेयर करने का पूरा टेक्स्ट
 val shareText = buildString {
 
-    val categoryHeader = when (pageId) {
-        "career", "career_guide", "career_tools" ->
-            "📱 Shiksha Rojgar App 🛠️ Career / Useful Tools"
+    
+val categoryHeader = when (categoryKey) {
+    "teacher" ->
+        "📱 Shiksha Rojgar App 👨‍🏫 Teacher"
 
-        "study_material" ->
-            "📱 Shiksha Rojgar App 📚 Study / Syllabus"
+    "student" ->
+        "📱 Shiksha Rojgar App 🎓 Student"
 
-        else ->
-            "📱 Shiksha Rojgar App 📌 Imp Info"
-    }
+    "school" ->
+        "📱 Shiksha Rojgar App 🏫 School"
+
+    "vacancy" ->
+        "📱 Shiksha Rojgar App 💼 Vacancy"
+
+    "result" ->
+        "📱 Shiksha Rojgar App 📊 Result"
+
+    "admit_card" ->
+        "📱 Shiksha Rojgar App 🎫 Admit Card"
+
+    "career_guide" ->
+        "📱 Shiksha Rojgar App 🛠️ Career Guide"
+
+    "study_material" ->
+        "📱 Shiksha Rojgar App 📚 Study Material"
+
+    "important_information" ->
+        "📱 Shiksha Rojgar App 📌 Important Information"
+
+    else ->
+        "📱 Shiksha Rojgar App 📌 $categoryKey"
+}
+
 
     append("*")
     append(categoryHeader)
