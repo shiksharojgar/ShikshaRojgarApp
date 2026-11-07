@@ -1593,6 +1593,16 @@ shareButton.setOnClickListener {
         )
     }
 }
+
+bodyBox.addView(
+    card,
+    LinearLayout.LayoutParams(
+        -1,
+        -2
+    ).apply {
+        bottomMargin = dp(12)
+    }
+)
 }
             }
         }
