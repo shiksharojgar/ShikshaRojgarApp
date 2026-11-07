@@ -3188,16 +3188,69 @@ val htmlText =
         CommonShareBuilder.Section.CHANNEL
     )
 
-ShareHelper.shareImageOrText(
-    this,
-    CommonShareBuilder.sectionHeader(
-        CommonShareBuilder.Section.CHANNEL
-    ),
-    text,
-    p.imageUrl,
-    "Share Channel Post",
-    htmlText
-)
+if (p.fileUrl.isNotBlank()) {
+
+    val options = if (p.imageUrl.isNotBlank()) {
+        arrayOf(
+            "📷 फोटो शेयर करें",
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
+    } else {
+        arrayOf(
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
+    }
+
+    android.app.AlertDialog.Builder(this)
+        .setTitle("शेयर करने का विकल्प चुनें")
+        .setItems(options) { _, which ->
+
+            when (options[which]) {
+
+                "📷 फोटो शेयर करें" -> {
+                    ShareHelper.shareImageOrText(
+                        this,
+                        CommonShareBuilder.sectionHeader(
+                            CommonShareBuilder.Section.CHANNEL
+                        ),
+                        text,
+                        p.imageUrl,
+                        "Share Channel Post",
+                        htmlText
+                    )
+                }
+
+                else -> {
+                    ShareHelper.sharePdf(
+                        this,
+                        p.title,
+                        text,
+                        p.fileUrl,
+                        p.fileName,
+                        p.fileMime,
+                        "PDF और पोस्ट लिंक शेयर करें"
+                    )
+                }
+            }
+        }
+        .setNegativeButton("रद्द करें", null)
+        .show()
+
+} else {
+
+    ShareHelper.shareImageOrText(
+        this,
+        CommonShareBuilder.sectionHeader(
+            CommonShareBuilder.Section.CHANNEL
+        ),
+        text,
+        p.imageUrl,
+        "Share Channel Post",
+        htmlText
+    )
+}
 }
     /*
      * COMMENTS
