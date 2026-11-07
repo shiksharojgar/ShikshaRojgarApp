@@ -3172,7 +3172,7 @@ HomeCategory(
             learningCard(
                 category.name,
                 category.icon,
-                colors
+                colors,
                 category.id
             ) {
                 openHomeCategory(
