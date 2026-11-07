@@ -1668,7 +1668,6 @@ private fun openSubCategory(
             "website",
             "website / url",
             "external link" -> {
-
                 if (url.isBlank()) {
                     Toast.makeText(
                         this,
@@ -1678,15 +1677,14 @@ private fun openSubCategory(
                     return
                 }
 
-                val websiteUrl =
-                    if (
-                        url.startsWith("http://", true) ||
-                        url.startsWith("https://", true)
-                    ) {
-                        url
-                    } else {
-                        "https://$url"
-                    }
+                val websiteUrl = if (
+                    url.startsWith("http://", true) ||
+                    url.startsWith("https://", true)
+                ) {
+                    url
+                } else {
+                    "https://$url"
+                }
 
                 startActivity(
                     Intent(
@@ -1697,7 +1695,6 @@ private fun openSubCategory(
             }
 
             "app page" -> {
-
                 val pageIntent = Intent(
                     this,
                     ContentPageActivity::class.java
@@ -1712,58 +1709,58 @@ private fun openSubCategory(
 
                 startActivity(pageIntent)
             }
-"pdf" -> {
 
-    if (pdfUrl.isBlank()) {
-        Toast.makeText(
-            this,
-            "इस Sub-Category की PDF उपलब्ध नहीं है।",
-            Toast.LENGTH_SHORT
-        ).show()
-        return
-    }
-
-        val loadingDialog =
-        CommonPageUi.showFileLoadingDialog(
-            this,
-            "📄 PDF खुल रही है..."
-        )
-
-    ChannelRepository.loadPdfFile(
-        this,
-        pdfUrl
-    ) { pdfFile, error ->
-
-        loadingDialog.dismiss()
-
-        if (pdfFile == null) {
-            Toast.makeText(
-                this,
-                error ?: "PDF नहीं खुल सकी।",
-                Toast.LENGTH_LONG
-            ).show()
-
-        } else {
-            try {
-                startActivity(
-                    Intent(
+            "pdf" -> {
+                if (pdfUrl.isBlank()) {
+                    Toast.makeText(
                         this,
-                        PdfViewerActivity::class.java
-                    ).putExtra(
-                        "pdfFilePath",
-                        pdfFile.absolutePath
+                        "इस Sub-Category की PDF उपलब्ध नहीं है।",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+
+                val loadingDialog =
+                    CommonPageUi.showFileLoadingDialog(
+                        this,
+                        "📄 PDF खुल रही है..."
                     )
-                )
-            } catch (e: Exception) {
-                Toast.makeText(
+
+                ChannelRepository.loadPdfFile(
                     this,
-                    "PDF Viewer नहीं खुल सका: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                    pdfUrl
+                ) { pdfFile, error ->
+
+                    loadingDialog.dismiss()
+
+                    if (pdfFile == null) {
+                        Toast.makeText(
+                            this,
+                            error ?: "PDF नहीं खुल सकी।",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        try {
+                            startActivity(
+                                Intent(
+                                    this,
+                                    PdfViewerActivity::class.java
+                                ).putExtra(
+                                    "pdfFilePath",
+                                    pdfFile.absolutePath
+                                )
+                            )
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                this,
+                                "PDF Viewer नहीं खुल सका: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
             }
-        }
-    }
-}
+
             else -> {
                 Toast.makeText(
                     this,
