@@ -1363,7 +1363,17 @@ shareButton.setOnClickListener {
 
     val shareText = buildString {
 
-        append("*📱 Shiksha Rojgar App 🐦 $categoryLabel*")
+        val categoryEmoji = when (categoryId.lowercase()) {
+    "teacher" -> "👩‍🏫"
+    "student" -> "🎓"
+    "school" -> "🏫"
+    "vacancy" -> "💼"
+    "result" -> "🏆"
+    "admit_card" -> "🎫"
+    else -> "📱"
+}
+
+append("*📱 Shiksha Rojgar App $categoryEmoji $categoryLabel*")
 
         append("\n\n*पोस्ट देखें 👇*")
 
