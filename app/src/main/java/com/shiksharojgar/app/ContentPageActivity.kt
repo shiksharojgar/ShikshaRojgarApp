@@ -1519,66 +1519,78 @@ shareButton.setOnClickListener {
 
     displayedShareCount++
 
-shareButton.text =
-    "📤 Share ↗️ $displayedShareCount"
+    shareButton.text =
+        "📤 Share ↗️ $displayedShareCount"
 
-    try {
+    val cleanShareText =
+        shareText.substringBefore("\n\n📄 ")
+
+    if (fileUrl.isNotBlank()) {
+
+        val options = if (imageUrl.isNotBlank()) {
+            arrayOf(
+                "📷 फोटो शेयर करें",
+                "📄 PDF फाइल शेयर करें",
+                "🔗 PDF पोस्ट लिंक शेयर करें"
+            )
+        } else {
+            arrayOf(
+                "📄 PDF फाइल शेयर करें",
+                "🔗 PDF पोस्ट लिंक शेयर करें"
+            )
+        }
+
+        android.app.AlertDialog.Builder(this@ContentPageActivity)
+            .setTitle("शेयर करने का विकल्प चुनें")
+            .setItems(options) { _, which ->
+
+                when (options[which]) {
+
+                    "📷 फोटो शेयर करें" -> {
+                        ShareHelper.shareImageOrText(
+                            this@ContentPageActivity,
+                            title,
+                            cleanShareText,
+                            imageUrl,
+                            "फोटो शेयर करें"
+                        )
+                    }
+
+                    "📄 PDF फाइल शेयर करें" -> {
+                        ShareHelper.sharePdf(
+                            this@ContentPageActivity,
+                            title,
+                            cleanShareText,
+                            fileUrl,
+                            fileName,
+                            "application/pdf",
+                            "PDF शेयर करें"
+                        )
+                    }
+
+                    else -> {
+                        ShareHelper.shareImageOrText(
+                            this@ContentPageActivity,
+                            title,
+                            cleanShareText,
+                            "",
+                            "PDF लिंक शेयर करें"
+                        )
+                    }
+                }
+            }
+            .setNegativeButton("रद्द करें", null)
+            .show()
+
+    } else {
+
         ShareHelper.shareImageOrText(
             this@ContentPageActivity,
             title,
-            shareText,
+            cleanShareText,
             imageUrl,
             "पोस्ट शेयर करें"
         )
-    } catch (_: Exception) {
-        Toast.makeText(
-            this@ContentPageActivity,
-            "पोस्ट शेयर नहीं हो सकी।",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 }
-// सभी बटन एक ही लाइन में
-actionRow.addView(
-    likeButton,
-    LinearLayout.LayoutParams(0, dp(46), 1f).apply {
-        marginEnd = dp(8)
-    }
-)
-
-actionRow.addView(
-    shareButton,
-    LinearLayout.LayoutParams(0, dp(46), 1f)
-)
-
-card.addView(actionRow)
-
-
-                                      val postSubcategoryId =
-                        doc.getString("subCategoryId").orEmpty()
-
-                    postCards.add(card to postSubcategoryId)
-                    card.visibility =
-                        if (
-                            selectedSubcategoryId.isBlank() ||
-                            selectedSubcategoryId == postSubcategoryId
-                        ) View.VISIBLE else View.GONE  
-                    bodyBox.addView(
-                        card,
-                        LinearLayout.LayoutParams(
-                            -1, -2
-                        ).apply {
-                            bottomMargin = dp(12)
-                        }
-                    )
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    this,
-                    "कैटेगरी पोस्ट लोड नहीं हो सकीं।",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
 }
