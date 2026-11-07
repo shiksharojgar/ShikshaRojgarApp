@@ -1584,14 +1584,16 @@ shareButton.setOnClickListener {
                     }
 
                     else -> {
-                        ShareHelper.shareImageOrText(
-                            this@ContentPageActivity,
-                            title,
-                            cleanShareText,
-                            "",
-                            "PDF लिंक शेयर करें"
-                        )
-                    }
+    ShareHelper.sharePdf(
+        this@ContentPageActivity,
+        title,
+        cleanShareText,
+        fileUrl,
+        fileName,
+        "application/pdf",
+        "PDF और पोस्ट लिंक शेयर करें"
+    )
+}
                 }
             }
             .setNegativeButton("रद्द करें", null)
