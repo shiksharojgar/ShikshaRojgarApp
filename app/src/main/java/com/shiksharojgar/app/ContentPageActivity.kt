@@ -1647,7 +1647,13 @@ shareButton.setOnClickListener {
         )
     }
 }
-
+if (
+    categoryKey == "important_information" &&
+    doc.getBoolean("pinned") == true &&
+    pinnedPostCard == null
+) {
+    pinnedPostCard = card
+}
 bodyBox.addView(
     card,
     LinearLayout.LayoutParams(
