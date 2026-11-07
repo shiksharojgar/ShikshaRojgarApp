@@ -232,14 +232,7 @@ if (activeSection == "IMP_INFO") {
 }
     }
 
-    titleStrip.addView(
-        pinnedButton,
-        LinearLayout.LayoutParams(
-            dp(48),
-            dp(48)
-        )
-    )
-}
+    
         root.addView(
             titleStrip,
             LinearLayout.LayoutParams(
