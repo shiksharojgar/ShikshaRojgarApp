@@ -2401,34 +2401,45 @@ notificationTargetPostId?.let { targetId ->
                         dp(7)
                     )
 
-                    setOnClickListener {
+                    
+setOnClickListener {
 
     isEnabled = false
-    text = "⏳ PDF खुल रही है..."
+
+    val loadingDialog =
+        CommonPageUi.showFileLoadingDialog(
+            this@ChannelActivity,
+            "📄 PDF खुल रही है..."
+        )
 
     ChannelRepository.loadPdfFile(
         this@ChannelActivity,
         p.fileUrl
     ) { pdfFile, error ->
 
+        loadingDialog.dismiss()
+
         isEnabled = true
-        text = "📄 ${
-            p.fileName.ifBlank {
-                "PDF/Document"
-            }
-        }  •  OPEN"
 
         if (pdfFile != null) {
 
-            startActivity(
-                Intent(
-                    this@ChannelActivity,
-                    PdfViewerActivity::class.java
-                ).putExtra(
-                    "pdfFilePath",
-                    pdfFile.absolutePath
+            try {
+                startActivity(
+                    Intent(
+                        this@ChannelActivity,
+                        PdfViewerActivity::class.java
+                    ).putExtra(
+                        "pdfFilePath",
+                        pdfFile.absolutePath
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@ChannelActivity,
+                    "PDF Viewer नहीं खुल सका: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
 
         } else {
 
@@ -2442,6 +2453,7 @@ notificationTargetPostId?.let { targetId ->
         }
     }
 }
+
                 }
             )
         }
