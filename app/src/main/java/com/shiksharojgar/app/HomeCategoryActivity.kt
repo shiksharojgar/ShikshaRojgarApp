@@ -1066,6 +1066,47 @@ private fun loadCategoryPosts(categoryId: String) {
                 return@observePosts
             }
 
+            // कैटेगरी की पोस्ट देखने का Last Seen समय सेव करें।
+val unreadCategoryIds = setOf(
+    "teacher",
+    "student",
+    "school",
+    "vacancy",
+    "result",
+    "admit_card",
+    "study_material",
+    "career_guide"
+)
+
+val normalizedCategoryId = categoryId.trim().lowercase()
+
+if (normalizedCategoryId in unreadCategoryIds) {
+    val prefs = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    )
+
+    val lastSeenKey =
+        "category_${normalizedCategoryId}_last_seen_at"
+
+    val newestTime = posts.maxOfOrNull {
+        it.createdAt
+    } ?: 0L
+
+    val oldTime = prefs.getLong(lastSeenKey, 0L)
+
+    if (newestTime > oldTime) {
+        prefs.edit()
+            .putLong(lastSeenKey, newestTime)
+            .apply()
+
+        sendBroadcast(
+            Intent(
+                "com.shiksharojgar.app.UNREAD_COUNTS_CHANGED"
+            ).setPackage(packageName)
+        )
+    }
+}
             posts.forEach { post ->
 
     // पोस्ट दिखने पर View Count रिकॉर्ड करें।
