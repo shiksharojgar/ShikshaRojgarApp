@@ -1091,7 +1091,26 @@ val card = LinearLayout(this).apply {
         setStroke(dp(1), Color.rgb(220, 230, 238))
     }
 }
+// 📌 PINNED MESSAGE LABEL
+if (post.pinned) {
+    card.addView(
+        TextView(this@HomeCategoryActivity).apply {
+            text = "📌 PINNED MESSAGE"
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(183, 28, 28))
+            setPadding(dp(10), dp(7), dp(10), dp(7))
 
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(255, 235, 238))
+                cornerRadius = dp(8).toFloat()
+            }
+        },
+        LinearLayout.LayoutParams(-1, -2).apply {
+            bottomMargin = dp(8)
+        }
+    )
+}
 val row = LinearLayout(this).apply {
     orientation = if (isLargeImage) {
         LinearLayout.VERTICAL
