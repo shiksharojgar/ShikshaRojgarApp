@@ -1466,16 +1466,17 @@ if (pdfRef.isNotBlank()) {
                         "PDF शेयर करें"
                     )
                 }
-
-                else -> {
-                    ShareHelper.shareImageOrText(
-                        this@HomeCategoryActivity,
-                        post.title,
-                        shareText,
-                        "",
-                        "PDF लिंक शेयर करें"
-                    )
-                }
+else -> {
+    ShareHelper.sharePdf(
+        this@HomeCategoryActivity,
+        post.title,
+        shareText,
+        pdfRef,
+        post.fileName,
+        post.fileMime,
+        "PDF और पोस्ट लिंक शेयर करें"
+    )
+}
             }
         }
         .setNegativeButton("रद्द करें", null)
