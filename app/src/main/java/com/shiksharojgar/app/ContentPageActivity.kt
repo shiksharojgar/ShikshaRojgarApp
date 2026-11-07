@@ -1603,6 +1603,9 @@ bodyBox.addView(
         bottomMargin = dp(12)
     }
 )
+postCards.add(
+    card to doc.getString("subCategoryId").orEmpty()
+)
 }
             }
         }
