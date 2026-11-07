@@ -18,6 +18,7 @@ class ContentPageActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
 
     private lateinit var bodyBox: LinearLayout
+    private lateinit var contentScroll: ScrollView
     private lateinit var titleView: TextView
     
     
@@ -190,8 +191,8 @@ root.addView(
          * CONTENT
          * =====================================================
          */
-                 val scroll =
-             ScrollView(this).apply {
+                 contentScroll =
+    ScrollView(this).apply {
 
                 isFillViewport = true
 
@@ -214,7 +215,7 @@ root.addView(
                 )
             }
 
-        scroll.addView(
+        contentScroll.addView(
     bodyBox,
     FrameLayout.LayoutParams(
         -1,
@@ -223,7 +224,7 @@ root.addView(
 )
 
         root.addView(
-            scroll,
+            contentScroll,
             LinearLayout.LayoutParams(
                 -1,
                 0,
