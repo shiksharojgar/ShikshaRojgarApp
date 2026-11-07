@@ -3197,17 +3197,15 @@ val htmlText =
 if (p.fileUrl.isNotBlank()) {
 
     val options = if (p.imageUrl.isNotBlank()) {
-        arrayOf(
-            "📷 फोटो शेयर करें",
-            "📄 PDF फाइल शेयर करें",
-            "🔗 PDF पोस्ट लिंक शेयर करें"
-        )
-    } else {
-        arrayOf(
-            "📄 PDF फाइल शेयर करें",
-            "🔗 PDF पोस्ट लिंक शेयर करें"
-        )
-    }
+    arrayOf(
+        "📷 फोटो शेयर करें",
+        "📄 PDF और पोस्ट संदेश शेयर करें"
+    )
+} else {
+    arrayOf(
+        "📄 PDF और पोस्ट संदेश शेयर करें"
+    )
+}
 
     android.app.AlertDialog.Builder(this)
         .setTitle("शेयर करने का विकल्प चुनें")
