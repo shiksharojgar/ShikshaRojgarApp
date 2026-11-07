@@ -64,6 +64,11 @@ private fun addCategoryUnreadBadge(
                     Color.RED
                 }
             )
+
+            setStroke(
+    (resources.displayMetrics.density).toInt().coerceAtLeast(1),
+    Color.WHITE
+)
         }
 
         elevation = 12f
