@@ -35,6 +35,67 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 
 class MainActivity : AppCompatActivity() {
+// Home Category Unread Badges
+private val categoryUnreadBadges =
+    mutableMapOf<String, TextView>()
+
+private fun addCategoryUnreadBadge(
+    frame: android.widget.FrameLayout,
+    categoryId: String
+) {
+    val badge = TextView(this).apply {
+        text = "0"
+        gravity = Gravity.CENTER
+        textSize = 11f
+        setTextColor(Color.WHITE)
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+        includeFontPadding = false
+
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(
+                if (categoryId in setOf(
+                    "student",
+                    "vacancy",
+                    "result"
+                )) {
+                    Color.rgb(22, 163, 74)
+                } else {
+                    Color.RED
+                }
+            )
+        }
+
+        elevation = 12f
+        visibility = View.GONE
+    }
+
+    val size = (24 * resources.displayMetrics.density).toInt()
+
+    frame.addView(
+        badge,
+        android.widget.FrameLayout.LayoutParams(
+            size,
+            size
+        ).apply {
+            gravity = Gravity.TOP or Gravity.END
+            setMargins(0, 0, 0, 0)
+        }
+    )
+
+    categoryUnreadBadges[categoryId] = badge
+
+    val count = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    ).getInt("${categoryId}_bottom_unread", 0)
+
+    if (count > 0) {
+        badge.text = if (count > 99) "99+" else count.toString()
+        badge.visibility = View.VISIBLE
+    }
+}
+    
     // Home Photo Auto Slider
     private var homeCarouselIndex = 0
 private var homeCarouselUrls: List<String> = emptyList()
