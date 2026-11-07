@@ -25,6 +25,56 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 object CommonPageUi {
+    
+fun showFileLoadingDialog(
+    context: Context,
+    message: String = "फाइल खुल रही है..."
+): AlertDialog {
+
+    val content = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(24, 22, 24, 22)
+    }
+
+    val spinner = ProgressBar(context).apply {
+        isIndeterminate = true
+    }
+
+    content.addView(
+        spinner,
+        LinearLayout.LayoutParams(
+            44,
+            44
+        )
+    )
+
+    val messageView = TextView(context).apply {
+        text = "$message\nकृपया प्रतीक्षा करें!"
+        textSize = 16f
+        setTextColor(Color.rgb(30, 41, 59))
+        typeface = Typeface.DEFAULT_BOLD
+        setPadding(18, 0, 0, 0)
+    }
+
+    content.addView(
+        messageView,
+        LinearLayout.LayoutParams(
+            0,
+            -2,
+            1f
+        )
+    )
+
+    return AlertDialog.Builder(context)
+        .setView(content)
+        .setCancelable(false)
+        .create()
+        .apply {
+            show()
+        }
+}
+
     fun applyBlueStatusBar(activity: Activity) {
     val window = activity.window
     val blue = Color.rgb(29, 78, 216)
