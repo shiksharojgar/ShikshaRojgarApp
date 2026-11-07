@@ -90,6 +90,26 @@ ViewCompat.setOnApplyWindowInsetsListener(
     insets
 }
 
+// वेबसाइट व्यू हेडर को Status Bar के नीचे रखें
+ViewCompat.setOnApplyWindowInsetsListener(
+    rootLayout
+) { view, insets ->
+
+    val statusBarHeight =
+        insets.getInsets(
+            WindowInsetsCompat.Type.statusBars()
+        ).top
+
+    view.setPadding(
+        view.paddingLeft,
+        statusBarHeight,
+        view.paddingRight,
+        view.paddingBottom
+    )
+
+    insets
+}
+
         /*
          * =========================================================
          * VIEW REFERENCES
