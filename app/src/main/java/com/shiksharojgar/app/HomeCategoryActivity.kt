@@ -1763,7 +1763,7 @@ private fun openSubCategory(
             }
         }
     }
-
+}
             else -> {
                 Toast.makeText(
                     this,
