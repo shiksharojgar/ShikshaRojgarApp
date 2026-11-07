@@ -1293,6 +1293,54 @@ private fun updateImportantInfoUnreadCount() {
         }
 }
 
+// सभी 8 कैटेगरी की Unread पोस्ट गिनें।
+private fun updateCategoryUnreadCounts() {
+
+    val categoryIds = listOf(
+        "teacher",
+        "student",
+        "school",
+        "vacancy",
+        "result",
+        "admit_card",
+        "study_material",
+        "career_guide"
+    )
+
+    val prefs = getSharedPreferences(
+        "sr_notifications",
+        MODE_PRIVATE
+    )
+
+    val firestore = FirebaseFirestore.getInstance()
+
+    categoryIds.forEach { categoryId ->
+
+        val lastSeen = prefs.getLong(
+            "category_${categoryId}_last_seen_at",
+            0L
+        )
+
+        firestore.collection("category_posts")
+            .whereEqualTo("category", categoryId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+
+                val count = snapshot.documents.count { doc ->
+                    (doc.getBoolean("enabled") ?: true) &&
+                    (doc.getLong("createdAt") ?: 0L) > lastSeen
+                }
+
+                prefs.edit()
+                    .putInt(
+                        "${categoryId}_bottom_unread",
+                        count
+                    )
+                    .apply()
+            }
+    }
+}
+
     // ============================================================
     // LIFECYCLE
     // ============================================================
@@ -1314,6 +1362,8 @@ private fun updateImportantInfoUnreadCount() {
         }
         updateNoticeUnreadCount()
                 updateImportantInfoUnreadCount()
+updateCategoryUnreadCounts()
+                
 floatingNoticeHandler.removeCallbacks(
     floatingNoticeRunnable
 )
