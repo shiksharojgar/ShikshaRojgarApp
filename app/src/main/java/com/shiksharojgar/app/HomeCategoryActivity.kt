@@ -1407,43 +1407,81 @@ shareButton.setOnClickListener {
                 }
 
                 val imageRef = post.imageUrl
-                val pdfRef = post.fileUrl
+val pdfRef = post.fileUrl
 
-                when {
-                    imageRef.isNotBlank() -> {
+val shareOptions = when {
+    imageRef.isNotBlank() && pdfRef.isNotBlank() ->
+        arrayOf(
+            "📷 फोटो शेयर करें",
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
 
-                        ShareHelper.shareImageOrText(
-                            this@HomeCategoryActivity,
-                            post.title,
-                            shareText,
-                            imageRef,
-                            "पोस्ट शेयर करें"
-                        )
-                    }
+    pdfRef.isNotBlank() ->
+        arrayOf(
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
 
-                    pdfRef.isNotBlank() -> {
+    imageRef.isNotBlank() ->
+        arrayOf("📷 फोटो शेयर करें")
 
-                        ShareHelper.sharePdf(
-                            this@HomeCategoryActivity,
-                            post.title,
-                            shareText,
-                            pdfRef,
-                            post.fileName,
-                            post.fileMime,
-                            "PDF शेयर करें"
-                        )
-                    }
+    else ->
+        arrayOf("🔗 पोस्ट लिंक शेयर करें")
+}
 
-                    else -> {
+if (pdfRef.isNotBlank()) {
+    android.app.AlertDialog.Builder(this@HomeCategoryActivity)
+        .setTitle("शेयर करने का विकल्प चुनें")
+        .setItems(shareOptions) { _, which ->
 
-                        ShareHelper.shareImageOrText(
-                            this@HomeCategoryActivity,
-                            post.title,
-                            shareText,
-                            "",
-                            "पोस्ट शेयर करें"
-                        )
-                    }
+            when (shareOptions[which]) {
+
+                "📷 फोटो शेयर करें" -> {
+                    ShareHelper.shareImageOrText(
+                        this@HomeCategoryActivity,
+                        post.title,
+                        shareText,
+                        imageRef,
+                        "फोटो शेयर करें"
+                    )
+                }
+
+                "📄 PDF फाइल शेयर करें" -> {
+                    ShareHelper.sharePdf(
+                        this@HomeCategoryActivity,
+                        post.title,
+                        shareText,
+                        pdfRef,
+                        post.fileName,
+                        post.fileMime,
+                        "PDF शेयर करें"
+                    )
+                }
+
+                else -> {
+                    ShareHelper.shareImageOrText(
+                        this@HomeCategoryActivity,
+                        post.title,
+                        shareText,
+                        "",
+                        "PDF लिंक शेयर करें"
+                    )
+                }
+            }
+        }
+        .setNegativeButton("रद्द करें", null)
+        .show()
+
+} else {
+    ShareHelper.shareImageOrText(
+        this@HomeCategoryActivity,
+        post.title,
+        shareText,
+        imageRef,
+        "पोस्ट शेयर करें"
+    )
+}
                 }
             }
         }
