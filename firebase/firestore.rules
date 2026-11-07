@@ -59,44 +59,7 @@ function isAdmin() {
     }
 
 
-    match /app_installs/{installId} {
-      // इंस्टॉलेशन रिकॉर्ड पढ़ने के लिए लॉगिन जरूरी है।
-      allow read: if signedIn();
-
-      // पहली बार इंस्टॉलेशन ID का रिकॉर्ड बनाना।
-      allow create: if signedIn()
-        && request.resource.data.keys().hasAll([
-          "installId",
-          "uid",
-          "firstSeenAt",
-          "lastSeenAt"
-        ])
-        && request.resource.data.keys().hasOnly([
-          "installId",
-          "uid",
-          "firstSeenAt",
-          "lastSeenAt"
-        ])
-        && request.resource.data.installId == installId
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.firstSeenAt is int
-        && request.resource.data.lastSeenAt is int;
-
-      // केवल आखिरी बार खुलने का समय बदला जा सकता है।
-      // UID और पहली बार का समय नहीं बदलेगा।
-      allow update: if signedIn()
-        && resource.data.installId == installId
-        && request.resource.data.installId == installId
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.firstSeenAt
-          == resource.data.firstSeenAt
-        && request.resource.data.diff(resource.data)
-          .affectedKeys()
-          .hasOnly(["lastSeenAt"])
-        && request.resource.data.lastSeenAt is int;
-
-      allow delete: if isAdmin();
-    }
+    
 
     // =====================================================
     // APP INSTALL LOGIN ACCOUNTS
@@ -822,22 +785,49 @@ match /post_shares/{postId}/events/{eventId} {
 
 
     // =====================================================
-    // APP INSTALLS
     // =====================================================
+// APP INSTALLS
+// =====================================================
 
-    match /app_installs/{uid} {
+match /app_installs/{installId} {
 
-      allow read: if isAdmin() ||
-        (
-          signedIn() &&
-          request.auth.uid == uid
-        );
+  // सभी इंस्टॉलेशन रिकॉर्ड केवल Admin पढ़ सकता है।
+  allow read: if isAdmin();
 
-      allow create, update: if signedIn() &&
-        request.auth.uid == uid;
+  // नया इंस्टॉलेशन रिकॉर्ड केवल लॉगिन यूज़र बना सकता है।
+  allow create: if signedIn()
+    && request.resource.data.keys().hasAll([
+      "installId",
+      "uid",
+      "firstSeenAt",
+      "lastSeenAt"
+    ])
+    && request.resource.data.keys().hasOnly([
+      "installId",
+      "uid",
+      "firstSeenAt",
+      "lastSeenAt"
+    ])
+    && request.resource.data.installId == installId
+    && request.resource.data.uid == request.auth.uid
+    && request.resource.data.firstSeenAt is int
+    && request.resource.data.lastSeenAt is int;
 
-      allow delete: if false;
-    }
+  // केवल lastSeenAt बदल सकता है।
+  allow update: if signedIn()
+    && resource.data.installId == installId
+    && request.resource.data.installId == installId
+    && request.resource.data.uid == resource.data.uid
+    && request.resource.data.firstSeenAt
+      == resource.data.firstSeenAt
+    && request.resource.data.diff(resource.data)
+      .affectedKeys()
+      .hasOnly(["lastSeenAt"])
+    && request.resource.data.lastSeenAt is int;
+
+  // रिकॉर्ड डिलीट करने का अधिकार केवल Admin को।
+  allow delete: if isAdmin();
+}
 
 
     // =====================================================
