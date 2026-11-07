@@ -1129,7 +1129,10 @@ private fun addFormattingToolbar(
                 dp(52)
             )
         )
-
+send.isEnabled = false
+verify.isEnabled = false
+phone.isEnabled = false
+otp.isEnabled = false
         send.setOnClickListener {
 
             val raw =
