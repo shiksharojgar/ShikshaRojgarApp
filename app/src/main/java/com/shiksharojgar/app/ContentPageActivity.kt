@@ -518,25 +518,39 @@ private fun shareContentPage(
                 /*
                  * BODY
                  */
-                bodyBox.addView(
-                    TextView(this).apply {
+                val homeCategoryIds = setOf(
+    "teacher",
+    "student",
+    "school",
+    "vacancy",
+    "result",
+    "admit_card"
+)
 
-                        text = body.ifBlank {
-    "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
+if (
+    body.isNotBlank() ||
+    pageId !in homeCategoryIds
+) {
+    bodyBox.addView(
+        TextView(this).apply {
+
+            text = body.ifBlank {
+                "इस पेज की सामग्री अभी Admin Panel से जोड़ी नहीं गई है।"
+            }
+
+            textSize = 16f
+
+            setTextColor(
+                Color.rgb(30, 41, 59)
+            )
+
+            setLineSpacing(
+                4f,
+                1.05f
+            )
+        }
+    )
 }
-
-                        textSize = 16f
-
-                        setTextColor(
-                            Color.rgb(30, 41, 59)
-                        )
-
-                        setLineSpacing(
-                            4f,
-                            1.05f
-                        )
-                    }
-                )
                 loadCategoryPosts(pageId)
             }
             .addOnFailureListener {
