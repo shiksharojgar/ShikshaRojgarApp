@@ -899,6 +899,40 @@ root.addView(
                 -2
             )
         )
+        val pinnedMessageButton =
+    TextView(this@ChannelActivity).apply {
+
+        text = "📍📌"
+        textSize = 21f
+        gravity = Gravity.CENTER
+        setTextColor(Color.WHITE)
+        isClickable = true
+        contentDescription = "पिन की गई पोस्ट देखें"
+
+        setOnClickListener {
+
+            val pinnedIndex =
+                posts.indexOfFirst { it.pinned }
+
+            if (pinnedIndex >= 0) {
+                scrollToPost(pinnedIndex)
+            } else {
+                Toast.makeText(
+                    this@ChannelActivity,
+                    "अभी कोई पोस्ट पिन नहीं है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+addView(
+    pinnedMessageButton,
+    LinearLayout.LayoutParams(
+        dp(42),
+        dp(48)
+    )
+)
     }
 
 root.addView(
