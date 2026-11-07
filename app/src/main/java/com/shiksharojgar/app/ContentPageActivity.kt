@@ -1560,17 +1560,15 @@ shareButton.setOnClickListener {
     if (fileUrl.isNotBlank()) {
 
         val options = if (imageUrl.isNotBlank()) {
-            arrayOf(
-                "📷 फोटो शेयर करें",
-                "📄 PDF फाइल शेयर करें",
-                "🔗 PDF पोस्ट लिंक शेयर करें"
-            )
-        } else {
-            arrayOf(
-                "📄 PDF फाइल शेयर करें",
-                "🔗 PDF पोस्ट लिंक शेयर करें"
-            )
-        }
+    arrayOf(
+        "📷 फोटो शेयर करें",
+        "📄 PDF और पोस्ट संदेश शेयर करें"
+    )
+} else {
+    arrayOf(
+        "📄 PDF और पोस्ट संदेश शेयर करें"
+    )
+}
 
         android.app.AlertDialog.Builder(this@ContentPageActivity)
             .setTitle("शेयर करने का विकल्प चुनें")
