@@ -1886,6 +1886,35 @@ if (
                 elevation = 3f
             }
 
+                    // 📌 PINNED MESSAGE LABEL
+        if (p.pinned) {
+            box.addView(
+                TextView(this).apply {
+                    text = "📌 PINNED MESSAGE"
+                    textSize = 13f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(Color.rgb(183, 28, 28))
+                    setPadding(
+                        dp(10),
+                        dp(7),
+                        dp(10),
+                        dp(7)
+                    )
+                    background =
+                        android.graphics.drawable.GradientDrawable().apply {
+                            setColor(Color.rgb(255, 235, 238))
+                            cornerRadius = dp(8).toFloat()
+                        }
+                },
+                LinearLayout.LayoutParams(
+                    -1,
+                    -2
+                ).apply {
+                    bottomMargin = dp(8)
+                }
+            )
+        }
+        
         /*
          * CATEGORY + DATE
          */
