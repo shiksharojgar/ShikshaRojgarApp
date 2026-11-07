@@ -2087,10 +2087,11 @@ root.addView(content, params)
     // LIGHT CATEGORY CARD
     // ============================================================
 
-    private fun learningCard(
+private fun learningCard(
     label: String,
     emoji: String,
     colors: Pair<String, String>,
+    categoryId: String,
     action: () -> Unit
 ): View {
 
@@ -2180,6 +2181,10 @@ root.addView(content, params)
             -1
         )
     )
+    if (categoryId in setOf("study_material", "career_guide")) {
+    addCategoryUnreadBadge(frame, categoryId)
+    }
+    
 if (
     label.equals(
         "Notice/Update",
@@ -3191,6 +3196,7 @@ HomeCategory(
                 category.name,
                 category.icon,
                 colors
+                category.id
             ) {
                 openHomeCategory(
                     category
