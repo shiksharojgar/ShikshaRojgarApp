@@ -1421,14 +1421,12 @@ val shareOptions = when {
     imageRef.isNotBlank() && pdfRef.isNotBlank() ->
         arrayOf(
             "📷 फोटो शेयर करें",
-            "📄 PDF फाइल शेयर करें",
-            "🔗 PDF पोस्ट लिंक शेयर करें"
+            "📄 PDF और पोस्ट संदेश शेयर करें"
         )
 
     pdfRef.isNotBlank() ->
         arrayOf(
-            "📄 PDF फाइल शेयर करें",
-            "🔗 PDF पोस्ट लिंक शेयर करें"
+            "📄 PDF और पोस्ट संदेश शेयर करें"
         )
 
     imageRef.isNotBlank() ->
