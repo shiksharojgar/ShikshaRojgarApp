@@ -179,22 +179,38 @@ root.addView(
             )
         )
 if (activeSection == "IMP_INFO") {
-    val pinnedButton = TextView(this).apply {
-        text = "📍📌"
-        textSize = 21f
+    val pinnedButton = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
-        setTextColor(Color.rgb(7, 89, 133))
+        isClickable = true
+        isFocusable = true
         contentDescription = "पिन की गई पोस्ट देखें"
+        translationY = dp(6).toFloat()
+
+        val pinIcon = TextView(this@ContentPageActivity).apply {
+            text = "📍📌"
+            textSize = 20f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(7, 89, 133))
+        }
+
+        val pinLabel = TextView(this@ContentPageActivity).apply {
+            text = "पिन की गई पोस्ट देखें"
+            textSize = 8f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(7, 89, 133))
+            includeFontPadding = false
+        }
+
+        addView(pinIcon)
+        addView(pinLabel)
 
         setOnClickListener {
             val pinnedCard = pinnedPostCard
 
             if (pinnedCard != null) {
                 contentScroll.post {
-                    contentScroll.smoothScrollTo(
-                        0,
-                        pinnedCard.top
-                    )
+                    contentScroll.smoothScrollTo(0, pinnedCard.top)
                 }
             } else {
                 Toast.makeText(
@@ -204,6 +220,16 @@ if (activeSection == "IMP_INFO") {
                 ).show()
             }
         }
+    }
+
+    titleStrip.addView(
+        pinnedButton,
+        LinearLayout.LayoutParams(
+            dp(90),
+            dp(48)
+        )
+    )
+}
     }
 
     titleStrip.addView(
