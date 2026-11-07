@@ -905,7 +905,29 @@ card.addView(
         bottomMargin = dp(8)
     }
 )
-                card.addView(
+    // 📌 PINNED MESSAGE LABEL
+if (doc.getBoolean("pinned") == true) {
+    card.addView(
+        TextView(this@NoticeActivity).apply {
+            text = "📌 PINNED MESSAGE"
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(183, 28, 28))
+            setPadding(dp(10), dp(7), dp(10), dp(7))
+
+            background =
+                android.graphics.drawable.GradientDrawable().apply {
+                    setColor(Color.rgb(255, 235, 238))
+                    cornerRadius = dp(8).toFloat()
+                }
+        },
+        LinearLayout.LayoutParams(-1, -2).apply {
+            bottomMargin = dp(8)
+        }
+    )
+}
+                         
+                         card.addView(
                     TextView(this).apply {
                         text = title
                         textSize = 20f
