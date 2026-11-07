@@ -1668,16 +1668,18 @@ private fun openSubCategory(
         return
     }
 
-    Toast.makeText(
-        this,
-        "PDF खुल रही है...",
-        Toast.LENGTH_SHORT
-    ).show()
+        val loadingDialog =
+        CommonPageUi.showFileLoadingDialog(
+            this,
+            "📄 PDF खुल रही है..."
+        )
 
     ChannelRepository.loadPdfFile(
         this,
         pdfUrl
     ) { pdfFile, error ->
+
+        loadingDialog.dismiss()
 
         if (pdfFile == null) {
             Toast.makeText(
@@ -1687,18 +1689,25 @@ private fun openSubCategory(
             ).show()
 
         } else {
-            startActivity(
-                Intent(
-                    this,
-                    PdfViewerActivity::class.java
-                ).putExtra(
-                    "pdfFilePath",
-                    pdfFile.absolutePath
+            try {
+                startActivity(
+                    Intent(
+                        this,
+                        PdfViewerActivity::class.java
+                    ).putExtra(
+                        "pdfFilePath",
+                        pdfFile.absolutePath
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this,
+                    "PDF Viewer नहीं खुल सका: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
-}
 
             else -> {
                 Toast.makeText(
