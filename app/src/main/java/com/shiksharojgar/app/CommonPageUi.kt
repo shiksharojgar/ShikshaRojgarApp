@@ -1716,8 +1716,8 @@ if (count <= 0) {
         box.addView(
             badge,
             FrameLayout.LayoutParams(
-    dp(context, 32),
-    dp(context, 32)
+    dp(context, 24),
+    dp(context, 24)
 ).apply {
     gravity = Gravity.TOP or Gravity.END
     rightMargin = dp(context, 1)
