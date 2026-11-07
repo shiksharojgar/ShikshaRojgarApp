@@ -1357,21 +1357,79 @@ append(doc.id)
             this@apply.text =
     "Share ↗️ $displayedShareCount"
 
-            try {
-                ShareHelper.shareImageOrText(
-                    this@NoticeActivity,
-                    "Shiksha Rojgar Notice / Update",
-                    categoryNoticeShareText,
-                    imageUrl,
-                    "Share Notice / Update"
-                )
-            } catch (_: Exception) {
-                Toast.makeText(
-                    this@NoticeActivity,
-                    "Notice शेयर नहीं हो सका।",
-                    Toast.LENGTH_SHORT
-                ).show()
+            val pdfRef = doc.getString("fileUrl").orEmpty()
+val pdfName = doc.getString("fileName").orEmpty()
+
+val cleanShareText =
+    categoryNoticeShareText.substringBefore("\n\n📄 ")
+
+if (pdfRef.isNotBlank()) {
+
+    val options = if (imageUrl.isNotBlank()) {
+        arrayOf(
+            "📷 फोटो शेयर करें",
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
+    } else {
+        arrayOf(
+            "📄 PDF फाइल शेयर करें",
+            "🔗 PDF पोस्ट लिंक शेयर करें"
+        )
+    }
+
+    android.app.AlertDialog.Builder(this@NoticeActivity)
+        .setTitle("शेयर करने का विकल्प चुनें")
+        .setItems(options) { _, which ->
+
+            when (options[which]) {
+
+                "📷 फोटो शेयर करें" -> {
+                    ShareHelper.shareImageOrText(
+                        this@NoticeActivity,
+                        title,
+                        cleanShareText,
+                        imageUrl,
+                        "फोटो शेयर करें"
+                    )
+                }
+
+                "📄 PDF फाइल शेयर करें" -> {
+                    ShareHelper.sharePdf(
+                        this@NoticeActivity,
+                        title,
+                        cleanShareText,
+                        pdfRef,
+                        pdfName,
+                        "application/pdf",
+                        "PDF शेयर करें"
+                    )
+                }
+
+                else -> {
+                    ShareHelper.shareImageOrText(
+                        this@NoticeActivity,
+                        title,
+                        cleanShareText,
+                        "",
+                        "PDF लिंक शेयर करें"
+                    )
+                }
             }
+        }
+        .setNegativeButton("रद्द करें", null)
+        .show()
+
+} else {
+
+    ShareHelper.shareImageOrText(
+        this@NoticeActivity,
+        "Shiksha Rojgar Notice / Update",
+        categoryNoticeShareText,
+        imageUrl,
+        "Share Notice / Update"
+    )
+}
         }
     }
 
