@@ -1325,6 +1325,7 @@ otp.isEnabled = false
 
                 text =
                     "ℹ️ Firebase Phone Login Setup"
+                isEnabled = false
 
                 minHeight =
                     dp(50)
