@@ -1371,9 +1371,7 @@ shareButton.setOnClickListener {
 
         append("\n\n*${post.title}*")
 
-        val description = post.description.ifBlank {
-            post.body
-        }
+        
 
         if (description.isNotBlank()) {
             append("\n\n")
