@@ -1333,6 +1333,21 @@ val shareButton = TextView(this).apply {
     setPadding(dp(12), dp(8), dp(12), dp(8))
 }
 
+actionRow.addView(
+    likeButton,
+    LinearLayout.LayoutParams(0, dp(46), 1f).apply {
+        rightMargin = dp(6)
+    }
+)
+
+actionRow.addView(
+    shareButton,
+    LinearLayout.LayoutParams(0, dp(46), 1f).apply {
+        leftMargin = dp(6)
+    }
+)
+
+card.addView(actionRow)
 
 // पहले से Like की स्थिति जाँचें।
 likeButton.isEnabled = false
