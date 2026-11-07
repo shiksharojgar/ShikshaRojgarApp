@@ -230,7 +230,7 @@ if (activeSection == "IMP_INFO") {
         )
     )
 }
-    }
+    
 
     
         root.addView(
