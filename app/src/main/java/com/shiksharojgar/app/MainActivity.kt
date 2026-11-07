@@ -1974,114 +1974,82 @@ root.addView(content, params)
     // ============================================================
 
     private fun quickCard(
-        label: String,
-        emoji: String,
-        colors: Pair<String, String>,
-        action: () -> Unit
-    ): LinearLayout =
-        LinearLayout(this).apply {
+    label: String,
+    emoji: String,
+    colors: Pair<String, String>,
+    categoryId: String,
+    action: () -> Unit
+): android.widget.FrameLayout {
 
-            orientation =
-                LinearLayout.VERTICAL
+    val frame = android.widget.FrameLayout(this)
 
-            gravity =
-                Gravity.CENTER
+    val card = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER
 
-            background =
-                roundedGradient(
-                    colors.first,
-                    colors.second
-                )
+        background = roundedGradient(
+            colors.first,
+            colors.second
+        )
 
-            elevation = 5f
+        elevation = 5f
+        isClickable = true
+        isFocusable = true
 
-            isClickable = true
-            isFocusable = true
+        setPadding(4, 7, 4, 7)
 
-            setPadding(
-                4,
-                7,
-                4,
-                7
-            )
-
-            val icon =
-                TextView(
-                    this@MainActivity
-                ).apply {
-
-                    text = emoji
-
-                    textSize = 32f
-
-                    gravity =
-                        Gravity.CENTER
-
-                    setTextColor(
-                        Color.WHITE
-                    )
-                }
-
-            addView(
-                icon,
-                LinearLayout.LayoutParams(
-                    -1,
-                    90
-                )
-            )
-
-            val title =
-                TextView(
-                    this@MainActivity
-                ).apply {
-
-                    text = label
-
-                    textSize = 12.5f
-
-                    gravity =
-                        Gravity.CENTER
-
-                    setTextColor(
-                        Color.WHITE
-                    )
-
-                    typeface =
-                        android.graphics.Typeface.DEFAULT_BOLD
-                }
-
-            addView(
-                title,
-                LinearLayout.LayoutParams(
-                    -1,
-                    60
-                )
-            )
-
-            setOnClickListener {
-                action()
-            }
-
-            layoutParams =
-                GridLayout.LayoutParams().apply {
-
-                    width = 0
-                    height = 176
-
-                    columnSpec =
-                        GridLayout.spec(
-                            GridLayout.UNDEFINED,
-                            1f
-                        )
-
-                    setMargins(
-                        2,
-                        3,
-                        2,
-                        3
-                    )
-                }
+        val icon = TextView(this@MainActivity).apply {
+            text = emoji
+            textSize = 32f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
         }
+
+        addView(icon, LinearLayout.LayoutParams(-1, 90))
+
+        val title = TextView(this@MainActivity).apply {
+            text = label
+            textSize = 12.5f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+        }
+
+        addView(title, LinearLayout.LayoutParams(-1, 60))
+
+        setOnClickListener {
+            action()
+        }
+    }
+
+    frame.addView(
+        card,
+        android.widget.FrameLayout.LayoutParams(-1, -1)
+    )
+
+    frame.layoutParams = GridLayout.LayoutParams().apply {
+        width = 0
+        height = 176
+        columnSpec = GridLayout.spec(
+            GridLayout.UNDEFINED,
+            1f
+        )
+        setMargins(2, 3, 2, 3)
+    }
+
+    if (categoryId in setOf(
+        "teacher",
+        "student",
+        "school",
+        "vacancy",
+        "result",
+        "admit_card"
+    )) {
+        addCategoryUnreadBadge(frame, categoryId)
+    }
+
+    return frame
+}
 
     // ============================================================
     // LIGHT CATEGORY CARD
@@ -3159,6 +3127,7 @@ HomeCategory(
                         category.name,
                         category.icon,
                         colors
+                        category.id
                     ) {
                         openHomeCategory(
                             category
