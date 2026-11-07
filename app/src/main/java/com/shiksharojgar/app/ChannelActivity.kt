@@ -2403,26 +2403,45 @@ notificationTargetPostId?.let { targetId ->
 
                     setOnClickListener {
 
-                        ChannelRepository.openMedia(
-                            this@ChannelActivity,
-                            p.fileUrl,
-                            p.fileMime,
-                            p.fileName.ifBlank {
-                                "document.pdf"
-                            }
-                        ) { ok, err ->
+    isEnabled = false
+    text = "⏳ PDF खुल रही है..."
 
-                            if (!ok) {
+    ChannelRepository.loadPdfFile(
+        this@ChannelActivity,
+        p.fileUrl
+    ) { pdfFile, error ->
 
-                                Toast.makeText(
-                                    this@ChannelActivity,
-                                    err
-                                        ?: "PDF नहीं खुली",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
+        isEnabled = true
+        text = "📄 ${
+            p.fileName.ifBlank {
+                "PDF/Document"
+            }
+        }  •  OPEN"
+
+        if (pdfFile != null) {
+
+            startActivity(
+                Intent(
+                    this@ChannelActivity,
+                    PdfViewerActivity::class.java
+                ).putExtra(
+                    "pdfFilePath",
+                    pdfFile.absolutePath
+                )
+            )
+
+        } else {
+
+            Toast.makeText(
+                this@ChannelActivity,
+                "PDF नहीं खुल सकी: ${
+                    error ?: "अज्ञात त्रुटि"
+                }",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+}
                 }
             )
         }
