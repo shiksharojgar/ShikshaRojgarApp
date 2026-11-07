@@ -1104,40 +1104,51 @@ if (fileUrl.isNotBlank()) {
         styleCategoryButton(this, "#6A1B9A")
 
         setOnClickListener {
-            isEnabled = false
-            text = "⏳ PDF खुल रही है..."
+    isEnabled = false
 
-            ChannelRepository.loadPdfFile(
-                this@ContentPageActivity,
-                fileUrl
-            ) { pdfFile, error ->
+    val loadingDialog =
+        CommonPageUi.showFileLoadingDialog(
+            this@ContentPageActivity,
+            "📄 PDF खुल रही है..."
+        )
 
-                isEnabled = true
-                text = "📄 " + fileName.ifBlank {
-                    "PDF / अध्ययन सामग्री खोलें"
-                }
+    ChannelRepository.loadPdfFile(
+        this@ContentPageActivity,
+        fileUrl
+    ) { pdfFile, error ->
 
-                if (pdfFile != null) {
-                    startActivity(
-                        Intent(
-                            this@ContentPageActivity,
-                            PdfViewerActivity::class.java
-                        ).putExtra(
-                            "pdfFilePath",
-                            pdfFile.absolutePath
-                        )
-                    )
-                } else {
-                    Toast.makeText(
+        loadingDialog.dismiss()
+        isEnabled = true
+
+        if (pdfFile != null) {
+            try {
+                startActivity(
+                    Intent(
                         this@ContentPageActivity,
-                        "PDF नहीं खुल सकी: ${
-                            error ?: "अज्ञात त्रुटि"
-                        }",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                        PdfViewerActivity::class.java
+                    ).putExtra(
+                        "pdfFilePath",
+                        pdfFile.absolutePath
+                    )
+                )
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@ContentPageActivity,
+                    "PDF Viewer नहीं खुल सका: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
+        } else {
+            Toast.makeText(
+                this@ContentPageActivity,
+                "PDF नहीं खुल सकी: ${
+                    error ?: "अज्ञात त्रुटि"
+                }",
+                Toast.LENGTH_LONG
+            ).show()
         }
+    }
+}
     }
 
     card.addView(pdfButton)
