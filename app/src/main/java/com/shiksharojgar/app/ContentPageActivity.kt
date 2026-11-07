@@ -19,6 +19,7 @@ class ContentPageActivity : AppCompatActivity() {
 
     private lateinit var bodyBox: LinearLayout
     private lateinit var contentScroll: ScrollView
+    private var pinnedPostCard: View? = null
     private lateinit var titleView: TextView
     
     
@@ -177,7 +178,42 @@ root.addView(
                 1f
             )
         )
+if (activeSection == "IMP_INFO") {
+    val pinnedButton = TextView(this).apply {
+        text = "📍📌"
+        textSize = 21f
+        gravity = Gravity.CENTER
+        setTextColor(Color.rgb(7, 89, 133))
+        contentDescription = "पिन की गई पोस्ट देखें"
 
+        setOnClickListener {
+            val pinnedCard = pinnedPostCard
+
+            if (pinnedCard != null) {
+                contentScroll.post {
+                    contentScroll.smoothScrollTo(
+                        0,
+                        pinnedCard.top
+                    )
+                }
+            } else {
+                Toast.makeText(
+                    this@ContentPageActivity,
+                    "अभी कोई पोस्ट पिन नहीं है।",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    titleStrip.addView(
+        pinnedButton,
+        LinearLayout.LayoutParams(
+            dp(48),
+            dp(48)
+        )
+    )
+}
         root.addView(
             titleStrip,
             LinearLayout.LayoutParams(
